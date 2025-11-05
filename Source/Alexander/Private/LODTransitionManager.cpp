@@ -2,6 +2,8 @@
 
 #include "LODTransitionManager.h"
 #include "DrawDebugHelpers.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 ULODTransitionManager::ULODTransitionManager()
 {

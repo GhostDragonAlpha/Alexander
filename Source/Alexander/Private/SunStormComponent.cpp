@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SunStormComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Components/PointLightComponent.h"
 #include "NiagaraComponent.h"
 

@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Planetary/PlanetaryResourcesComponent.h"
+#include "PlanetaryResourcesComponent.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -999,17 +999,17 @@ bool UPlanetaryResourcesComponent::IsValidResourceType(EResourceType ResourceTyp
 
 float UPlanetaryResourcesComponent::CalculateMiningEfficiency(const FMiningOperation& Operation) const
 {
-    FResourceDeposit* Deposit = FindDepositByID(Operation.TargetDepositID);
+    const FResourceDeposit* Deposit = FindDepositByID(Operation.TargetDepositID);
     if (!Deposit) return 0.5f;
-    
+
     float Efficiency = 1.0f;
-    
+
     // Apply difficulty modifier
     Efficiency /= Deposit->Difficulty;
-    
+
     // Apply richness modifier
     Efficiency *= FMath::Clamp(Deposit->Richness, 0.5f, 2.0f);
-    
+
     return FMath::Clamp(Efficiency, 0.1f, 2.0f);
 }
 
@@ -1058,6 +1058,18 @@ float UPlanetaryResourcesComponent::CalculateTradeValue(const FResourceTrade& Tr
 FResourceDeposit* UPlanetaryResourcesComponent::FindDepositByID(int32 DepositID)
 {
     for (FResourceDeposit& Deposit : ResourceDeposits)
+    {
+        if (Deposit.ResourceType != EResourceType::None) // Use ResourceType as ID placeholder
+        {
+            return &Deposit;
+        }
+    }
+    return nullptr;
+}
+
+const FResourceDeposit* UPlanetaryResourcesComponent::FindDepositByID(int32 DepositID) const
+{
+    for (const FResourceDeposit& Deposit : ResourceDeposits)
     {
         if (Deposit.ResourceType != EResourceType::None) // Use ResourceType as ID placeholder
         {
@@ -1132,32 +1144,7 @@ void UPlanetaryResourcesComponent::SetupResourceTimers()
         true
     );
     
-    // Set up mining update timer
-    World->GetTimerManager().SetTimer(
-        MiningUpdateTimer,
-        this,
-        &UPlanetaryResourcesComponent::UpdateMiningOperations,
-        MiningUpdateInterval,
-        true
-    );
-    
-    // Set up processing update timer
-    World->GetTimerManager().SetTimer(
-        ProcessingUpdateTimer,
-        this,
-        &UPlanetaryResourcesComponent::UpdateProcessingOperations,
-        ProcessingUpdateInterval,
-        true
-    );
-    
-    // Set up trade update timer
-    World->GetTimerManager().SetTimer(
-        TradeUpdateTimer,
-        this,
-        &UPlanetaryResourcesComponent::UpdateTrades,
-        TradeUpdateInterval,
-        true
-    );
+    // Mining, processing, and trade updates are handled in TickComponent instead of timers
 }
 
 void UPlanetaryResourcesComponent::PerformResourceScan()

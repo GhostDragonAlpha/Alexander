@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AtmosphereLookupTable.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/Texture2D.h"
 
 UAtmosphereLookupTable::UAtmosphereLookupTable()

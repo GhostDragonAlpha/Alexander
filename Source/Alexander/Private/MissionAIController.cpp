@@ -1,15 +1,18 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "MissionAIController.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "SurfacePlayerCharacter.h"
 #include "Spaceship.h"
 #include "LandingGuidanceSystem.h"
 #include "ShipEntryComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
 #include "NavigationSystem.h"
 #include "AIController.h"
 #include "Engine/World.h"
+#include "Engine/Engine.h"
 #include "TimerManager.h"
 #include "DrawDebugHelpers.h"
 

@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 using UnrealBuildTool;
+using System.IO;
 
 public class Alexander : ModuleRules
 {
@@ -13,8 +14,11 @@ public class Alexander : ModuleRules
 			   "HTTP", "Json", "JsonUtilities", "RHI", "RenderCore",
 			   "Slate", "SlateCore", "UMG", "ToolMenus", "ProceduralMeshComponent",
 			   "GameplayTags", "GameplayTasks", "AIModule", "NavigationSystem", 
-			   "AudioMixer", "DeveloperSettings"
+			   "AudioMixer", "DeveloperSettings", "EnhancedInput", "HeadMountedDisplay", "CinematicCamera"
 		   });
+
+		// Add public include paths
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Planetary"));
 
 
 

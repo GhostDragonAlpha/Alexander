@@ -1,4 +1,5 @@
 #include "TutorialOnboardingSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Pawn.h"
@@ -8,6 +9,7 @@
 #include "Components/BoxComponent.h"
 #include "Blueprint/UserWidget.h"
 #include "Animation/WidgetAnimation.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Sound/SoundBase.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,6 +19,9 @@
 #include "TimerManager.h"
 #include "HAL/IConsoleManager.h"
 #include "DrawDebugHelpers.h"
+#include "Camera/CameraComponent.h"             // For UCameraComponent
+#include "Components/InputComponent.h"          // For UInputComponent
+#include "GameFramework/PlayerInput.h"          // For player input handling
 
 UTutorialOnboardingSystem::UTutorialOnboardingSystem()
 {

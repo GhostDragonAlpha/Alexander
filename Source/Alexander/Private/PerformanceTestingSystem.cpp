@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PerformanceTestingSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
@@ -13,6 +14,7 @@
 #include "JsonObjectConverter.h"
 #include "IXRTrackingSystem.h"
 #include "IHeadMountedDisplay.h"
+#include "Misc/App.h"  // For FApp::GetDeltaTime()
 
 void UPerformanceTestingSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
@@ -367,7 +369,8 @@ float UPerformanceTestingSystem::MeasureFrameRate() const
 
 float UPerformanceTestingSystem::MeasureFrameTime() const
 {
-	return FPlatformTime::ToMilliseconds(GFrameTime);
+	// Convert FApp::GetDeltaTime() from seconds to milliseconds
+	return FApp::GetDeltaTime() * 1000.0f;
 }
 
 float UPerformanceTestingSystem::MeasureGameThreadTime() const
@@ -382,7 +385,9 @@ float UPerformanceTestingSystem::MeasureRenderThreadTime() const
 
 float UPerformanceTestingSystem::MeasureGPUTime() const
 {
-	return FPlatformTime::ToMilliseconds(GGPUFrameTime);
+	// Use RHIGetGPUFrameCycles() and convert to milliseconds
+	uint32 GPUCycles = RHIGetGPUFrameCycles();
+	return FPlatformTime::ToMilliseconds(GPUCycles);
 }
 
 int32 UPerformanceTestingSystem::MeasureDrawCalls() const

@@ -1,10 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NetworkManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/Controller.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Engine.h"
+#include "Net/UnrealNetwork.h"  // For replication and network functionality
+#include "ServerNode.h"
+#include "ReplicationManager.h"
+#include "NetworkPhysics.h"
 
 ANetworkManager::ANetworkManager()
 {
@@ -158,7 +164,7 @@ void ANetworkManager::StopServer()
 	{
 		if (PlayerPair.Value)
 		{
-			PlayerPair.Value->ClientWasKicked();
+			PlayerPair.Value->ClientWasKicked(FText::FromString(TEXT("Server is shutting down")));
 		}
 	}
 	

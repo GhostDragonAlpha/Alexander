@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FactionTerritorySystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 
 UFactionTerritorySystem::UFactionTerritorySystem()
@@ -339,9 +340,9 @@ if (!FactionRelations.Contains(Faction1ID))
 
 EFactionAllegiance UFactionTerritorySystem::GetFactionRelation(const FString& Faction1ID, const FString& Faction2ID) const
 {
-    if (const TMap<FString, EFactionAllegiance>* Relations = FactionRelations.Find(Faction1ID))
+    if (const FFactionRelations* Relations = FactionRelations.Find(Faction1ID))
     {
-        if (const EFactionAllegiance* Relation = Relations->Find(Faction2ID))
+        if (const EFactionAllegiance* Relation = Relations->Relations.Find(Faction2ID))
         {
             return *Relation;
         }

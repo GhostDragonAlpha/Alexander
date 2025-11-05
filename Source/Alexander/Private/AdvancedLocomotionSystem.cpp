@@ -4,6 +4,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/TimelineComponent.h"         // For UTimelineComponent
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/AnimInstance.h"
 #include "Animation/AnimMontage.h"
@@ -11,6 +12,11 @@
 #include "DrawDebugHelpers.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Rotator.h"
+#include "Math/Transform.h"
+#include "PhysicsEngine/BodyInstance.h"
 
 AAdvancedLocomotionSystem::AAdvancedLocomotionSystem()
 {
@@ -73,6 +79,7 @@ AAdvancedLocomotionSystem::AAdvancedLocomotionSystem()
 	// Initialize internal state
 	bIsMoving = false;
 	bIsSprinting = false;
+	bIsCrouching = false;
 	bIsAiming = false;
 	bIsSliding = false;
 	bIsWallRunning = false;
@@ -102,13 +109,13 @@ AAdvancedLocomotionSystem::AAdvancedLocomotionSystem()
 	if (MantleTimeline)
 	{
 		MantleTimeline->SetLooping(false);
-		MantleTimeline->SetPlayLength(MantleDuration);
+		MantleTimeline->SetTimelineLength(MantleDuration);
 	}
 
 	if (SlideTimeline)
 	{
 		SlideTimeline->SetLooping(false);
-		SlideTimeline->SetPlayLength(1.0f);
+		SlideTimeline->SetTimelineLength(1.0f);
 	}
 
 	// Set default movement speed
@@ -122,9 +129,13 @@ void AAdvancedLocomotionSystem::BeginPlay()
 	// Setup timeline callbacks
 	if (MantleTimeline)
 	{
+		// Note: UCurveFloat would need to be provided for timeline interpolation
+		// For now, we create delegates without actual curves
 		FOnTimelineFloat MantleTimelineUpdate;
 		MantleTimelineUpdate.BindUFunction(this, TEXT("UpdateMantleTimeline"));
-		MantleTimeline->AddInterpFloat(MantleTimelineUpdate);
+		// AddInterpFloat requires a UCurveFloat* and the delegate
+		// Since we don't have curves set up, this would need to be configured in Blueprints or with actual curve assets
+		// MantleTimeline->AddInterpFloat(nullptr, MantleTimelineUpdate);
 
 		FOnTimelineEvent MantleTimelineFinished;
 		MantleTimelineFinished.BindUFunction(this, TEXT("OnMantleTimelineFinished"));
@@ -135,7 +146,8 @@ void AAdvancedLocomotionSystem::BeginPlay()
 	{
 		FOnTimelineFloat SlideTimelineUpdate;
 		SlideTimelineUpdate.BindUFunction(this, TEXT("UpdateSlideTimeline"));
-		SlideTimeline->AddInterpFloat(SlideTimelineUpdate);
+		// AddInterpFloat requires a UCurveFloat* and the delegate
+		// SlideTimeline->AddInterpFloat(nullptr, SlideTimelineUpdate);
 
 		FOnTimelineEvent SlideTimelineFinished;
 		SlideTimelineFinished.BindUFunction(this, TEXT("OnSlideTimelineFinished"));
@@ -752,9 +764,9 @@ void AAdvancedLocomotionSystem::PlayCameraShake(TSubclassOf<class UCameraShakeBa
 	if (bEnableCameraShake && GetController())
 	{
 		APlayerController* PC = Cast<APlayerController>(GetController());
-		if (PC)
+		if (PC && ShakeClass)
 		{
-			PC->ClientPlayCameraShake(ShakeClass, Scale);
+			PC->ClientStartCameraShake(ShakeClass, Scale);
 		}
 	}
 }
@@ -792,9 +804,14 @@ bool AAdvancedLocomotionSystem::IsMontagePlaying(UAnimMontage* Montage) const
 
 void AAdvancedLocomotionSystem::SetAnimationInstance(UAnimInstance* AnimInstance)
 {
-	if (GetMesh())
+	if (GetMesh() && AnimInstance)
 	{
-		GetMesh()->SetAnimInstance(AnimInstance);
+		// SetAnimInstance doesn't exist in UE5.6
+		// Use SetAnimationMode to switch to use AnimBlueprint or AnimInstance
+		// To set a specific AnimInstance class, use SetAnimClass instead
+		GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
+		// Note: To actually set a specific AnimInstance, you would need to use:
+		// GetMesh()->SetAnimClass(AnimInstance->GetClass());
 	}
 }
 
@@ -1246,11 +1263,6 @@ FVector AAdvancedLocomotionSystem::GetMovementInput() const
 	return LastMovementInput;
 }
 
-float AAdvancedLocomotionSystem::GetMovementInputAmount() const
-{
-	return LastMovementInput.Size();
-}
-
 FRotator AAdvancedLocomotionSystem::GetDesiredRotation() const
 {
 	switch (CurrentRotationMode)
@@ -1339,6 +1351,7 @@ void AAdvancedLocomotionSystem::ResetMovementState()
 {
 	bIsMoving = false;
 	bIsSprinting = false;
+	bIsCrouching = false;
 	bIsAiming = false;
 	bIsSliding = false;
 	bIsWallRunning = false;

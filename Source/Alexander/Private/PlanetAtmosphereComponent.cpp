@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PlanetAtmosphereComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Components/SkyAtmosphereComponent.h"
 #include "AtmosphereLookupTable.h"
 
@@ -308,11 +309,9 @@ FLinearColor UPlanetAtmosphereComponent::CalculateAtmosphericColorRayMarched(FVe
 		
 		// Calculate optical depth to sun (simplified)
 		float SunOpticalDepth = CalculateOpticalDepth(
-			SamplePos, 
-			SunDirection, 
+			SamplePos,
+			SunDirection,
 			AtmosphereRadius - (SamplePos - PlanetCenter).Size(),
-			PlanetCenter, 
-			PlanetRadius, 
 			AtmosphereSettings.RayleighScaleHeight);
 		
 		// Calculate attenuation
@@ -369,19 +368,19 @@ void UPlanetAtmosphereComponent::SyncWithSkyAtmosphere()
 		RayleighScattering.R,
 		RayleighScattering.G,
 		RayleighScattering.B);
-	SkyAtmosphereComponent->RayleighScaleHeight = AtmosphereSettings.RayleighScaleHeight;
-	
+	// Note: RayleighScaleHeight property removed in UE5.6 - now handled internally by Sky Atmosphere
+
 	// Mie scattering
 	FLinearColor MieScattering = AtmosphereSettings.MieScatteringCoefficient * 100.0f;
 	SkyAtmosphereComponent->MieScattering = FLinearColor(
 		MieScattering.R,
 		MieScattering.G,
 		MieScattering.B);
-	SkyAtmosphereComponent->MieScaleHeight = AtmosphereSettings.MieScaleHeight;
+	// Note: MieScaleHeight property removed in UE5.6 - now handled internally by Sky Atmosphere
 	SkyAtmosphereComponent->MieAnisotropy = AtmosphereSettings.MieAnisotropy;
 	
-	// Ground albedo
-	SkyAtmosphereComponent->GroundAlbedo = AtmosphereSettings.GroundAlbedo;
+	// Ground albedo (UE5.6 changed GroundAlbedo from FLinearColor to FColor)
+	SkyAtmosphereComponent->GroundAlbedo = AtmosphereSettings.GroundAlbedo.ToFColor(true);
 	
 	// Mark for update
 	SkyAtmosphereComponent->MarkRenderStateDirty();

@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FarmingOptimizationSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "FarmPlot.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"

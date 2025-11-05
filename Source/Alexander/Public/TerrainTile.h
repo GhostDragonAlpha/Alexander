@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions in inline code
 #include "ProceduralMeshComponent.h"
 #include "TerrainTile.generated.h"
 

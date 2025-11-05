@@ -1,4 +1,6 @@
 #include "SurfaceExplorationComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
+#include "GameFramework/PlayerState.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"

@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "OrbitalBody.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
+#include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "DrawDebugHelpers.h"
@@ -10,6 +12,7 @@
 #include "PhysicsEngine/PhysicsAsset.h"
 #include "PhysicsEngine/BodySetup.h"
 #include "UObject/ConstructorHelpers.h"
+#include "Net/UnrealNetwork.h"  // For replication macros, bReplicates, bReplicateMovement
 
 // Conversion factors
 static const double KM_TO_CM = 100000.0;  // 1 km = 100,000 cm
@@ -21,7 +24,6 @@ AOrbitalBody::AOrbitalBody()
     PrimaryActorTick.bCanEverTick = true;
     PrimaryActorTick.TickGroup = TG_PrePhysics;
     bReplicates = true;
-    bReplicateMovement = true;
     bNetLoadOnClient = true;
     bNetUseOwnerRelevancy = true;
     bRelevantForNetworkReplays = true;
@@ -212,7 +214,8 @@ void AOrbitalBody::UpdateOrbitalPosition(float DeltaTime)
     TimeSincePeriapsis += DeltaTime * TimeWarpFactor;
     
     // Calculate mean anomaly
-    double MeanAnomaly = (2.0 * PI * TimeSincePeriapsis) / Elements.OrbitalPeriod;
+    double CurrentOrbitalPeriod = UOrbitalMechanics::CalculateOrbitalPeriod(Elements.SemiMajorAxis, Elements.StandardGravitationalParameter);
+    double MeanAnomaly = (2.0 * PI * TimeSincePeriapsis) / CurrentOrbitalPeriod;
     MeanAnomaly = FMath::Fmod(MeanAnomaly, 2.0 * PI);
     
     // Solve Kepler's equation for eccentric anomaly (using Newton's method)
@@ -515,7 +518,7 @@ float AOrbitalBody::CalculateEscapeVelocity() const
 
 bool AOrbitalBody::WillEscape() const
 {
-    if (!OrbitTarget)
+    if (!OrbitTarget.IsValid())
     {
         return true; // No orbit target, not bound to anything
     }
@@ -528,7 +531,7 @@ bool AOrbitalBody::WillEscape() const
 
 void AOrbitalBody::InitializeCircularOrbit()
 {
-    if (!OrbitTarget)
+    if (!OrbitTarget.IsValid())
     {
         return;
     }
@@ -733,19 +736,23 @@ void AOrbitalBody::SetOrbitalElements(float InSemiMajorAxis, float InEccentricit
     
     // Notify blueprint
     OnOrbitEstablished.Broadcast();
-	float InclinationRad = FMath::DegreesToRadians(Inclination);
-	Position2D.Z = Position2D.Y * FMath::Sin(InclinationRad);
-	Position2D.Y = Position2D.Y * FMath::Cos(InclinationRad);
-	
-	// Set world position
-	SetActorLocation(OrbitTarget->GetActorLocation() + Position2D);
-	
-	// Calculate orbital velocity for this position
-	float OrbitalSpeed = FMath::Sqrt(GravitationalConstant * OrbitTarget->Mass * (2.0f / Distance - 1.0f / SemiMajorAxis));
-	
-	// Velocity is perpendicular to radius vector
-	FVector VelocityDirection = FVector(-Position2D.Y, Position2D.X, 0.0f).GetSafeNormal();
-	Velocity = VelocityDirection * OrbitalSpeed;
+    
+    // Calculate 2D position in orbital plane
+    float InclinationRad = FMath::DegreesToRadians(Inclination);
+    FVector Position2D = FVector(SemiMajorAxis * 1000.0f, 0.0f, 0.0f); // Convert km to cm
+    Position2D.Z = Position2D.Y * FMath::Sin(InclinationRad);
+    Position2D.Y = Position2D.Y * FMath::Cos(InclinationRad);
+    
+    // Set world position
+    SetActorLocation(OrbitTarget->GetActorLocation() + Position2D);
+    
+    // Calculate orbital velocity for this position
+    float Distance = Position2D.Size() * CM_TO_KM; // Convert back to km
+    float OrbitalSpeed = FMath::Sqrt(GravitationalConstant * OrbitTarget->Mass * (2.0f / Distance - 1.0f / SemiMajorAxis));
+    
+    // Velocity is perpendicular to radius vector
+    FVector VelocityDirection = FVector(-Position2D.Y, Position2D.X, 0.0f).GetSafeNormal();
+    Velocity = VelocityDirection * OrbitalSpeed;
 	
 	// Set to ballistic mode to use physics simulation
 	OrbitMode = EOrbitMode::Ballistic;

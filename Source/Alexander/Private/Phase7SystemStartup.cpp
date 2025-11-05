@@ -1,4 +1,5 @@
 #include "Phase7SystemStartup.h"
+#include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"

@@ -5,6 +5,9 @@
 #include "FarmPlot.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
+#include "MotionControllerComponent.h"          // For UMotionControllerComponent
+#include "Components/InputComponent.h"          // For UInputComponent
+#include "InputCoreTypes.h"                     // For FKey
 
 UVRHarvestInteractionManager::UVRHarvestInteractionManager()
 {

@@ -11,6 +11,7 @@ class UCropDefinition;
 class UInstancedStaticMeshComponent;
 class UProceduralMeshComponent;
 struct FGrowthCalculationResult;
+struct FSoilVariation;
 
 /**
  * Individual crop cell in the farm grid

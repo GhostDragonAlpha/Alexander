@@ -1,11 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Planet.h"
+#include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "PlanetAtmosphereComponent.h"
-#include "AtmosphericFogComponent.h"
+#include "Components/SkyAtmosphereComponent.h"
 #include "PlanetCloudComponent.h"
 #include "PlanetWeatherComponent.h"
 #include "DayNightCycleComponent.h"
@@ -16,6 +17,9 @@
 #include "TerrainMaterialSystem.h"
 #include "ProceduralNoiseGenerator.h"
 #include "DrawDebugHelpers.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Rotator.h"
 
 APlanet::APlanet()
 {
@@ -47,7 +51,7 @@ APlanet::APlanet()
 	AtmosphereComponent = CreateDefaultSubobject<UPlanetAtmosphereComponent>(TEXT("AtmosphereComponent"));
 	AtmosphereComponent->SetupAttachment(RootComponent);
 
-	FogComponent = CreateDefaultSubobject<UAtmosphericFogComponent>(TEXT("FogComponent"));
+	FogComponent = CreateDefaultSubobject<USkyAtmosphereComponent>(TEXT("FogComponent"));
 	FogComponent->SetupAttachment(RootComponent);
 
 	CloudComponent = CreateDefaultSubobject<UPlanetCloudComponent>(TEXT("CloudComponent"));
@@ -120,19 +124,13 @@ void APlanet::BeginPlay()
 	// Initialize fog component
 	if (FogComponent && PlanetConfig && PlanetConfig->bHasAtmosphere)
 	{
-		// Create fog configuration based on atmosphere settings
-		FAtmosphericFogConfig FogConfig;
-		FogConfig.BaseFogDensity = PlanetConfig->AtmosphereConfig.FogDensity;
-		FogConfig.HeightFalloff = PlanetConfig->AtmosphereConfig.FogHeightFalloff;
-		FogConfig.MaxFogAltitude = PlanetConfig->AtmosphereConfig.AtmosphereHeight * 0.5f; // Fog extends to half atmosphere height
-		FogConfig.GroundFogColor = PlanetConfig->AtmosphereConfig.GroundAlbedo;
-		FogConfig.HighAltitudeFogColor = PlanetConfig->AtmosphereConfig.RayleighScatteringCoefficient;
-		FogConfig.InscatteringColor = PlanetConfig->AtmosphereConfig.RayleighScatteringCoefficient;
-		
-		// Link fog component to atmosphere component
-		FogComponent->AtmosphereComponent = AtmosphereComponent;
-		FogComponent->InitializeFog(PlanetRadius, FogConfig);
-		UE_LOG(LogTemp, Log, TEXT("Planet '%s' atmospheric fog initialized"), *GetName());
+		// Configure sky atmosphere component based on atmosphere settings
+		// NOTE: SetDensityFalloff removed in UE5.6 - density falloff is handled internally by SkyAtmosphereComponent
+		// FogComponent->SetDensityFalloff(PlanetConfig->AtmosphereConfig.FogHeightFalloff);
+
+		// SkyAtmosphereComponent settings are configured via the component interface
+		// The actual fog parameters are set through the component's properties
+		UE_LOG(LogTemp, Log, TEXT("Planet '%s' sky atmosphere component initialized"), *GetName());
 	}
 
 	// Initialize weather system
@@ -246,32 +244,39 @@ void APlanet::GeneratePlanetTerrain()
 	}
 
 	// Configure noise parameters for terrain generation
+	// TODO: Add ContinentalFrequency, MaxElevation, MountainFrequency, DetailFrequency to FPlanetTerrainConfig
+	// Using calculated values from existing TerrainConfig properties as placeholders
+	float MaxElevation = TerrainConfig.Amplitude * 2.0f; // Derived from Amplitude
+	float ContinentalFrequency = 1.0f / (TerrainConfig.Scale * 10.0f); // Derived from Scale
+	float MountainFrequency = 1.0f / (TerrainConfig.Scale * 5.0f); // Derived from Scale
+	float DetailFrequency = 1.0f / (TerrainConfig.Scale * 2.0f); // Derived from Scale
+
 	FNoiseConfig ContinentalNoise;
 	ContinentalNoise.Seed = TerrainSeed;
 	ContinentalNoise.NoiseType = ENoiseType::Perlin;
-	ContinentalNoise.Frequency = TerrainConfig.ContinentalFrequency;
+	ContinentalNoise.Frequency = ContinentalFrequency;
 	ContinentalNoise.Octaves = 4;
 	ContinentalNoise.Lacunarity = 2.0f;
 	ContinentalNoise.Persistence = 0.5f;
-	ContinentalNoise.Amplitude = TerrainConfig.MaxElevation * 0.6f; // Continental scale features
+	ContinentalNoise.Amplitude = MaxElevation * 0.6f; // Continental scale features
 
 	FNoiseConfig MountainNoise;
 	MountainNoise.Seed = TerrainSeed + 1000;
 	MountainNoise.NoiseType = ENoiseType::RidgedMultifractal;
-	MountainNoise.Frequency = TerrainConfig.MountainFrequency;
+	MountainNoise.Frequency = MountainFrequency;
 	MountainNoise.Octaves = 5;
 	MountainNoise.Lacunarity = 2.2f;
 	MountainNoise.Persistence = 0.6f;
-	MountainNoise.Amplitude = TerrainConfig.MaxElevation;
+	MountainNoise.Amplitude = MaxElevation;
 
 	FNoiseConfig DetailNoise;
 	DetailNoise.Seed = TerrainSeed + 2000;
 	DetailNoise.NoiseType = ENoiseType::Perlin;
-	DetailNoise.Frequency = TerrainConfig.DetailFrequency;
+	DetailNoise.Frequency = DetailFrequency;
 	DetailNoise.Octaves = 3;
 	DetailNoise.Lacunarity = 2.0f;
 	DetailNoise.Persistence = 0.4f;
-	DetailNoise.Amplitude = TerrainConfig.MaxElevation * 0.1f; // Fine detail features
+	DetailNoise.Amplitude = MaxElevation * 0.1f; // Fine detail features
 
 	// Log terrain generation configuration
 	UE_LOG(LogTemp, Log, TEXT("Terrain generation configured:"));
@@ -329,12 +334,13 @@ void APlanet::GeneratePlanetTerrain()
 					BiomeHeightModifier = 0.3f; // Deserts are relatively flat
 					MountainHeight *= 0.5f; // Less mountainous
 					break;
-				case EBiomeType::Mountains:
+				// TODO: Add Mountains and IceCaps to EBiomeType enum in PlanetConfiguration.h
+				// Using Alpine as substitute for Mountains, Tundra as substitute for IceCaps
+				case EBiomeType::Alpine:
 					BiomeHeightModifier = 1.5f; // Amplify mountain features
 					MountainHeight *= 2.0f;
 					break;
 				case EBiomeType::Tundra:
-				case EBiomeType::IceCaps:
 					BiomeHeightModifier = 0.8f;
 					DetailHeight *= 1.5f; // More surface detail from ice formations
 					break;
@@ -369,32 +375,39 @@ float APlanet::GetTerrainHeightAtLocation(FVector2D Coordinates) const
 	float Lon = Coordinates.Y;
 
 	// Configure noise (same as GeneratePlanetTerrain for consistency)
+	// TODO: Add ContinentalFrequency, MaxElevation, MountainFrequency, DetailFrequency to FPlanetTerrainConfig
+	// Using calculated values from existing TerrainConfig properties as placeholders
+	float MaxElevation = TerrainConfig.Amplitude * 2.0f; // Derived from Amplitude
+	float ContinentalFrequency = 1.0f / (TerrainConfig.Scale * 10.0f); // Derived from Scale
+	float MountainFrequency = 1.0f / (TerrainConfig.Scale * 5.0f); // Derived from Scale
+	float DetailFrequency = 1.0f / (TerrainConfig.Scale * 2.0f); // Derived from Scale
+
 	FNoiseConfig ContinentalNoise;
 	ContinentalNoise.Seed = TerrainSeed;
 	ContinentalNoise.NoiseType = ENoiseType::Perlin;
-	ContinentalNoise.Frequency = TerrainConfig.ContinentalFrequency;
+	ContinentalNoise.Frequency = ContinentalFrequency;
 	ContinentalNoise.Octaves = 4;
 	ContinentalNoise.Lacunarity = 2.0f;
 	ContinentalNoise.Persistence = 0.5f;
-	ContinentalNoise.Amplitude = TerrainConfig.MaxElevation * 0.6f;
+	ContinentalNoise.Amplitude = MaxElevation * 0.6f;
 
 	FNoiseConfig MountainNoise;
 	MountainNoise.Seed = TerrainSeed + 1000;
 	MountainNoise.NoiseType = ENoiseType::RidgedMultifractal;
-	MountainNoise.Frequency = TerrainConfig.MountainFrequency;
+	MountainNoise.Frequency = MountainFrequency;
 	MountainNoise.Octaves = 5;
 	MountainNoise.Lacunarity = 2.2f;
 	MountainNoise.Persistence = 0.6f;
-	MountainNoise.Amplitude = TerrainConfig.MaxElevation;
+	MountainNoise.Amplitude = MaxElevation;
 
 	FNoiseConfig DetailNoise;
 	DetailNoise.Seed = TerrainSeed + 2000;
 	DetailNoise.NoiseType = ENoiseType::Perlin;
-	DetailNoise.Frequency = TerrainConfig.DetailFrequency;
+	DetailNoise.Frequency = DetailFrequency;
 	DetailNoise.Octaves = 3;
 	DetailNoise.Lacunarity = 2.0f;
 	DetailNoise.Persistence = 0.4f;
-	DetailNoise.Amplitude = TerrainConfig.MaxElevation * 0.1f;
+	DetailNoise.Amplitude = MaxElevation * 0.1f;
 
 	// Generate height layers
 	float ContinentalHeight = UProceduralNoiseGenerator::FractalNoise2D(
@@ -431,12 +444,13 @@ float APlanet::GetTerrainHeightAtLocation(FVector2D Coordinates) const
 				BiomeHeightModifier = 0.3f;
 				MountainHeight *= 0.5f;
 				break;
-			case EBiomeType::Mountains:
+			// TODO: Add Mountains and IceCaps to EBiomeType enum in PlanetConfiguration.h
+			// Using Alpine as substitute for Mountains, Tundra as substitute for IceCaps
+			case EBiomeType::Alpine:
 				BiomeHeightModifier = 1.5f;
 				MountainHeight *= 2.0f;
 				break;
 			case EBiomeType::Tundra:
-			case EBiomeType::IceCaps:
 				BiomeHeightModifier = 0.8f;
 				DetailHeight *= 1.5f;
 				break;
@@ -649,28 +663,33 @@ void APlanet::ApplyBiomeMaterials()
 	}
 
 	// Configure material layers based on biomes
-	const TArray<FBiomeDefinition>& Biomes = BiomeManager->GetAllBiomes();
-	
-	for (int32 i = 0; i < FMath::Min(Biomes.Num(), 8); i++)
+	// TODO: Add GetAllBiomes() method to BiomeManager, or use PlanetConfig->Biomes directly
+	// Using PlanetConfig->Biomes as workaround since BiomeManager doesn't expose GetAllBiomes()
+	if (PlanetConfig)
 	{
-		const FBiomeDefinition& Biome = Biomes[i];
-		
-		// Map biome to material slot (simplified mapping)
-		ETerrainMaterialSlot Slot = static_cast<ETerrainMaterialSlot>(i);
-		
-		FTerrainMaterialLayerConfig LayerConfig;
-		LayerConfig.LayerName = Biome.BiomeName;
-		LayerConfig.Slot = Slot;
-		
-		// Configure based on biome properties
-		if (Biome.MaterialLayers.Num() > 0)
+		const TArray<FBiomeDefinition>& Biomes = PlanetConfig->Biomes;
+
+		for (int32 i = 0; i < FMath::Min(Biomes.Num(), 8); i++)
 		{
-			const FTerrainMaterialLayer& BiomeLayer = Biome.MaterialLayers[0];
-			// Set texture references from biome material layer
-			// (In a real implementation, these would be properly mapped)
+			const FBiomeDefinition& Biome = Biomes[i];
+
+			// Map biome to material slot (simplified mapping)
+			ETerrainMaterialSlot Slot = static_cast<ETerrainMaterialSlot>(i);
+
+			FTerrainMaterialLayerConfig LayerConfig;
+			LayerConfig.LayerName = Biome.BiomeName;
+			LayerConfig.Slot = Slot;
+
+			// Configure based on biome properties
+			if (Biome.MaterialLayers.Num() > 0)
+			{
+				const FTerrainMaterialLayer& BiomeLayer = Biome.MaterialLayers[0];
+				// Set texture references from biome material layer
+				// (In a real implementation, these would be properly mapped)
+			}
+
+			MaterialSystem->ConfigureLayer(Slot, LayerConfig);
 		}
-		
-		MaterialSystem->ConfigureLayer(Slot, LayerConfig);
 	}
 
 	// Update textures in material instance

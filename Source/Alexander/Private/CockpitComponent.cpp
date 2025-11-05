@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CockpitComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Components/StaticMeshComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Components/SceneComponent.h"
@@ -9,7 +10,7 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
+// #include "HeadMountedDisplayFunctionLibrary.h" // UE5.6: Removed - not used, replaced with MotionControllerComponent
 #include "Sound/SoundBase.h"
 
 // ============================================================================

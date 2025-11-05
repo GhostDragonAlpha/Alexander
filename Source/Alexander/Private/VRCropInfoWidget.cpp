@@ -1,11 +1,14 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "VRCropInfoWidget.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "VRCropInspectionComponent.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"
 #include "Components/Image.h"
 #include "Components/VerticalBox.h"
+#include "Blueprint/UserWidget.h"              // For UUserWidget
+#include "Camera/CameraComponent.h"             // For UCameraComponent
 
 UVRCropInfoWidget::UVRCropInfoWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)

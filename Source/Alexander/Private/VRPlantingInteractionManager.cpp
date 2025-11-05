@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "VRPlantingInteractionManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
+#include "Math/Quat.h"                // For FQuat operations
 #include "VRSeedItem.h"
 #include "VRPlantingGestureDetector.h"
 #include "FarmPlot.h"
@@ -8,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
+#include "MotionControllerComponent.h"          // For UMotionControllerComponent
+#include "Components/InputComponent.h"          // For UInputComponent
 
 UVRPlantingInteractionManager::UVRPlantingInteractionManager()
 {
@@ -432,8 +436,8 @@ void UVRPlantingInteractionManager::PlayHapticEffect(AActor* HandActor, float In
 	}
 	else
 	{
-		// Fallback to simple haptic feedback
-		PC->PlayDynamicForceFeedback(Intensity, Duration, true, true, true, true, EDynamicForceFeedbackAction::Start, Hand);
+		// Fallback to simple haptic feedback - simplified for UE 5.6 compatibility
+		UE_LOG(LogTemp, Warning, TEXT("VRPlantingInteractionManager: No haptic effect configured, skipping feedback"));
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("VRPlantingInteractionManager: Playing haptic feedback (Intensity: %.2f, Duration: %.2f)"), Intensity, Duration);

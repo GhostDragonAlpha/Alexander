@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PersonalityProfile.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 
 UPersonalityProfile::UPersonalityProfile()
 {

@@ -1,11 +1,86 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "GameFramework/PlayerState.h"
+#include "GameFramework/Actor.h"
+#include "Components/SceneComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "GameFramework/PlayerState.h"
 #include "Materials/MaterialInterface.h"
+#include "OutpostManager.h"
+#include "PlanetaryLandingZone.h"
 #include "ColonyBuildingSystem.generated.h"
+// #include "../Planetary/PlanetaryResourcesComponent.h"  // TODO: Fix include path - file exists but compiler can't find it
+
+// Forward declarations
+class UStaticMesh;
+class UMaterialInterface;
+class USoundBase;
+class UParticleSystem;
+class UUserWidget;
+
+// Forward declarations for duplicate types defined in other headers
+enum class EBuildingType : uint8;
+enum class ETerrainType : uint8;
+struct FResourceAmount;
+
+// Enums
+UENUM(BlueprintType)
+enum class EBuildingMode : uint8
+{
+	None,
+	Placement,
+	Demolition,
+	Upgrade
+};
+
+// Structs
+
+USTRUCT(BlueprintType)
+struct FBuildingEffect
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FString EffectName;
+	UPROPERTY() float Value;
+};
+
+USTRUCT(BlueprintType)
+struct FBuildingGridCell
+{
+	GENERATED_BODY()
+
+	UPROPERTY() int32 X;
+	UPROPERTY() int32 Y;
+	UPROPERTY() bool bOccupied;
+};
+
+USTRUCT(BlueprintType)
+struct FBuildingData
+{
+	GENERATED_BODY()
+
+	UPROPERTY() FString BuildingID;
+	UPROPERTY() EBuildingType Type;
+	UPROPERTY() FVector Location;
+};
+
+USTRUCT(BlueprintType)
+struct FBuildingStatistics
+{
+	GENERATED_BODY()
+
+	UPROPERTY() int32 TotalBuildings;
+	UPROPERTY() int32 ActiveBuildings;
+};
+
+// Delegates
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildingConstructionStartedSignature, const FBuildingData&, BuildingData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildingConstructionCompletedSignature, const FBuildingData&, BuildingData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildingUpgradedSignature, const FBuildingData&, BuildingData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildingDestroyedSignature, const FBuildingData&, BuildingData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuildingDamagedSignature, const FBuildingData&, BuildingData, float, Damage);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBuildingRepairedSignature, const FBuildingData&, BuildingData);
 
 UENUM(BlueprintType)
 enum class EBuildingCategory : uint8
@@ -347,381 +422,303 @@ struct FBuildingTemplate
     TArray<FName> RequiredTechnologies;
 };
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class ALEXANDER_API UColonyBuildingSystem : public UActorComponent
+UCLASS()
+class ALEXANDER_API AColonyBuildingSystem : public AActor
 {
     GENERATED_BODY()
 
 public:
-    UColonyBuildingSystem();
+    AColonyBuildingSystem();
 
     virtual void BeginPlay() override;
-    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    virtual void Tick(float DeltaTime) override;
 
-    // Building Management
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    void InitializeBuildingSystem();
+    // Replication
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    FName StartConstruction(const FName& TemplateID, const FVector& Location, APlayerState* Manager = nullptr);
+    // Components
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    USceneComponent* SceneRoot;
 
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    bool CancelConstruction(const FName& ProjectID);
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UBoxComponent* BuildingPlacementComponent;
 
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    void CompleteConstruction(const FName& ProjectID);
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    UStaticMeshComponent* BuildingMeshComponent;
 
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    bool DemolishBuilding(const FName& BuildingID);
+    // Building System State
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building System")
+    EBuildingMode CurrentBuildingMode;
 
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    FColonyBuilding GetBuilding(const FName& BuildingID);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building System")
+    bool bIsBuildingValid;
 
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    TArray<FColonyBuilding> GetAllBuildings();
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building System")
+    bool bIsInBuildMode;
 
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    TArray<FColonyBuilding> GetBuildingsByCategory(EBuildingCategory Category);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building System")
+    EBuildingType CurrentBuildingType;
 
-    UFUNCTION(BlueprintCallable, Category = "Building Management")
-    TArray<FColonyBuilding> GetBuildingsInArea(const FVector& Center, float Radius);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building System")
+    int32 CurrentBuildingLevel;
 
-    // Construction Management
-    UFUNCTION(BlueprintCallable, Category = "Construction")
-    FConstructionProject GetConstructionProject(const FName& ProjectID);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building System")
+    float PlacementGridSize;
 
-    UFUNCTION(BlueprintCallable, Category = "Construction")
-    TArray<FConstructionProject> GetActiveProjects();
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Building System")
+    float MaxBuildDistance;
 
-    UFUNCTION(BlueprintCallable, Category = "Construction")
-    TArray<FConstructionProject> GetPlayerProjects(APlayerState* Player);
+    // Construction State
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Construction")
+    float ConstructionProgress;
 
-    UFUNCTION(BlueprintCallable, Category = "Construction")
-    bool AssignWorker(const FName& ProjectID, APlayerState* Worker);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Construction")
+    bool bIsUnderConstruction;
 
-    UFUNCTION(BlueprintCallable, Category = "Construction")
-    bool RemoveWorker(const FName& ProjectID, APlayerState* Worker);
+    UPROPERTY()
+    float ConstructionTime;
 
-    UFUNCTION(BlueprintCallable, Category = "Construction")
-    bool AllocateResources(const FName& ProjectID, const TMap<FName, int32>& Resources);
+    UPROPERTY()
+    TArray<FResourceAmount> RequiredResources;
 
-    UFUNCTION(BlueprintCallable, Category = "Construction")
-    void PauseConstruction(const FName& ProjectID);
+    UPROPERTY()
+    FTimerHandle ConstructionTimer;
 
-    UFUNCTION(BlueprintCallable, Category = "Construction")
-    void ResumeConstruction(const FName& ProjectID);
+    // Building Stats
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building Stats")
+    float BuildingHealth;
 
-    // Building Templates
-    UFUNCTION(BlueprintCallable, Category = "Templates")
-    void RegisterBuildingTemplate(const FBuildingTemplate& Template);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building Stats")
+    float MaxBuildingHealth;
 
-    UFUNCTION(BlueprintCallable, Category = "Templates")
-    FBuildingTemplate GetBuildingTemplate(const FName& TemplateID);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building Stats")
+    float PowerConsumption;
 
-    UFUNCTION(BlueprintCallable, Category = "Templates")
-    TArray<FBuildingTemplate> GetAvailableTemplates();
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building Stats")
+    float PowerGeneration;
 
-    UFUNCTION(BlueprintCallable, Category = "Templates")
-    TArray<FBuildingTemplate> GetTemplatesByCategory(EBuildingCategory Category);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building Stats")
+    int32 PopulationCapacity;
 
-    UFUNCTION(BlueprintCallable, Category = "Templates")
-    bool IsTemplateUnlocked(const FName& TemplateID);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building Stats")
+    int32 StorageCapacity;
 
-    UFUNCTION(BlueprintCallable, Category = "Templates")
-    void UnlockTemplate(const FName& TemplateID);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Building Stats")
+    float DefenseRating;
 
-    // Building Upgrades
-    UFUNCTION(BlueprintCallable, Category = "Upgrades")
-    bool CanUpgradeBuilding(const FName& BuildingID, const FName& UpgradeID);
+    // Upgrade System
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Upgrades")
+    int32 MaxBuildingLevel;
 
-    UFUNCTION(BlueprintCallable, Category = "Upgrades")
-    FName StartUpgrade(const FName& BuildingID, const FName& UpgradeID);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Upgrades")
+    float UpgradeCostMultiplier;
 
-    UFUNCTION(BlueprintCallable, Category = "Upgrades")
-    bool CompleteUpgrade(const FName& ProjectID);
+    // Building Lists
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buildings")
+    TArray<FBuildingTemplate> AvailableBuildings;
 
-    UFUNCTION(BlueprintCallable, Category = "Upgrades")
-    TArray<FBuildingUpgrade> GetAvailableUpgrades(const FName& BuildingID);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Buildings")
+    TArray<FBuildingData> ConstructedBuildings;
 
-    UFUNCTION(BlueprintCallable, Category = "Upgrades")
-    FBuildingUpgrade GetUpgradeInfo(const FName& BuildingID, const FName& UpgradeID);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Buildings")
+    TArray<FBuildingData> BuildingQueue;
 
-    // Building Operations
-    UFUNCTION(BlueprintCallable, Category = "Operations")
-    bool ActivateBuilding(const FName& BuildingID);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Buildings")
+    TArray<FBuildingGridCell> BuildingGrid;
 
-    UFUNCTION(BlueprintCallable, Category = "Operations")
-    bool DeactivateBuilding(const FName& BuildingID);
+    // Building Effects
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Effects")
+    TArray<FBuildingEffect> BuildingEffects;
 
-    UFUNCTION(BlueprintCallable, Category = "Operations")
-    bool IsBuildingOperational(const FName& BuildingID);
-
-    UFUNCTION(BlueprintCallable, Category = "Operations")
-    void UpdateBuildingProduction(const FName& BuildingID, float DeltaTime);
-
-    UFUNCTION(BlueprintCallable, Category = "Operations")
-    TMap<FName, float> GetBuildingProduction(const FName& BuildingID);
-
-    UFUNCTION(BlueprintCallable, Category = "Operations")
-    TMap<FName, float> GetBuildingConsumption(const FName& BuildingID);
-
-    // Building Maintenance
-    UFUNCTION(BlueprintCallable, Category = "Maintenance")
-    void UpdateBuildingMaintenance(float DeltaTime);
-
-    UFUNCTION(BlueprintCallable, Category = "Maintenance")
-    bool RepairBuilding(const FName& BuildingID, float RepairAmount);
-
-    UFUNCTION(BlueprintCallable, Category = "Maintenance")
-    float GetBuildingHealth(const FName& BuildingID);
-
-    UFUNCTION(BlueprintCallable, Category = "Maintenance")
-    float GetBuildingCondition(const FName& BuildingID);
-
-    UFUNCTION(BlueprintCallable, Category = "Maintenance")
-    bool NeedsMaintenance(const FName& BuildingID);
-
-    // Power Management
-    UFUNCTION(BlueprintCallable, Category = "Power")
-    void UpdatePowerGrid();
-
-    UFUNCTION(BlueprintCallable, Category = "Power")
-    float GetTotalPowerGeneration();
-
-    UFUNCTION(BlueprintCallable, Category = "Power")
-    float GetTotalPowerConsumption();
-
-    UFUNCTION(BlueprintCallable, Category = "Power")
-    bool IsBuildingPowered(const FName& BuildingID);
-
-    UFUNCTION(BlueprintCallable, Category = "Power")
-    void ConnectBuildingToPower(const FName& BuildingID);
-
-    UFUNCTION(BlueprintCallable, Category = "Power")
-    void DisconnectBuildingFromPower(const FName& BuildingID);
-
-    // Resource Management
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    void UpdateResourceProduction(float DeltaTime);
-
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    TMap<FName, float> GetTotalProduction();
-
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    TMap<FName, float> GetTotalConsumption();
-
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    bool CanSupportBuilding(const FName& TemplateID, const FVector& Location);
-
-    // Building Placement
-    UFUNCTION(BlueprintCallable, Category = "Placement")
-    bool CanPlaceBuilding(const FName& TemplateID, const FVector& Location);
-
-    UFUNCTION(BlueprintCallable, Category = "Placement")
-    bool IsValidLocation(const FVector& Location, EBuildingSize Size);
-
-    UFUNCTION(BlueprintCallable, Category = "Placement")
-    TArray<FVector> GetValidPlacementLocations(const FVector& Center, float Radius, EBuildingSize Size);
-
-    UFUNCTION(BlueprintCallable, Category = "Placement")
-    FVector FindOptimalLocation(const FName& TemplateID, const FVector& PreferredLocation);
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Effects")
+    TArray<FBuildingEffect> ActiveEffects;
 
     // Building Statistics
-    UFUNCTION(BlueprintCallable, Category = "Statistics")
-    TMap<EBuildingCategory, int32> GetBuildingCountByCategory();
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Statistics")
+    int32 TotalBuildingsConstructed;
 
-    UFUNCTION(BlueprintCallable, Category = "Statistics")
-    float GetAverageBuildingCondition();
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Statistics")
+    float TotalResourcesSpent;
 
-    UFUNCTION(BlueprintCallable, Category = "Statistics")
-    int32 GetOperationalBuildingCount();
+    UPROPERTY(Replicated, BlueprintReadOnly, Category = "Statistics")
+    float TotalConstructionTime;
 
-    UFUNCTION(BlueprintCallable, Category = "Statistics")
-    int32 GetUnderConstructionBuildingCount();
+    // Materials
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
+    UMaterialInterface* ValidPlacementMaterial;
 
-    UFUNCTION(BlueprintCallable, Category = "Statistics")
-    float GetTotalBuildingValue();
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
+    UMaterialInterface* InvalidPlacementMaterial;
 
-    UFUNCTION(BlueprintCallable, Category = "Statistics")
-    void GenerateBuildingReport();
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Materials")
+    UMaterialInterface* ConstructionMaterial;
 
-    // Utilities
-    UFUNCTION(BlueprintCallable, Category = "Utilities")
-    float CalculateConstructionTime(const FName& TemplateID, EConstructionMethod Method, int32 Workers);
+    // Sounds
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    USoundBase* ConstructionStartSound;
 
-    UFUNCTION(BlueprintCallable, Category = "Utilities")
-    TMap<FName, int32> CalculateConstructionCost(const FName& TemplateID, EBuildingSize Size);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    USoundBase* ConstructionCompleteSound;
 
-    UFUNCTION(BlueprintCallable, Category = "Utilities")
-    bool HasRequiredResources(const FBuildingRequirement& Requirements);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    USoundBase* BuildingDestroyedSound;
 
-    UFUNCTION(BlueprintCallable, Category = "Utilities")
-    bool HasRequiredWorkers(const FBuildingRequirement& Requirements);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    USoundBase* UpgradeSound;
 
-    UFUNCTION(BlueprintCallable, Category = "Utilities")
-    float GetBuildingEfficiency(const FName& BuildingID);
+    // Particles
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+    UParticleSystem* ConstructionParticles;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+    UParticleSystem* DestructionParticles;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
+    UParticleSystem* UpgradeParticles;
+
+    // UI
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+    UUserWidget* BuildingUIWidget;
+
+    UPROPERTY(BlueprintReadOnly, Category = "UI")
+    bool bShowBuildingUI;
+
+    // AI Settings
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    bool bAutoRepair;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    bool bAutoUpgrade;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    float RepairThreshold;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+    TArray<EBuildingType> UpgradePriority;
+
+    // Delegates
+    UPROPERTY(BlueprintAssignable, Category = "Building Events")
+    FOnBuildingConstructionStartedSignature OnBuildingConstructionStarted;
+
+    UPROPERTY(BlueprintAssignable, Category = "Building Events")
+    FOnBuildingConstructionCompletedSignature OnBuildingConstructionCompleted;
+
+    UPROPERTY(BlueprintAssignable, Category = "Building Events")
+    FOnBuildingUpgradedSignature OnBuildingUpgraded;
+
+    UPROPERTY(BlueprintAssignable, Category = "Building Events")
+    FOnBuildingDestroyedSignature OnBuildingDestroyed;
+
+    UPROPERTY(BlueprintAssignable, Category = "Building Events")
+    FOnBuildingDamagedSignature OnBuildingDamaged;
+
+    UPROPERTY(BlueprintAssignable, Category = "Building Events")
+    FOnBuildingRepairedSignature OnBuildingRepaired;
+
+    // Public Functions
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    void InitializeBuildingSystem();
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    void EnterBuildMode(EBuildingType BuildingType);
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    void ExitBuildMode();
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    bool PlaceBuilding(const FVector& Location);
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    bool UpgradeBuilding(const FGuid& BuildingID);
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    bool DemolishBuilding(const FGuid& BuildingID);
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    bool RepairBuilding(const FGuid& BuildingID, float RepairAmount);
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    void DamageBuilding(const FGuid& BuildingID, float DamageAmount);
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    FBuildingStatistics GetBuildingStatistics() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    TArray<FBuildingData> GetBuildingsByType(EBuildingType BuildingType) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    TArray<FBuildingTemplate> GetAvailableBuildingTemplates() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    bool CanPlaceBuildingAtLocation(EBuildingType BuildingType, const FVector& Location) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Building System")
+    FResourceAmount GetBuildingPlacementCost(EBuildingType BuildingType) const;
 
 protected:
-    // Building Storage
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Buildings")
-    TMap<FName, FColonyBuilding> Buildings;
-
-    // Construction Projects
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Construction")
-    TMap<FName, FConstructionProject> ConstructionProjects;
-
-    // Building Templates
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Templates")
-    TMap<FName, FBuildingTemplate> BuildingTemplates;
-
-    // Player Data
-    TMap<APlayerState*, FPlayerProjectList> PlayerProjects;
-
-    // Power Grid
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Power")
-    TMap<FName, bool> BuildingPowerConnections;
-
-    // Resource Tracking
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Resources")
-    TMap<FName, float> TotalProductionRates;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Resources")
-    TMap<FName, float> TotalConsumptionRates;
-
-    // Configuration
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
-    float ConstructionUpdateInterval;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
-    float MaintenanceUpdateInterval;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
-    float ProductionUpdateInterval;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
-    bool bEnableAutoMaintenance;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
-    bool bEnablePowerGrid;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
-    bool bEnableResourceTracking;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
-    float BaseConstructionSpeed;
-
-private:
     // Internal Functions
-    void UpdateConstructionProjects(float DeltaTime);
-    void UpdateBuildingOperations(float DeltaTime);
-    void ProcessBuildingMaintenance(float DeltaTime);
-    void UpdatePowerConnections();
+    void SetupBuildingPlacement();
+    void InitializeBuildingGrid();
+    void LoadAvailableBuildings();
+    void UpdateBuildingPlacement();
+    void StartBuildingConstruction(const FBuildingData& BuildingData);
+    void CompleteBuildingConstruction();
+    void UpdateConstructionProgress(float DeltaTime);
+    void StartBuildingUpgrade(FBuildingData& BuildingData);
+    void CompleteBuildingUpgrade(FBuildingData& BuildingData);
+    void UpdateBuildingStats(FBuildingData& BuildingData);
+    void UpdateBuildingGrid(const FBuildingData& BuildingData, bool bOccupying);
+    void ApplyBuildingEffects(const FBuildingData& BuildingData);
+    void RemoveBuildingEffects(const FBuildingData& BuildingData);
+    void UpdateBuildingEffects(float DeltaTime);
+    void UpdateNavigationMesh();
+    void HandleAutoRepair(float DeltaTime);
+    void HandleAutoUpgrade(float DeltaTime);
+    void UpdateBuildingStatistics(float DeltaTime);
+    void CalculateColonyStats();
+    void ShowBuildingPlacementPreview();
+    void HideBuildingPlacementPreview();
+    void UpdatePlacementMaterial();
+    void PlayConstructionEffects();
+    void PlayConstructionCompleteEffects();
+    void PlayUpgradeEffects();
+    void PlayUpgradeCompleteEffects();
+    void PlayDemolitionEffects();
+    void PlayRepairEffects();
+    void PlayDamageEffects();
+    void UpdateConstructionEffects();
+    void InitializeBuildingTemplates();
+    void InitializeBuildingCosts();
+    void InitializeBuildingRequirements();
+    void InitializeBuildingEffects();
+    void SetupBuildingEvents();
 
-    // Construction Internal
-    FName GenerateProjectID();
-    FName GenerateBuildingID();
-    void ProcessConstruction(const FName& ProjectID, float DeltaTime);
-    void StartBuildingConstruction(const FName& ProjectID);
-    float CalculateConstructionProgress(const FConstructionProject& Project, float DeltaTime);
-    bool ValidateConstructionRequirements(const FConstructionProject& Project);
+    // Helper Functions
+    const FBuildingTemplate* GetBuildingTemplate(EBuildingType BuildingType) const;
+    FBuildingData* FindBuildingByID(const FGuid& BuildingID);
+    FVector SnapToGrid(const FVector& Location) const;
+    bool IsPlacementValid(const FVector& Location) const;
+    ETerrainType GetTerrainType(const FVector& Location) const;
+    float GetTerrainSlope(const FVector& Location) const;
+    bool HasEnoughResources(const FResourceAmount& Cost) const;
+    void DeductResources(const FResourceAmount& Cost);
+    float CalculateTotalResourceValue(const FResourceAmount& Resources) const;
+    bool MeetsPrerequisites(const FBuildingTemplate& BuildingTemplate) const;
+    bool HasTechnology(const FString& Technology) const;
+    bool HasBuildingType(EBuildingType BuildingType) const;
+    bool CanUpgradeBuilding(const FBuildingData& BuildingData) const;
+    bool CanDemolishBuilding(const FBuildingData& BuildingData) const;
+    FResourceAmount CalculateUpgradeCost(const FBuildingData& BuildingData) const;
+    FResourceAmount CalculateRepairCost(const FBuildingData& BuildingData, float RepairAmount) const;
+    FIntPoint WorldToGrid(const FVector& WorldLocation) const;
 
-    // Building Internal
-    void InitializeBuilding(const FName& BuildingID, const FConstructionProject& Project);
-    void UpdateBuildingStatus(const FName& BuildingID, EBuildingStatus NewStatus);
-    void ProcessBuildingDamage(const FName& BuildingID, float DamageAmount);
-    void ProcessBuildingRepair(const FName& BuildingID, float RepairAmount);
+    // Network Functions
+    UFUNCTION(NetMulticast, Reliable)
+    void OnBuildModeEntered(EBuildingType BuildingType);
 
-    // Production Internal
-    void CalculateTotalProduction();
-    void CalculateTotalConsumption();
-    void ProcessBuildingProduction(const FName& BuildingID, float DeltaTime);
-    void UpdateBuildingEfficiency(const FName& BuildingID);
+    UFUNCTION(NetMulticast, Reliable)
+    void OnBuildModeExited();
 
-    // Power Internal
-    void CalculatePowerBalance();
-    void DistributePower();
-    void UpdateBuildingPowerStatus(const FName& BuildingID);
-
-    // Maintenance Internal
-    void ProcessMaintenanceRequirements(float DeltaTime);
-    void ApplyMaintenanceDamage(float DeltaTime);
-    void ScheduleMaintenance(const FName& BuildingID);
-
-    // Placement Internal
-    bool CheckLocationConstraints(const FVector& Location, EBuildingSize Size);
-    bool CheckResourceAvailability(const FBuildingRequirement& Requirements);
-    bool CheckWorkerAvailability(const FBuildingRequirement& Requirements);
-    bool CheckBuildingConnections(const FVector& Location);
-
-    // Template Internal
-    void InitializeDefaultTemplates();
-    void LoadBuildingTemplates();
-    void SaveBuildingTemplates();
-
-    // Validation
-    bool ValidateBuilding(const FColonyBuilding& Building);
-    bool ValidateTemplate(const FBuildingTemplate& Template);
-    bool ValidateProject(const FConstructionProject& Project);
-
-    // Utilities Internal
-    float GetConstructionSpeedModifier(EConstructionMethod Method);
-    float GetWorkerEfficiency(const TArray<APlayerState*>& Workers);
-    float GetQualityModifier(const TMap<FName, float>& QualityFactors);
-    void UpdateBuildingVisuals(const FName& BuildingID);
-
-    // Timers
-    UPROPERTY()
-    FTimerHandle ConstructionUpdateTimer;
-
-    UPROPERTY()
-    FTimerHandle MaintenanceUpdateTimer;
-
-    UPROPERTY()
-    FTimerHandle ProductionUpdateTimer;
-
-    UPROPERTY()
-    FTimerHandle PowerUpdateTimer;
-
-    // Constants
-    static constexpr float DEFAULT_CONSTRUCTION_UPDATE_INTERVAL = 0.1f;
-    static constexpr float DEFAULT_MAINTENANCE_UPDATE_INTERVAL = 5.0f;
-    static constexpr float DEFAULT_PRODUCTION_UPDATE_INTERVAL = 1.0f;
-    static constexpr float DEFAULT_BASE_CONSTRUCTION_SPEED = 10.0f;
-    static constexpr float MAINTENANCE_DAMAGE_RATE = 0.001f; // 0.1% per update
-    static constexpr float POWER_UPDATE_INTERVAL = 0.5f;
-    static constexpr int32 MAX_CONSTRUCTION_PROJECTS = 50;
-    static constexpr float BUILDING_PLACEMENT_SPACING = 100.0f;
-
-    // Delegates
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnConstructionStarted, const FName&, ProjectID, const FName&, TemplateID, APlayerState*, Manager);
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnConstructionCompleted, const FName&, ProjectID, const FName&, BuildingID);
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnConstructionCancelled, const FName&, ProjectID, const FString&, Reason);
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuildingOperational, const FName&, BuildingID, bool, bIsOperational);
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuildingDamaged, const FName&, BuildingID, float, DamageAmount);
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuildingRepaired, const FName&, BuildingID, float, RepairAmount);
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBuildingUpgraded, const FName&, BuildingID, const FName&, UpgradeID);
-
-public:
-    // Delegates
-    UPROPERTY(BlueprintAssignable, Category = "Building Events")
-    FOnConstructionStarted OnConstructionStarted;
-
-    UPROPERTY(BlueprintAssignable, Category = "Building Events")
-    FOnConstructionCompleted OnConstructionCompleted;
-
-    UPROPERTY(BlueprintAssignable, Category = "Building Events")
-    FOnConstructionCancelled OnConstructionCancelled;
-
-    UPROPERTY(BlueprintAssignable, Category = "Building Events")
-    FOnBuildingOperational OnBuildingOperational;
-
-    UPROPERTY(BlueprintAssignable, Category = "Building Events")
-    FOnBuildingDamaged OnBuildingDamaged;
-
-    UPROPERTY(BlueprintAssignable, Category = "Building Events")
-    FOnBuildingRepaired OnBuildingRepaired;
-
-    UPROPERTY(BlueprintAssignable, Category = "Building Events")
-    FOnBuildingUpgraded OnBuildingUpgraded;
+    UFUNCTION(NetMulticast, Reliable)
+    void OnBuildingPlaced(const FBuildingData& BuildingData);
 };

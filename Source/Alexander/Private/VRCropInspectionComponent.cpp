@@ -1,13 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "VRCropInspectionComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "FarmPlot.h"
 #include "CropDefinition.h"
 #include "CropHealthSystem.h"
 #include "CropGrowthCalculator.h"
 #include "VRCropInfoWidget.h"
+#include "Blueprint/UserWidget.h"      // For CreateWidget, UUserWidget
 #include "Camera/CameraComponent.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Engine/World.h"

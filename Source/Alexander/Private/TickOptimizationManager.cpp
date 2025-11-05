@@ -42,7 +42,7 @@ void UTickOptimizationManager::BeginPlay()
     if (OptimizationComponent)
     {
         OptimizationComponent->SetOptimizationStrategy(OptimizationStrategy);
-        OptimizationComponent->OnOptimizationComplete.AddDynamic(this, &UTickOptimizationManager::OnOptimizationComplete);
+        OptimizationComponent->OnOptimizationComplete.AddDynamic(this, &UTickOptimizationManager::HandleOptimizationComplete);
     }
 
     // Configure budget component
@@ -111,4 +111,14 @@ void UTickOptimizationManager::GatherTickingComponents()
     {
         AnalysisComponent->GatherTickingComponents();
     }
+}
+
+void UTickOptimizationManager::HandleOptimizationComplete(const FTickOptimizationReport& Report)
+{
+    // Handle optimization completion
+    UE_LOG(LogTemp, Log, TEXT("Tick Optimization completed: %d components optimized, %.2fms saved"),
+        Report.OptimizedComponents.Num(), Report.EstimatedPerformanceGainMs);
+    
+    // Broadcast to our own delegate
+    OnOptimizationComplete.Broadcast(Report);
 }

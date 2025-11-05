@@ -1,4 +1,6 @@
 #include "HubZoneManager.h"
+#include "GameFramework/PlayerState.h"
+#include "GameFramework/Pawn.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Engine/TriggerVolume.h"

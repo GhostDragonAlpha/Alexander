@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "BiomeFeatureGenerator.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "ProceduralNoiseGenerator.h"
 #include "BiomeManager.h"
 #include "BiomeBlendingSystem.h"
@@ -71,7 +72,7 @@ TArray<FFeaturePlacement> UBiomeFeatureGenerator::GenerateVegetationPlacements(F
 
 		// Get mixed vegetation types
 		FBiomeWeights Weights;
-		Weights.Weights = BlendedParams.Weights;
+		Weights.Weights = BlendedParams.BiomeWeights;
 		TArray<FVegetationDefinition> VegetationTypes = BlendingSystem->MixVegetationTypes(Weights);
 
 		if (VegetationTypes.Num() == 0)
@@ -294,7 +295,7 @@ TArray<FTerrainMaterialLayer> UBiomeFeatureGenerator::GetTerrainTexturesAt(FVect
 
 	// Get blended material layers
 	FBiomeWeights Weights;
-	Weights.Weights = BlendedParams.Weights;
+	Weights.Weights = BlendedParams.BiomeWeights;
 	MaterialLayers = BlendingSystem->BlendMaterialLayers(Weights);
 
 	return MaterialLayers;
@@ -373,7 +374,7 @@ float UBiomeFeatureGenerator::HashPosition(FVector Position, int32 Offset) const
 
 FVector UBiomeFeatureGenerator::CalculateSurfaceNormal(FVector Position) const
 {
-	if (!BiomeBlendingSystem)
+	if (!BlendingSystem)
 	{
 		return FVector::UpVector;
 	}
@@ -388,10 +389,10 @@ FVector UBiomeFeatureGenerator::CalculateSurfaceNormal(FVector Position) const
 	FVector Back = Position + FVector(0, -SampleDistance, 0);
 
 	// Sample terrain using blended parameters (simplified - would use actual terrain height query)
-	FBlendedTerrainParameters ParamsRight = BiomeBlendingSystem->GetBlendedParameters(Right);
-	FBlendedTerrainParameters ParamsLeft = BiomeBlendingSystem->GetBlendedParameters(Left);
-	FBlendedTerrainParameters ParamsForward = BiomeBlendingSystem->GetBlendedParameters(Forward);
-	FBlendedTerrainParameters ParamsBack = BiomeBlendingSystem->GetBlendedParameters(Back);
+	FBlendedTerrainParameters ParamsRight = BlendingSystem->GetBlendedParameters(Right);
+	FBlendedTerrainParameters ParamsLeft = BlendingSystem->GetBlendedParameters(Left);
+	FBlendedTerrainParameters ParamsForward = BlendingSystem->GetBlendedParameters(Forward);
+	FBlendedTerrainParameters ParamsBack = BlendingSystem->GetBlendedParameters(Back);
 
 	// Use terrain parameters as a proxy for height variation
 	float HeightRight = ParamsRight.Roughness * 100.0f;

@@ -124,6 +124,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Time")
 	ETimeOfDay GetTimeOfDayCategory() const;
 
+	// Get current time of day as float (hours)
+	UFUNCTION(BlueprintCallable, Category = "Time")
+	float GetTimeOfDay() const { return CurrentTimeOfDay; }
+
 	// Set time of day manually
 	UFUNCTION(BlueprintCallable, Category = "Time")
 	void SetTimeOfDay(float Hours);
@@ -143,6 +147,9 @@ public:
 	// Calculate sun direction vector
 	UFUNCTION(BlueprintCallable, Category = "Sun")
 	FVector CalculateSunDirection() const;
+
+	// Get sun direction (alias for CalculateSunDirection)
+	FVector GetSunDirection() const { return CalculateSunDirection(); }
 
 	// Get sun elevation angle in degrees (-90 to 90)
 	UFUNCTION(BlueprintCallable, Category = "Sun")

@@ -7,6 +7,11 @@
 #include "Components/SkyLightComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "UObject/UObjectIterator.h"
+#include "EngineUtils.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Quat.h"
+#include "Math/Rotator.h"
 
 UDayNightCycleComponent::UDayNightCycleComponent()
 {
@@ -399,7 +404,7 @@ void UDayNightCycleComponent::UpdateLighting()
 	// Update sun light
 	if (SunLight && SunLight->GetLightComponent())
 	{
-		UDirectionalLightComponent* LightComp = SunLight->GetLightComponent();
+		UDirectionalLightComponent* LightComp = Cast<UDirectionalLightComponent>(SunLight->GetLightComponent());
 		
 		// Update sun rotation to match calculated position
 		FVector SunDirection = CalculateSunDirection();

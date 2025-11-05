@@ -480,7 +480,7 @@ bool ALandingGuidanceSystem::CheckTerrainSafety(const FVector& Location, float R
     return true;
 }
 
-bool ALandingGuidanceSystem::RaycastToSurface(const FVector& Start, FVector& OutHitPoint, FVector& OutNormal)
+bool ALandingGuidanceSystem::RaycastToSurface(const FVector& Start, FVector& OutHitPoint, FVector& OutNormal) const
 {
     if (!TargetPlanet)
     {

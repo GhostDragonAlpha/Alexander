@@ -1,12 +1,16 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "VRPerformanceOptimizer.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "TimerManager.h"
 #include "GameFramework/WorldSettings.h"
 #include "RenderingThread.h"
 #include "RHICommandList.h"
+// VR functionality disabled - requires HeadMountedDisplay plugin
+//#include "HeadMountedDisplayFunctionLibrary.h"  // For VR functions
+#include "IXRTrackingSystem.h"                  // For XR tracking system
 
 UVRPerformanceOptimizer::UVRPerformanceOptimizer()
 	: CurrentResolutionScale(1.0f)

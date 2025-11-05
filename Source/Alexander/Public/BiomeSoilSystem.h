@@ -104,11 +104,11 @@ public:
 	/**
 	 * Get blended soil variation for multiple biomes
 	 * @param BiomeWeights Map of biome indices to weights
-	 * @param BiomeDefinitions Array of all biome definitions
+	 * @param InBiomeDefinitions Array of all biome definitions
 	 * @return Blended soil variation
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Soil")
-	FSoilVariation GetBlendedSoilVariation(const TMap<int32, float>& BiomeWeights, const TArray<FBiomeDefinition>& BiomeDefinitions) const;
+	FSoilVariation GetBlendedSoilVariation(const TMap<int32, float>& BiomeWeights, const TArray<FBiomeDefinition>& InBiomeDefinitions) const;
 
 	/**
 	 * Calculate soil quality with local variation

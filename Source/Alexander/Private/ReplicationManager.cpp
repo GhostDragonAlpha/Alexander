@@ -1,11 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ReplicationManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/PlayerController.h"
 #include "Engine/Engine.h"
 #include "Components/ActorComponent.h"
+#include "Net/UnrealNetwork.h"  // For replication functionality and DOREPLIFETIME macros
 
 UReplicationManager::UReplicationManager()
 {
@@ -341,7 +343,7 @@ void UReplicationManager::OptimizeReplication()
 	for (const auto& ActorPair : RegisteredActors)
 	{
 		AActor* Actor = ActorPair.Key;
-		if (!Actor || Actor->IsPendingKill())
+		            if (!Actor || !Actor->IsValidLowLevel())
 		{
 			ActorsToRemove.Add(Actor);
 		}

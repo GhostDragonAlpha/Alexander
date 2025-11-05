@@ -4,8 +4,11 @@
 #include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Camera/PlayerCameraManager.h"
+#include "Camera/CameraComponent.h"             // For UCameraComponent
 #include "GameFramework/PlayerController.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 UAtmosphericEntryEffects::UAtmosphericEntryEffects()
 {

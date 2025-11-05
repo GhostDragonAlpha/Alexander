@@ -3,6 +3,8 @@
 #include "TickAnalysisComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 #include "EngineUtils.h"
 
 UTickAnalysisComponent::UTickAnalysisComponent()

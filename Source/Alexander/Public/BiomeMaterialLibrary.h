@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions in inline code
 #include "UObject/NoExportTypes.h"
 #include "PlanetConfiguration.h"
 #include "Materials/MaterialParameterCollection.h"

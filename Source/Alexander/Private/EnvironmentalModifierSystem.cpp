@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "EnvironmentalModifierSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "CropDefinition.h"
 
 UEnvironmentalModifierSystem::UEnvironmentalModifierSystem()

@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ComprehensiveSystemTests.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "CoreMinimal.h"
 #include "Misc/AutomationTest.h"
 #include "Tests/AutomationCommon.h"
@@ -17,6 +18,7 @@
 #include "SpaceAssetManager.h"
 #include "FactionTerritorySystem.h"
 #include "ColonyBuildingSystem.h"
+#include "GameSystemCoordinator.h"
 #include "VFXManager.h"
 #include "AudioManager.h"
 #include "TutorialSystem.h"
@@ -35,7 +37,7 @@
  * Tests all major game systems for functionality, integration, and performance
  */
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FOrbitalPhysicsTest, "Alexander.Systems.OrbitalPhysics", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FOrbitalPhysicsTest, "Alexander.Systems.OrbitalPhysics", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FOrbitalPhysicsTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing Orbital Physics System..."));
@@ -62,7 +64,7 @@ bool FOrbitalPhysicsTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPlanetarySystemTest, "Alexander.Systems.PlanetarySystem", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPlanetarySystemTest, "Alexander.Systems.PlanetarySystem", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FPlanetarySystemTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing Planetary System..."));
@@ -88,7 +90,7 @@ bool FPlanetarySystemTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAIDialogueSystemTest, "Alexander.Systems.AIDialogue", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAIDialogueSystemTest, "Alexander.Systems.AIDialogue", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FAIDialogueSystemTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing AI Dialogue System..."));
@@ -131,7 +133,7 @@ bool FAIDialogueSystemTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEconomySystemTest, "Alexander.Systems.Economy", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FEconomySystemTest, "Alexander.Systems.Economy", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FEconomySystemTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing Economy System..."));
@@ -162,7 +164,7 @@ bool FEconomySystemTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFarmingSystemTest, "Alexander.Systems.Farming", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFarmingSystemTest, "Alexander.Systems.Farming", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FFarmingSystemTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing Farming System..."));
@@ -193,7 +195,7 @@ bool FFarmingSystemTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNetworkPhysicsTest, "Alexander.Systems.NetworkPhysics", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNetworkPhysicsTest, "Alexander.Systems.NetworkPhysics", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FNetworkPhysicsTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing Network Physics System..."));
@@ -220,7 +222,7 @@ bool FNetworkPhysicsTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSystemValidationTest, "Alexander.Systems.Validation", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FSystemValidationTest, "Alexander.Systems.Validation", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FSystemValidationTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing System Validation..."));
@@ -257,7 +259,7 @@ bool FSystemValidationTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceProfilerTest, "Alexander.Systems.PerformanceProfiler", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceProfilerTest, "Alexander.Systems.PerformanceProfiler", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FPerformanceProfilerTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing Performance Profiler..."));
@@ -279,7 +281,7 @@ bool FPerformanceProfilerTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFactionTerritoryTest, "Alexander.Systems.FactionTerritory", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FFactionTerritoryTest, "Alexander.Systems.FactionTerritory", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FFactionTerritoryTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing Faction Territory System..."));
@@ -314,7 +316,7 @@ bool FFactionTerritoryTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FColonyBuildingTest, "Alexander.Systems.ColonyBuilding", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FColonyBuildingTest, "Alexander.Systems.ColonyBuilding", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FColonyBuildingTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing Colony Building System..."));
@@ -338,7 +340,7 @@ bool FColonyBuildingTest::RunTest(const FString& Parameters)
         EBuildingCategory::Industrial,
         EBuildingCategory::Agricultural,
         EBuildingCategory::Defense,
-        EBuildingCategory::Utility
+        EBuildingCategory::Infrastructure
     };
     TestTrue(TEXT("Building categories defined"), AllCategories.Num() == 5);
     
@@ -346,7 +348,7 @@ bool FColonyBuildingTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FIntegrationTest, "Alexander.Integration.SystemCoordination", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FIntegrationTest, "Alexander.Integration.SystemCoordination", EAutomationTestFlags_ApplicationContextMask | EAutomationTestFlags::ProductFilter)
 bool FIntegrationTest::RunTest(const FString& Parameters)
 {
     UE_LOG(LogTemp, Log, TEXT("Testing System Integration..."));
@@ -364,7 +366,7 @@ bool FIntegrationTest::RunTest(const FString& Parameters)
     TArray<ESystemIntegrationStatus> AllStatuses = {
         ESystemIntegrationStatus::NotInitialized,
         ESystemIntegrationStatus::Initializing,
-        ESystemIntegrationStatus::Ready,
+        ESystemIntegrationStatus::Initialized,
         ESystemIntegrationStatus::Error
     };
     TestTrue(TEXT("Integration statuses defined"), AllStatuses.Num() == 4);

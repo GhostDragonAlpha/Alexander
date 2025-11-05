@@ -3,11 +3,14 @@
 #include "TerrainRenderingOptimizer.h"
 #include "Engine/StaticMesh.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/HierarchicalInstancedStaticMeshComponent.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 UTerrainRenderingOptimizer::UTerrainRenderingOptimizer()
 {

@@ -9,6 +9,9 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "OrbitalBody.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Rotator.h"
 
 UFlightController::UFlightController()
 {

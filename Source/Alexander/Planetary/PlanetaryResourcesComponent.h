@@ -144,10 +144,18 @@ struct FResourceAmount
 
     bool operator>=(const FResourceAmount& Other) const
     {
-        return Metals >= Other.Metals && Crystals >= Other.Crystals && Gas >= Other.Gas && 
+        return Metals >= Other.Metals && Crystals >= Other.Crystals && Gas >= Other.Gas &&
                Biomass >= Other.Biomass && Water >= Other.Water && RareElements >= Other.RareElements &&
                Energy >= Other.Energy && Food >= Other.Food && Medicine >= Other.Medicine &&
                Electronics >= Other.Electronics && Fuel >= Other.Fuel;
+    }
+
+    bool operator<=(const FResourceAmount& Other) const
+    {
+        return Metals <= Other.Metals && Crystals <= Other.Crystals && Gas <= Other.Gas &&
+               Biomass <= Other.Biomass && Water <= Other.Water && RareElements <= Other.RareElements &&
+               Energy <= Other.Energy && Food <= Other.Food && Medicine <= Other.Medicine &&
+               Electronics <= Other.Electronics && Fuel <= Other.Fuel;
     }
 };
 
@@ -608,8 +616,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Resources")
     TArray<FResourceDeposit> GetResourceDeposits() const { return ResourceDeposits; }
 
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    FResourceDeposit GetResourceDeposit(int32 DepositID);
+    FResourceDeposit* GetResourceDeposit(int32 DepositID);
 
     UFUNCTION(BlueprintCallable, Category = "Resources")
     TArray<FResourceDeposit> GetDepositsByType(EResourceType ResourceType) const;
@@ -624,8 +631,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Resources")
     TArray<FMiningOperation> GetMiningOperations() const { return MiningOperations; }
 
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    FMiningOperation GetMiningOperation(int32 OperationID);
+    FMiningOperation* GetMiningOperation(int32 OperationID);
 
     UFUNCTION(BlueprintCallable, Category = "Resources")
     int32 StartMiningOperation(int32 DepositID, int32 FacilityID, float ExtractionRate);
@@ -640,8 +646,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Resources")
     TArray<FResourceProcessing> GetProcessingOperations() const { return ProcessingOperations; }
 
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    FResourceProcessing GetProcessingOperation(int32 ProcessingID);
+    FResourceProcessing* GetProcessingOperation(int32 ProcessingID);
 
     UFUNCTION(BlueprintCallable, Category = "Resources")
     int32 StartProcessingOperation(EResourceType InputResource, EResourceType OutputResource, int32 FacilityID);
@@ -653,8 +658,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Resources")
     TArray<FResourceStorage> GetStorageFacilities() const { return StorageFacilities; }
 
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    FResourceStorage GetStorageFacility(int32 StorageID);
+    FResourceStorage* GetStorageFacility(int32 StorageID);
 
     UFUNCTION(BlueprintCallable, Category = "Resources")
     int32 AddStorageFacility(const FResourceAmount& MaxCapacity);
@@ -669,8 +673,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Resources")
     TArray<FResourceTrade> GetActiveTrades() const { return ActiveTrades; }
 
-    UFUNCTION(BlueprintCallable, Category = "Resources")
-    FResourceTrade GetTrade(int32 TradeID);
+    FResourceTrade* GetTrade(int32 TradeID);
 
     UFUNCTION(BlueprintCallable, Category = "Resources")
     int32 CreateTrade(const FString& Partner, const FResourceAmount& Offered, const FResourceAmount& Requested);
@@ -833,10 +836,26 @@ protected:
     float CalculateTradeValue(const FResourceTrade& Trade) const;
 
     FResourceDeposit* FindDepositByID(int32 DepositID);
+    const FResourceDeposit* FindDepositByID(int32 DepositID) const;
     FMiningOperation* FindMiningOperation(int32 OperationID);
     FResourceProcessing* FindProcessingOperation(int32 ProcessingID);
     FResourceStorage* FindStorageFacility(int32 StorageID);
     FResourceTrade* FindTrade(int32 TradeID);
+
+    // Helper functions
+    void SetupResourceTimers();
+    void PerformResourceScan();
+    void StoreResourcesInAvailableStorage(const FResourceAmount& Resources);
+    void RetrieveResourcesFromStorage(const FResourceAmount& Resources);
+    void GenerateDepositByproducts(FResourceDeposit& Deposit);
+    TArray<EResourceType> GetRequiredCatalysts(EResourceType InputResource, EResourceType OutputResource) const;
+    float CalculateResourceDemand(EResourceType ResourceType) const;
+    void AddResourceToProductionRate(FResourceAmount& ProductionRate, EResourceType ResourceType, float Rate) const;
+    void SetResourceAmount(FResourceAmount& ResourceAmount, EResourceType ResourceType, float Amount) const;
+    float GetResourceAmount(const FResourceAmount& ResourceAmount, EResourceType ResourceType) const;
+    float CalculateAverageMiningEfficiency() const;
+    float CalculateAverageProcessingEfficiency() const;
+    float CalculateAverageStorageEfficiency() const;
 
 private:
     // Timers

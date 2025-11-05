@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "MemoryOptimizationSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/Texture.h"
 #include "Engine/StaticMesh.h"
 #include "Components/StaticMeshComponent.h"

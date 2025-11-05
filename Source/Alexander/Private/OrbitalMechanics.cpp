@@ -5,6 +5,11 @@
 #include "DrawDebugHelpers.h"
 #include "OrbitalBody.h"
 #include "GameFramework/Actor.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Rotator.h"
+#include "Math/Transform.h"
+#include "Components/PrimitiveComponent.h"
 
 using namespace OrbitalConstants;
 
@@ -106,10 +111,10 @@ FOrbitalStateVectors UOrbitalMechanics::ElementsToStateVectors(const FOrbitalEle
     const float TrueAnomalyRad = FMath::DegreesToRadians(Elements.TrueAnomaly);
     
     // Calculate semi-latus rectum
-    const float P = Elements.SemiMajorAxis * (1.0f - Elements.Eccentricity * Elements.Eccentricity);
+    const float p = Elements.SemiMajorAxis * (1.0f - Elements.Eccentricity * Elements.Eccentricity);
     
     // Calculate position in the orbital plane
-    const float R = p / (1.0f + Elements.Eccentricity * FMath::Cos(TrueAnomalyRad));
+    const float r = p / (1.0f + Elements.Eccentricity * FMath::Cos(TrueAnomalyRad));
     const FVector2D PositionInPlane = FVector2D(
         r * FMath::Cos(TrueAnomalyRad),
         r * FMath::Sin(TrueAnomalyRad)
@@ -221,7 +226,7 @@ FVector UOrbitalMechanics::CalculateVelocityAtTrueAnomaly(const FOrbitalElements
     const float V = FMath::Sqrt(Elements.StandardGravitationalParameter * (2.0f / R - 1.0f / Elements.SemiMajorAxis));
     
     // Calculate flight path angle
-    const float Gamma = FMath::Atan2(
+    const float gamma = FMath::Atan2(
         Elements.Eccentricity * FMath::Sin(Nu),
         1.0f + Elements.Eccentricity * FMath::Cos(Nu)
     );
@@ -327,4 +332,16 @@ void UOrbitalMechanics::SetPrimaryBody(AActor* NewPrimaryBody)
         // Update orbital elements
         UpdateOrbitalElements();
     }
+}
+
+void UOrbitalMechanics::SetStateVectors(const FOrbitalStateVectors& StateVectors)
+{
+    CurrentStateVectors = StateVectors;
+    CurrentOrbitalElements = StateVectorsToElements(CurrentStateVectors, CurrentMu);
+}
+
+void UOrbitalMechanics::SetOrbitalElements(const FOrbitalElements& Elements)
+{
+    CurrentOrbitalElements = Elements;
+    CurrentStateVectors = ElementsToStateVectors(CurrentOrbitalElements);
 }

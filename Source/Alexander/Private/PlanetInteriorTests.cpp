@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Misc/AutomationTest.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "ProceduralNoiseGenerator.h"
 #include "BiomeBlendingSystem.h"
 #include "LODTransitionManager.h"
@@ -12,9 +13,9 @@
 // NOISE GENERATION TESTS
 // ============================================================================
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNoiseGenerationConsistencyTest, 
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNoiseGenerationConsistencyTest,
 	"Alexander.PlanetInterior.NoiseGeneration.Consistency",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FNoiseGenerationConsistencyTest::RunTest(const FString& Parameters)
 {
@@ -39,7 +40,7 @@ bool FNoiseGenerationConsistencyTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNoiseGenerationRangeTest,
 	"Alexander.PlanetInterior.NoiseGeneration.Range",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FNoiseGenerationRangeTest::RunTest(const FString& Parameters)
 {
@@ -66,7 +67,7 @@ bool FNoiseGenerationRangeTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNoiseGenerationFractalTest,
 	"Alexander.PlanetInterior.NoiseGeneration.Fractal",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FNoiseGenerationFractalTest::RunTest(const FString& Parameters)
 {
@@ -96,7 +97,7 @@ bool FNoiseGenerationFractalTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FNoiseGenerationVoronoiTest,
 	"Alexander.PlanetInterior.NoiseGeneration.Voronoi",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FNoiseGenerationVoronoiTest::RunTest(const FString& Parameters)
 {
@@ -122,7 +123,7 @@ bool FNoiseGenerationVoronoiTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBiomeBlendingWeightSumTest,
 	"Alexander.PlanetInterior.BiomeBlending.WeightSum",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FBiomeBlendingWeightSumTest::RunTest(const FString& Parameters)
 {
@@ -155,7 +156,7 @@ bool FBiomeBlendingWeightSumTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBiomeBlendingTransitionTest,
 	"Alexander.PlanetInterior.BiomeBlending.Transition",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FBiomeBlendingTransitionTest::RunTest(const FString& Parameters)
 {
@@ -178,7 +179,7 @@ bool FBiomeBlendingTransitionTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBiomeBlendingParametersTest,
 	"Alexander.PlanetInterior.BiomeBlending.Parameters",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FBiomeBlendingParametersTest::RunTest(const FString& Parameters)
 {
@@ -209,7 +210,7 @@ bool FBiomeBlendingParametersTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLODDistanceCalculationTest,
 	"Alexander.PlanetInterior.LOD.DistanceCalculation",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FLODDistanceCalculationTest::RunTest(const FString& Parameters)
 {
@@ -238,7 +239,7 @@ bool FLODDistanceCalculationTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLODTransitionProgressTest,
 	"Alexander.PlanetInterior.LOD.TransitionProgress",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FLODTransitionProgressTest::RunTest(const FString& Parameters)
 {
@@ -266,7 +267,7 @@ bool FLODTransitionProgressTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLODVertexInterpolationTest,
 	"Alexander.PlanetInterior.LOD.VertexInterpolation",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FLODVertexInterpolationTest::RunTest(const FString& Parameters)
 {
@@ -304,7 +305,7 @@ bool FLODVertexInterpolationTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCropGrowthTemperatureTest,
 	"Alexander.PlanetInterior.CropGrowth.Temperature",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FCropGrowthTemperatureTest::RunTest(const FString& Parameters)
 {
@@ -345,7 +346,7 @@ bool FCropGrowthTemperatureTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCropGrowthHumidityTest,
 	"Alexander.PlanetInterior.CropGrowth.Humidity",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FCropGrowthHumidityTest::RunTest(const FString& Parameters)
 {
@@ -384,7 +385,7 @@ bool FCropGrowthHumidityTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCropGrowthSunlightTest,
 	"Alexander.PlanetInterior.CropGrowth.Sunlight",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FCropGrowthSunlightTest::RunTest(const FString& Parameters)
 {
@@ -422,7 +423,7 @@ bool FCropGrowthSunlightTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCropGrowthWaterTest,
 	"Alexander.PlanetInterior.CropGrowth.Water",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FCropGrowthWaterTest::RunTest(const FString& Parameters)
 {
@@ -462,7 +463,7 @@ bool FCropGrowthWaterTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCropGrowthSoilQualityTest,
 	"Alexander.PlanetInterior.CropGrowth.SoilQuality",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FCropGrowthSoilQualityTest::RunTest(const FString& Parameters)
 {
@@ -494,7 +495,7 @@ bool FCropGrowthSoilQualityTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCropGrowthFertilityTest,
 	"Alexander.PlanetInterior.CropGrowth.Fertility",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FCropGrowthFertilityTest::RunTest(const FString& Parameters)
 {
@@ -531,7 +532,7 @@ bool FCropGrowthFertilityTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceMetricsCaptureTest,
 	"Alexander.PlanetInterior.Performance.MetricsCapture",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPerformanceMetricsCaptureTest::RunTest(const FString& Parameters)
 {
@@ -554,7 +555,7 @@ bool FPerformanceMetricsCaptureTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceTestConfigurationTest,
 	"Alexander.PlanetInterior.Performance.Configuration",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPerformanceTestConfigurationTest::RunTest(const FString& Parameters)
 {
@@ -581,7 +582,7 @@ bool FPerformanceTestConfigurationTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceVRValidationTest,
 	"Alexander.PlanetInterior.Performance.VRValidation",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPerformanceVRValidationTest::RunTest(const FString& Parameters)
 {
@@ -638,7 +639,7 @@ bool FPerformanceVRValidationTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceTestProgressTest,
 	"Alexander.PlanetInterior.Performance.TestProgress",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPerformanceTestProgressTest::RunTest(const FString& Parameters)
 {
@@ -671,7 +672,7 @@ bool FPerformanceTestProgressTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceMemoryMeasurementTest,
 	"Alexander.PlanetInterior.Performance.MemoryMeasurement",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPerformanceMemoryMeasurementTest::RunTest(const FString& Parameters)
 {
@@ -690,7 +691,7 @@ bool FPerformanceMemoryMeasurementTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceStreamingBandwidthTest,
 	"Alexander.PlanetInterior.Performance.StreamingBandwidth",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPerformanceStreamingBandwidthTest::RunTest(const FString& Parameters)
 {
@@ -715,7 +716,7 @@ bool FPerformanceStreamingBandwidthTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceVRMetricsCaptureTest,
 	"Alexander.PlanetInterior.Performance.VRMetricsCapture",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPerformanceVRMetricsCaptureTest::RunTest(const FString& Parameters)
 {
@@ -738,7 +739,7 @@ bool FPerformanceVRMetricsCaptureTest::RunTest(const FString& Parameters)
 
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceResultsAnalysisTest,
 	"Alexander.PlanetInterior.Performance.ResultsAnalysis",
-	EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPerformanceResultsAnalysisTest::RunTest(const FString& Parameters)
 {

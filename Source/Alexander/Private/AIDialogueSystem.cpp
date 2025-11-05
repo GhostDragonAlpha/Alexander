@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AIDialogueSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -9,6 +10,8 @@
 #include "Serialization/JsonSerializer.h"
 #include "Serialization/JsonWriter.h"
 #include "Http.h"
+#include "Components/InputComponent.h"          // For UInputComponent
+#include "GameFramework/PlayerInput.h"          // For player input handling
 
 UAIDialogueSystem::UAIDialogueSystem()
 {

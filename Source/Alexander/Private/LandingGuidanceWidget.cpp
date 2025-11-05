@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "LandingGuidanceWidget.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "LandingPad.h"
 #include "Components/TextBlock.h"
 #include "Components/ProgressBar.h"

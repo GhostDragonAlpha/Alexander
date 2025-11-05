@@ -9,6 +9,12 @@
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Haptics/HapticFeedbackEffect_Base.h"
 #include "Sound/SoundBase.h"
+#include "MotionControllerComponent.h"          // For UMotionControllerComponent
+#include "Components/InputComponent.h"          // For UInputComponent
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Transform.h"
+#include "PhysicsEngine/BodyInstance.h"
 
 UVRHarvestableComponent::UVRHarvestableComponent()
 {

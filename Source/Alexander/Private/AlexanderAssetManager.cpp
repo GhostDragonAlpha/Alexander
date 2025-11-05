@@ -782,13 +782,13 @@ void UAlexanderAssetManager::UnregisterAsset(const FString& AssetPath)
 		// Remove from type mapping
 		if (AssetsByType.Contains(Metadata.AssetType))
 		{
-			AssetsByType[Metadata.AssetType].Remove(AssetPath);
+			AssetsByType[Metadata.AssetType].AssetPaths.Remove(AssetPath);
 		}
 		
 		// Remove from category mapping
 		if (AssetsByCategory.Contains(Metadata.Category))
 		{
-			AssetsByCategory[Metadata.Category].Remove(AssetPath);
+			AssetsByCategory[Metadata.Category].AssetPaths.Remove(AssetPath);
 		}
 		
 		AssetRegistry.Remove(AssetPath);

@@ -60,7 +60,7 @@ void ASpaceStationHub::InitializeHub()
     }
 
     // Initialize system references
-    NetworkManager = NewObject<UNetworkManager>(this, TEXT("NetworkManager"));
+    // NetworkManager = NewObject<UNetworkManager>(this, TEXT("NetworkManager"));
     EconomySystem = NewObject<UEconomySystem>(this, TEXT("EconomySystem"));
     MissionSystem = NewObject<UMissionSystem>(this, TEXT("MissionSystem"));
     VoiceChatSystem = NewObject<UVoiceChatSystem>(this, TEXT("VoiceChatSystem"));

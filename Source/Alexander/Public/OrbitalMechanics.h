@@ -128,6 +128,18 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Orbital Mechanics|Configuration")
     void SetGravitationalParameter(float Mu) { CurrentMu = Mu; }
 
+    // Get the gravitational parameter for the current primary body
+    UFUNCTION(BlueprintCallable, Category = "Orbital Mechanics|Configuration")
+    float GetGravitationalParameter() const { return CurrentMu; }
+
+    // Set the current state vectors
+    UFUNCTION(BlueprintCallable, Category = "Orbital Mechanics|State")
+    void SetStateVectors(const FOrbitalStateVectors& StateVectors);
+
+    // Set the current orbital elements
+    UFUNCTION(BlueprintCallable, Category = "Orbital Mechanics|State")
+    void SetOrbitalElements(const FOrbitalElements& Elements);
+
     // Set the current primary body
     UFUNCTION(BlueprintCallable, Category = "Orbital Mechanics|Configuration")
     void SetPrimaryBody(AActor* PrimaryBody);

@@ -1,6 +1,7 @@
 #include "GameSystemCoordinator.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
+#include "EngineUtils.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
@@ -250,8 +251,8 @@ void UGameSystemCoordinator::IntegrateAIWithMissionSystem()
                 {
                     // NPCs react to mission acceptance
                     AISystem->AddMemory(NPC, FAIMemoryEntry{
-                        "MissionAccepted", SourceActor, SourceActor->GetActorLocation(), 
-                        0.8f, GetWorld()->GetTimeSeconds()
+                        "MissionAccepted", SourceActor, SourceActor->GetActorLocation(),
+                        0.8f, static_cast<float>(GetWorld()->GetTimeSeconds())
                     });
                 }
             }
@@ -400,10 +401,14 @@ void UGameSystemCoordinator::OptimizeSystemPerformance()
         
         if (AudioSystem)
         {
-            AudioSystem->SetAudioSettings(FAudioSettings{
-                0.8f, 0.7f, 0.8f, 1.0f, 0.6f, 1.0f, 0.7f, 
-                true, true, true, true, 24, 0.8f
-            });
+            // Use simple audio settings structure (5 fields only)
+            FAudioSettings Settings;
+            Settings.MasterVolume = 0.8f;
+            Settings.MusicVolume = 0.7f;
+            Settings.SFXVolume = 0.8f;
+            Settings.bEnable3DAudio = true;
+            Settings.bEnableHRTF = true;
+            AudioSystem->SetAudioSettings(Settings);
         }
     }
     else if (PerformanceData.TotalSystemLoad < 0.4f)
@@ -416,10 +421,14 @@ void UGameSystemCoordinator::OptimizeSystemPerformance()
         
         if (AudioSystem)
         {
-            AudioSystem->SetAudioSettings(FAudioSettings{
-                1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 
-                true, true, true, true, 32, 1.0f
-            });
+            // Use simple audio settings structure (5 fields only)
+            FAudioSettings Settings;
+            Settings.MasterVolume = 1.0f;
+            Settings.MusicVolume = 1.0f;
+            Settings.SFXVolume = 1.0f;
+            Settings.bEnable3DAudio = true;
+            Settings.bEnableHRTF = true;
+            AudioSystem->SetAudioSettings(Settings);
         }
     }
 
@@ -444,10 +453,14 @@ void UGameSystemCoordinator::SetPerformanceMode(bool bHighPerformance)
         
         if (AudioSystem)
         {
-            AudioSystem->SetAudioSettings(FAudioSettings{
-                1.0f, 0.9f, 1.0f, 1.0f, 0.8f, 1.0f, 0.9f, 
-                true, true, true, true, 28, 0.9f
-            });
+            // Use simple audio settings structure (5 fields only)
+            FAudioSettings Settings;
+            Settings.MasterVolume = 1.0f;
+            Settings.MusicVolume = 0.9f;
+            Settings.SFXVolume = 1.0f;
+            Settings.bEnable3DAudio = true;
+            Settings.bEnableHRTF = true;
+            AudioSystem->SetAudioSettings(Settings);
         }
     }
 
@@ -578,7 +591,8 @@ void UGameSystemCoordinator::SetupWorldIntegration(UWorld* World)
         }
 
         // Integrate with space stations
-        if (Actor->FindComponentByClass<USpaceStationHub>())
+        // USpaceStationHub is an Actor, not a Component - check by casting
+        if (Cast<ASpaceStationHub>(Actor))
         {
             IntegrateAudioWithEnvironmentSystem();
         }
@@ -667,7 +681,9 @@ void UGameSystemCoordinator::UpdateSystemPerformance(float DeltaTime)
 
     if (TutorialSystem)
     {
-        PerformanceData.ActiveTutorials = TutorialSystem->GetActiveTutorials().Num();
+        // GetActiveTutorials() method doesn't exist, using placeholder
+        // TODO: Implement proper active tutorial counting in TutorialOnboardingSystem
+        PerformanceData.ActiveTutorials = 0;
         PerformanceData.TutorialSystemLoad = PerformanceData.ActiveTutorials / 5.0f; // Normalize
     }
 
@@ -745,10 +761,12 @@ void UGameSystemCoordinator::HandlePlayerEnteredStation(AActor* SourceActor)
     if (AudioSystem)
     {
         // Transition to station audio environment
-        AudioSystem->SetEnvironmentData(FVFXEnvironmentData{
-            1.2f, 1.0f, 22.0f, 0.4f, FVector::ZeroVector, 0.0f, 
-            false, true
-        });
+        // SetEnvironmentData() method doesn't exist in UAudioSystemManager
+        // TODO: Use appropriate audio environment transition methods
+        // AudioSystem->SetEnvironmentData(FVFXEnvironmentData{
+        //     1.2f, 1.0f, 22.0f, 0.4f, FVector::ZeroVector, 0.0f,
+        //     false, true
+        // });
     }
 }
 
@@ -757,10 +775,12 @@ void UGameSystemCoordinator::HandlePlayerLeftStation(AActor* SourceActor)
     if (AudioSystem)
     {
         // Transition to space audio environment
-        AudioSystem->SetEnvironmentData(FVFXEnvironmentData{
-            0.0f, 0.0f, -270.0f, 0.0f, FVector::ZeroVector, 0.0f, 
-            true, false
-        });
+        // SetEnvironmentData() method doesn't exist in UAudioSystemManager
+        // TODO: Use appropriate audio environment transition methods
+        // AudioSystem->SetEnvironmentData(FVFXEnvironmentData{
+        //     0.0f, 0.0f, -270.0f, 0.0f, FVector::ZeroVector, 0.0f,
+        //     true, false
+        // });
     }
 }
 
@@ -867,7 +887,8 @@ TArray<AActor*> UGameSystemCoordinator::GetNearbyActors(AActor* SourceActor, flo
 
 bool UGameSystemCoordinator::IsVRMode() const
 {
-    return GEngine && GEngine->IsStereoEnabled();
+    // IsStereoEnabled() is deprecated in UE5.6, using XRSystem API instead
+    return GEngine && GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
 }
 
 // System Event Handlers (these would need to be declared in the header as well)

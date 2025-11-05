@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions in inline code
 #include "Components/ActorComponent.h"
 #include "PlanetConfiguration.h"
 #include "PlanetWeatherComponent.generated.h"
@@ -128,6 +129,10 @@ public:
 	// Get current weather type
 	UFUNCTION(BlueprintPure, Category = "Weather Queries")
 	EWeatherType GetCurrentWeather() const { return CurrentWeather; }
+
+	// Get current weather type as string
+	UFUNCTION(BlueprintPure, Category = "Weather Queries")
+	FString GetCurrentWeatherType() const;
 
 	// Get weather lighting multiplier
 	UFUNCTION(BlueprintPure, Category = "Weather Queries")

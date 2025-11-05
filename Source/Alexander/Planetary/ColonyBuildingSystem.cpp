@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "ColonyBuildingSystem.h"
+#include "../Planetary/PlanetaryResourcesComponent.h"  // For FResourceAmount definition
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Net/UnrealNetwork.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/BoxComponent.h"
@@ -11,6 +13,8 @@
 #include "GameFramework/Character.h"
 #include "GameFramework/PlayerController.h"
 #include "Materials/MaterialInterface.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/StaticMesh.h"
 #include "Sound/SoundBase.h"
 #include "Particles/ParticleSystem.h"
 #include "NavigationSystem.h"

@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PlanetFarmingComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Planet.h"
 
 UPlanetFarmingComponent::UPlanetFarmingComponent()
@@ -108,7 +109,7 @@ void UPlanetFarmingComponent::UpdateFarms(float DeltaTime)
 {
 	// This functionality is now handled by FarmingSubsystem
 	// Remove destroyed farms
-	ActiveFarms.RemoveAll([](AAlexanderFarmPlot* Farm) { return !Farm || Farm->IsPendingKill(); });
+	ActiveFarms.RemoveAll([](AAlexanderFarmPlot* Farm) { return !IsValid(Farm); });
 }
 
 float UPlanetFarmingComponent::GetBaseSoilQuality(FVector Location) const

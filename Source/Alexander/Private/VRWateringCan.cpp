@@ -2,6 +2,7 @@
 
 #include "VRWateringCan.h"
 #include "FarmPlot.h"
+#include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/AudioComponent.h"
@@ -10,6 +11,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
+#include "MotionControllerComponent.h"          // For UMotionControllerComponent
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Rotator.h"
+#include "Math/Transform.h"
+#include "PhysicsEngine/BodyInstance.h"
 
 AVRWateringCan::AVRWateringCan()
 {

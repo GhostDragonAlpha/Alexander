@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FarmingSubsystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "FarmPlot.h"
 #include "CropDefinition.h"
 #include "Planet.h"
@@ -9,6 +10,8 @@
 #include "BiomeSoilSystem.h"
 #include "FarmingOptimizationSystem.h"
 #include "PlanetConfiguration.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
 
@@ -68,7 +71,7 @@ void UFarmingSubsystem::Deinitialize()
 	// Clean up all farm plots
 	for (AFarmPlot* Farm : ActiveFarms)
 	{
-		if (Farm && !Farm->IsPendingKill())
+		if (IsValid(Farm))
 		{
 			Farm->Destroy();
 		}
@@ -105,7 +108,7 @@ void UFarmingSubsystem::Tick(float DeltaTime)
 		// Only update farms that need it (optimized update frequency)
 		for (AFarmPlot* Farm : FarmsToUpdate)
 		{
-if (Farm && Farm->IsValid())
+			if (IsValid(Farm))
 			{
 				// Farm will update its crops in its own Tick
 				// This just ensures we're managing update frequency
@@ -117,9 +120,9 @@ if (Farm && Farm->IsValid())
 	for (int32 i = ActiveFarms.Num() - 1; i >= 0; --i)
 	{
 		AFarmPlot* Farm = ActiveFarms[i];
-		
+
 		// Remove invalid or destroyed farms
-		if (!Farm || !Farm->IsValid())
+		if (!IsValid(Farm))
 		{
 			if (OptimizationSystem)
 			{
@@ -132,11 +135,6 @@ if (Farm && Farm->IsValid())
 		// Farm plots update themselves via their Tick function
 		// This is just for subsystem-level management
 	}
-}
-
-TStatId UFarmingSubsystem::GetStatId() const
-{
-	RETURN_QUICK_DECLARE_CYCLE_STAT(UFarmingSubsystem, STATGROUP_Tickables);
 }
 
 // ============================================================================
@@ -211,8 +209,8 @@ void UFarmingSubsystem::RemoveFarmPlot(AFarmPlot* FarmPlot)
 	}
 
 	ActiveFarms.Remove(FarmPlot);
-	
-	if (FarmPlot->IsValid())
+
+	if (IsValid(FarmPlot))
 	{
 		FarmPlot->Destroy();
 	}
@@ -576,9 +574,9 @@ FSoilVariation UFarmingSubsystem::GetSoilVariationAtLocation(FVector Location, A
 
 	// Initialize soil system with planet's biomes if not already done
 	APlanet* Planet = Cast<APlanet>(PlanetActor);
-	if (Planet && Planet->Configuration)
+	if (Planet && Planet->PlanetConfig)
 	{
-		BiomeSoilSystem->Initialize(Planet->Configuration->Biomes);
+		BiomeSoilSystem->Initialize(Planet->PlanetConfig->Biomes);
 	}
 
 	// Get soil variation from biome definition

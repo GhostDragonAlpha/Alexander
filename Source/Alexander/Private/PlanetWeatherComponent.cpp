@@ -10,6 +10,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 UPlanetWeatherComponent::UPlanetWeatherComponent()
 {
@@ -407,6 +409,49 @@ bool UPlanetWeatherComponent::IsStormyWeather(EWeatherType WeatherType) const
 	       WeatherType == EWeatherType::Thunderstorm ||
 	       WeatherType == EWeatherType::Blizzard ||
 	       WeatherType == EWeatherType::Sandstorm;
+}
+
+FString UPlanetWeatherComponent::GetCurrentWeatherType() const
+{
+	switch (CurrentWeather)
+	{
+	case EWeatherType::Clear:
+		return "Clear";
+	case EWeatherType::PartlyCloudy:
+		return "PartlyCloudy";
+	case EWeatherType::Cloudy:
+		return "Cloudy";
+	case EWeatherType::Overcast:
+		return "Overcast";
+	case EWeatherType::Fog:
+		return "Fog";
+	case EWeatherType::Foggy:
+		return "Foggy";
+	case EWeatherType::LightRain:
+		return "LightRain";
+	case EWeatherType::Rain:
+		return "Rain";
+	case EWeatherType::HeavyRain:
+		return "HeavyRain";
+	case EWeatherType::Thunderstorm:
+		return "Thunderstorm";
+	case EWeatherType::LightSnow:
+		return "LightSnow";
+	case EWeatherType::Snow:
+		return "Snow";
+	case EWeatherType::HeavySnow:
+		return "HeavySnow";
+	case EWeatherType::Blizzard:
+		return "Blizzard";
+	case EWeatherType::Sandstorm:
+		return "Sandstorm";
+	case EWeatherType::AcidRain:
+		return "AcidRain";
+	case EWeatherType::ToxicFog:
+		return "ToxicFog";
+	default:
+		return "Unknown";
+	}
 }
 
 float UPlanetWeatherComponent::GetInterpolatedWeatherValue(float CurrentValue, float TargetValue) const

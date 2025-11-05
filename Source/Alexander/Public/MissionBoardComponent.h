@@ -22,7 +22,8 @@ enum class EMissionType : uint8
     Assassination,
     Sabotage,
     Reconnaissance,
-    Diplomatic
+    Diplomatic,
+    Combat
 };
 
 UENUM(BlueprintType)

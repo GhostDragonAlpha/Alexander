@@ -1,7 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "VFXManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "NiagaraFunctionLibrary.h"
+#include "GameFramework/PlayerController.h"
+#include "Camera/PlayerCameraManager.h"         // For APlayerCameraManager
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"

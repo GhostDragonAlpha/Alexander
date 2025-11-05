@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FarmAlertSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "FarmPlot.h"
 #include "AutomationEfficiencySystem.h"
 #include "TimerManager.h"

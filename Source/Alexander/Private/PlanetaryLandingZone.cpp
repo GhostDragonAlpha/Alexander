@@ -1,7 +1,11 @@
 #include "PlanetaryLandingZone.h"
+#include "MissionBoardComponent.h"  // For EMissionType enum
+#include "Math/UnrealMathUtility.h"  // For FMath functions
+#include "Components/SceneComponent.h"
 #include "Components/BoxComponent.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/PlayerState.h"
 #include "GameFramework/Character.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -49,11 +53,12 @@ void APlanetaryLandingZone::BeginPlay()
     }
 
     // Set up timers
-    if (GetWorld() && GetWorldTimerManager().IsValid())
+    if (GetWorld())
     {
-        GetWorldTimerManager().SetTimer(ServiceUpdateTimer, this, &APlanetaryLandingZone::UpdateZoneServices, ServiceUpdateInterval, true);
-        GetWorldTimerManager().SetTimer(EnvironmentUpdateTimer, this, &APlanetaryLandingZone::UpdateEnvironmentalConditions, EnvironmentUpdateInterval, true);
-        GetWorldTimerManager().SetTimer(EconomyUpdateTimer, this, &APlanetaryLandingZone::UpdateLocalEconomy, EconomyUpdateInterval, true);
+        FTimerManager& TimerManager = GetWorldTimerManager();
+        TimerManager.SetTimer(ServiceUpdateTimer, this, &APlanetaryLandingZone::UpdateZoneServices, ServiceUpdateInterval, true);
+        TimerManager.SetTimer(EnvironmentUpdateTimer, this, &APlanetaryLandingZone::UpdateEnvironmentalConditions, EnvironmentUpdateInterval, true);
+        TimerManager.SetTimer(EconomyUpdateTimer, this, &APlanetaryLandingZone::UpdateLocalEconomy, EconomyUpdateInterval, true);
     }
 
     // Bind overlap events
@@ -136,11 +141,11 @@ void APlanetaryLandingZone::ShutdownLandingZone()
     SetZoneStatus(ELandingZoneStatus::Offline);
 }
 
-FLandingPad* APlanetaryLandingZone::GetAvailableLandingPad(float ShipSize, const FName& Faction)
+FPlanetaryLandingPad* APlanetaryLandingZone::GetAvailableLandingPad(float ShipSize, const FName& Faction)
 {
     for (auto& PadPair : LandingPadMap)
     {
-        FLandingPad& Pad = PadPair.Value;
+        FPlanetaryLandingPad& Pad = PadPair.Value;
         
         if (!Pad.bIsOccupied && Pad.MaxShipSize >= ShipSize)
         {
@@ -167,7 +172,7 @@ bool APlanetaryLandingZone::ReserveLandingPad(const FName& PadID, AActor* Ship)
         return false;
     }
 
-    FLandingPad& Pad = LandingPadMap[PadID];
+    FPlanetaryLandingPad& Pad = LandingPadMap[PadID];
     
     if (Pad.bIsOccupied)
     {
@@ -190,7 +195,7 @@ void APlanetaryLandingZone::ReleaseLandingPad(const FName& PadID)
         return;
     }
 
-    FLandingPad& Pad = LandingPadMap[PadID];
+    FPlanetaryLandingPad& Pad = LandingPadMap[PadID];
     
     if (Pad.OccupyingShip)
     {
@@ -214,9 +219,9 @@ bool APlanetaryLandingZone::IsPadAvailable(const FName& PadID)
     return !LandingPadMap[PadID].bIsOccupied;
 }
 
-TArray<FLandingPad> APlanetaryLandingZone::GetAllLandingPads()
+TArray<FPlanetaryLandingPad> APlanetaryLandingZone::GetAllLandingPads()
 {
-    TArray<FLandingPad> Result;
+    TArray<FPlanetaryLandingPad> Result;
     for (const auto& PadPair : LandingPadMap)
     {
         Result.Add(PadPair.Value);
@@ -224,9 +229,9 @@ TArray<FLandingPad> APlanetaryLandingZone::GetAllLandingPads()
     return Result;
 }
 
-TArray<FLandingPad> APlanetaryLandingZone::GetOccupiedPads()
+TArray<FPlanetaryLandingPad> APlanetaryLandingZone::GetOccupiedPads()
 {
-    TArray<FLandingPad> Result;
+    TArray<FPlanetaryLandingPad> Result;
     for (const auto& PadPair : LandingPadMap)
     {
         if (PadPair.Value.bIsOccupied)
@@ -261,7 +266,7 @@ bool APlanetaryLandingZone::CanShipLand(AActor* Ship, const FName& Faction)
     }
 
     // Check for available landing pad
-    FLandingPad* AvailablePad = GetAvailableLandingPad(100.0f, Faction); // Default ship size
+    FPlanetaryLandingPad* AvailablePad = GetAvailableLandingPad(100.0f, Faction); // Default ship size
     return AvailablePad != nullptr;
 }
 
@@ -272,7 +277,7 @@ bool APlanetaryLandingZone::RequestLandingClearance(AActor* Ship, const FName& F
         return false;
     }
 
-    FLandingPad* AvailablePad = GetAvailableLandingPad(100.0f, Faction); // Default ship size
+    FPlanetaryLandingPad* AvailablePad = GetAvailableLandingPad(100.0f, Faction); // Default ship size
     if (AvailablePad)
     {
         return ReserveLandingPad(AvailablePad->PadID, Ship);
@@ -884,7 +889,7 @@ void APlanetaryLandingZone::InitializeLandingPads()
     LandingPadMap.Empty();
 
     // Create landing pads from zone data
-    for (const FLandingPad& Pad : LandingZoneData.LandingPads)
+    for (const FPlanetaryLandingPad& Pad : LandingZoneData.LandingPads)
     {
         LandingPadMap.Add(Pad.PadID, Pad);
     }
@@ -969,7 +974,7 @@ FName APlanetaryLandingZone::GeneratePadID()
 
 void APlanetaryLandingZone::CreateLandingPad(const FVector& Location, const FRotator& Rotation, float MaxSize)
 {
-    FLandingPad NewPad;
+    FPlanetaryLandingPad NewPad;
     NewPad.PadID = GeneratePadID();
     NewPad.Location = Location;
     NewPad.Rotation = Rotation;
@@ -1224,4 +1229,31 @@ void APlanetaryLandingZone::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
     DOREPLIFETIME(APlanetaryLandingZone, LandingZoneData);
     DOREPLIFETIME(APlanetaryLandingZone, CurrentEnvironment);
     DOREPLIFETIME(APlanetaryLandingZone, LandingPadMap);
+}
+
+void APlanetaryLandingZone::OnZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    if (OtherActor && OtherActor != this)
+    {
+        // Handle actor entering the zone
+        ShipsInZone.Add(OtherActor);
+        
+        // Check if it's a ship that can land
+        if (CanShipLand(OtherActor))
+        {
+            // Broadcast zone entry event if needed
+        }
+    }
+}
+
+void APlanetaryLandingZone::OnZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+    if (OtherActor && OtherActor != this)
+    {
+        // Handle actor leaving the zone
+        ShipsInZone.Remove(OtherActor);
+        ShipPadAssignments.Remove(OtherActor);
+        
+        // Broadcast zone exit event if needed
+    }
 }

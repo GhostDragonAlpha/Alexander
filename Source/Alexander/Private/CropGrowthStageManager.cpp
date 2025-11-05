@@ -1,7 +1,9 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CropGrowthStageManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "CropDefinition.h"
+#include "Engine/StaticMesh.h"
 
 UCropGrowthStageManager::UCropGrowthStageManager()
 {

@@ -1,4 +1,5 @@
 #include "Phase7IntegrationTest.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
@@ -8,6 +9,7 @@
 #include "EnhancedVFXSystem.h"
 #include "AudioSystemManager.h"
 #include "TutorialOnboardingSystem.h"
+#include "TutorialSystem.h"
 
 UPhase7IntegrationTest::UPhase7IntegrationTest()
 {
@@ -200,13 +202,13 @@ bool UPhase7IntegrationTest::TestAudioSystem()
     }
     
     // Test audio settings
-    FAudioSettings TestSettings;
+    FAudioSystemSettings TestSettings;
     TestSettings.MasterVolume = 0.8f;
     TestSettings.MusicVolume = 0.7f;
     TestSettings.SFXVolume = 0.9f;
     TestSettings.bEnable3DAudio = true;
     TestSettings.bEnableHRTF = true;
-    
+
     AudioSystem->SetAudioSettings(TestSettings);
     
     // Test audio zones
@@ -220,9 +222,9 @@ bool UPhase7IntegrationTest::TestAudioSystem()
     AudioSystem->CreateAudioZone(TestZone);
     
     bool bTestPassed = true;
-    
+
     // Verify audio system functionality
-    FAudioSettings RetrievedSettings = AudioSystem->GetAudioSettings();
+    FAudioSystemSettings RetrievedSettings = AudioSystem->GetAudioSettings();
     if (FMath::Abs(RetrievedSettings.MasterVolume - TestSettings.MasterVolume) > 0.01f)
     {
         bTestPassed = false;
@@ -258,14 +260,14 @@ bool UPhase7IntegrationTest::TestTutorialSystem()
     TestTutorial.Difficulty = ETutorialDifficulty::Beginner;
     TestTutorial.bIsMandatory = false;
     TestTutorial.EstimatedDuration = 60.0f;
-    
-    FTutorialStep TestStep;
+
+    FTutorialOnboardingStep TestStep;
     TestStep.StepID = "TestStep";
     TestStep.Title = "Test Step";
     TestStep.StepType = ETutorialStepType::Information;
     TestStep.Duration = 5.0f;
     TestStep.bIsOptional = false;
-    
+
     TestTutorial.Steps.Add(TestStep);
     TutorialSystem->RegisterTutorial(TestTutorial);
     

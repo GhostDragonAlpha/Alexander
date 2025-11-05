@@ -3,10 +3,17 @@
 #include "VRSeedItem.h"
 #include "FarmPlot.h"
 #include "CropDefinition.h"
+#include "Components/SceneComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "MotionControllerComponent.h"          // For UMotionControllerComponent
+#include "Math/UnrealMathUtility.h"
+#include "Math/Quat.h"                // For FQuat operations
+#include "Math/Vector.h"
+#include "Math/Transform.h"
+#include "PhysicsEngine/BodyInstance.h"
 
 AVRSeedItem::AVRSeedItem()
 {

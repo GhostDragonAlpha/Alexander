@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Spaceship.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "CockpitComponent.h"
 #include "EngineComponent.h"
 #include "Components/StaticMeshComponent.h"
@@ -332,14 +333,14 @@ void ASpaceship::UpdateFlightPhysics(float DeltaTime)
 	// Apply rotation
 	if (bIsRotating)
 	{
-		FVector AngularVelocity = RotationInput * MaxAngularVelocity;
+		FVector RotationVelocity = RotationInput * MaxAngularVelocity;
 		FRotator DeltaRotation = FRotator(
-			AngularVelocity.X * DeltaTime,
-			AngularVelocity.Y * DeltaTime,
-			AngularVelocity.Z * DeltaTime
+			RotationVelocity.X * DeltaTime,
+			RotationVelocity.Y * DeltaTime,
+			RotationVelocity.Z * DeltaTime
 		);
 		AddActorWorldRotation(DeltaRotation);
-		CurrentAngularVelocity = AngularVelocity;
+		CurrentAngularVelocity = RotationVelocity;
 	}
 	else
 	{

@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TerrainStreamingManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "TerrainTile.h"
 #include "HAL/PlatformTime.h"
 

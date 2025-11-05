@@ -100,7 +100,6 @@ public:
 	// Tick function
 	virtual void Tick(float DeltaTime);
 	virtual bool IsTickable() const { return true; }
-	virtual TStatId GetStatId() const override;
 
 	// ============================================================================
 	// FARM PLOT MANAGEMENT

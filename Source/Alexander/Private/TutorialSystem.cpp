@@ -4,521 +4,528 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Camera/CameraComponent.h"             // For UCameraComponent
+#include "Components/InputComponent.h"          // For UInputComponent
+#include "GameFramework/PlayerInput.h"          // For player input handling
 
-ATutorialSystem::ATutorialSystem()
+void UTutorialSystem::Initialize(FSubsystemCollectionBase& Collection)
 {
-    PrimaryActorTick.bCanEverTick = true;
-    PrimaryActorTick.TickInterval = 0.1f; // 10 Hz
+	Super::Initialize(Collection);
 
-    // Settings
-    bTutorialsEnabled = true;
-    bContextHintsEnabled = true;
-    bAutoStartOnboarding = true;
-    ContextHintCheckInterval = 2.0f;
-    MaxActiveSteps = 3;
-    bSaveProgressAutomatically = true;
+	// Initialize predefined tutorials
+	InitializeFarmingTutorial();
+	InitializeLandingTutorial();
+	InitializeVRInteractionTutorial();
+	InitializeBiomeExplorationTutorial();
 
-    // Timing
-    LastContextCheckTime = 0.0f;
-    OnboardingStartTime = 0.0f;
+	UE_LOG(LogTemp, Log, TEXT("Tutorial System initialized with %d tutorials"), TutorialSequences.Num());
 }
 
-void ATutorialSystem::BeginPlay()
+void UTutorialSystem::Deinitialize()
 {
-    Super::BeginPlay();
+	if (GetWorld())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(UpdateTimerHandle);
+	}
 
-    // Load saved progress
-    LoadTutorialProgress();
-
-    // Auto-start onboarding if enabled and not completed
-    if (bAutoStartOnboarding && !Progress.bOnboardingCompleted)
-    {
-        StartOnboarding();
-    }
-
-    UpdateTutorialStats();
+	Super::Deinitialize();
 }
 
-void ATutorialSystem::Tick(float DeltaTime)
+void UTutorialSystem::StartTutorial(FName TutorialName)
 {
-    Super::Tick(DeltaTime);
+	// Check if already completed and set to show once
+	if (HasCompletedTutorial(TutorialName))
+	{
+		const FTutorialSequence* Sequence = TutorialSequences.Find(TutorialName);
+		if (Sequence && Sequence->bShowOnce)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Tutorial %s already completed and set to show once"), *TutorialName.ToString());
+			return;
+		}
+	}
 
-    if (!bTutorialsEnabled)
-    {
-        return;
-    }
+	// Find tutorial sequence
+	const FTutorialSequence* Sequence = TutorialSequences.Find(TutorialName);
+	if (!Sequence)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Tutorial %s not found"), *TutorialName.ToString());
+		return;
+	}
 
-    // Update active tutorials
-    UpdateActiveTutorials(DeltaTime);
+	// Stop current tutorial if active
+	if (bTutorialActive)
+	{
+		StopCurrentTutorial();
+	}
 
-    // Check context hints periodically
-    if (bContextHintsEnabled)
-    {
-        float CurrentTime = GetWorld()->GetTimeSeconds();
-        if (CurrentTime - LastContextCheckTime >= ContextHintCheckInterval)
-        {
-            CheckContextHints();
-            LastContextCheckTime = CurrentTime;
-        }
-    }
+	// Start new tutorial
+	CurrentTutorial = *Sequence;
+	CurrentStepIndex = 0;
+	StepTimer = 0.0f;
+	bTutorialActive = true;
 
-    // Update stats
-    UpdateTutorialStats();
+	// Start update timer
+	GetWorld()->GetTimerManager().SetTimer(
+		UpdateTimerHandle,
+		[this]() { UpdateTutorial(0.1f); },
+		0.1f,
+		true
+	);
+
+	ShowTutorialUI();
+
+	UE_LOG(LogTemp, Log, TEXT("Started tutorial: %s"), *TutorialName.ToString());
 }
 
-void ATutorialSystem::StartTutorialStep(const FString& StepID)
+void UTutorialSystem::StopCurrentTutorial()
 {
-    if (!bTutorialsEnabled)
-    {
-        return;
-    }
+	if (!bTutorialActive)
+	{
+		return;
+	}
 
-    FTutorialSystemStep* Step = TutorialSteps.Find(StepID);
-    if (!Step)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Tutorial step not found: %s"), *StepID);
-        return;
-    }
+	bTutorialActive = false;
+	GetWorld()->GetTimerManager().ClearTimer(UpdateTimerHandle);
+	HideTutorialUI();
 
-    // Check if already active or completed
-    if (Step->State == ETutorialStepState::InProgress)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Tutorial step already active: %s"), *StepID);
-        return;
-    }
-
-    if (Step->State == ETutorialStepState::Completed)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Tutorial step already completed: %s"), *StepID);
-        return;
-    }
-
-    // Check prerequisites
-    if (!ArePrerequisitesMet(*Step))
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Tutorial prerequisites not met: %s"), *StepID);
-        return;
-    }
-
-    // Check max active steps
-    if (ActiveSteps.Num() >= MaxActiveSteps)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Max active tutorial steps reached"));
-        return;
-    }
-
-    // Start the step
-    Step->State = ETutorialStepState::InProgress;
-    Step->StartTime = GetWorld()->GetTimeSeconds();
-    ActiveSteps.Add(StepID);
-
-    // Update progress
-    Progress.StepStates.Add(StepID, ETutorialStepState::InProgress);
-
-    // Broadcast event
-    OnTutorialStepStarted.Broadcast(StepID, *Step);
-
-    UE_LOG(LogTemp, Log, TEXT("Started tutorial step: %s - %s"), *StepID, *Step->Title.ToString());
+	UE_LOG(LogTemp, Log, TEXT("Stopped tutorial: %s"), *CurrentTutorial.SequenceName.ToString());
 }
 
-void ATutorialSystem::CompleteTutorialStep(const FString& StepID)
+void UTutorialSystem::SkipCurrentTutorial()
 {
-    FTutorialSystemStep* Step = TutorialSteps.Find(StepID);
-    if (!Step || Step->State != ETutorialStepState::InProgress)
-    {
-        return;
-    }
+	if (!bTutorialActive || !CurrentTutorial.bCanSkip)
+	{
+		return;
+	}
 
-    // Calculate completion time
-    float CompletionTime = GetWorld()->GetTimeSeconds() - Step->StartTime;
+	MarkTutorialCompleted(CurrentTutorial.SequenceName);
+	StopCurrentTutorial();
 
-    // Update step state
-    Step->State = ETutorialStepState::Completed;
-    ActiveSteps.Remove(StepID);
-
-    // Update progress
-    Progress.StepStates.Add(StepID, ETutorialStepState::Completed);
-    Progress.CompletedSteps.AddUnique(StepID);
-    Progress.TotalStepsCompleted++;
-    Progress.TotalTutorialTime += CompletionTime;
-
-    // Save progress if auto-save enabled
-    if (bSaveProgressAutomatically)
-    {
-        SaveTutorialProgress();
-    }
-
-    // Broadcast event
-    OnTutorialStepCompleted.Broadcast(StepID, CompletionTime);
-
-    UE_LOG(LogTemp, Log, TEXT("Completed tutorial step: %s in %.2f seconds"), *StepID, CompletionTime);
+	UE_LOG(LogTemp, Log, TEXT("Skipped tutorial: %s"), *CurrentTutorial.SequenceName.ToString());
 }
 
-void ATutorialSystem::SkipTutorialStep(const FString& StepID)
+void UTutorialSystem::CompleteCurrentStep()
 {
-    FTutorialSystemStep* Step = TutorialSteps.Find(StepID);
-    if (!Step || Step->State != ETutorialStepState::InProgress)
-    {
-        return;
-    }
+	if (!bTutorialActive || CurrentStepIndex >= CurrentTutorial.Steps.Num())
+	{
+		return;
+	}
 
-    if (!Step->bCanSkip)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Tutorial step cannot be skipped: %s"), *StepID);
-        return;
-    }
-
-    // Update step state
-    Step->State = ETutorialStepState::Skipped;
-    ActiveSteps.Remove(StepID);
-
-    // Update progress
-    Progress.StepStates.Add(StepID, ETutorialStepState::Skipped);
-    Progress.SkippedSteps.AddUnique(StepID);
-
-    // Save progress
-    if (bSaveProgressAutomatically)
-    {
-        SaveTutorialProgress();
-    }
-
-    // Broadcast event
-    OnTutorialStepSkipped.Broadcast(StepID);
-
-    UE_LOG(LogTemp, Log, TEXT("Skipped tutorial step: %s"), *StepID);
+	AdvanceToNextStep();
 }
 
-void ATutorialSystem::ResetTutorialStep(const FString& StepID)
+void UTutorialSystem::MarkTutorialCompleted(FName TutorialName)
 {
-    FTutorialSystemStep* Step = TutorialSteps.Find(StepID);
-    if (!Step)
-    {
-        return;
-    }
-
-    // Reset step state
-    Step->State = ETutorialStepState::NotStarted;
-    Step->StartTime = 0.0f;
-    ActiveSteps.Remove(StepID);
-
-    // Update progress
-    Progress.StepStates.Remove(StepID);
-    Progress.CompletedSteps.Remove(StepID);
-    Progress.SkippedSteps.Remove(StepID);
-
-    UE_LOG(LogTemp, Log, TEXT("Reset tutorial step: %s"), *StepID);
+	CompletedTutorials.Add(TutorialName);
+	UE_LOG(LogTemp, Log, TEXT("Marked tutorial completed: %s"), *TutorialName.ToString());
 }
 
-bool ATutorialSystem::IsTutorialStepActive(const FString& StepID) const
+bool UTutorialSystem::HasCompletedTutorial(FName TutorialName) const
 {
-    const FTutorialSystemStep* Step = TutorialSteps.Find(StepID);
-    return Step && Step->State == ETutorialStepState::InProgress;
+	return CompletedTutorials.Contains(TutorialName);
 }
 
-bool ATutorialSystem::IsTutorialStepCompleted(const FString& StepID) const
+FTutorialStep UTutorialSystem::GetCurrentStep() const
 {
-    const FTutorialSystemStep* Step = TutorialSteps.Find(StepID);
-    return Step && Step->State == ETutorialStepState::Completed;
+	if (bTutorialActive && CurrentStepIndex < CurrentTutorial.Steps.Num())
+	{
+		return CurrentTutorial.Steps[CurrentStepIndex];
+	}
+	return FTutorialStep();
 }
 
-void ATutorialSystem::RegisterTutorialStep(const FTutorialSystemStep& Step)
+int32 UTutorialSystem::GetTotalSteps() const
 {
-    TutorialSteps.Add(Step.StepID, Step);
-    UE_LOG(LogTemp, Log, TEXT("Registered tutorial step: %s - %s"), *Step.StepID, *Step.Title.ToString());
+	return bTutorialActive ? CurrentTutorial.Steps.Num() : 0;
 }
 
-void ATutorialSystem::StartOnboarding()
+void UTutorialSystem::UpdateTutorial(float DeltaTime)
 {
-    if (Progress.bOnboardingCompleted)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Onboarding already completed"));
-        return;
-    }
+	if (!bTutorialActive || CurrentStepIndex >= CurrentTutorial.Steps.Num())
+	{
+		return;
+	}
 
-    OnboardingStartTime = GetWorld()->GetTimeSeconds();
+	const FTutorialStep& CurrentStep = CurrentTutorial.Steps[CurrentStepIndex];
 
-    // Start first onboarding step if available
-    if (OnboardingSteps.Num() > 0)
-    {
-        StartTutorialStep(OnboardingSteps[0]);
-    }
+	// Update timer
+	StepTimer += DeltaTime;
 
-    UE_LOG(LogTemp, Log, TEXT("Started onboarding"));
+	// Auto-advance if step doesn't require completion
+	if (!CurrentStep.bRequiresCompletion && StepTimer >= CurrentStep.Duration)
+	{
+		AdvanceToNextStep();
+	}
 }
 
-void ATutorialSystem::CompleteOnboarding()
+void UTutorialSystem::AdvanceToNextStep()
 {
-    if (Progress.bOnboardingCompleted)
-    {
-        return;
-    }
+	CurrentStepIndex++;
+	StepTimer = 0.0f;
 
-    float TotalTime = GetWorld()->GetTimeSeconds() - OnboardingStartTime;
-    Progress.bOnboardingCompleted = true;
-
-    // Save progress
-    if (bSaveProgressAutomatically)
-    {
-        SaveTutorialProgress();
-    }
-
-    // Broadcast event
-    OnOnboardingCompleted.Broadcast(TotalTime);
-
-    UE_LOG(LogTemp, Log, TEXT("Completed onboarding in %.2f seconds"), TotalTime);
+	if (CurrentStepIndex >= CurrentTutorial.Steps.Num())
+	{
+		// Tutorial completed
+		MarkTutorialCompleted(CurrentTutorial.SequenceName);
+		StopCurrentTutorial();
+	}
+	else
+	{
+		// Show next step
+		ShowTutorialUI();
+	}
 }
 
-bool ATutorialSystem::IsOnboardingComplete() const
+void UTutorialSystem::ShowTutorialUI()
 {
-    return Progress.bOnboardingCompleted;
+	// This would be implemented with UMG widgets
+	// For now, just log the tutorial step
+	if (bTutorialActive && CurrentStepIndex < CurrentTutorial.Steps.Num())
+	{
+		const FTutorialStep& Step = CurrentTutorial.Steps[CurrentStepIndex];
+		UE_LOG(LogTemp, Log, TEXT("Tutorial Step %d/%d: %s"), 
+			CurrentStepIndex + 1, 
+			CurrentTutorial.Steps.Num(),
+			*Step.Title.ToString());
+	}
 }
 
-void ATutorialSystem::ResetOnboarding()
+void UTutorialSystem::HideTutorialUI()
 {
-    Progress.bOnboardingCompleted = false;
-    OnboardingStartTime = 0.0f;
-
-    // Reset all onboarding steps
-    for (const FString& StepID : OnboardingSteps)
-    {
-        ResetTutorialStep(StepID);
-    }
-
-    UE_LOG(LogTemp, Log, TEXT("Reset onboarding"));
+	// Hide tutorial UI widgets
 }
 
-void ATutorialSystem::RegisterContextHint(const FContextHint& Hint)
+void UTutorialSystem::InitializeFarmingTutorial()
 {
-    ContextHints.Add(Hint.HintID, Hint);
-    UE_LOG(LogTemp, Log, TEXT("Registered context hint: %s"), *Hint.HintID);
+	FTutorialSequence FarmingTutorial;
+	FarmingTutorial.SequenceName = "FarmingBasics";
+	FarmingTutorial.SequenceTitle = FText::FromString("Farming Tutorial");
+	FarmingTutorial.bCanSkip = true;
+	FarmingTutorial.bShowOnce = true;
+
+	// Step 1: Introduction
+	FTutorialStep Step1;
+	Step1.Title = FText::FromString("Welcome to Farming");
+	Step1.Description = FText::FromString("Learn how to establish and manage farms on planetary surfaces. Farming allows you to grow crops for food and resources.");
+	Step1.HintText = FText::FromString("Press any key to continue");
+	Step1.Duration = 5.0f;
+	Step1.bRequiresCompletion = false;
+	FarmingTutorial.Steps.Add(Step1);
+
+	// Step 2: Finding suitable location
+	FTutorialStep Step2;
+	Step2.Title = FText::FromString("Finding a Farm Location");
+	Step2.Description = FText::FromString("Look for flat terrain with a slope less than 15 degrees. Check the biome type - some biomes are better for farming than others.");
+	Step2.HintText = FText::FromString("Use your scanner to check soil quality");
+	Step2.Duration = 8.0f;
+	Step2.bRequiresCompletion = false;
+	FarmingTutorial.Steps.Add(Step2);
+
+	// Step 3: Creating farm plot
+	FTutorialStep Step3;
+	Step3.Title = FText::FromString("Creating a Farm Plot");
+	Step3.Description = FText::FromString("Open your build menu and select 'Farm Plot'. Place it on suitable terrain. The plot will show green if the location is valid.");
+	Step3.HintText = FText::FromString("Place a farm plot");
+	Step3.Duration = 10.0f;
+	Step3.bRequiresCompletion = true;
+	Step3.CompletionTag = "FarmPlotPlaced";
+	FarmingTutorial.Steps.Add(Step3);
+
+	// Step 4: Planting seeds
+	FTutorialStep Step4;
+	Step4.Title = FText::FromString("Planting Seeds");
+	Step4.Description = FText::FromString("In VR, grab seeds from your inventory and make a planting gesture over the soil. Each crop has different requirements for temperature and humidity.");
+	Step4.HintText = FText::FromString("Plant your first crop");
+	Step4.Duration = 10.0f;
+	Step4.bRequiresCompletion = true;
+	Step4.CompletionTag = "CropPlanted";
+	FarmingTutorial.Steps.Add(Step4);
+
+	// Step 5: Watering
+	FTutorialStep Step5;
+	Step5.Title = FText::FromString("Watering Crops");
+	Step5.Description = FText::FromString("Crops need water to grow. Grab the watering can and pour water over your crops. Rain will also water them naturally.");
+	Step5.HintText = FText::FromString("Water your crops");
+	Step5.Duration = 8.0f;
+	Step5.bRequiresCompletion = true;
+	Step5.CompletionTag = "CropsWatered";
+	FarmingTutorial.Steps.Add(Step5);
+
+	// Step 6: Monitoring growth
+	FTutorialStep Step6;
+	Step6.Title = FText::FromString("Monitoring Growth");
+	Step6.Description = FText::FromString("Crops grow through multiple stages. Look at a crop to see its health and growth progress. Environmental conditions affect growth rate.");
+	Step6.HintText = FText::FromString("Inspect a crop");
+	Step6.Duration = 8.0f;
+	Step6.bRequiresCompletion = false;
+	FarmingTutorial.Steps.Add(Step6);
+
+	// Step 7: Harvesting
+	FTutorialStep Step7;
+	Step7.Title = FText::FromString("Harvesting");
+	Step7.Description = FText::FromString("When crops reach 100% growth, they're ready to harvest. Grab the mature crop to harvest it. You'll receive resources that can be sold or used.");
+	Step7.HintText = FText::FromString("Harvest a mature crop");
+	Step7.Duration = 8.0f;
+	Step7.bRequiresCompletion = true;
+	Step7.CompletionTag = "CropHarvested";
+	FarmingTutorial.Steps.Add(Step7);
+
+	// Step 8: Soil management
+	FTutorialStep Step8;
+	Step8.Title = FText::FromString("Soil Management");
+	Step8.Description = FText::FromString("Soil fertility depletes with repeated planting. Use fertilizer to restore soil quality. Crop rotation also helps maintain healthy soil.");
+	Step8.HintText = FText::FromString("Tutorial complete!");
+	Step8.Duration = 6.0f;
+	Step8.bRequiresCompletion = false;
+	FarmingTutorial.Steps.Add(Step8);
+
+	TutorialSequences.Add("FarmingBasics", FarmingTutorial);
 }
 
-void ATutorialSystem::TriggerContextHint(const FString& HintID)
+void UTutorialSystem::InitializeLandingTutorial()
 {
-    if (!bContextHintsEnabled)
-    {
-        return;
-    }
+	FTutorialSequence LandingTutorial;
+	LandingTutorial.SequenceName = "LandingGuidance";
+	LandingTutorial.SequenceTitle = FText::FromString("Landing Tutorial");
+	LandingTutorial.bCanSkip = true;
+	LandingTutorial.bShowOnce = true;
 
-    FContextHint* Hint = ContextHints.Find(HintID);
-    if (!Hint)
-    {
-        return;
-    }
+	// Step 1: Approaching planet
+	FTutorialStep Step1;
+	Step1.Title = FText::FromString("Approaching a Planet");
+	Step1.Description = FText::FromString("As you approach a planet, you'll enter its atmosphere. Watch your altitude and speed indicators.");
+	Step1.HintText = FText::FromString("Approach the planet");
+	Step1.Duration = 6.0f;
+	Step1.bRequiresCompletion = false;
+	LandingTutorial.Steps.Add(Step1);
 
-    if (!CanShowContextHint(HintID))
-    {
-        return;
-    }
+	// Step 2: Atmospheric entry
+	FTutorialStep Step2;
+	Step2.Title = FText::FromString("Atmospheric Entry");
+	Step2.Description = FText::FromString("Entering the atmosphere will cause turbulence and heat effects. Reduce speed to avoid damage. Atmospheric drag will slow you down.");
+	Step2.HintText = FText::FromString("Enter the atmosphere");
+	Step2.Duration = 8.0f;
+	Step2.bRequiresCompletion = true;
+	Step2.CompletionTag = "AtmosphereEntered";
+	LandingTutorial.Steps.Add(Step2);
 
-    // Update hint tracking
-    Hint->TimesDisplayed++;
-    Hint->LastDisplayTime = GetWorld()->GetTimeSeconds();
+	// Step 3: Finding landing zone
+	FTutorialStep Step3;
+	Step3.Title = FText::FromString("Finding a Landing Zone");
+	Step3.Description = FText::FromString("Look for landing pad markers on your HUD. Green markers indicate available landing pads. You can also land on flat terrain.");
+	Step3.HintText = FText::FromString("Locate a landing zone");
+	Step3.Duration = 8.0f;
+	Step3.bRequiresCompletion = false;
+	LandingTutorial.Steps.Add(Step3);
 
-    // Broadcast event
-    OnContextHintTriggered.Broadcast(HintID, Hint->HintText);
+	// Step 4: Landing guidance
+	FTutorialStep Step4;
+	Step4.Title = FText::FromString("Using Landing Guidance");
+	Step4.Description = FText::FromString("The landing guidance system shows your altitude, vertical speed, and alignment. Keep your ship level and reduce speed as you descend.");
+	Step4.HintText = FText::FromString("Follow the guidance indicators");
+	Step4.Duration = 10.0f;
+	Step4.bRequiresCompletion = false;
+	LandingTutorial.Steps.Add(Step4);
 
-    UE_LOG(LogTemp, Log, TEXT("Triggered context hint: %s"), *HintID);
+	// Step 5: Final approach
+	FTutorialStep Step5;
+	Step5.Title = FText::FromString("Final Approach");
+	Step5.Description = FText::FromString("Reduce speed to less than 10 m/s. Keep your ship aligned with the landing pad. The guidance system will turn green when properly aligned.");
+	Step5.HintText = FText::FromString("Align with landing pad");
+	Step5.Duration = 10.0f;
+	Step5.bRequiresCompletion = true;
+	Step5.CompletionTag = "LandingAligned";
+	LandingTutorial.Steps.Add(Step5);
+
+	// Step 6: Touchdown
+	FTutorialStep Step6;
+	Step6.Title = FText::FromString("Touchdown");
+	Step6.Description = FText::FromString("Gently lower your ship onto the landing pad. Vertical speed should be less than 2 m/s. Landing gear will deploy automatically.");
+	Step6.HintText = FText::FromString("Land your ship");
+	Step6.Duration = 8.0f;
+	Step6.bRequiresCompletion = true;
+	Step6.CompletionTag = "ShipLanded";
+	LandingTutorial.Steps.Add(Step6);
+
+	// Step 7: Post-landing
+	FTutorialStep Step7;
+	Step7.Title = FText::FromString("Landing Complete");
+	Step7.Description = FText::FromString("Your ship is now safely landed. You can exit and explore the surface. Remember to mark your landing location for easy return.");
+	Step7.HintText = FText::FromString("Tutorial complete!");
+	Step7.Duration = 5.0f;
+	Step7.bRequiresCompletion = false;
+	LandingTutorial.Steps.Add(Step7);
+
+	TutorialSequences.Add("LandingGuidance", LandingTutorial);
 }
 
-void ATutorialSystem::CheckContextHints()
+void 
+UTutorialSystem::InitializeVRInteractionTutorial()
 {
-    if (!bContextHintsEnabled)
-    {
-        return;
-    }
+	FTutorialSequence VRTutorial;
+	VRTutorial.SequenceName = "VRInteractions";
+	VRTutorial.SequenceTitle = FText::FromString("VR Interaction Tutorial");
+	VRTutorial.bCanSkip = true;
+	VRTutorial.bShowOnce = true;
 
-    // This is a placeholder for context-based hint triggering
-    // In a real implementation, this would check game state and trigger relevant hints
-    // For now, it just updates the last check time
+	// Step 1: Introduction
+	FTutorialStep Step1;
+	Step1.Title = FText::FromString("Welcome to VR");
+	Step1.Description = FText::FromString("This tutorial will teach you how to interact with the world using VR motion controllers.");
+	Step1.HintText = FText::FromString("Look around to continue");
+	Step1.Duration = 5.0f;
+	Step1.bRequiresCompletion = false;
+	VRTutorial.Steps.Add(Step1);
+
+	// Step 2: Movement
+	FTutorialStep Step2;
+	Step2.Title = FText::FromString("Movement");
+	Step2.Description = FText::FromString("Use the left thumbstick to move forward, backward, and strafe. Use the right thumbstick to turn or snap-turn based on your comfort settings.");
+	Step2.HintText = FText::FromString("Move around");
+	Step2.Duration = 8.0f;
+	Step2.bRequiresCompletion = false;
+	VRTutorial.Steps.Add(Step2);
+
+	// Step 3: Grabbing objects
+	FTutorialStep Step3;
+	Step3.Title = FText::FromString("Grabbing Objects");
+	Step3.Description = FText::FromString("Point at an object and squeeze the grip button to grab it. Release the grip to drop the object. You can grab with either hand.");
+	Step3.HintText = FText::FromString("Grab an object");
+	Step3.Duration = 10.0f;
+	Step3.bRequiresCompletion = true;
+	Step3.CompletionTag = "ObjectGrabbed";
+	VRTutorial.Steps.Add(Step3);
+
+	// Step 4: Using tools
+	FTutorialStep Step4;
+	Step4.Title = FText::FromString("Using Tools");
+	Step4.Description = FText::FromString("Many tools require specific gestures. For example, the watering can pours when tilted. The scanner activates when you point and press the trigger.");
+	Step4.HintText = FText::FromString("Use a tool");
+	Step4.Duration = 10.0f;
+	Step4.bRequiresCompletion = false;
+	VRTutorial.Steps.Add(Step4);
+
+	// Step 5: Planting gesture
+	FTutorialStep Step5;
+	Step5.Title = FText::FromString("Planting Gesture");
+	Step5.Description = FText::FromString("To plant seeds, grab them from your inventory, move your hand over soil, and make a downward motion. The seed will plant when you release.");
+	Step5.HintText = FText::FromString("Practice planting");
+	Step5.Duration = 10.0f;
+	Step5.bRequiresCompletion = true;
+	Step5.CompletionTag = "PlantingGesture";
+	VRTutorial.Steps.Add(Step5);
+
+	// Step 6: Harvesting
+	FTutorialStep Step6;
+	Step6.Title = FText::FromString("Harvesting");
+	Step6.Description = FText::FromString("To harvest crops, simply grab the mature plant. It will detach and be added to your inventory automatically.");
+	Step6.HintText = FText::FromString("Harvest a crop");
+	Step6.Duration = 8.0f;
+	Step6.bRequiresCompletion = false;
+	VRTutorial.Steps.Add(Step6);
+
+	// Step 7: Inventory
+	FTutorialStep Step7;
+	Step7.Title = FText::FromString("Inventory Access");
+	Step7.Description = FText::FromString("Press the menu button to open your inventory. You can grab items from the inventory panel and place them in the world.");
+	Step7.HintText = FText::FromString("Open inventory");
+	Step7.Duration = 8.0f;
+	Step7.bRequiresCompletion = false;
+	VRTutorial.Steps.Add(Step7);
+
+	// Step 8: Comfort settings
+	FTutorialStep Step8;
+	Step8.Title = FText::FromString("Comfort Settings");
+	Step8.Description = FText::FromString("If you feel uncomfortable, adjust comfort settings in the menu. Options include snap-turn, vignette, and teleport movement.");
+	Step8.HintText = FText::FromString("Tutorial complete!");
+	Step8.Duration = 6.0f;
+	Step8.bRequiresCompletion = false;
+	VRTutorial.Steps.Add(Step8);
+
+	TutorialSequences.Add("VRInteractions", VRTutorial);
 }
 
-bool ATutorialSystem::CanShowContextHint(const FString& HintID) const
+void UTutorialSystem::InitializeBiomeExplorationTutorial()
 {
-    const FContextHint* Hint = ContextHints.Find(HintID);
-    if (!Hint)
-    {
-        return false;
-    }
+	FTutorialSequence BiomeTutorial;
+	BiomeTutorial.SequenceName = "BiomeExploration";
+	BiomeTutorial.SequenceTitle = FText::FromString("Biome Exploration Tutorial");
+	BiomeTutorial.bCanSkip = true;
+	BiomeTutorial.bShowOnce = true;
 
-    // Check max display count
-    if (Hint->MaxDisplayCount > 0 && Hint->TimesDisplayed >= Hint->MaxDisplayCount)
-    {
-        return false;
-    }
+	// Step 1: Introduction
+	FTutorialStep Step1;
+	Step1.Title = FText::FromString("Exploring Biomes");
+	Step1.Description = FText::FromString("Planets have diverse biomes with unique environments, resources, and challenges. Learn how to explore and survive in different biomes.");
+	Step1.HintText = FText::FromString("Begin exploration");
+	Step1.Duration = 6.0f;
+	Step1.bRequiresCompletion = false;
+	BiomeTutorial.Steps.Add(Step1);
 
-    // Check cooldown
-    float CurrentTime = GetWorld()->GetTimeSeconds();
-    if (CurrentTime - Hint->LastDisplayTime < Hint->CooldownSeconds)
-    {
-        return false;
-    }
+	// Step 2: Biome identification
+	FTutorialStep Step2;
+	Step2.Title = FText::FromString("Identifying Biomes");
+	Step2.Description = FText::FromString("Use your scanner to identify the current biome. Each biome has distinct vegetation, terrain, and climate. Check temperature and humidity readings.");
+	Step2.HintText = FText::FromString("Scan the environment");
+	Step2.Duration = 8.0f;
+	Step2.bRequiresCompletion = true;
+	Step2.CompletionTag = "BiomeScanned";
+	BiomeTutorial.Steps.Add(Step2);
 
-    return true;
-}
+	// Step 3: Environmental hazards
+	FTutorialStep Step3;
+	Step3.Title = FText::FromString("Environmental Hazards");
+	Step3.Description = FText::FromString("Some biomes have hazards like extreme temperatures, toxic atmosphere, or dangerous weather. Monitor your suit's environmental protection.");
+	Step3.HintText = FText::FromString("Check environmental status");
+	Step3.Duration = 8.0f;
+	Step3.bRequiresCompletion = false;
+	BiomeTutorial.Steps.Add(Step3);
 
-FTutorialSystemProgress ATutorialSystem::GetTutorialProgress() const
-{
-    return Progress;
-}
+	// Step 4: Resource gathering
+	FTutorialStep Step4;
+	Step4.Title = FText::FromString("Gathering Resources");
+	Step4.Description = FText::FromString("Different biomes contain different resources. Use your scanner to locate valuable materials. Some resources are biome-specific.");
+	Step4.HintText = FText::FromString("Gather a resource");
+	Step4.Duration = 10.0f;
+	Step4.bRequiresCompletion = true;
+	Step4.CompletionTag = "ResourceGathered";
+	BiomeTutorial.Steps.Add(Step4);
 
-void ATutorialSystem::SaveTutorialProgress()
-{
-    // In a real implementation, this would save to a file or player save game
-    // For now, it's just a placeholder
-    UE_LOG(LogTemp, Log, TEXT("Saved tutorial progress - %d steps completed"), Progress.TotalStepsCompleted);
-}
+	// Step 5: Weather effects
+	FTutorialStep Step5;
+	Step5.Title = FText::FromString("Weather Effects");
+	Step5.Description = FText::FromString("Weather varies by biome. Rain can water crops but storms can damage them. Sandstorms reduce visibility. Snow affects movement speed.");
+	Step5.HintText = FText::FromString("Experience weather");
+	Step5.Duration = 8.0f;
+	Step5.bRequiresCompletion = false;
+	BiomeTutorial.Steps.Add(Step5);
 
-void ATutorialSystem::LoadTutorialProgress()
-{
-    // In a real implementation, this would load from a file or player save game
-    // For now, it's just a placeholder
-    UE_LOG(LogTemp, Log, TEXT("Loaded tutorial progress"));
-}
+	// Step 6: Biome transitions
+	FTutorialStep Step6;
+	Step6.Title = FText::FromString("Biome Transitions");
+	Step6.Description = FText::FromString("Biomes blend naturally at their boundaries. As you travel, you'll notice gradual changes in vegetation, terrain, and climate.");
+	Step6.HintText = FText::FromString("Cross a biome boundary");
+	Step6.Duration = 8.0f;
+	Step6.bRequiresCompletion = false;
+	BiomeTutorial.Steps.Add(Step6);
 
-float ATutorialSystem::GetCategoryProgress(ETutorialCategory Category) const
-{
-    int32 TotalSteps = 0;
-    int32 CompletedSteps = 0;
+	// Step 7: Farming suitability
+	FTutorialStep Step7;
+	Step7.Title = FText::FromString("Farming in Biomes");
+	Step7.Description = FText::FromString("Not all biomes are suitable for farming. Check soil quality and climate. Some crops only grow in specific biomes.");
+	Step7.HintText = FText::FromString("Check farming suitability");
+	Step7.Duration = 8.0f;
+	Step7.bRequiresCompletion = false;
+	BiomeTutorial.Steps.Add(Step7);
 
-    for (const auto& Pair : TutorialSteps)
-    {
-        if (Pair.Value.Category == Category)
-        {
-            TotalSteps++;
-            if (Pair.Value.State == ETutorialStepState::Completed)
-            {
-                CompletedSteps++;
-            }
-        }
-    }
+	// Step 8: Navigation
+	FTutorialStep Step8;
+	Step8.Title = FText::FromString("Navigation Tips");
+	Step8.Description = FText::FromString("Place waypoints to mark important locations. Use your ship's scanner to identify biomes from orbit. Plan your route based on biome types.");
+	Step8.HintText = FText::FromString("Tutorial complete!");
+	Step8.Duration = 6.0f;
+	Step8.bRequiresCompletion = false;
+	BiomeTutorial.Steps.Add(Step8);
 
-    return TotalSteps > 0 ? (float)CompletedSteps / (float)TotalSteps : 0.0f;
-}
-
-TArray<FTutorialSystemStep> ATutorialSystem::GetStepsByCategory(ETutorialCategory Category) const
-{
-    TArray<FTutorialSystemStep> Steps;
-    for (const auto& Pair : TutorialSteps)
-    {
-        if (Pair.Value.Category == Category)
-        {
-            Steps.Add(Pair.Value);
-        }
-    }
-    return Steps;
-}
-
-TArray<FTutorialSystemStep> ATutorialSystem::GetAvailableSteps() const
-{
-    TArray<FTutorialSystemStep> AvailableSteps;
-    for (const auto& Pair : TutorialSteps)
-    {
-        const FTutorialSystemStep& Step = Pair.Value;
-        if (Step.State == ETutorialStepState::NotStarted && ArePrerequisitesMet(Step))
-        {
-            AvailableSteps.Add(Step);
-        }
-    }
-    return AvailableSteps;
-}
-
-FTutorialSystemStep ATutorialSystem::GetStepInfo(const FString& StepID) const
-{
-    const FTutorialSystemStep* Step = TutorialSteps.Find(StepID);
-    return Step ? *Step : FTutorialSystemStep();
-}
-
-FTutorialStats ATutorialSystem::GetTutorialStats() const
-{
-    return Stats;
-}
-
-void ATutorialSystem::SetTutorialsEnabled(bool bEnabled)
-{
-    bTutorialsEnabled = bEnabled;
-    UE_LOG(LogTemp, Log, TEXT("Tutorials %s"), bEnabled ? TEXT("enabled") : TEXT("disabled"));
-}
-
-bool ATutorialSystem::AreTutorialsEnabled() const
-{
-    return bTutorialsEnabled;
-}
-
-void ATutorialSystem::SetContextHintsEnabled(bool bEnabled)
-{
-    bContextHintsEnabled = bEnabled;
-    UE_LOG(LogTemp, Log, TEXT("Context hints %s"), bEnabled ? TEXT("enabled") : TEXT("disabled"));
-}
-
-bool ATutorialSystem::AreContextHintsEnabled() const
-{
-    return bContextHintsEnabled;
-}
-
-void ATutorialSystem::UpdateActiveTutorials(float DeltaTime)
-{
-    TArray<FString> StepsToCheck = ActiveSteps;
-    for (const FString& StepID : StepsToCheck)
-    {
-        CheckStepCompletion(StepID);
-        CheckStepTimeout(StepID, DeltaTime);
-    }
-}
-
-void ATutorialSystem::CheckStepCompletion(const FString& StepID)
-{
-    // This is a placeholder for custom completion condition checking
-    // In a real implementation, this would evaluate the completion condition string
-    // and check if the condition is met in the game state
-}
-
-void ATutorialSystem::CheckStepTimeout(const FString& StepID, float DeltaTime)
-{
-    FTutorialSystemStep* Step = TutorialSteps.Find(StepID);
-    if (!Step || Step->State != ETutorialStepState::InProgress)
-    {
-        return;
-    }
-
-    if (Step->TimeoutSeconds <= 0.0f)
-    {
-        return;
-    }
-
-    float ElapsedTime = GetWorld()->GetTimeSeconds() - Step->StartTime;
-    if (ElapsedTime >= Step->TimeoutSeconds)
-    {
-        Step->State = ETutorialStepState::Failed;
-        ActiveSteps.Remove(StepID);
-
-        UE_LOG(LogTemp, Warning, TEXT("Tutorial step timed out: %s"), *StepID);
-    }
-}
-
-bool ATutorialSystem::ArePrerequisitesMet(const FTutorialSystemStep& Step) const
-{
-    for (const FString& PrereqID : Step.PrerequisiteSteps)
-    {
-        const FTutorialSystemStep* PrereqStep = TutorialSteps.Find(PrereqID);
-        if (!PrereqStep || PrereqStep->State != ETutorialStepState::Completed)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
-void ATutorialSystem::UpdateTutorialStats()
-{
-    Stats.TotalSteps = TutorialSteps.Num();
-    Stats.ActiveSteps = ActiveSteps.Num();
-    Stats.CompletedSteps = Progress.CompletedSteps.Num();
-    Stats.SkippedSteps = Progress.SkippedSteps.Num();
-    Stats.TotalTime = Progress.TotalTutorialTime;
-
-    if (Stats.CompletedSteps > 0)
-    {
-        Stats.AverageStepTime = Stats.TotalTime / (float)Stats.CompletedSteps;
-    }
+	TutorialSequences.Add("BiomeExploration", BiomeTutorial);
 }

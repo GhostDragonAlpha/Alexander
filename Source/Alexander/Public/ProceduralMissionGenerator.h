@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MissionBoardComponent.h"
+#include "FirstMissionGameMode.h"
 #include "ProceduralMissionGenerator.generated.h"
 
 UENUM(BlueprintType)
@@ -46,7 +47,8 @@ enum class EMissionContext : uint8
     Civilian,
     Corporate,
     Criminal,
-    Alien
+    Alien,
+    Combat
 };
 
 UENUM(BlueprintType)
@@ -291,10 +293,10 @@ public:
     // ===== Objective Generation =====
     
     UFUNCTION(BlueprintCallable, Category = "Objectives")
-    TArray<FMissionObjective> GenerateObjectives(const FMissionTemplate& Template, const FMissionGenerationContext& Context);
+    TArray<FMissionBoardObjective> GenerateObjectives(const FMissionTemplate& Template, const FMissionGenerationContext& Context);
 
     UFUNCTION(BlueprintCallable, Category = "Objectives")
-    FMissionObjective GenerateObjective(const FMissionObjectiveTemplate& ObjectiveTemplate, const FMissionGenerationContext& Context);
+    FMissionBoardObjective GenerateObjective(const FMissionObjectiveTemplate& ObjectiveTemplate, const FMissionGenerationContext& Context);
 
     UFUNCTION(BlueprintCallable, Category = "Objectives")
     void RegisterObjectiveTemplate(const FMissionObjectiveTemplate& ObjectiveTemplate);
@@ -446,8 +448,8 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Templates")
     TArray<FMissionObjectiveTemplate> ObjectiveTemplates;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Templates")
-    TMap<FName, FMissionObjectiveTemplate> ObjectiveTemplateMap;
+    // Internal storage for objective templates by category
+    TMap<FName, TArray<FMissionObjectiveTemplate>> ObjectiveTemplateMap;
 
     // ===== Mission Chains =====
     

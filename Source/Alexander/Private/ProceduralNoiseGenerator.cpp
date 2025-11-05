@@ -2,6 +2,7 @@
 
 #include "ProceduralNoiseGenerator.h"
 #include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 UProceduralNoiseGenerator::UProceduralNoiseGenerator()
 {

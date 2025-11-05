@@ -152,6 +152,10 @@ private:
     // Internal state
     float TimeSinceLastOptimization;
     
+    // Delegate handlers
+    UFUNCTION()
+    void HandleOptimizationComplete(const FTickOptimizationReport& Report);
+    
     // Internal functions
     void GatherTickingComponents();
     void AnalyzeComponent(UActorComponent* Component);

@@ -113,7 +113,7 @@ void UTickReportingComponent::LoadTickConfiguration(const FString& ConfigName, c
     {
         for (const auto& Pair : *Config)
         {
-            if (Pair.Key.IsValid())
+            if (Pair.Key && !Pair.Key->IsBeingDestroyed())
             {
                 Pair.Key->PrimaryComponentTick.TickInterval = Pair.Value;
             }

@@ -1,4 +1,5 @@
 #include "MissionBoardComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -68,7 +69,8 @@ void UMissionBoardComponent::InitializeMissionBoard()
     }
 
     // Initialize mission system
-    MissionSystem = NewObject<UMissionSystem>(this, TEXT("MissionSystem"));
+    // NOTE: UMissionSystem is not currently available - commented out
+    // MissionSystem = NewObject<UMissionSystem>(this, TEXT("MissionSystem"));
 
     // Load mission templates
     LoadMissionTemplates();
@@ -1484,7 +1486,7 @@ void UMissionBoardComponent::GrantItems(APlayerState* Player, const TMap<FName, 
                     FCommodityData ItemCommodity;
                     ItemCommodity.CommodityName = ItemPair.Key;
                     ItemCommodity.BasePrice = 0.0f; // Mission rewards are free
-                    ItemCommodity.Volume = 1.0f;
+                    ItemCommodity.VolumePerUnit = 1.0f;
 
                     // Check if player has cargo space
                     if (EconomySystem->HasCargoSpace(ItemCommodity, ItemPair.Value))

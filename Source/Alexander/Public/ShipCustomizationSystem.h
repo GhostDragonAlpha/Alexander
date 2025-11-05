@@ -544,6 +544,7 @@ private:
     void InitializeSlots();
     void RecalculatePerformance();
     FShipComponentData* FindComponentInInventory(const FString& ComponentID);
+    const FShipComponentData* FindComponentInInventory(const FString& ComponentID) const;
     bool ValidateComponentRequirements(const FShipComponentData& Component) const;
     float CalculateStatBonus(const FString& StatName) const;
     void ApplyComponentVisuals(const FShipComponentData& Component, const FString& SlotID);

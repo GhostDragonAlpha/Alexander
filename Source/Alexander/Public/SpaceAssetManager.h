@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Engine/AssetManager.h"
+#include "AlexanderAssetManager.h"
 #include "SpaceAssetManager.generated.h"
 
 // Forward declarations

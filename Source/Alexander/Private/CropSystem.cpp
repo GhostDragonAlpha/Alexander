@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CropSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 
 UCropSystem::UCropSystem()
 {

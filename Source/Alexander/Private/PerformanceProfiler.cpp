@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PerformanceProfiler.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "HAL/PlatformMemory.h"
@@ -11,6 +12,7 @@
 #include "HAL/PlatformTime.h"
 #include "Engine/Engine.h"
 #include "EngineUtils.h"
+#include "GameSystemCoordinator.h"
 
 UPerformanceProfiler::UPerformanceProfiler()
 {
@@ -145,7 +147,7 @@ void UPerformanceProfiler::RegisterSystem(const FString& SystemName, EPerformanc
 {
     if (!SystemData.Contains(SystemName))
     {
-        FSystemPerformanceData NewData;
+        FPerformanceProfilerData NewData;
         NewData.SystemName = SystemName;
         NewData.Category = Category;
         SystemData.Add(SystemName, NewData);
@@ -223,7 +225,7 @@ void UPerformanceProfiler::CaptureFrameMetrics()
 
 void UPerformanceProfiler::UpdateSystemMetrics(const FString& SystemName, float TickTime)
 {
-    FSystemPerformanceData* Data = SystemData.Find(SystemName);
+    FPerformanceProfilerData* Data = SystemData.Find(SystemName);
     if (!Data)
     {
         // Auto-register if not registered
@@ -384,17 +386,17 @@ FAlexanderFrameMetrics UPerformanceProfiler::GetAverageFrameMetrics() const
     return Average;
 }
 
-TArray<FSystemPerformanceData> UPerformanceProfiler::GetSystemPerformanceData() const
+TArray<FPerformanceProfilerData> UPerformanceProfiler::GetSystemPerformanceData() const
 {
-    TArray<FSystemPerformanceData> Result;
+    TArray<FPerformanceProfilerData> Result;
     SystemData.GenerateValueArray(Result);
     return Result;
 }
 
-FSystemPerformanceData UPerformanceProfiler::GetSystemData(const FString& SystemName) const
+FPerformanceProfilerData UPerformanceProfiler::GetSystemData(const FString& SystemName) const
 {
-    const FSystemPerformanceData* Data = SystemData.Find(SystemName);
-    return Data ? *Data : FSystemPerformanceData();
+    const FPerformanceProfilerData* Data = SystemData.Find(SystemName);
+    return Data ? *Data : FPerformanceProfilerData();
 }
 
 float UPerformanceProfiler::GetAverageFPS() const
@@ -485,15 +487,15 @@ FString UPerformanceProfiler::GeneratePerformanceReport() const
     {
         Report += TEXT("--- System Performance ---\n");
         
-        TArray<FSystemPerformanceData> Systems;
+        TArray<FPerformanceProfilerData> Systems;
         SystemData.GenerateValueArray(Systems);
         
         // Sort by average tick time
-        Systems.Sort([](const FSystemPerformanceData& A, const FSystemPerformanceData& B) {
+        Systems.Sort([](const FPerformanceProfilerData& A, const FPerformanceProfilerData& B) {
             return A.AverageTickTimeMs > B.AverageTickTimeMs;
         });
         
-        for (const FSystemPerformanceData& System : Systems)
+        for (const FPerformanceProfilerData& System : Systems)
         {
             Report += FString::Printf(TEXT("\n%s:\n"), *System.SystemName);
             Report += FString::Printf(TEXT("  Avg Tick: %.3fms\n"), System.AverageTickTimeMs);
@@ -530,11 +532,11 @@ FString UPerformanceProfiler::GeneratePerformanceReport() const
 
 TArray<FString> UPerformanceProfiler::GetBottleneckSystems(int32 TopN) const
 {
-    TArray<FSystemPerformanceData> Systems;
+    TArray<FPerformanceProfilerData> Systems;
     SystemData.GenerateValueArray(Systems);
     
     // Sort by average tick time descending
-    Systems.Sort([](const FSystemPerformanceData& A, const FSystemPerformanceData& B) {
+    Systems.Sort([](const FPerformanceProfilerData& A, const FPerformanceProfilerData& B) {
         return A.AverageTickTimeMs > B.AverageTickTimeMs;
     });
     

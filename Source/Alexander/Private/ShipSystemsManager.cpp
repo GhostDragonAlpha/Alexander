@@ -521,6 +521,20 @@ void UShipSystemsManager::UpdateCoolingSystems(float DeltaTime)
 	Cooling->PowerUsage = CoolingPower * Cooling->Efficiency;
 }
 
+float UShipSystemsManager::CalculateAverageTemperature() const
+{
+	if (ShipSystems.Num() == 0)
+		return 20.0f;
+		
+	float TotalTemp = 0.0f;
+	for (const FShipSystemData& System : ShipSystems)
+	{
+		TotalTemp += System.Temperature;
+	}
+	
+	return TotalTemp / ShipSystems.Num();
+}
+
 void UShipSystemsManager::UpdateSystemInteractions()
 {
 	// Check for cascading effects
@@ -693,9 +707,6 @@ float UShipSystemsManager::CalculateAverageTemperature() const
 	for (const FShipSystemData& System : ShipSystems)
 	{
 		TotalTemp += System.Temperature;
-	}
-	
-	return TotalTemp / ShipSystems.Num();
 }
 
 void UShipSystemsManager::InitializeDefaultSystems()

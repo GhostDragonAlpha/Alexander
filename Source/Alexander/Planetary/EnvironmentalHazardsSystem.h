@@ -510,7 +510,7 @@ public:
     TArray<FHazardEvent> GetActiveHazards() const { return ActiveHazards; }
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
-    FHazardEvent GetHazardEvent(int32 EventID);
+    bool GetHazardEvent(int32 EventID, FHazardEvent& OutEvent);
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
     int32 CreateHazardEvent(EHazardType HazardType, EHazardSeverity Severity, const FVector& Location, float Radius);
@@ -548,10 +548,10 @@ public:
     TArray<FEnvironmentalZone> GetEnvironmentalZones() const { return EnvironmentalZones; }
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
-    FEnvironmentalZone GetEnvironmentalZone(int32 ZoneID);
+    bool GetEnvironmentalZone(int32 ZoneID, FEnvironmentalZone& OutZone);
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
-    FEnvironmentalZone GetZoneAtLocation(const FVector& Location);
+    bool GetZoneAtLocation(const FVector& Location, FEnvironmentalZone& OutZone);
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
     int32 CreateEnvironmentalZone(const FString& ZoneName, const FVector& Center, float Radius);
@@ -564,7 +564,7 @@ public:
     TArray<FHazardDefense> GetDefenseSystems() const { return DefenseSystems; }
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
-    FHazardDefense GetDefenseSystem(int32 DefenseID);
+    bool GetDefenseSystem(int32 DefenseID, FHazardDefense& OutDefense);
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
     int32 InstallDefenseSystem(const FString& DefenseName, EHazardType ProtectedHazard, const FVector& Location, float Radius);
@@ -586,7 +586,7 @@ public:
     TArray<FHazardPrediction> GetHazardPredictions() const { return HazardPredictions; }
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
-    FHazardPrediction GetHazardPrediction(int32 PredictionID);
+    bool GetHazardPrediction(int32 PredictionID, FHazardPrediction& OutPrediction);
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
     int32 PredictHazard(EHazardType HazardType, const FVector& Location, float TimeWindow);
@@ -595,7 +595,7 @@ public:
     bool VerifyPrediction(int32 PredictionID);
 
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
-    TArray<FHazardPrediction> GetPredictionsForTimeWindow(const FDateTime& StartTime, const FDateTime& EndTime);
+    TArray<FHazardPrediction> GetPredictionsForTimeWindow(const FDateTime& StartTime, const FDateTime& EndTime) const;
 
     // Environmental analysis
     UFUNCTION(BlueprintCallable, Category = "Environmental Hazards")
@@ -733,7 +733,7 @@ protected:
     void ProcessHazardEvent(FHazardEvent& HazardEvent, float DeltaTime);
     void ProcessWeatherChanges();
     void ProcessPredictionAccuracy();
-    void ProcessDefenseEffectiveness();
+    void ProcessDefenseEffectiveness(FHazardDefense& Defense, float DeltaTime);
 
     void GenerateRandomHazard();
     void GenerateWeatherForecast();
@@ -771,6 +771,53 @@ protected:
 
     TArray<FHazardDefense> GetActiveDefensesInRadius(const FVector& Location, float Radius) const;
     float CalculateTotalDefenseEffectiveness(const TArray<FHazardDefense>& Defenses, EHazardType HazardType) const;
+
+    // Helper functions for finding data structures
+    FHazardEvent* FindHazardEvent(int32 EventID);
+    FEnvironmentalZone* FindEnvironmentalZone(int32 ZoneID);
+    FHazardDefense* FindDefenseSystem(int32 DefenseID);
+    FHazardPrediction* FindHazardPrediction(int32 PredictionID);
+
+    // Setup and initialization helpers
+    void SetupEnvironmentalTimers();
+    void SetInitialWeather();
+
+    // Hazard calculation helpers
+    float CalculateHazardDamage(EHazardType HazardType, EHazardSeverity Severity) const;
+    FString GenerateHazardWarning(EHazardType HazardType, EHazardSeverity Severity) const;
+    FString GenerateHazardDescription(EHazardType HazardType, EHazardSeverity Severity) const;
+    TArray<FString> GetRequiredDefenses(EHazardType HazardType) const;
+    TMap<FString, float> CalculateMitigationCosts(EHazardType HazardType, EHazardSeverity Severity) const;
+
+    // Weather helpers
+    void UpdateTemperatureForWeather(EWeatherCondition Condition);
+    void UpdateWeatherParameters(EWeatherCondition Condition);
+    void ProcessWeatherEffects();
+    float CalculateForecastTemperature(EWeatherCondition Condition) const;
+    float CalculateWeatherImpact(const FWeatherData& Weather, const FVector& Location) const;
+
+    // Zone helpers
+    void DetermineZoneProperties(FEnvironmentalZone& Zone);
+
+    // Defense system helpers
+    float CalculateDefensePowerConsumption(EHazardType HazardType, float Radius) const;
+    float CalculateDefenseMaintenanceCost(EHazardType HazardType, float Radius) const;
+    void ApplyDefenseUpgrade(FHazardDefense& Defense, const FString& UpgradeType);
+    float GetRequiredEffectiveness(EHazardSeverity Severity) const;
+    FString GetDefenseNameForHazard(EHazardType HazardType) const;
+
+    // Prediction helpers
+    TArray<FString> GetPredictionSources(EHazardType HazardType) const;
+    FString GetPredictionMethod(EHazardType HazardType) const;
+    bool VerifyPredictionAccuracy(const FHazardPrediction& Prediction) const;
+
+    // Statistics and impact helpers
+    void UpdateAverageStatistics();
+    float CalculateAverageDefenseEffectiveness() const;
+    void ApplyDamageToSystem(const FString& SystemName, float Damage);
+    void ApplyEfficiencyModifier(const FString& SystemName, float Modifier);
+    void UpdateAffectedBuildings(FHazardEvent& HazardEvent, float Damage);
+    float CalculateHazardImpact(const FHazardEvent& HazardEvent, const FVector& Location) const;
 
 private:
     // Timers

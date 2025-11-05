@@ -8,6 +8,10 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DrawDebugHelpers.h"
 #include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Rotator.h"
+#include "Math/Transform.h"
+#include "PhysicsEngine/BodyInstance.h"
 
 UAdvancedWeatherSystem::UAdvancedWeatherSystem()
 {
@@ -132,9 +136,13 @@ EClimateZone UAdvancedWeatherSystem::GetClimateZoneAtLocation(const FVector2D& L
     return EClimateZone::Temperate; // Default fallback
 }
 
-FClimateZoneData* UAdvancedWeatherSystem::GetClimateZoneData(EClimateZone ZoneType)
+FClimateZoneData UAdvancedWeatherSystem::GetClimateZoneData(EClimateZone ZoneType)
 {
-    return ClimateZoneMap.Find(ZoneType);
+    if (FClimateZoneData* Found = ClimateZoneMap.Find(ZoneType))
+    {
+        return *Found;
+    }
+    return FClimateZoneData();
 }
 
 // ===== Storm System Management =====
@@ -201,11 +209,6 @@ void UAdvancedWeatherSystem::UpdateStormSystem(float DeltaTime)
     }
 }
 
-TArray<FStormSystem> UAdvancedWeatherSystem::GetActiveStorms() const
-{
-    return ActiveStorms;
-}
-
 bool UAdvancedWeatherSystem::IsLocationInStorm(const FVector2D& Location) const
 {
     for (const FStormSystem& Storm : ActiveStorms)
@@ -218,16 +221,16 @@ bool UAdvancedWeatherSystem::IsLocationInStorm(const FVector2D& Location) const
     return false;
 }
 
-FStormSystem* UAdvancedWeatherSystem::GetStormAtLocation(const FVector2D& Location)
+FStormSystem UAdvancedWeatherSystem::GetStormAtLocation(const FVector2D& Location)
 {
     for (FStormSystem& Storm : ActiveStorms)
     {
         if (GetDistance(Location, Storm.CenterLocation) <= Storm.Radius)
         {
-            return &Storm;
+            return Storm;
         }
     }
-    return nullptr;
+    return FStormSystem();
 }
 
 float UAdvancedWeatherSystem::GetWindSpeedAtLocation(const FVector2D& Location) const
@@ -314,11 +317,6 @@ void UAdvancedWeatherSystem::UpdateWeatherEvents(float DeltaTime)
     }
 }
 
-TArray<FWeatherEvent> UAdvancedWeatherSystem::GetActiveWeatherEvents() const
-{
-    return ActiveWeatherEvents;
-}
-
 bool UAdvancedWeatherSystem::IsLocationAffectedByEvent(const FVector2D& Location) const
 {
     for (const FWeatherEvent& Event : ActiveWeatherEvents)
@@ -331,16 +329,16 @@ bool UAdvancedWeatherSystem::IsLocationAffectedByEvent(const FVector2D& Location
     return false;
 }
 
-FWeatherEvent* UAdvancedWeatherSystem::GetWeatherEventAtLocation(const FVector2D& Location)
+FWeatherEvent UAdvancedWeatherSystem::GetWeatherEventAtLocation(const FVector2D& Location)
 {
     for (FWeatherEvent& Event : ActiveWeatherEvents)
     {
         if (Event.bIsActive && GetDistance(Location, Event.EventLocation) <= Event.Radius)
         {
-            return &Event;
+            return Event;
         }
     }
-    return nullptr;
+    return FWeatherEvent();
 }
 
 void UAdvancedWeatherSystem::EndWeatherEvent(const FName& EventID)
@@ -453,21 +451,16 @@ void UAdvancedWeatherSystem::DeactivateWeatherPattern(const FName& PatternName)
     UE_LOG(LogTemp, Warning, TEXT("Active weather pattern '%s' not found"), *PatternName.ToString());
 }
 
-TArray<FWeatherPattern> UAdvancedWeatherSystem::GetActivePatterns() const
-{
-    return ActivePatterns;
-}
-
-FWeatherPattern* UAdvancedWeatherSystem::GetPattern(const FName& PatternName)
+FWeatherPattern UAdvancedWeatherSystem::GetPattern(const FName& PatternName)
 {
     for (FWeatherPattern& Pattern : RegisteredPatterns)
     {
         if (Pattern.PatternName == PatternName)
         {
-            return &Pattern;
+            return Pattern;
         }
     }
-    return nullptr;
+    return FWeatherPattern();
 }
 
 // ===== Player-Affecting Weather Events =====
@@ -478,17 +471,17 @@ void UAdvancedWeatherSystem::ApplyWeatherEffectsToPlayer(class ACharacter* Playe
     {
         return;
     }
-    
+
     // Check for storm effects
     if (IsLocationInStorm(PlayerLocation))
     {
-        FStormSystem* Storm = GetStormAtLocation(PlayerLocation);
-        if (Storm)
+        FStormSystem Storm = GetStormAtLocation(PlayerLocation);
+        if (Storm.Intensity != EStormIntensity::None)
         {
             // Apply wind force to player
             FVector WindDirection = GetWindDirectionAtLocation(PlayerLocation);
             float WindSpeed = GetWindSpeedAtLocation(PlayerLocation);
-            
+
             if (UCharacterMovementComponent* MovementComp = Player->GetCharacterMovement())
             {
                 FVector WindForce = WindDirection * WindSpeed * 10.0f;
@@ -496,11 +489,12 @@ void UAdvancedWeatherSystem::ApplyWeatherEffectsToPlayer(class ACharacter* Playe
             }
         }
     }
-    
+
     // Check for weather event effects
-    if (FWeatherEvent* Event = GetWeatherEventAtLocation(PlayerLocation))
+    FWeatherEvent Event = GetWeatherEventAtLocation(PlayerLocation);
+    if (Event.bIsActive)
     {
-        switch (Event->EventType)
+        switch (Event.EventType)
         {
         case EWeatherEventType::Blizzard:
             // Reduce visibility and movement speed
@@ -509,7 +503,7 @@ void UAdvancedWeatherSystem::ApplyWeatherEffectsToPlayer(class ACharacter* Playe
                 MovementComp->MaxWalkSpeed *= 0.5f;
             }
             break;
-            
+
         case EWeatherEventType::Heatwave:
             // Apply heat damage over time
             {
@@ -570,7 +564,7 @@ void UAdvancedWeatherSystem::ApplyWeatherEffectsToPlayer(class ACharacter* Playe
                 }
             }
             break;
-            
+
         default:
             break;
         }
@@ -590,42 +584,41 @@ float UAdvancedWeatherSystem::GetHumidityAtLocation(const FVector2D& Location) c
 float UAdvancedWeatherSystem::GetVisibilityAtLocation(const FVector2D& Location) const
 {
     float Visibility = 1.0f;
-    
+
     // Reduce visibility in storms
     if (IsLocationInStorm(Location))
     {
         Visibility *= 0.3f;
     }
-    
+
     // Reduce visibility in weather events
     if (IsLocationAffectedByEvent(Location))
     {
-        if (FWeatherEvent* Event = GetWeatherEventAtLocation(Location))
+        FWeatherEvent Event = const_cast<UAdvancedWeatherSystem*>(this)->GetWeatherEventAtLocation(Location);
+        if (Event.bIsActive)
         {
-            switch (Event->EventType)
+            switch (Event.EventType)
             {
             case EWeatherEventType::Blizzard:
             case EWeatherEventType::Sandstorm:
                 Visibility *= 0.1f;
-                break;
-            case EWeatherEventType::Fog:
-                Visibility *= 0.2f;
                 break;
             default:
                 break;
             }
         }
     }
-    
+
     return Visibility;
 }
 
 bool UAdvancedWeatherSystem::IsLocationSafeForPlayers(const FVector2D& Location) const
 {
     // Check for dangerous weather events
-    if (FWeatherEvent* Event = GetWeatherEventAtLocation(Location))
+    FWeatherEvent Event = const_cast<UAdvancedWeatherSystem*>(this)->GetWeatherEventAtLocation(Location);
+    if (Event.bIsActive)
     {
-        switch (Event->EventType)
+        switch (Event.EventType)
         {
         case EWeatherEventType::Hurricane:
         case EWeatherEventType::Tornado:
@@ -635,38 +628,37 @@ bool UAdvancedWeatherSystem::IsLocationSafeForPlayers(const FVector2D& Location)
             break;
         }
     }
-    
+
     // Check for extreme storms
-    if (FStormSystem* Storm = GetStormAtLocation(Location))
+    FStormSystem Storm = const_cast<UAdvancedWeatherSystem*>(this)->GetStormAtLocation(Location);
+    if (Storm.Intensity >= EStormIntensity::Category3)
     {
-        if (Storm->Intensity >= EStormIntensity::Category3)
-        {
-            return false;
-        }
+        return false;
     }
-    
+
     return true;
 }
 
 TArray<FString> UAdvancedWeatherSystem::GetWeatherWarningsAtLocation(const FVector2D& Location) const
 {
     TArray<FString> Warnings;
-    
+
     // Check for storm warnings
     if (IsLocationInStorm(Location))
     {
-        FStormSystem* Storm = GetStormAtLocation(Location);
-        if (Storm)
+        FStormSystem Storm = const_cast<UAdvancedWeatherSystem*>(this)->GetStormAtLocation(Location);
+        if (Storm.Intensity != EStormIntensity::None)
         {
-            Warnings.Add(FString::Printf(TEXT("Storm Warning: Category %d storm with wind speeds up to %.1f km/h"), 
-                                      (int32)Storm->Intensity, Storm->MaxWindSpeed));
+            Warnings.Add(FString::Printf(TEXT("Storm Warning: Category %d storm with wind speeds up to %.1f km/h"),
+                                      (int32)Storm.Intensity, Storm.MaxWindSpeed));
         }
     }
-    
+
     // Check for weather event warnings
-    if (FWeatherEvent* Event = GetWeatherEventAtLocation(Location))
+    FWeatherEvent Event = const_cast<UAdvancedWeatherSystem*>(this)->GetWeatherEventAtLocation(Location);
+    if (Event.bIsActive)
     {
-        switch (Event->EventType)
+        switch (Event.EventType)
         {
         case EWeatherEventType::Blizzard:
             Warnings.Add(TEXT("Blizzard Warning: Extreme snow and reduced visibility"));
@@ -684,7 +676,7 @@ TArray<FString> UAdvancedWeatherSystem::GetWeatherWarningsAtLocation(const FVect
             break;
         }
     }
-    
+
     return Warnings;
 }
 
@@ -937,16 +929,14 @@ bool UAdvancedWeatherSystem::ShouldGenerateWeatherEvent()
 EWeatherEventType UAdvancedWeatherSystem::SelectWeatherEventType(const FVector2D& Location)
 {
     EClimateZone Zone = GetClimateZoneAtLocation(Location);
-    
-    if (FClimateZoneData* ZoneData = GetClimateZoneData(Zone))
+
+    FClimateZoneData ZoneData = GetClimateZoneData(Zone);
+    if (ZoneData.PossibleWeatherEvents.Num() > 0)
     {
-        if (ZoneData->PossibleWeatherEvents.Num() > 0)
-        {
-            int32 RandomIndex = FMath::RandRange(0, ZoneData->PossibleWeatherEvents.Num() - 1);
-            return ZoneData->PossibleWeatherEvents[RandomIndex];
-        }
+        int32 RandomIndex = FMath::RandRange(0, ZoneData.PossibleWeatherEvents.Num() - 1);
+        return ZoneData.PossibleWeatherEvents[RandomIndex];
     }
-    
+
     // Fallback to random event
     return (EWeatherEventType)FMath::RandRange(1, (int32)EWeatherEventType::SolarStorm);
 }
@@ -1041,70 +1031,71 @@ void UAdvancedWeatherSystem::ApplyWeatherPatternEffects(const FWeatherPattern& P
 float UAdvancedWeatherSystem::CalculateTemperatureAtLocation(const FVector2D& Location) const
 {
     EClimateZone Zone = GetClimateZoneAtLocation(Location);
-    
-    if (const FClimateZoneData* ZoneData = GetClimateZoneData(Zone))
+
+    FClimateZoneData ZoneData = const_cast<UAdvancedWeatherSystem*>(this)->GetClimateZoneData(Zone);
+    if (ZoneData.BaseTemperature != 0.0f || ZoneData.TemperatureVariation != 0.0f)
     {
-        float BaseTemp = ZoneData->BaseTemperature;
-        float Variation = ZoneData->TemperatureVariation;
-        
+        float BaseTemp = ZoneData.BaseTemperature;
+        float Variation = ZoneData.TemperatureVariation;
+
         // Add time-based variation
         float TimeOfDay = FMath::Fmod(GetWorld()->GetTimeSeconds(), 86400.0f) / 86400.0f; // 0-1 over 24 hours
         float TimeVariation = FMath::Sin(TimeOfDay * 2.0f * PI) * Variation * 0.5f;
-        
+
         // Add random variation
         float RandomVariation = FMath::FRandRange(-Variation, Variation) * 0.3f;
-        
+
         return BaseTemp + TimeVariation + RandomVariation;
     }
-    
+
     return 20.0f; // Default temperature
 }
 
 float UAdvancedWeatherSystem::CalculateHumidityAtLocation(const FVector2D& Location) const
 {
     EClimateZone Zone = GetClimateZoneAtLocation(Location);
-    
-    if (const FClimateZoneData* ZoneData = GetClimateZoneData(Zone))
+
+    FClimateZoneData ZoneData = const_cast<UAdvancedWeatherSystem*>(this)->GetClimateZoneData(Zone);
+    if (ZoneData.BaseHumidity != 0.0f || ZoneData.HumidityVariation != 0.0f)
     {
-        float BaseHumidity = ZoneData->BaseHumidity;
-        float Variation = ZoneData->HumidityVariation;
-        
+        float BaseHumidity = ZoneData.BaseHumidity;
+        float Variation = ZoneData.HumidityVariation;
+
         // Add random variation
         float RandomVariation = FMath::FRandRange(-Variation, Variation);
-        
+
         return FMath::Clamp(BaseHumidity + RandomVariation, 0.0f, 1.0f);
     }
-    
+
     return 0.5f; // Default humidity
 }
 
 EWeatherType UAdvancedWeatherSystem::CalculateWeatherAtLocation(const FVector2D& Location) const
 {
     EClimateZone Zone = GetClimateZoneAtLocation(Location);
-    
-    if (const FClimateZoneData* ZoneData = GetClimateZoneData(Zone))
+
+    FClimateZoneData ZoneData = const_cast<UAdvancedWeatherSystem*>(this)->GetClimateZoneData(Zone);
+    if (ZoneData.CommonWeatherTypes.Num() > 0)
     {
-        if (ZoneData->CommonWeatherTypes.Num() > 0)
-        {
-            int32 RandomIndex = FMath::RandRange(0, ZoneData->CommonWeatherTypes.Num() - 1);
-            return ZoneData->CommonWeatherTypes[RandomIndex];
-        }
+        int32 RandomIndex = FMath::RandRange(0, ZoneData.CommonWeatherTypes.Num() - 1);
+        return ZoneData.CommonWeatherTypes[RandomIndex];
     }
-    
+
     return EWeatherType::Clear; // Default weather
 }
 
 FVector2D UAdvancedWeatherSystem::GetRandomLocationInClimateZone(EClimateZone Zone) const
 {
-    if (const FClimateZoneData* ZoneData = GetClimateZoneData(Zone))
+    FClimateZoneData ZoneData = const_cast<UAdvancedWeatherSystem*>(this)->GetClimateZoneData(Zone);
+    if (ZoneData.LatitudeRange.Size() > 0.0f && ZoneData.LongitudeRange.Size() > 0.0f)
     {
-        float Latitude = FMath::FRandRange(ZoneData->LatitudeRange.X, ZoneData->LatitudeRange.Y);
-        float Longitude = FMath::FRandRange(ZoneData->LongitudeRange.X, ZoneData->LongitudeRange.Y);
-        
+        float Latitude = FMath::FRandRange(ZoneData.LatitudeRange.X, ZoneData.LatitudeRange.Y);
+        float Longitude = FMath::FRandRange(ZoneData.LongitudeRange.X, ZoneData.LongitudeRange.Y);
+
         // Convert to world coordinates (simplified)
         return FVector2D(Latitude * 111000.0f, Longitude * 111000.0f); // Rough conversion to meters
     }
-    
+
     return FVector2D::ZeroVector;
 }
 

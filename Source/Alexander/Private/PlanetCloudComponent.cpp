@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PlanetCloudComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Components/VolumetricCloudComponent.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -77,9 +78,9 @@ void UPlanetCloudComponent::InitializeVolumetricClouds()
 	VolumetricCloudComponent->SetShadowTracingDistance(ShadowTracingDistance);
 
 	// Create dynamic material instance if cloud material exists
-	if (VolumetricCloudComponent->GetMaterial())
+	if (UMaterialInterface* CloudMaterial = VolumetricCloudComponent->GetMaterial())
 	{
-		CloudMaterialInstance = VolumetricCloudComponent->CreateDynamicMaterialInstance();
+		CloudMaterialInstance = UMaterialInstanceDynamic::Create(CloudMaterial, this);
 		if (CloudMaterialInstance)
 		{
 			UpdateCloudMaterialParameters();
@@ -445,9 +446,9 @@ float UPlanetCloudComponent::CalculateCloudLighting(FVector Position, float Heig
 	SunDirection.Normalize();
 
 	// Calculate base cloud density at this position
-	float CloudDensity = CalculateCloudDensity(Position, HeightInLayer);
-	
-	if (CloudDensity < 0.01f)
+	float LocalCloudDensity = CalculateCloudDensity(Position, HeightInLayer);
+
+	if (LocalCloudDensity < 0.01f)
 	{
 		return 1.0f; // No cloud, fully lit
 	}
@@ -460,7 +461,7 @@ float UPlanetCloudComponent::CalculateCloudLighting(FVector Position, float Heig
 
 	// Add ambient light contribution
 	float AmbientContribution = AmbientLightIntensity;
-	
+
 	// Combine direct and ambient lighting
 	float TotalLight = FMath::Max(ShadowFactor, AmbientContribution);
 
@@ -468,13 +469,13 @@ float UPlanetCloudComponent::CalculateCloudLighting(FVector Position, float Heig
 	// Assume view direction is roughly opposite to sun for this calculation
 	float CosAngle = -1.0f; // Looking toward sun
 	float PhaseValue = HenyeyGreensteinPhase(CosAngle, PhaseG);
-	
+
 	// Modulate by phase function
 	TotalLight *= FMath::Lerp(1.0f, PhaseValue, 0.5f);
 
 	// Add multi-scattering approximation
 	// Multi-scattering brightens dense clouds
-	float MultiScatter = MultiScatteringContribution * (1.0f - FMath::Exp(-CloudDensity * 2.0f));
+	float MultiScatter = MultiScatteringContribution * (1.0f - FMath::Exp(-LocalCloudDensity * 2.0f));
 	MultiScatter *= (1.0f - MultiScatteringOcclusion * (1.0f - ShadowFactor));
 	TotalLight += MultiScatter;
 

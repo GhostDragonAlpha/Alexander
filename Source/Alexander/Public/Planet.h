@@ -10,7 +10,7 @@
 
 // Forward declarations
 class UPlanetAtmosphereComponent;
-class UAtmosphericFogComponent;
+class USkyAtmosphereComponent;
 class UPlanetCloudComponent;
 class UPlanetWeatherComponent;
 class UPlanetFarmingComponent;
@@ -45,7 +45,7 @@ public:
 	UPlanetAtmosphereComponent* AtmosphereComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
-	UAtmosphericFogComponent* FogComponent;
+	USkyAtmosphereComponent* FogComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UPlanetCloudComponent* CloudComponent;

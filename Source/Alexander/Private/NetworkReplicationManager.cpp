@@ -1,9 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NetworkReplicationManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Net/UnrealNetwork.h"  // For replication management and DOREPLIFETIME macros
 
 UNetworkReplicationManager::UNetworkReplicationManager()
 {

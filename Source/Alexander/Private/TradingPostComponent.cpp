@@ -1,4 +1,6 @@
 #include "TradingPostComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
+#include "GameFramework/PlayerState.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -1750,7 +1752,7 @@ bool UTradingPostComponent::AddToInventory(APlayerState* Player, const FName& It
     FCommodityData Commodity;
     Commodity.CommodityName = ItemID;
     Commodity.BasePrice = 100.0f; // Default price
-    Commodity.Volume = 1.0f;
+    Commodity.VolumePerUnit = 1.0f;
     Commodity.Mass = 1.0f;
 
     // Add to cargo using EconomySystem's AddToCargo function

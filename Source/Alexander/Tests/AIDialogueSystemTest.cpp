@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AIDialogueSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "MemorySystem.h"
 #include "PersonalityProfile.h"
 #include "NPCBrain.h"

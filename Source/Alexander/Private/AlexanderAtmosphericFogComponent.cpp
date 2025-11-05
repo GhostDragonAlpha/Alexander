@@ -1,11 +1,14 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AlexanderAtmosphericFogComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "PlanetAtmosphereComponent.h"
 #include "Components/ExponentialHeightFogComponent.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
+#include "Camera/CameraComponent.h"             // For UCameraComponent
+#include "Camera/PlayerCameraManager.h"         // For APlayerCameraManager
 
 UAlexanderAtmosphericFogComponent::UAlexanderAtmosphericFogComponent()
 	: HeightFogComponent(nullptr)
@@ -190,8 +193,9 @@ void UAlexanderAtmosphericFogComponent::UpdateFogForViewerPosition(FVector Viewe
 		
 		// Adjust fog color based on altitude
 		FLinearColor FogColor = GetFogColorAtAltitude(ViewerAltitude);
-		// HeightFogComponent->FogInscatteringColor = FogColor; // TODO: Fix for UE5.6
-		
+		// UE5.6: Use setter method instead of direct property access
+		HeightFogComponent->SetFogInscatteringColor(FogColor);
+
 		// Update fog height to follow viewer
 		FVector PlanetCenter = GetOwner() ? GetOwner()->GetActorLocation() : FVector::ZeroVector;
 		float SurfaceHeight = PlanetCenter.Z + PlanetRadius * 100000.0f; // Convert km to cm
@@ -219,15 +223,18 @@ void UAlexanderAtmosphericFogComponent::SyncWithHeightFog()
 	
 	// Set fog height falloff
 	HeightFogComponent->FogHeightFalloff = FogSettings.HeightFalloff;
-	
-	// Set fog inscattering color
-	// HeightFogComponent->FogInscatteringColor = FogSettings.InscatteringColor; // TODO: Fix for UE5.6
-	
-	// Set directional inscattering
-	// HeightFogComponent->DirectionalInscatteringIntensity = FogSettings.DirectionalInscatteringIntensity; // TODO: Fix for UE5.6
-	// HeightFogComponent->DirectionalInscatteringExponent = FogSettings.DirectionalInscatteringExponent; // TODO: Fix for UE5.6
-	// HeightFogComponent->DirectionalInscatteringColor = FogSettings.InscatteringColor; // TODO: Fix for UE5.6
-	
+
+	// Set fog inscattering color - UE5.6: Use setter method instead of direct property access
+	HeightFogComponent->SetFogInscatteringColor(FogSettings.InscatteringColor);
+
+	// Set directional inscattering - UE5.6: Use setter methods instead of direct property access
+	// Note: DirectionalInscatteringIntensity is now controlled through the color's brightness and start distance
+	HeightFogComponent->SetDirectionalInscatteringExponent(FogSettings.DirectionalInscatteringExponent);
+	HeightFogComponent->SetDirectionalInscatteringStartDistance(0.0f);
+	// Apply intensity by scaling the inscattering color
+	FLinearColor ScaledInscatteringColor = FogSettings.InscatteringColor * FogSettings.DirectionalInscatteringIntensity;
+	HeightFogComponent->SetDirectionalInscatteringColor(ScaledInscatteringColor);
+
 	// Set fog start distance
 	HeightFogComponent->StartDistance = FogSettings.FogStartDistance;
 	
@@ -268,10 +275,10 @@ void UAlexanderAtmosphericFogComponent::ApplyVolumetricFogSettings()
 	{
 		// Set volumetric fog scattering distribution
 		HeightFogComponent->VolumetricFogScatteringDistribution = FogSettings.VolumetricFogScatteringDistribution;
-		
-		// Set volumetric fog albedo
-		// HeightFogComponent->VolumetricFogAlbedo = FogSettings.VolumetricFogAlbedo; // TODO: Fix for UE5.6
-		
+
+		// Set volumetric fog albedo - UE5.6: Use setter method instead of direct property access
+		HeightFogComponent->SetVolumetricFogAlbedo(FogSettings.VolumetricFogAlbedo.ToFColor(true));
+
 		// Set volumetric fog extinction scale
 		HeightFogComponent->VolumetricFogExtinctionScale = FogSettings.VolumetricFogExtinctionScale;
 		

@@ -236,10 +236,10 @@ private:
 	float PreviousTime;
 
 	/** Smoothed vertical speed */
-	float SmoothedVerticalSpeed;
+	mutable float SmoothedVerticalSpeed;
 
 	/** Smoothed horizontal speed */
-	float SmoothedHorizontalSpeed;
+	mutable float SmoothedHorizontalSpeed;
 
 	/** Speed smoothing factor (0-1, higher = more smoothing) */
 	float SpeedSmoothingFactor = 0.8f;

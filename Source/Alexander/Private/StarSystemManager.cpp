@@ -845,33 +845,33 @@ float UStarSystemManager::CalculateHabitableZone(EStarClass StarClass) const
     return FMath::Sqrt(Luminosity); // AU
 }
 
-EPlanetType UStarSystemManager::DeterminePlanetType(float DistanceFromStar, EStarClass StarClass)
+EStarSystemPlanetType UStarSystemManager::DeterminePlanetType(float DistanceFromStar, EStarClass StarClass)
 {
     float HabZone = CalculateHabitableZone(StarClass);
     
     if (DistanceFromStar < HabZone * 0.5f)
     {
-        return RandomStream.FRand() > 0.5f ? EPlanetType::Lava : EPlanetType::Desert;
+        	return RandomStream.FRand() > 0.5f ? EStarSystemPlanetType::Lava : EStarSystemPlanetType::Desert;
     }
     else if (DistanceFromStar < HabZone * 0.8f)
     {
-        return EPlanetType::Terrestrial;
+        	return EStarSystemPlanetType::Terrestrial;
     }
     else if (DistanceFromStar < HabZone * 1.2f)
     {
-        return EPlanetType::Earthlike;
+        	return EStarSystemPlanetType::Earthlike;
     }
     else if (DistanceFromStar < HabZone * 2.0f)
     {
-        return EPlanetType::Frozen;
+        	return EStarSystemPlanetType::Frozen;
     }
     else if (DistanceFromStar < HabZone * 5.0f)
     {
-        return EPlanetType::GasGiant;
+        	return EStarSystemPlanetType::GasGiant;
     }
     else
     {
-        return EPlanetType::IceGiant;
+        	return EStarSystemPlanetType::IceGiant;
     }
 }
 

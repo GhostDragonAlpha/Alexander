@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NakamaIntegration.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
@@ -920,7 +921,9 @@ void UNakamaIntegration::InitializeNakamaClient()
 
 	// This would initialize actual Nakama client
 	// For now, just log initialization
-	NakamaClient = NewObject<UNakamaClient>(this);
+	// NOTE: Nakama SDK not installed - UNakamaClient class not available
+	// To enable: Install Nakama SDK plugin and uncomment the following line:
+	// NakamaClient = Cast<UObject>(NewObject<UNakamaClient>(this));
 }
 
 void UNakamaIntegration::ConnectRealtimeClient()
@@ -934,7 +937,9 @@ void UNakamaIntegration::ConnectRealtimeClient()
 
 	// This would connect Nakama realtime client
 	// For now, just log connection
-	RealtimeClient = NewObject<UNakamaRealtimeClient>(this);
+	// NOTE: Nakama SDK not installed - UNakamaRealtimeClient class not available
+	// To enable: Install Nakama SDK plugin and uncomment the following line:
+	// RealtimeClient = Cast<UObject>(NewObject<UNakamaRealtimeClient>(this));
 }
 
 void UNakamaIntegration::HandleConnectionError(const FString& ErrorMessage)

@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Components/ParticleSystemComponent.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "NiagaraSystem.h"
 #include "NiagaraComponent.h"
 #include "Particles/ParticleSystem.h"

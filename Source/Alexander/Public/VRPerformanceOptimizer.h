@@ -10,7 +10,7 @@
  * Performance metrics tracked per frame
  */
 USTRUCT(BlueprintType)
-struct FVRPerformanceMetrics
+struct FVRPerformanceMetricsData
 {
 	GENERATED_BODY()
 
@@ -35,7 +35,7 @@ struct FVRPerformanceMetrics
 	UPROPERTY(BlueprintReadOnly, Category = "Performance")
 	bool bMeetingPerformanceTarget;
 
-	FVRPerformanceMetrics()
+	FVRPerformanceMetricsData()
 		: CurrentFPS(90.0f)
 		, AverageFrameTime(11.1f)
 		, MaxFrameTime(11.1f)
@@ -137,7 +137,7 @@ public:
 
 	// Performance monitoring
 	UFUNCTION(BlueprintCallable, Category = "VR Performance")
-	FVRPerformanceMetrics GetCurrentMetrics() const { return CurrentMetrics; }
+	FVRPerformanceMetricsData GetCurrentMetrics() const { return CurrentMetrics; }
 
 	UFUNCTION(BlueprintCallable, Category = "VR Performance")
 	bool IsMeetingPerformanceTarget() const { return CurrentMetrics.bMeetingPerformanceTarget; }
@@ -191,7 +191,7 @@ private:
 	FVRPerformanceConfig Config;
 
 	UPROPERTY()
-	FVRPerformanceMetrics CurrentMetrics;
+	FVRPerformanceMetricsData CurrentMetrics;
 
 	// Frame timing tracking
 	TArray<float> FrameTimeHistory;

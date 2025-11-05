@@ -7,6 +7,10 @@
 #include "PhysicalMaterials/PhysicalMaterial.h"
 #include "Kismet/GameplayStatics.h"
 #include "LandingPad.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Quat.h"                // For FQuat operations
+#include "Math/Vector.h"
+#include "PhysicsEngine/BodyInstance.h"
 
 ULandingDetectionComponent::ULandingDetectionComponent()
 {

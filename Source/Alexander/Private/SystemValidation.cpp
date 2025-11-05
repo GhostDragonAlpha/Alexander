@@ -1,11 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SystemValidation.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "GameFramework/Actor.h"
 #include "Components/ActorComponent.h"
 #include "Engine/World.h"
 #include "Materials/MaterialInterface.h"
 #include "Engine/StaticMesh.h"
+#include "Net/UnrealNetwork.h"  // For ENetRole, GetLocalRole(), network validation
 
 DEFINE_LOG_CATEGORY_STATIC(LogSystemValidation, Log, All);
 

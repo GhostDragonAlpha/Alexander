@@ -68,6 +68,14 @@ struct FSocialInteraction
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<FName, FString> InteractionParameters;
+
+    // Equality operator for TArray operations
+    bool operator==(const FSocialInteraction& Other) const
+    {
+        return InteractionType == Other.InteractionType &&
+               InitiatingPlayer == Other.InitiatingPlayer &&
+               TargetPlayer == Other.TargetPlayer;
+    }
 };
 
 USTRUCT(BlueprintType)

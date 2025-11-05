@@ -195,6 +195,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Diagnostics")
 	FString GetStatusSummary();
 
+	// Calculate average temperature across all systems
+	float CalculateAverageTemperature() const;
+
 	// ============================================================================
 	// EVENTS
 	// ============================================================================

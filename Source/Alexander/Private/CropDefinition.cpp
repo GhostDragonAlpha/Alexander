@@ -1,6 +1,10 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "CropDefinition.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
+#include "Engine/StaticMesh.h"
+#include "Engine/Texture2D.h"
+#include "Materials/Material.h"
 
 UCropDefinition::UCropDefinition()
 {

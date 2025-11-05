@@ -2,6 +2,7 @@
 
 #include "CropGrowthCalculator.h"
 #include "CropDefinition.h"
+#include "Math/UnrealMathUtility.h"
 
 // Define static default configuration values
 float UCropGrowthCalculator::DefaultTemperatureTolerance = 10.0f;

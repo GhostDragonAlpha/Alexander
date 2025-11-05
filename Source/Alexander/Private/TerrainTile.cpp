@@ -2,6 +2,8 @@
 
 #include "TerrainTile.h"
 #include "ProceduralNoiseGenerator.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 FTerrainTileData UTerrainTileGenerator::GenerateTerrainTile(
 	FVector2D TilePosition,

@@ -5,6 +5,12 @@
 #include "Components/PrimitiveComponent.h"
 #include "Engine/World.h"
 #include "DrawDebugHelpers.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
+#include "Math/Rotator.h"
+#include "Math/Transform.h"
+#include "PhysicsEngine/BodyInstance.h"
+#include "Net/UnrealNetwork.h"  // For network physics replication
 
 DEFINE_LOG_CATEGORY_STATIC(LogNetworkPhysics, Log, All);
 

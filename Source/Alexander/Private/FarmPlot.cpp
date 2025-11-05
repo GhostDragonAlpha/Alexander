@@ -1,14 +1,19 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FarmPlot.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "CropDefinition.h"
 #include "CropGrowthCalculator.h"
 #include "CropHealthSystem.h"
 #include "Planet.h"
 #include "PlanetWeatherComponent.h"
 #include "DayNightCycleComponent.h"
+#include "BiomeSoilSystem.h"
+#include "Components/SceneComponent.h"
 #include "Components/InstancedStaticMeshComponent.h"
 #include "ProceduralMeshComponent.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/StaticMesh.h"
 
 AFarmPlot::AFarmPlot()
 {

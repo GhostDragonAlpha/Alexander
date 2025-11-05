@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AutomationEfficiencySystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "IrrigationSystem.h"
 #include "HarvestingMachine.h"
 #include "PowerGenerator.h"

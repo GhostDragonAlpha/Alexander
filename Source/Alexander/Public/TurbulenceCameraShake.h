@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Camera/CameraShakePattern.h"
+#include "Camera/CameraShakeBase.h"
 #include "TurbulenceCameraShake.generated.h"
 
 /**

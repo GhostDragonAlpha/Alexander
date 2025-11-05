@@ -256,34 +256,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Noise")
 	static float WarpedNoise2D(float X, float Y, const FNoiseConfig& Config);
 
-private:
-	// ============================================================================
-	// HELPER FUNCTIONS
-	// ============================================================================
-
-	// Fade function for smooth interpolation
-	static float Fade(float T);
-
-	// Linear interpolation
-	static float Lerp(float A, float B, float T);
-
-	// Gradient function for Perlin noise
-	static float Grad(int32 Hash, float X, float Y);
-	static float Grad(int32 Hash, float X, float Y, float Z);
-
-	// Hash function for pseudo-random values
-	static int32 Hash(int32 X, int32 Y, int32 Seed);
-	static int32 Hash(int32 X, int32 Y, int32 Z, int32 Seed);
-
-	// Get random 2D vector for cell
-	static FVector2D GetRandomVector2D(int32 X, int32 Y, int32 Seed);
-
-	// Get random 3D vector for cell
-	static FVector GetRandomVector3D(int32 X, int32 Y, int32 Z, int32 Seed);
-
-	// Permutation table for noise generation
-	static TArray<int32> GeneratePermutationTable(int32 Seed);
-
 	// ============================================================================
 	// ADVANCED TERRAIN FEATURES
 	// ============================================================================
@@ -345,7 +317,7 @@ private:
 	 * @param Evaporation Evaporation rate
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Terrain")
-	static void ApplyHydraulicErosion(TArray<float>& HeightMap, int32 Width, int32 Height, int32 Droplets, 
+	static void ApplyHydraulicErosion(TArray<float>& HeightMap, int32 Width, int32 Height, int32 Droplets,
 		float Inertia, float Capacity, float Deposition, float Erosion, float Evaporation);
 
 	/**
@@ -422,4 +394,32 @@ private:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Terrain")
 	static FVector2D CartesianToSpherical(FVector Position, float Radius);
+
+private:
+	// ============================================================================
+	// HELPER FUNCTIONS
+	// ============================================================================
+
+	// Fade function for smooth interpolation
+	static float Fade(float T);
+
+	// Linear interpolation
+	static float Lerp(float A, float B, float T);
+
+	// Gradient function for Perlin noise
+	static float Grad(int32 Hash, float X, float Y);
+	static float Grad(int32 Hash, float X, float Y, float Z);
+
+	// Hash function for pseudo-random values
+	static int32 Hash(int32 X, int32 Y, int32 Seed);
+	static int32 Hash(int32 X, int32 Y, int32 Z, int32 Seed);
+
+	// Get random 2D vector for cell
+	static FVector2D GetRandomVector2D(int32 X, int32 Y, int32 Seed);
+
+	// Get random 3D vector for cell
+	static FVector GetRandomVector3D(int32 X, int32 Y, int32 Z, int32 Seed);
+
+	// Permutation table for noise generation
+	static TArray<int32> GeneratePermutationTable(int32 Seed);
 };

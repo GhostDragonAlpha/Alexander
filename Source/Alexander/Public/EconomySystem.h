@@ -75,10 +75,19 @@ UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Commodity")
 float BasePrice = 100.0f;
 
 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Commodity")
+float CurrentPrice = 100.0f;
+
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Commodity")
 float PriceVolatility = 0.2f; // 0-1
 
 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Commodity")
-float Volume = 1.0f; // Cubic meters per unit
+float Demand = 1.0f;
+
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Commodity")
+float Supply = 1.0f;
+
+UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Commodity")
+float VolumePerUnit = 1.0f; // Cubic meters per unit
 
 UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Commodity")
 float Mass = 1.0f; // Kilograms per unit

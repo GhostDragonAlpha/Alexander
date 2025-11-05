@@ -282,7 +282,7 @@ protected:
     void UpdateLandingStatus();
     void UpdateVisualGuidance();
     bool CheckTerrainSafety(const FVector& Location, float Radius);
-    bool RaycastToSurface(const FVector& Start, FVector& OutHitPoint, FVector& OutNormal);
+    bool RaycastToSurface(const FVector& Start, FVector& OutHitPoint, FVector& OutNormal) const;
     float CalculateApproachAngle() const;
     void SetLandingStatus(ELandingStatus NewStatus);
     void BroadcastWarning(const FString& Message);

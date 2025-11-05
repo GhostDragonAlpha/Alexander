@@ -129,6 +129,12 @@ struct FNakamaMatchData
 		MatchData.Empty();
 		CreatorID = TEXT("");
 	}
+
+	// Equality operator for TArray operations (Find, Remove, etc.)
+	bool operator==(const FNakamaMatchData& Other) const
+	{
+		return MatchID == Other.MatchID; // Compare unique match identifier
+	}
 };
 
 /**

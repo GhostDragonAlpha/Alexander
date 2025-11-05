@@ -10,7 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "MotionControllerComponent.h"
+#include "Components/MotionControllerComponent.h"
 #include "DrawDebugHelpers.h"
 
 UShipEntryComponent::UShipEntryComponent()

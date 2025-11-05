@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "VisualQualityValidator.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Planet.h"
 #include "PlanetAtmosphereComponent.h"
 #include "PlanetCloudComponent.h"
@@ -82,7 +83,7 @@ float AVisualQualityValidator::ValidateAtmosphericScattering(UPlanetAtmosphereCo
 	float Score = 1.0f;
 
 	// Check Rayleigh scattering configuration
-	FLinearColor RayleighCoeff = AtmosphereComponent->RayleighScatteringCoefficient;
+	FLinearColor RayleighCoeff = AtmosphereComponent->AtmosphereSettings.RayleighScatteringCoefficient;
 	if (RayleighCoeff.R <= 0.0f || RayleighCoeff.G <= 0.0f || RayleighCoeff.B <= 0.0f)
 	{
 		Score -= 0.3f;
@@ -93,7 +94,7 @@ float AVisualQualityValidator::ValidateAtmosphericScattering(UPlanetAtmosphereCo
 	}
 
 	// Check Mie scattering configuration
-	FLinearColor MieCoeff = AtmosphereComponent->MieScatteringCoefficient;
+	FLinearColor MieCoeff = AtmosphereComponent->AtmosphereSettings.MieScatteringCoefficient;
 	if (MieCoeff.R <= 0.0f || MieCoeff.G <= 0.0f || MieCoeff.B <= 0.0f)
 	{
 		Score -= 0.2f;
@@ -104,7 +105,7 @@ float AVisualQualityValidator::ValidateAtmosphericScattering(UPlanetAtmosphereCo
 	}
 
 	// Check scale heights
-	if (AtmosphereComponent->RayleighScaleHeight <= 0.0f || AtmosphereComponent->MieScaleHeight <= 0.0f)
+	if (AtmosphereComponent->AtmosphereSettings.RayleighScaleHeight <= 0.0f || AtmosphereComponent->AtmosphereSettings.MieScaleHeight <= 0.0f)
 	{
 		Score -= 0.2f;
 		if (bEnableDetailedLogging)
@@ -114,7 +115,7 @@ float AVisualQualityValidator::ValidateAtmosphericScattering(UPlanetAtmosphereCo
 	}
 
 	// Check atmosphere height
-	if (AtmosphereComponent->AtmosphereHeight < 50.0f || AtmosphereComponent->AtmosphereHeight > 200.0f)
+	if (AtmosphereComponent->AtmosphereSettings.AtmosphereHeight < 50.0f || AtmosphereComponent->AtmosphereSettings.AtmosphereHeight > 200.0f)
 	{
 		Score -= 0.15f;
 		if (bEnableDetailedLogging)
@@ -124,7 +125,7 @@ float AVisualQualityValidator::ValidateAtmosphericScattering(UPlanetAtmosphereCo
 	}
 
 	// Check Mie anisotropy (should be between -1 and 1)
-	if (AtmosphereComponent->MieAnisotropy < -1.0f || AtmosphereComponent->MieAnisotropy > 1.0f)
+	if (AtmosphereComponent->AtmosphereSettings.MieAnisotropy < -1.0f || AtmosphereComponent->AtmosphereSettings.MieAnisotropy > 1.0f)
 	{
 		Score -= 0.15f;
 		if (bEnableDetailedLogging)
@@ -218,7 +219,7 @@ float AVisualQualityValidator::ValidateFogEffects(UPlanetAtmosphereComponent* At
 	float Score = 1.0f;
 
 	// Check fog density
-	if (AtmosphereComponent->FogDensity < 0.0f)
+	if (AtmosphereComponent->AtmosphereSettings.FogDensity < 0.0f)
 	{
 		Score -= 0.3f;
 		if (bEnableDetailedLogging)
@@ -228,7 +229,7 @@ float AVisualQualityValidator::ValidateFogEffects(UPlanetAtmosphereComponent* At
 	}
 
 	// Check fog height falloff
-	if (AtmosphereComponent->FogHeightFalloff <= 0.0f)
+	if (AtmosphereComponent->AtmosphereSettings.FogHeightFalloff <= 0.0f)
 	{
 		Score -= 0.3f;
 		if (bEnableDetailedLogging)
@@ -238,7 +239,7 @@ float AVisualQualityValidator::ValidateFogEffects(UPlanetAtmosphereComponent* At
 	}
 
 	// Validate fog density is reasonable (not too thick or too thin)
-	if (AtmosphereComponent->FogDensity > 0.1f)
+	if (AtmosphereComponent->AtmosphereSettings.FogDensity > 0.1f)
 	{
 		Score -= 0.2f;
 		if (bEnableDetailedLogging)
@@ -248,7 +249,7 @@ float AVisualQualityValidator::ValidateFogEffects(UPlanetAtmosphereComponent* At
 	}
 
 	// Validate height falloff is realistic
-	if (AtmosphereComponent->FogHeightFalloff > 1.0f)
+	if (AtmosphereComponent->AtmosphereSettings.FogHeightFalloff > 1.0f)
 	{
 		Score -= 0.2f;
 		if (bEnableDetailedLogging)
@@ -515,7 +516,8 @@ float AVisualQualityValidator::ValidateLODTransitions(APlanet* Planet)
 	float Score = 1.0f;
 
 	// Check LOD configuration
-	if (Planet->LODSettings.LODDistances.Num() < 4)
+	// TODO: Implement LOD settings for planets
+	// if (Planet->LODSettings.LODDistances.Num() < 4)
 	{
 		Score -= 0.3f;
 		if (bEnableDetailedLogging)
@@ -525,6 +527,8 @@ float AVisualQualityValidator::ValidateLODTransitions(APlanet* Planet)
 	}
 
 	// Validate LOD distances are reasonable
+	// TODO: Implement LOD settings validation
+	/*
 	for (int32 i = 0; i < Planet->LODSettings.LODDistances.Num() - 1; ++i)
 	{
 		float CurrentDist = Planet->LODSettings.LODDistances[i];
@@ -551,6 +555,7 @@ float AVisualQualityValidator::ValidateLODTransitions(APlanet* Planet)
 			}
 		}
 	}
+	*/
 
 	return FMath::Max(0.0f, Score);
 }

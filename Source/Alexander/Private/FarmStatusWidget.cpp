@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "FarmStatusWidget.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "FarmPlot.h"
 #include "CropDefinition.h"
 #include "FarmAlertSystem.h"
@@ -460,14 +461,14 @@ void UFarmStatusWidget::CreateGridVisualization()
 			if (CellImage)
 			{
 				// Add to canvas panel
-				UCanvasPanelSlot* Slot = CropGridPanel->AddChildToCanvas(CellImage);
-				if (Slot)
+				UCanvasPanelSlot* PanelSlot = CropGridPanel->AddChildToCanvas(CellImage);
+				if (PanelSlot)
 				{
 					// Position the cell
 					float PosX = X * (GridCellSize + GridCellSpacing);
 					float PosY = Y * (GridCellSize + GridCellSpacing);
-					Slot->SetPosition(FVector2D(PosX, PosY));
-					Slot->SetSize(FVector2D(GridCellSize, GridCellSize));
+					PanelSlot->SetPosition(FVector2D(PosX, PosY));
+					PanelSlot->SetSize(FVector2D(GridCellSize, GridCellSize));
 				}
 
 				// Set initial color
@@ -589,10 +590,10 @@ void UFarmStatusWidget::AddMonitoringHeaderRow(int32 Row)
 			HeaderText->SetText(FText::FromString(Headers[Col]));
 			HeaderText->SetColorAndOpacity(FSlateColor(FLinearColor(0.8f, 0.8f, 0.8f, 1.0f)));
 			
-			UGridSlot* Slot = CropMonitoringGrid->AddChildToGrid(HeaderText, Row, Col);
-			if (Slot)
+			UGridSlot* GridSlot = CropMonitoringGrid->AddChildToGrid(HeaderText, Row, Col);
+			if (GridSlot)
 			{
-				Slot->SetPadding(FMargin(5.0f, 2.0f));
+				GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 			}
 		}
 	}

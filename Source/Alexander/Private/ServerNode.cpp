@@ -1,11 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ServerNode.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Engine.h"
 #include "NetworkManager.h"
+#include "Net/UnrealNetwork.h"  // For server meshing and replication
 
 AServerNode::AServerNode()
 {
@@ -273,7 +275,7 @@ void AServerNode::StopServer()
 			{
 				if (Player)
 				{
-					Player->ClientWasKicked();
+					Player->ClientWasKicked(FText::FromString("Kicked by server"));
 				}
 			}
 		}

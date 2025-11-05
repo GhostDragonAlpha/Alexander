@@ -254,9 +254,9 @@ TArray<FMissionObjective> UProceduralMissionGenerator::GenerateObjectives(const 
     return Objectives;
 }
 
-FMissionObjective UProceduralMissionGenerator::GenerateObjective(const FMissionObjectiveTemplate& ObjectiveTemplate, const FMissionGenerationContext& Context)
+FMissionBoardObjective UProceduralMissionGenerator::GenerateObjective(const FMissionObjectiveTemplate& ObjectiveTemplate, const FMissionGenerationContext& Context)
 {
-    FMissionObjective Objective;
+    FMissionBoardObjective Objective;
     Objective.ObjectiveID = FName(*FString::Printf(TEXT("%s_%d"), *ObjectiveTemplate.ObjectiveType.ToString(), FMath::RandRange(1000, 9999)));
     Objective.Description = ProcessObjectiveTemplate(ObjectiveTemplate.DescriptionTemplate, ObjectiveTemplate.Parameters, Context);
     Objective.bIsCompleted = false;
@@ -344,11 +344,6 @@ void UProceduralMissionGenerator::UpdateWorldEvents(float DeltaTime)
     }
 }
 
-TArray<FName> UProceduralMissionGenerator::GetActiveWorldEvents() const
-{
-    return ActiveWorldEvents;
-}
-
 bool UProceduralMissionGenerator::IsWorldEventActive(const FName& EventName) const
 {
     return ActiveWorldEvents.Contains(EventName);
@@ -364,7 +359,7 @@ FMissionData UProceduralMissionGenerator::ScaleMissionForPlayer(const FMissionDa
     float LevelMultiplier = 1.0f + (Context.PlayerLevel - 1) * 0.1f;
     
     // Scale objectives
-    for (FMissionObjective& Objective : ScaledMission.Objectives)
+    for (FMissionBoardObjective& Objective : ScaledMission.Objectives)
     {
         Objective.TargetCount = FMath::RoundToInt(Objective.TargetCount * LevelMultiplier);
         Objective.TimeLimit = Objective.TimeLimit * (1.0f + (LevelMultiplier - 1.0f) * 0.2f);
@@ -509,11 +504,6 @@ bool UProceduralMissionGenerator::CanPlayerAcceptFactionMission(EMissionFaction 
 
 void UProceduralMissionGenerator::UpdateFactionRelationships(const FMissionData& Mission, bool bCompleted)
 {
-    if (!Context.Player)
-    {
-        return;
-    }
-    
     // Update faction reputation based on mission completion
     float ReputationChange = bCompleted ? 0.1f : -0.05f;
     
@@ -544,9 +534,10 @@ void UProceduralMissionGenerator::RegisterMissionChain(const FMissionChain& Chai
     UE_LOG(LogTemp, Log, TEXT("Registered mission chain: %s"), *Chain.ChainName.ToString());
 }
 
-FMissionChain* UProceduralMissionGenerator::GetMissionChain(const FName& ChainName)
+FMissionChain UProceduralMissionGenerator::GetMissionChain(const FName& ChainName)
 {
-    return ChainMap.Find(ChainName);
+    FMissionChain* FoundChain = ChainMap.Find(ChainName);
+    return FoundChain ? *FoundChain : FMissionChain();
 }
 
 TArray<FMissionChain> UProceduralMissionGenerator::GetAvailableChains(const FMissionGenerationContext& Context)
@@ -570,14 +561,15 @@ bool UProceduralMissionGenerator::IsMissionPartOfChain(const FName& MissionID) c
     return MissionToChainMap.Contains(MissionID);
 }
 
-FMissionChain* UProceduralMissionGenerator::GetMissionChainForMission(const FName& MissionID)
+FMissionChain UProceduralMissionGenerator::GetMissionChainForMission(const FName& MissionID)
 {
     if (const FName* ChainName = MissionToChainMap.Find(MissionID))
     {
-        return ChainMap.Find(*ChainName);
+        FMissionChain* FoundChain = ChainMap.Find(*ChainName);
+        return FoundChain ? *FoundChain : FMissionChain();
     }
-    
-    return nullptr;
+
+    return FMissionChain();
 }
 
 // ===== Generation Rules =====
@@ -743,7 +735,7 @@ void UProceduralMissionGenerator::InitializeDefaultTemplates()
     EscortTemplate.Complexity = EMissionComplexity::Moderate;
     EscortTemplate.SupportedMissionTypes = {EMissionType::Escort};
     EscortTemplate.DifficultyRange = {EMissionDifficulty::Normal, EMissionDifficulty::VeryHard};
-    EscortTemplate.AllowedFactions = {EMissionFaction::Civilian, EMissionFaction::Corporation};
+    EscortTemplate.AllowedFactions = {EMissionFaction::Independent, EMissionFaction::Corporation};
     EscortTemplate.BaseProbability = 0.2f;
     EscortTemplate.MinObjectives = 1;
     EscortTemplate.MaxObjectives = 2;
@@ -1158,7 +1150,7 @@ void UProceduralMissionGenerator::ProcessWorldEvent(const FName& EventName, floa
         // Create combat mission template dynamically
         FMissionTemplate CombatTemplate;
         CombatTemplate.TemplateName = TEXT("PirateAmbush");
-        CombatTemplate.TemplateType = EMissionTemplateType::Combat;
+        CombatTemplate.TemplateType = EMissionTemplateType::Assault;
         CombatTemplate.MissionContext = EMissionContext::Combat;
         CombatTemplate.Complexity = EMissionComplexity::Moderate;
         CombatTemplate.SupportedMissionTypes = {EMissionType::Combat};
@@ -1199,7 +1191,7 @@ void UProceduralMissionGenerator::ProcessWorldEvent(const FName& EventName, floa
         EscortMission.Description = TEXT("A trade convoy needs protection through dangerous space.");
 
         // Add escort-specific objective
-        FMissionObjective EscortObjective;
+        FMissionBoardObjective EscortObjective;
         EscortObjective.ObjectiveID = FName("EscortConvoy");
         EscortObjective.Description = TEXT("Keep the convoy safe until it reaches its destination");
         EscortObjective.bIsRequired = true;
@@ -1220,10 +1212,10 @@ void UProceduralMissionGenerator::ProcessWorldEvent(const FName& EventName, floa
         // Create research mission
         FMissionTemplate ResearchTemplate;
         ResearchTemplate.TemplateName = TEXT("AnomalyResearch");
-        ResearchTemplate.TemplateType = EMissionTemplateType::Research;
+        ResearchTemplate.TemplateType = EMissionTemplateType::Investigation;
         ResearchTemplate.MissionContext = EMissionContext::Anomaly;
         ResearchTemplate.Complexity = EMissionComplexity::Complex;
-        ResearchTemplate.SupportedMissionTypes = {EMissionType::Research};
+        ResearchTemplate.SupportedMissionTypes = {EMissionType::Investigation};
         ResearchTemplate.DifficultyRange = {EMissionDifficulty::Normal, EMissionDifficulty::VeryHard};
         ResearchTemplate.MinObjectives = 2;
         ResearchTemplate.MaxObjectives = 4;
@@ -1234,7 +1226,7 @@ void UProceduralMissionGenerator::ProcessWorldEvent(const FName& EventName, floa
         ResearchMission.Description = TEXT("Scientists have detected an unusual anomaly that requires investigation.");
 
         // Add research-specific objectives
-        FMissionObjective ScanObjective;
+        FMissionBoardObjective ScanObjective;
         ScanObjective.ObjectiveID = FName("ScanAnomaly");
         ScanObjective.Description = TEXT("Scan the anomaly with your ship's sensors");
         ScanObjective.bIsRequired = true;
@@ -1242,7 +1234,7 @@ void UProceduralMissionGenerator::ProcessWorldEvent(const FName& EventName, floa
         ScanObjective.CurrentCount = 0;
         ResearchMission.Objectives.Add(ScanObjective);
 
-        FMissionObjective CollectObjective;
+        FMissionBoardObjective CollectObjective;
         CollectObjective.ObjectiveID = FName("CollectSamples");
         CollectObjective.Description = TEXT("Collect data samples from the anomaly");
         CollectObjective.bIsRequired = false;

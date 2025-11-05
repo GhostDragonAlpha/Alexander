@@ -24,7 +24,7 @@ struct FSceneMetadata
 	int32 ActorCount = 0;
 
 	UPROPERTY(BlueprintReadWrite, Category = "AI Vision")
-	FDateTime Timestamp;
+	FDateTime Timestamp = FDateTime::Now();
 };
 
 UCLASS()

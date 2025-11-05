@@ -3,6 +3,8 @@
 #include "BiomeBlendingSystem.h"
 #include "BiomeManager.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 UBiomeBlendingSystem::UBiomeBlendingSystem()
 {

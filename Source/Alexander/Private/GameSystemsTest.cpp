@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "GameSystemsTest.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "OrbitalBody.h"
 #include "Planet.h"
 #include "Spaceship.h"
@@ -435,7 +436,7 @@ bool AGameSystemsTest::TestVRIntegration()
 	
 	// Check VR components
 	bool bHasVRCamera = TestShip->VRCamera != nullptr;
-	bool bVRInitialized = TestShip->VRPawn != nullptr || TestShip->bIsVREnabled;
+	bool bVRInitialized = TestShip->bIsVREnabled;
 	
 	// Test cockpit transform
 	FTransform CockpitTransform = TestShip->GetCockpitTransform();

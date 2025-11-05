@@ -4,7 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "EnhancedInput/Public/InputActionValue.h"
+// #include "InputActionValue.h"  // Forward declared below
+struct FInputActionValue;
 #include "SurfacePlayerCharacter.generated.h"
 
 // Forward declarations

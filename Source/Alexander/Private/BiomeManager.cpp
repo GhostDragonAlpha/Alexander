@@ -3,6 +3,8 @@
 #include "BiomeManager.h"
 #include "ProceduralNoiseGenerator.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 // ============================================================================
 // FBiomeWeights Implementation

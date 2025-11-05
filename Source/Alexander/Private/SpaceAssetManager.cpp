@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SpaceAssetManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Planet.h"
 #include "Spaceship.h"
 #include "Asteroid.h"
@@ -86,7 +87,7 @@ TArray<FPlanetAssetData> USpaceAssetManager::GetPlanetsByType(const FString& Pla
 {
 if (PlanetsByType.Contains(PlanetType))
 {
-return PlanetsByType[PlanetType];
+return PlanetsByType[PlanetType].Planets;
 }
 
 return TArray<FPlanetAssetData>();

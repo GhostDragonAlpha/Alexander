@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions in inline code
 #include "Components/ActorComponent.h"
 #include "PlanetWeatherComponent.h"
 #include "AdvancedWeatherSystem.generated.h"
@@ -478,7 +479,7 @@ private:
     // Weather Prediction
     void UpdatePredictions();
     FWeatherPrediction PredictWeatherAtLocation(const FVector2D& Location, float HoursAhead);
-    float CalculatePredictionConfidence(const FVector2D& Location, float HoursAhead);
+    float CalculatePredictionConfidence(const FVector2D& Location, float HoursAhead) const;
     
     // Weather Pattern Processing
     void ProcessActivePatterns(float DeltaTime);

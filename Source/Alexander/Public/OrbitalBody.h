@@ -271,27 +271,15 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnLanded OnLanded;
 
+	// Called when this body establishes a stable orbit
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnOrbitEstablished);
+	UPROPERTY(BlueprintAssignable, Category = "Events")
+	FOnOrbitEstablished OnOrbitEstablished;
+
 	// Called when this body takes off from a landed state
 	DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTakenOff);
 	UPROPERTY(BlueprintAssignable, Category = "Events")
 	FOnTakenOff OnTakenOff;
-
-protected:
-	// Update position based on orbital mode
-	void UpdateOrbitalPosition(float DeltaTime);
-
-	// Update ballistic trajectory
-	void UpdateBallisticTrajectory(float DeltaTime);
-
-	// Get the radius of the target body (for collision detection)
-	float GetTargetBodyRadius() const;
-
-	// Calculate sphere of influence for this body
-	float GetSphereOfInfluence() const;
-
-	// Get the body's radius
-	UFUNCTION(BlueprintCallable, Category = "Physics")
-	float GetBodyRadius() const { return Radius; }
 
 	// Get the body's mass
 	UFUNCTION(BlueprintCallable, Category = "Physics")
@@ -301,6 +289,8 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Physics")
 	float GetStandardGravitationalParameter() const { return StandardGravitationalParameter; }
 
+protected:
+
 	// Update rotation based on rotation period
 	void UpdateRotation(float DeltaTime);
 
@@ -309,3 +299,5 @@ protected:
 
 	// Constants
 	static constexpr float GravitationalConstant = 6.67430e-11f; // G in m³/(kg·s²)
+
+};

@@ -1,10 +1,13 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "VRPlantingGestureDetector.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "VRSeedItem.h"
 #include "FarmPlot.h"
 #include "DrawDebugHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "MotionControllerComponent.h"          // For UMotionControllerComponent
+#include "Engine/World.h"                       // For GetWorld()
 
 UVRPlantingGestureDetector::UVRPlantingGestureDetector()
 {

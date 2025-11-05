@@ -1,0 +1,8 @@
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: Pillow in c:\program files\python311\lib\site-packages (11.2.1)
+Requirement already satisfied: jsonschema in c:\program files\python311\lib\site-packages (4.24.0)
+Requirement already satisfied: attrs>=22.2.0 in c:\users\allen\appdata\roaming\python\python311\site-packages (from jsonschema) (25.3.0)
+Requirement already satisfied: jsonschema-specifications>=2023.03.6 in c:\users\allen\appdata\roaming\python\python311\site-packages (from jsonschema) (2025.4.1)
+Requirement already satisfied: referencing>=0.28.4 in c:\users\allen\appdata\roaming\python\python311\site-packages (from jsonschema) (0.36.2)
+Requirement already satisfied: rpds-py>=0.7.1 in c:\program files\python311\lib\site-packages (from jsonschema) (0.25.1)
+Requirement already satisfied: typing-extensions>=4.4.0 in c:\program files\python311\lib\site-packages (from referencing>=0.28.4->jsonschema) (4.14.0)

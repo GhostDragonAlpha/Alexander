@@ -2,7 +2,10 @@
 
 #include "TerrainMaterialSystem.h"
 #include "Materials/MaterialInstanceDynamic.h"
+#include "Materials/MaterialInterface.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Math/UnrealMathUtility.h"
+#include "Math/Vector.h"
 
 UTerrainMaterialSystem::UTerrainMaterialSystem()
 {

@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "SoilSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "CropSystem.h"
 
 USoilSystem::USoilSystem()

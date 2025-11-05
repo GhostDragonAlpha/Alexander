@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TurbulenceCameraShake.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Kismet/KismetMathLibrary.h"
 
 // Constructor removed - UCameraShakeBase doesn't have default constructor in UE 5.6

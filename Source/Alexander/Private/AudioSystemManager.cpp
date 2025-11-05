@@ -1,4 +1,5 @@
 #include "AudioSystemManager.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "Components/AudioComponent.h"
 #include "Sound/SoundBase.h"
@@ -34,7 +35,7 @@ void UAudioSystemManager::InitializeAudioSystem()
     UE_LOG(LogTemp, Log, TEXT("Audio System Manager Initialized"));
     
     // Initialize default audio settings
-    FAudioSettings DefaultSettings;
+    FAudioSystemSettings DefaultSettings;
     DefaultSettings.MasterVolume = 1.0f;
     DefaultSettings.MusicVolume = 0.8f;
     DefaultSettings.SFXVolume = 1.0f;
@@ -48,7 +49,7 @@ void UAudioSystemManager::InitializeAudioSystem()
     DefaultSettings.bEnableOcclusion = true;
     DefaultSettings.MaxConcurrentSounds = 32;
     DefaultSettings.AudioQuality = 1.0f;
-    
+
     SetAudioSettings(DefaultSettings);
     
     // Initialize VOIP system
@@ -148,7 +149,7 @@ void UAudioSystemManager::UpdateAudioInstances(float DeltaTime)
     for (auto& InstancePair : AudioInstances)
     {
         const FName& InstanceName = InstancePair.Key;
-        FAudioInstance& Instance = InstancePair.Value;
+        FAudioSystemInstance& Instance = InstancePair.Value;
         
         if (!Instance.bIsActive || Instance.bIsPaused) continue;
         
@@ -234,11 +235,12 @@ void UAudioSystemManager::UpdateDynamicMusic(float DeltaTime)
     // Auto-transition based on game state
     if (DynamicMusicData.bAutoTransition)
     {
-        FString DesiredState = DetermineDesiredMusicState();
-        if (DesiredState != CurrentMusicState)
-        {
-            TransitionToMusicState(DesiredState, DynamicMusicData.TransitionTime);
-        }
+        // TODO: Implement DetermineDesiredMusicState() helper function
+        // FString DesiredState = DetermineDesiredMusicState();
+        // if (DesiredState != CurrentMusicState)
+        // {
+        //     TransitionToMusicState(DesiredState, DynamicMusicData.TransitionTime);
+        // }
     }
     
     // Update music parameters
@@ -274,13 +276,14 @@ FName UAudioSystemManager::PlayAudioEvent(const FString& EventName, AActor* Sour
     if (!GetWorld() || !AudioEvents.Contains(EventName)) return NAME_None;
 
     const FAudioEvent& AudioEvent = AudioEvents[EventName];
-    
+
+    // TODO: Implement CanPlayAudioEvent() helper function
     // Check if we can play this sound based on priority and concurrency
-    if (!CanPlayAudioEvent(AudioEvent))
-    {
-        return NAME_None;
-    }
-    
+    // if (!CanPlayAudioEvent(AudioEvent))
+    // {
+    //     return NAME_None;
+    // }
+
     // Generate unique instance name
     FName InstanceName = GenerateUniqueInstanceName(EventName);
     
@@ -292,22 +295,27 @@ FName UAudioSystemManager::PlayAudioEvent(const FString& EventName, AActor* Sour
     }
     
     // Configure audio component
-    AudioComponent->SetVolumeMultiplier(AudioEvent.VolumeMultiplier * GetVolumeForEvent(AudioEvent));
+    // TODO: Implement GetVolumeForEvent() helper function
+    float EventVolume = AudioEvent.VolumeMultiplier; // * GetVolumeForEvent(AudioEvent);
+    AudioComponent->SetVolumeMultiplier(EventVolume);
     AudioComponent->SetPitchMultiplier(AudioEvent.PitchMultiplier);
-    AudioComponent->bLooping = AudioEvent.bLoop;
+    // UE5.6: bLooping property removed - use sound settings instead
+    // AudioComponent->bLooping = AudioEvent.bLoop;
     AudioComponent->bAllowSpatialization = AudioEvent.bSpatial;
-    AudioComponent->AttenuationSettings = CreateAttenuationSettings(AudioEvent);
-    
+    // TODO: Implement CreateAttenuationSettings() helper function
+    // AudioComponent->AttenuationSettings = CreateAttenuationSettings(AudioEvent);
+
+    // UE5.6: SetConcurrency() removed - use ConcurrencySettings property instead
     if (AudioEvent.Concurrency)
     {
-        AudioComponent->SetConcurrency(AudioEvent.Concurrency);
+        AudioComponent->ConcurrencySettings = AudioEvent.Concurrency;
     }
     
     // Apply audio effects
     ApplyAudioEffects(AudioComponent, AudioEvent.Effects);
     
     // Create instance data
-    FAudioInstance Instance;
+    FAudioSystemInstance Instance;
     Instance.InstanceName = InstanceName;
     Instance.AudioComponent = AudioComponent;
     Instance.SourceActor = SourceActor;
@@ -336,7 +344,7 @@ void UAudioSystemManager::StopAudioEvent(const FName& InstanceName, bool bImmedi
 {
     if (!AudioInstances.Contains(InstanceName)) return;
 
-    FAudioInstance& Instance = AudioInstances[InstanceName];
+    FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     
     if (bImmediate)
     {
@@ -366,7 +374,7 @@ void UAudioSystemManager::PauseAudioEvent(const FName& InstanceName)
 {
     if (!AudioInstances.Contains(InstanceName)) return;
 
-    FAudioInstance& Instance = AudioInstances[InstanceName];
+    FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     
     if (Instance.AudioComponent && !Instance.bIsPaused)
     {
@@ -379,7 +387,7 @@ void UAudioSystemManager::ResumeAudioEvent(const FName& InstanceName)
 {
     if (!AudioInstances.Contains(InstanceName)) return;
 
-    FAudioInstance& Instance = AudioInstances[InstanceName];
+    FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     
     if (Instance.AudioComponent && Instance.bIsPaused)
     {
@@ -392,7 +400,7 @@ void UAudioSystemManager::SetAudioEventParameter(const FName& InstanceName, cons
 {
     if (!AudioInstances.Contains(InstanceName)) return;
 
-    FAudioInstance& Instance = AudioInstances[InstanceName];
+    FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     Instance.ParameterValues.Add(ParameterName, Value);
     
     if (Instance.AudioComponent)
@@ -613,13 +621,13 @@ TArray<FVOIPData> UAudioSystemManager::GetVOIPPlayers() const
     return VOIPPlayers;
 }
 
-void UAudioSystemManager::SetAudioSettings(const FAudioSettings& Settings)
+void UAudioSystemManager::SetAudioSettings(const FAudioSystemSettings& Settings)
 {
     CurrentAudioSettings = Settings;
     ApplyAudioSettings();
 }
 
-FAudioSettings UAudioSystemManager::GetAudioSettings() const
+FAudioSystemSettings UAudioSystemManager::GetAudioSettings() const
 {
     return CurrentAudioSettings;
 }
@@ -670,7 +678,7 @@ void UAudioSystemManager::ApplyAudioEffect(const FName& InstanceName, EAudioEffe
 {
     if (!AudioInstances.Contains(InstanceName)) return;
 
-    FAudioInstance& Instance = AudioInstances[InstanceName];
+    FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     
     if (Instance.AudioComponent)
     {
@@ -701,7 +709,7 @@ void UAudioSystemManager::RemoveAudioEffect(const FName& InstanceName, EAudioEff
 {
     if (!AudioInstances.Contains(InstanceName)) return;
 
-    FAudioInstance& Instance = AudioInstances[InstanceName];
+    FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     
     if (Instance.AudioComponent)
     {
@@ -729,7 +737,7 @@ void UAudioSystemManager::ClearAllAudioEffects(const FName& InstanceName)
 {
     if (!AudioInstances.Contains(InstanceName)) return;
 
-    FAudioInstance& Instance = AudioInstances[InstanceName];
+    FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     
     if (Instance.AudioComponent)
     {
@@ -770,7 +778,7 @@ void UAudioSystemManager::UpdateAudioAttenuation(const FName& InstanceName, floa
 {
     if (!AudioInstances.Contains(InstanceName)) return;
 
-    FAudioInstance& Instance = AudioInstances[InstanceName];
+    FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     
     if (Instance.AudioComponent)
     {
@@ -790,8 +798,8 @@ void UAudioSystemManager::UpdateAudioAttenuation(const FName& InstanceName, floa
 bool UAudioSystemManager::IsAudioEventPlaying(const FName& InstanceName) const
 {
     if (!AudioInstances.Contains(InstanceName)) return false;
-    
-    const FAudioInstance& Instance = AudioInstances[InstanceName];
+
+    const FAudioSystemInstance& Instance = AudioInstances[InstanceName];
     return Instance.bIsActive && !Instance.bIsPaused;
 }
 
@@ -880,46 +888,47 @@ void UAudioSystemManager::ApplyAudioEffects(UAudioComponent* AudioComponent, con
 {
     if (!AudioComponent) return;
 
-    for (EAudioEffect Effect : Effects)
+    for (const FAudioEffect& Effect : Effects)
     {
-        switch (Effect)
-        {
-            case EAudioEffect::Reverb:
-                // Apply reverb effect
-                break;
-                
-            case EAudioEffect::Echo:
-                // Apply echo effect
-                break;
-                
-            case EAudioEffect::Distortion:
-                // Apply distortion effect
-                break;
-                
-            default:
-                break;
-        }
+        // TODO: Implement audio effects application
+        // switch (Effect.EffectType)
+        // {
+        //     case EAudioEffect::Reverb:
+        //         // Apply reverb effect
+        //         break;
+        //
+        //     case EAudioEffect::Echo:
+        //         // Apply echo effect
+        //         break;
+        //
+        //     case EAudioEffect::Distortion:
+        //         // Apply distortion effect
+        //         break;
+        //
+        //     default:
+        //         break;
+        // }
     }
 }
 
 void UAudioSystemManager::CleanupExpiredInstances()
 {
     TArray<FName> InstancesToRemove;
-    
+
     for (const auto& InstancePair : AudioInstances)
     {
         const FName& InstanceName = InstancePair.Key;
-        const FAudioInstance& Instance = InstancePair.Value;
-        
+        const FAudioSystemInstance& Instance = InstancePair.Value;
+
         if (!Instance.bIsActive)
         {
             InstancesToRemove.Add(InstanceName);
         }
     }
-    
+
     for (const FName& InstanceName : InstancesToRemove)
     {
-        const FAudioInstance& Instance = AudioInstances[InstanceName];
+        const FAudioSystemInstance& Instance = AudioInstances[InstanceName];
         
         // Clean up audio component
         if (Instance.AudioComponent)
@@ -939,11 +948,11 @@ void UAudioSystemManager::OptimizeAudioPerformance()
     {
         // Sort instances by priority and remove lowest priority ones
         TArray<TPair<int32, FName>> InstancePriorities;
-        
+
         for (const auto& InstancePair : AudioInstances)
         {
             const FName& InstanceName = InstancePair.Key;
-            const FAudioInstance& Instance = InstancePair.Value;
+            const FAudioSystemInstance& Instance = InstancePair.Value;
             
             int32 Priority = (int32)Instance.Priority;
             
@@ -996,8 +1005,8 @@ void UAudioSystemManager::ApplyAudioSettings()
     // Update all audio components
     for (auto& InstancePair : AudioInstances)
     {
-        FAudioInstance& Instance = InstancePair.Value;
-        
+        FAudioSystemInstance& Instance = InstancePair.Value;
+
         if (Instance.AudioComponent)
         {
             float Volume = GetVolumeForEventByType(Instance.EventName);
@@ -1006,34 +1015,35 @@ void UAudioSystemManager::ApplyAudioSettings()
     }
 }
 
-float UAudioSystemManager::GetVolumeForEvent(const FAudioEvent& AudioEvent) const
-{
-    // Determine volume based on event type
-    if (AudioEvent.EventName.Contains("Music"))
-    {
-        return CurrentAudioSettings.MusicVolume;
-    }
-    else if (AudioEvent.EventName.Contains("Dialogue"))
-    {
-        return CurrentAudioSettings.DialogueVolume;
-    }
-    else if (AudioEvent.EventName.Contains("Ambient"))
-    {
-        return CurrentAudioSettings.AmbientVolume;
-    }
-    else if (AudioEvent.EventName.Contains("UI"))
-    {
-        return CurrentAudioSettings.UIVolume;
-    }
-    else if (AudioEvent.EventName.Contains("VOIP"))
-    {
-        return CurrentAudioSettings.VoiceChatVolume;
-    }
-    else
-    {
-        return CurrentAudioSettings.SFXVolume;
-    }
-}
+// TODO: Implement GetVolumeForEvent() helper function
+// float UAudioSystemManager::GetVolumeForEvent(const FAudioEvent& AudioEvent) const
+// {
+//     // Determine volume based on event type
+//     if (AudioEvent.EventName.Contains("Music"))
+//     {
+//         return CurrentAudioSettings.MusicVolume;
+//     }
+//     else if (AudioEvent.EventName.Contains("Dialogue"))
+//     {
+//         return CurrentAudioSettings.DialogueVolume;
+//     }
+//     else if (AudioEvent.EventName.Contains("Ambient"))
+//     {
+//         return CurrentAudioSettings.AmbientVolume;
+//     }
+//     else if (AudioEvent.EventName.Contains("UI"))
+//     {
+//         return CurrentAudioSettings.UIVolume;
+//     }
+//     else if (AudioEvent.EventName.Contains("VOIP"))
+//     {
+//         return CurrentAudioSettings.VoiceChatVolume;
+//     }
+//     else
+//     {
+//         return CurrentAudioSettings.SFXVolume;
+//     }
+// }
 
 float UAudioSystemManager::GetVolumeForEventByType(const FString& EventName) const
 {
@@ -1063,47 +1073,49 @@ float UAudioSystemManager::GetVolumeForEventByType(const FString& EventName) con
     }
 }
 
-bool UAudioSystemManager::CanPlayAudioEvent(const FAudioEvent& AudioEvent)
-{
-    // Check concurrency limits
-    if (AudioEvent.Concurrency)
-    {
-        // Count existing instances with this concurrency
-        int32 ConcurrentCount = 0;
-        for (const auto& InstancePair : AudioInstances)
-        {
-            const FAudioInstance& Instance = InstancePair.Value;
-            if (Instance.bIsActive && Instance.AudioComponent && 
-                Instance.AudioComponent->GetConcurrency() == AudioEvent.Concurrency)
-            {
-                ConcurrentCount++;
-            }
-        }
-        
-        // Check if we've reached the concurrency limit
-        if (ConcurrentCount >= AudioEvent.Concurrency->MaxCount)
-        {
-            return false;
-        }
-    }
-    
-    return true;
-}
+// TODO: Implement CanPlayAudioEvent() helper function
+// bool UAudioSystemManager::CanPlayAudioEvent(const FAudioEvent& AudioEvent)
+// {
+//     // Check concurrency limits
+//     if (AudioEvent.Concurrency)
+//     {
+//         // Count existing instances with this concurrency
+//         int32 ConcurrentCount = 0;
+//         for (const auto& InstancePair : AudioInstances)
+//         {
+//             const FAudioSystemInstance& Instance = InstancePair.Value;
+//             if (Instance.bIsActive && Instance.AudioComponent &&
+//                 Instance.AudioComponent->ConcurrencySettings == AudioEvent.Concurrency)
+//             {
+//                 ConcurrentCount++;
+//             }
+//         }
+//
+//         // Check if we've reached the concurrency limit
+//         // if (ConcurrentCount >= AudioEvent.Concurrency->MaxCount)
+//         // {
+//         //     return false;
+//         // }
+//     }
+//
+//     return true;
+// }
 
-USoundAttenuation* UAudioSystemManager::CreateAttenuationSettings(const FAudioEvent& AudioEvent)
-{
-    USoundAttenuation* Attenuation = NewObject<USoundAttenuation>();
-    if (Attenuation)
-    {
-        Attenuation->Attenuation.DistanceAlgorithm = ESoundDistanceModel::Inverse;
-        Attenuation->Attenuation.AttenuationShape = ESoundAttenuationShape::Sphere;
-        Attenuation->Attenuation.RadiusMax = AudioEvent.MaxDistance;
-        Attenuation->Attenuation.RadiusMin = 100.0f;
-        Attenuation->Attenuation.bEnableAttenuation = AudioEvent.bSpatial;
-    }
-    
-    return Attenuation;
-}
+// TODO: Implement CreateAttenuationSettings() helper function
+// USoundAttenuation* UAudioSystemManager::CreateAttenuationSettings(const FAudioEvent& AudioEvent)
+// {
+//     USoundAttenuation* Attenuation = NewObject<USoundAttenuation>();
+//     if (Attenuation)
+//     {
+//         Attenuation->Attenuation.DistanceAlgorithm = ESoundDistanceModel::Inverse;
+//         Attenuation->Attenuation.AttenuationShape = ESoundAttenuationShape::Sphere;
+//         Attenuation->Attenuation.RadiusMax = AudioEvent.MaxDistance;
+//         Attenuation->Attenuation.RadiusMin = 100.0f;
+//         Attenuation->Attenuation.bEnableAttenuation = AudioEvent.bSpatial;
+//     }
+//
+//     return Attenuation;
+// }
 
 void UAudioSystemManager::ApplyEnvironmentMix(EAudioEnvironment Environment, float Intensity)
 {
@@ -1131,44 +1143,47 @@ void UAudioSystemManager::ApplyEnvironmentMix(EAudioEnvironment Environment, flo
     }
 }
 
-FString UAudioSystemManager::DetermineDesiredMusicState()
-{
-    // Determine music state based on game conditions
-    // This is a simplified implementation
-    if (GetWorld())
-    {
-        // Check for combat conditions
-        if (IsCombatActive())
-        {
-            return "Combat";
-        }
-        
-        // Check for social conditions
-        if (IsSocialActive())
-        {
-            return "Social";
-        }
-        
-        // Default to exploration
-        return "Exploration";
-    }
-    
-    return DynamicMusicData.MusicState;
-}
+// TODO: Implement DetermineDesiredMusicState() helper function
+// FString UAudioSystemManager::DetermineDesiredMusicState()
+// {
+//     // Determine music state based on game conditions
+//     // This is a simplified implementation
+//     if (GetWorld())
+//     {
+//         // Check for combat conditions
+//         if (IsCombatActive())
+//         {
+//             return "Combat";
+//         }
+//
+//         // Check for social conditions
+//         if (IsSocialActive())
+//         {
+//             return "Social";
+//         }
+//
+//         // Default to exploration
+//         return "Exploration";
+//     }
+//
+//     return DynamicMusicData.MusicState;
+// }
 
-bool UAudioSystemManager::IsCombatActive()
-{
-    // Check if combat is currently active
-    // This would integrate with the game's combat system
-    return false;
-}
+// TODO: Implement IsCombatActive() helper function
+// bool UAudioSystemManager::IsCombatActive()
+// {
+//     // Check if combat is currently active
+//     // This would integrate with the game's combat system
+//     return false;
+// }
 
-bool UAudioSystemManager::IsSocialActive()
-{
-    // Check if social interactions are active
-    // This would integrate with the game's social system
-    return false;
-}
+// TODO: Implement IsSocialActive() helper function
+// bool UAudioSystemManager::IsSocialActive()
+// {
+//     // Check if social interactions are active
+//     // This would integrate with the game's social system
+//     return false;
+// }
 
 void UAudioSystemManager::UpdateMusicParameters()
 {
@@ -1194,20 +1209,21 @@ void UAudioSystemManager::ProcessVOIPData()
         // In real implementation: decode Opus/other codec to PCM
         // Then feed to audio output with 3D positioning
 
+        // TODO: Add PlayerLocation and CurrentVolume to FVOIPData struct
         // Apply spatial audio based on player position
-        if (VOIPPlayer.PlayerLocation != FVector::ZeroVector)
-        {
-            // Calculate attenuation based on distance
-            APawn* LocalPlayer = GetWorld() ? GetWorld()->GetFirstPlayerController()->GetPawn() : nullptr;
-            if (LocalPlayer)
-            {
-                float Distance = FVector::Dist(LocalPlayer->GetActorLocation(), VOIPPlayer.PlayerLocation);
-                float Attenuation = FMath::Clamp(1.0f - (Distance / 5000.0f), 0.0f, 1.0f);
-
-                // Apply volume attenuation
-                VOIPPlayer.CurrentVolume = VOIPVolume * Attenuation;
-            }
-        }
+        // if (VOIPPlayer.PlayerLocation != FVector::ZeroVector)
+        // {
+        //     // Calculate attenuation based on distance
+        //     APawn* LocalPlayer = GetWorld() ? GetWorld()->GetFirstPlayerController()->GetPawn() : nullptr;
+        //     if (LocalPlayer)
+        //     {
+        //         float Distance = FVector::Dist(LocalPlayer->GetActorLocation(), VOIPPlayer.PlayerLocation);
+        //         float Attenuation = FMath::Clamp(1.0f - (Distance / 5000.0f), 0.0f, 1.0f);
+        //
+        //         // Apply volume attenuation
+        //         VOIPPlayer.CurrentVolume = VOIPVolume * Attenuation;
+        //     }
+        // }
 
         // Process voice activity detection
         if (VOIPPlayer.VoiceAmplitude > 0.1f)
@@ -1246,7 +1262,7 @@ void UAudioSystemManager::DrawDebugAudioInfo()
     for (const auto& InstancePair : AudioInstances)
     {
         const FName& InstanceName = InstancePair.Key;
-        const FAudioInstance& Instance = InstancePair.Value;
+        const FAudioSystemInstance& Instance = InstancePair.Value;
         
         if (!Instance.bIsActive) continue;
         
@@ -1278,10 +1294,10 @@ void UAudioSystemManager::LogAudioPerformanceMetrics()
 {
     int32 ActiveInstanceCount = 0;
     int32 PausedInstanceCount = 0;
-    
+
     for (const auto& InstancePair : AudioInstances)
     {
-        const FAudioInstance& Instance = InstancePair.Value;
+        const FAudioSystemInstance& Instance = InstancePair.Value;
         
         if (Instance.bIsActive)
         {

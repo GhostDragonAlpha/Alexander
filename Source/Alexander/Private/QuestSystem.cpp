@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "QuestSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "EconomySystem.h"
 #include "AIDialogueSystem.h"
 #include "Engine/World.h"

@@ -93,9 +93,15 @@ void UEnvironmentalHazardsSystem::GetLifetimeReplicatedProps(TArray<FLifetimePro
 }
 
 // Hazard management
-FHazardEvent* UEnvironmentalHazardsSystem::GetHazardEvent(int32 EventID)
+bool UEnvironmentalHazardsSystem::GetHazardEvent(int32 EventID, FHazardEvent& OutEvent)
 {
-    return FindHazardEvent(EventID);
+    FHazardEvent* HazardEvent = FindHazardEvent(EventID);
+    if (HazardEvent)
+    {
+        OutEvent = *HazardEvent;
+        return true;
+    }
+    return false;
 }
 
 int32 UEnvironmentalHazardsSystem::CreateHazardEvent(EHazardType HazardType, EHazardSeverity Severity, const FVector& Location, float Radius)
@@ -292,13 +298,13 @@ bool UEnvironmentalHazardsSystem::PredictWeatherChange(EWeatherCondition& Predic
     // Simple weather prediction based on current conditions and patterns
     TArray<EWeatherCondition> PossibleConditions;
     TArray<float> Probabilities;
-    
+
     // Get possible transitions from current weather
     for (const auto& Transition : WeatherTransitionProbabilities)
     {
         if (Transition.Key == CurrentWeather.CurrentCondition)
         {
-            for (const auto& ConditionProb : Transition.Value)
+            for (const auto& ConditionProb : Transition.Value.Transitions)
             {
                 PossibleConditions.Add(ConditionProb.Key);
                 Probabilities.Add(ConditionProb.Value);
@@ -349,22 +355,29 @@ void UEnvironmentalHazardsSystem::SetWeatherCondition(EWeatherCondition NewCondi
 }
 
 // Environmental zones
-FEnvironmentalZone* UEnvironmentalHazardsSystem::GetEnvironmentalZone(int32 ZoneID)
+bool UEnvironmentalHazardsSystem::GetEnvironmentalZone(int32 ZoneID, FEnvironmentalZone& OutZone)
 {
-    return FindEnvironmentalZone(ZoneID);
+    FEnvironmentalZone* Zone = FindEnvironmentalZone(ZoneID);
+    if (Zone)
+    {
+        OutZone = *Zone;
+        return true;
+    }
+    return false;
 }
 
-FEnvironmentalZone* UEnvironmentalHazardsSystem::GetZoneAtLocation(const FVector& Location)
+bool UEnvironmentalHazardsSystem::GetZoneAtLocation(const FVector& Location, FEnvironmentalZone& OutZone)
 {
     for (FEnvironmentalZone& Zone : EnvironmentalZones)
     {
         float Distance = FVector::Dist(Location, Zone.CenterLocation);
         if (Distance <= Zone.ZoneRadius)
         {
-            return &Zone;
+            OutZone = Zone;
+            return true;
         }
     }
-    return nullptr;
+    return false;
 }
 
 int32 UEnvironmentalHazardsSystem::CreateEnvironmentalZone(const FString& ZoneName, const FVector& Center, float Radius)
@@ -403,9 +416,15 @@ bool UEnvironmentalHazardsSystem::UpdateZoneProperties(int32 ZoneID, const FEnvi
 }
 
 // Defense systems
-FHazardDefense* UEnvironmentalHazardsSystem::GetDefenseSystem(int32 DefenseID)
+bool UEnvironmentalHazardsSystem::GetDefenseSystem(int32 DefenseID, FHazardDefense& OutDefense)
 {
-    return FindDefenseSystem(DefenseID);
+    FHazardDefense* Defense = FindDefenseSystem(DefenseID);
+    if (Defense)
+    {
+        OutDefense = *Defense;
+        return true;
+    }
+    return false;
 }
 
 int32 UEnvironmentalHazardsSystem::InstallDefenseSystem(const FString& DefenseName, EHazardType ProtectedHazard, const FVector& Location, float Radius)
@@ -515,9 +534,15 @@ bool UEnvironmentalHazardsSystem::MaintainDefenseSystem(int32 DefenseID)
 }
 
 // Hazard prediction
-FHazardPrediction* UEnvironmentalHazardsSystem::GetHazardPrediction(int32 PredictionID)
+bool UEnvironmentalHazardsSystem::GetHazardPrediction(int32 PredictionID, FHazardPrediction& OutPrediction)
 {
-    return FindHazardPrediction(PredictionID);
+    FHazardPrediction* Prediction = FindHazardPrediction(PredictionID);
+    if (Prediction)
+    {
+        OutPrediction = *Prediction;
+        return true;
+    }
+    return false;
 }
 
 int32 UEnvironmentalHazardsSystem::PredictHazard(EHazardType HazardType, const FVector& Location, float TimeWindow)
@@ -602,22 +627,22 @@ TArray<FHazardPrediction> UEnvironmentalHazardsSystem::GetPredictionsForTimeWind
 float UEnvironmentalHazardsSystem::CalculateHazardRisk(EHazardType HazardType, const FVector& Location) const
 {
     float BaseRisk = CalculateHazardProbability(HazardType, Location);
-    
+
     // Modify risk based on environmental zone
-    FEnvironmentalZone* Zone = const_cast<UEnvironmentalHazardsSystem*>(this)->GetZoneAtLocation(Location);
-    if (Zone)
+    FEnvironmentalZone Zone;
+    if (const_cast<UEnvironmentalHazardsSystem*>(this)->GetZoneAtLocation(Location, Zone))
     {
-        if (Zone->HazardProbabilities.Contains(HazardType))
+        if (Zone.HazardProbabilities.Contains(HazardType))
         {
-            BaseRisk *= Zone->HazardProbabilities[HazardType];
+            BaseRisk *= Zone.HazardProbabilities[HazardType];
         }
     }
-    
+
     // Modify risk based on existing defenses
     TArray<FHazardDefense> Defenses = GetActiveDefensesInRadius(Location, 1000.0f);
     float DefenseEffectiveness = CalculateTotalDefenseEffectiveness(Defenses, HazardType);
     BaseRisk *= (1.0f - DefenseEffectiveness);
-    
+
     return FMath::Clamp(BaseRisk, 0.0f, 1.0f);
 }
 
@@ -663,7 +688,7 @@ TArray<EHazardType> UEnvironmentalHazardsSystem::GetLikelyHazards(const FVector&
 float UEnvironmentalHazardsSystem::GetEnvironmentalSafetyRating(const FVector& Location) const
 {
     float SafetyRating = 1.0f; // Start with perfect safety
-    
+
     // Check active hazards
     TArray<FHazardEvent> NearbyHazards = GetHazardsInRadius(Location, 500.0f);
     for (const FHazardEvent& HazardEvent : NearbyHazards)
@@ -671,23 +696,26 @@ float UEnvironmentalHazardsSystem::GetEnvironmentalSafetyRating(const FVector& L
         float HazardImpact = CalculateHazardImpact(HazardEvent, Location);
         SafetyRating -= HazardImpact;
     }
-    
+
     // Check weather conditions
     float WeatherImpact = CalculateWeatherImpact(CurrentWeather, Location);
     SafetyRating -= WeatherImpact;
-    
+
     // Check environmental zone
-    FEnvironmentalZone* Zone = const_cast<UEnvironmentalHazardsSystem*>(this)->GetZoneAtLocation(Location);
-    if (Zone && !Zone->bIsHabitable)
+    FEnvironmentalZone Zone;
+    if (const_cast<UEnvironmentalHazardsSystem*>(this)->GetZoneAtLocation(Location, Zone))
     {
-        SafetyRating -= 0.5f;
+        if (!Zone.bIsHabitable)
+        {
+            SafetyRating -= 0.5f;
+        }
     }
-    
+
     // Add defense bonus
     TArray<FHazardDefense> Defenses = GetActiveDefensesInRadius(Location, 500.0f);
     float DefenseBonus = Defenses.Num() * 0.1f; // 10% bonus per defense system
     SafetyRating += DefenseBonus;
-    
+
     return FMath::Clamp(SafetyRating, 0.0f, 1.0f);
 }
 
@@ -935,7 +963,13 @@ void UEnvironmentalHazardsSystem::ProcessHazardEvent(FHazardEvent& HazardEvent, 
 void UEnvironmentalHazardsSystem::ProcessWeatherChanges()
 {
     // Process weather transitions and effects
-    ProcessWeatherEffects();
+    ApplyWeatherEffects(CurrentWeather);
+}
+
+void UEnvironmentalHazardsSystem::ProcessWeatherEffects()
+{
+    // Apply current weather effects to systems
+    ApplyWeatherEffects(CurrentWeather);
 }
 
 void UEnvironmentalHazardsSystem::ProcessPredictionAccuracy()
@@ -1223,25 +1257,25 @@ void UEnvironmentalHazardsSystem::InitializeEnvironmentalZones()
 void UEnvironmentalHazardsSystem::InitializeWeatherPatterns()
 {
     // Initialize weather transition probabilities
-    WeatherTransitionProbabilities.Add(EWeatherCondition::Clear, {
-        {EWeatherCondition::Clear, 0.6f},
-        {EWeatherCondition::Cloudy, 0.3f},
-        {EWeatherCondition::Overcast, 0.1f}
-    });
-    
-    WeatherTransitionProbabilities.Add(EWeatherCondition::Cloudy, {
-        {EWeatherCondition::Clear, 0.2f},
-        {EWeatherCondition::Cloudy, 0.4f},
-        {EWeatherCondition::Overcast, 0.3f},
-        {EWeatherCondition::LightRain, 0.1f}
-    });
-    
-    WeatherTransitionProbabilities.Add(EWeatherCondition::Storm, {
-        {EWeatherCondition::Overcast, 0.3f},
-        {EWeatherCondition::Storm, 0.4f},
-        {EWeatherCondition::HeavyRain, 0.2f},
-        {EWeatherCondition::Cloudy, 0.1f}
-    });
+    FWeatherTransitionProbabilities ClearTransitions;
+    ClearTransitions.Transitions.Add(EWeatherCondition::Clear, 0.6f);
+    ClearTransitions.Transitions.Add(EWeatherCondition::Cloudy, 0.3f);
+    ClearTransitions.Transitions.Add(EWeatherCondition::Overcast, 0.1f);
+    WeatherTransitionProbabilities.Add(EWeatherCondition::Clear, ClearTransitions);
+
+    FWeatherTransitionProbabilities CloudyTransitions;
+    CloudyTransitions.Transitions.Add(EWeatherCondition::Clear, 0.2f);
+    CloudyTransitions.Transitions.Add(EWeatherCondition::Cloudy, 0.4f);
+    CloudyTransitions.Transitions.Add(EWeatherCondition::Overcast, 0.3f);
+    CloudyTransitions.Transitions.Add(EWeatherCondition::LightRain, 0.1f);
+    WeatherTransitionProbabilities.Add(EWeatherCondition::Cloudy, CloudyTransitions);
+
+    FWeatherTransitionProbabilities StormTransitions;
+    StormTransitions.Transitions.Add(EWeatherCondition::Overcast, 0.3f);
+    StormTransitions.Transitions.Add(EWeatherCondition::Storm, 0.4f);
+    StormTransitions.Transitions.Add(EWeatherCondition::HeavyRain, 0.2f);
+    StormTransitions.Transitions.Add(EWeatherCondition::Cloudy, 0.1f);
+    WeatherTransitionProbabilities.Add(EWeatherCondition::Storm, StormTransitions);
 }
 
 void UEnvironmentalHazardsSystem::InitializeHazardProbabilities()
@@ -1279,22 +1313,25 @@ bool UEnvironmentalHazardsSystem::IsValidSeverity(EHazardSeverity Severity) cons
 float UEnvironmentalHazardsSystem::CalculateHazardProbability(EHazardType HazardType, const FVector& Location) const
 {
     float BaseProbability = 0.1f; // 10% base probability
-    
+
     if (BaseHazardProbabilities.Contains(HazardType))
     {
         BaseProbability = BaseHazardProbabilities[HazardType];
     }
-    
+
     // Modify based on environmental zone
-    FEnvironmentalZone* Zone = const_cast<UEnvironmentalHazardsSystem*>(this)->GetZoneAtLocation(Location);
-    if (Zone && Zone->HazardProbabilities.Contains(HazardType))
+    FEnvironmentalZone Zone;
+    if (const_cast<UEnvironmentalHazardsSystem*>(this)->GetZoneAtLocation(Location, Zone))
     {
-        BaseProbability *= Zone->HazardProbabilities[HazardType];
+        if (Zone.HazardProbabilities.Contains(HazardType))
+        {
+            BaseProbability *= Zone.HazardProbabilities[HazardType];
+        }
     }
-    
+
     // Add some randomness
     BaseProbability *= FMath::RandRange(0.5f, 1.5f);
-    
+
     return FMath::Clamp(BaseProbability, 0.0f, 1.0f);
 }
 
@@ -1332,14 +1369,15 @@ EHazardSeverity UEnvironmentalHazardsSystem::CalculateHazardSeverity(EHazardType
 EWeatherCondition UEnvironmentalHazardsSystem::CalculateNextWeatherCondition() const
 {
     EWeatherCondition CurrentCondition = CurrentWeather.CurrentCondition;
-    
+
     if (WeatherTransitionProbabilities.Contains(CurrentCondition))
     {
-        const TMap<EWeatherCondition, float>& Transitions = WeatherTransitionProbabilities[CurrentCondition];
-        
+        const FWeatherTransitionProbabilities& TransitionData = WeatherTransitionProbabilities[CurrentCondition];
+        const TMap<EWeatherCondition, float>& Transitions = TransitionData.Transitions;
+
         float RandomValue = FMath::RandRange(0.0f, 1.0f);
         float CumulativeProbability = 0.0f;
-        
+
         for (const auto& Transition : Transitions)
         {
             CumulativeProbability += Transition.Value;
@@ -1349,7 +1387,7 @@ EWeatherCondition UEnvironmentalHazardsSystem::CalculateNextWeatherCondition() c
             }
         }
     }
-    
+
     // Default to clear weather if no transitions defined
     return EWeatherCondition::Clear;
 }
@@ -1441,19 +1479,14 @@ FEnvironmentalZone* UEnvironmentalHazardsSystem::FindEnvironmentalZone(int32 Zon
 void UEnvironmentalHazardsSystem::SetupEnvironmentalTimers()
 {
     if (!GetOwner()->HasAuthority()) return;
-    
+
     UWorld* World = GetWorld();
     if (!World) return;
-    
-    // Set up hazard update timer
-    World->GetTimerManager().SetTimer(
-        HazardUpdateTimer,
-        this,
-        &UEnvironmentalHazardsSystem::UpdateHazardEvents,
-        HazardUpdateInterval,
-        true
-    );
-    
+
+    // Note: UpdateHazardEvents is called from TickComponent, not from timer
+    // Timers are set up but not used for UpdateHazardEvents in this implementation
+    // as it's already called from TickComponent
+
     // Set up weather update timer
     World->GetTimerManager().SetTimer(
         WeatherUpdateTimer,
@@ -1462,7 +1495,7 @@ void UEnvironmentalHazardsSystem::SetupEnvironmentalTimers()
         WeatherUpdateInterval,
         true
     );
-    
+
     // Set up prediction update timer
     World->GetTimerManager().SetTimer(
         PredictionUpdateTimer,
@@ -1953,3 +1986,4 @@ FString UEnvironmentalHazardsSystem::GetDefenseNameForHazard(EHazardType HazardT
             return TEXT("General Defense System");
     }
 }
+

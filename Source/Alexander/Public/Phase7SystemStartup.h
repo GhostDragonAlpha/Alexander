@@ -5,6 +5,9 @@
 #include "GameSystemCoordinator.h"
 #include "Phase7SystemStartup.generated.h"
 
+// Forward declarations
+class UPhase7IntegrationTest;
+
 /**
  * Phase 7 System Startup Actor
  * Automatically initializes all Phase 7 systems when placed in a level

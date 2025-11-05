@@ -2,6 +2,7 @@
 
 #include "QuadTreeTileManager.h"
 #include "TerrainRenderingOptimizer.h"
+#include "GameFramework/PlayerController.h"
 #include "DrawDebugHelpers.h"
 #include "ProceduralMeshComponent.h"
 

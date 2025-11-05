@@ -265,7 +265,7 @@ void UMemoryOptimizationManager::PurgeUnusedAssets()
     UE_LOG(LogTemp, Log, TEXT("Memory Manager: Purging unused assets"));
     
     // This would integrate with the asset manager
-    if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+    if (UAssetManager* AssetManager = UAssetManager::GetIfInitialized())
     {
         // Unload unused assets
         AssetManager->GetStreamableManager().RequestAsyncLoad(TArray<FSoftObjectPath>());
@@ -343,7 +343,7 @@ void UMemoryOptimizationManager::PreloadAssets(const TArray<FSoftObjectPath>& As
         return;
     }
     
-    if (UAssetManager* AssetManager = UAssetManager::GetIfValid())
+    if (UAssetManager* AssetManager = UAssetManager::GetIfInitialized())
     {
         AssetManager->GetStreamableManager().RequestAsyncLoad(AssetPaths);
         UE_LOG(LogTemp, Log, TEXT("Memory Manager: Preloading %d assets"), AssetPaths.Num());

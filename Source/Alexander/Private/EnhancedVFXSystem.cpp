@@ -1,4 +1,5 @@
 #include "EnhancedVFXSystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "Components/SceneComponent.h"
 #include "Components/ParticleSystemComponent.h"

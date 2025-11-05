@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Engine/AssetManager.h"
+#include "AlexanderAssetManager.generated.h"
 
 // Forward declarations
 class UTexture2D;
@@ -123,7 +124,7 @@ struct FAssetMetadata
 /**
  * Wrapper for asset lists by type
  */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FAssetListByType
 {
 	GENERATED_BODY()
@@ -135,7 +136,7 @@ struct FAssetListByType
 /**
  * Wrapper for asset lists by category
  */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FAssetListByCategory
 {
 	GENERATED_BODY()
@@ -144,12 +145,10 @@ struct FAssetListByCategory
 	TArray<FString> AssetPaths;
 };
 
-#include "AlexanderAssetManager.generated.h"
-
-UCLASS(BlueprintType, Blueprintable)
+UCLASS()
 class ALEXANDER_API UAlexanderAssetManager : public UObject
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
 	UAlexanderAssetManager();

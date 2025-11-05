@@ -1,0 +1,139 @@
+BATCH 8: COMPLETE FILE PATHS FOR MISSING MATH INCLUDES
+=======================================================
+
+BASE PATH: c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander
+
+HIGH PRIORITY FILES (Heavy Math Usage):
+========================================
+
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/OrbitalBody.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PowerSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/TickOptimizationComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VRPerformanceOptimizer.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AlexanderAtmosphericFogComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VoiceChatSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VFXManager.cpp
+
+COMPLETE LIST - PRIVATE/ (81 files):
+====================================
+
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AdvancedAIBehaviors.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AdvancedMaterialFeaturesHelper.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AIDialogueSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AlexanderAtmosphericFogComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AtmosphereLookupTable.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AudioManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AudioPolishSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AudioSystemManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/AutomationEfficiencySystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/BiomeCompatibilitySystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/BiomeFeatureGenerator.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/CinematicCameraController.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/ClientConnection.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/CockpitComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/CropDefinition.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/CropGrowthStageManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/CropHealthSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/CropSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/EconomySystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/EnhancedVFXSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/EnvironmentalModifierSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/FactionTerritorySystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/FarmAlertSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/FarmingOptimizationSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/FarmingSubsystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/FarmPlot.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/FarmStatusWidget.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/GameSystemsTest.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/HarvestingMachine.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/IrrigationSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/LandingGuidanceWidget.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/LandingPad.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/MemoryOptimizationSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/MemorySystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/MissionAIController.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/MissionBoardComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/NakamaIntegration.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/NetworkManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/NetworkReplicationManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/NPCBrain.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/OrbitalBody.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/OutpostManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PerformanceProfiler.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PerformanceTestingSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PersistentUniverseManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PersonalityProfile.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/Phase7IntegrationTest.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PlanetaryLandingZone.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PlanetAtmosphereComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PlanetCloudComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PlanetFarmingComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PlanetInteriorTests.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PowerGenerator.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/PowerSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/QuestSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/ReplicationManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/ServerNode.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/ShipEntryComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/SoilSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/SolarPanel.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/SpaceAssetManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/Spaceship.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/SunStormComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/SurfaceExplorationComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/SystemValidation.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/TerrainStreamingManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/TickOptimizationComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/TradingPostComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/TransitionController.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/TurbulenceCameraShake.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/TutorialOnboardingSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VFXManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VisualEffectsPolishSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VisualQualityValidator.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VoiceChatSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VRCropInfoWidget.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VRCropInspectionComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VRPerformanceOptimizer.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VRPlantingGestureDetector.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VRPlantingInteractionManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/WeaponSystem.cpp
+
+HEADER FILES (5 files):
+=======================
+
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Public/AdvancedWeatherSystem.h
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Public/BiomeMaterialLibrary.h
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Public/LODTransitionManager.h
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Public/PlanetWeatherComponent.h
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Public/TerrainTile.h
+
+FILES NEEDING Math/Quat.h (5 files):
+====================================
+
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/FarmPlot.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/LandingDetectionComponent.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/SurfacePlayerCharacter.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VRPlantingInteractionManager.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/VRSeedItem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Private/WeaponSystem.cpp
+
+OTHER DIRECTORIES:
+==================
+
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Planetary/ColonyBuildingSystem.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Tests/AIDialogueSystemTest.cpp
+c:/Users/allen/Desktop/Alexander/Alexander/Source/Alexander/Tests/ComprehensiveSystemTests.cpp
+
+FIX COMMAND TEMPLATE:
+=====================
+
+To add Math/UnrealMathUtility.h to a .cpp file, add after main header:
+#include "Math/UnrealMathUtility.h"
+
+To add Math/Quat.h to a file:
+#include "Math/Quat.h"
+
+Example sed command (use carefully):
+sed -i '/^#include "ClassName.h"/a #include "Math/UnrealMathUtility.h"' filename.cpp
+

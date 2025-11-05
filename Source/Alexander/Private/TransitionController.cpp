@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TransitionController.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Kismet/KismetMathLibrary.h"
 
 UTransitionController::UTransitionController()

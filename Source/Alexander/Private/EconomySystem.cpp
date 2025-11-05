@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "EconomySystem.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -57,7 +58,7 @@ float UEconomySystem::GetCurrentCargoVolume() const
 float TotalVolume = 0.0f;
 for (const FCargoItem& Item : CargoHold)
 {
-TotalVolume += Item.Commodity.Volume * Item.Quantity;
+TotalVolume += Item.Commodity.VolumePerUnit * Item.Quantity;
 }
 return TotalVolume;
 }
@@ -69,7 +70,7 @@ return MaxCargoCapacity - GetCurrentCargoVolume();
 
 bool UEconomySystem::HasCargoSpace(const FCommodityData& Commodity, int32 Quantity) const
 {
-float RequiredSpace = Commodity.Volume * Quantity;
+float RequiredSpace = Commodity.VolumePerUnit * Quantity;
 return GetAvailableCargoSpace() >= RequiredSpace;
 }
 
@@ -146,10 +147,10 @@ return false;
 }
 
 // Calculate revenue
-float TotalRevenue = (PricePerUnit * Quantity) - CalculateTradeFees(PricePerUnit * Quantity);
+float SaleRevenue = (PricePerUnit * Quantity) - CalculateTradeFees(PricePerUnit * Quantity);
 
 // Execute transaction
-PlayerCredits += TotalRevenue;
+PlayerCredits += SaleRevenue;
 RemoveFromCargo(CommodityName, Quantity);
 
 // Update market
@@ -171,17 +172,17 @@ Transaction.Timestamp = FDateTime::Now();
 Transaction.CommodityName = CommodityName;
 Transaction.Quantity = Quantity;
 Transaction.PricePerUnit = PricePerUnit;
-Transaction.TotalValue = TotalRevenue;
+Transaction.TotalValue = SaleRevenue;
 Transaction.bWasPurchase = false;
 Transaction.Location = TEXT("CurrentStation");
 Transaction.Profit = Profit;
 RecordTransaction(Transaction);
 
-TotalRevenue += TotalRevenue;
+TotalRevenue += SaleRevenue;
 TotalProfit += Profit;
 
-UE_LOG(LogTemp, Log, TEXT("Sold %d %s for %.2f credits (Profit: %.2f)"), 
-Quantity, *CommodityName.ToString(), TotalRevenue, Profit);
+UE_LOG(LogTemp, Log, TEXT("Sold %d %s for %.2f credits (Profit: %.2f)"),
+Quantity, *CommodityName.ToString(), SaleRevenue, Profit);
 
 return true;
 }
@@ -784,7 +785,7 @@ Commodity.CommodityName = CommodityNames[i];
 Commodity.CommodityType = ECommodityType(i);
 Commodity.BasePrice = FMath::FRandRange(50.0f, 500.0f);
 Commodity.PriceVolatility = FMath::FRandRange(0.1f, 0.3f);
-Commodity.Volume = FMath::FRandRange(0.5f, 2.0f);
+Commodity.VolumePerUnit = FMath::FRandRange(0.5f, 2.0f);
 Commodity.Mass = FMath::FRandRange(0.5f, 3.0f);
 Commodity.bIsIllegal = (i == 8); // Contraband
 Commodity.bIsPerishable = (i == 3 || i == 4); // Food, Medicine

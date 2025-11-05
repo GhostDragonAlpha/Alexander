@@ -444,6 +444,9 @@ protected:
 	bool bIsSliding;
 
 	UPROPERTY()
+	bool bIsCrouching;
+
+	UPROPERTY()
 	bool bIsWallRunning;
 
 	UPROPERTY()
@@ -500,7 +503,6 @@ private:
 	void OnMantleTimelineFinished();
 	void OnSlideTimelineFinished();
 	FVector GetMovementInput() const;
-	float GetMovementInputAmount() const;
 	FRotator GetDesiredRotation() const;
 	void SetDesiredRotation(const FRotator& Rotation);
 	void SmoothRotation(float DeltaTime);

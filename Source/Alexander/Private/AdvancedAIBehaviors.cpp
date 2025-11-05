@@ -1,4 +1,5 @@
 #include "AdvancedAIBehaviors.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "AIController.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"

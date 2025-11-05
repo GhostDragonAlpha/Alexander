@@ -9,6 +9,7 @@
 #include "NetworkManager.h"
 #include "EconomySystem.h"
 #include "MissionSystem.h"
+#include "MissionBoardComponent.h"
 #include "VoiceChatSystem.h"
 #include "SpaceStationHub.generated.h"
 
@@ -62,6 +63,12 @@ struct FHubZone
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<FName> RequiredFactions;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<APlayerState*> AllowedPlayers;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bIsRestricted;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<FName, float> ZoneProperties;
@@ -280,8 +287,8 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Systems")
     class UEconomySystem* EconomySystem;
 
-    // UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Systems")
-    // class UMissionSystem* MissionSystem;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Systems")
+    class UMissionSystem* MissionSystem;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Systems")
     class UVoiceChatSystem* VoiceChatSystem;

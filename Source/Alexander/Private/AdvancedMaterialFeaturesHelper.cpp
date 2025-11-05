@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AdvancedMaterialFeaturesHelper.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Kismet/KismetMathLibrary.h"
 
 FAdvancedMaterialFeatures UAdvancedMaterialFeaturesHelper::CreateDefaultAdvancedFeatures()

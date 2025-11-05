@@ -38,7 +38,12 @@ public:
 	class UNiagaraComponent* StormEffect = nullptr;
 	class UNiagaraComponent* FlareEffect = nullptr;
 
-	// Initialize component with references from Sun actor
+private:
+	// Current storm state
+	float CurrentStormIntensity = 0.0f;
+	float StormTimer = 0.0f;
+
+public:
 	void InitializeStorm(class ASun* OwningSun, class UNiagaraComponent* InStormEffect, class UPointLightComponent* InCoreLight, class UNiagaraComponent* InFlareEffect, bool bInEnableStorms, float InIntensity, float InFrequency);
 
 	// Get current storm intensity (0.0 to 1.0)

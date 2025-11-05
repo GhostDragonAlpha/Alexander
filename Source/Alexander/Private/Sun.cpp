@@ -1,4 +1,5 @@
 #include "Sun.h"
+#include "SunConfiguration.h"
 #include "Components/StaticMeshComponent.h"
 #include "Components/PointLightComponent.h"
 #include "NiagaraComponent.h"

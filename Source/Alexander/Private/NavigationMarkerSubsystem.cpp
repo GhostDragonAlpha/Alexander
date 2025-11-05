@@ -1,6 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "NavigationMarkerSubsystem.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 #include "Engine/World.h"
 
 void UNavigationMarkerSubsystem::Initialize(FSubsystemCollectionBase& Collection)

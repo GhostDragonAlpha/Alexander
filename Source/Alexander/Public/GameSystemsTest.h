@@ -7,9 +7,9 @@
 #include "GameSystemsTest.generated.h"
 
 /**
- * Test function delegate
+ * Test function type definition
  */
-DECLARE_DELEGATE_RetVal(bool, FTestFunction);
+using FTestFunction = TFunction<bool()>;
 
 /**
  * Test definition structure
@@ -23,7 +23,7 @@ struct FTestDefinition
 	FString TestName;
 
 	// Test function (C++ only)
-	TFunction<void()> TestFunction;
+	FTestFunction TestFunction;
 
 	FTestDefinition()
 	{

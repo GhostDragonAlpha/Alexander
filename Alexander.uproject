@@ -50,6 +50,10 @@
 			"Enabled": true
 		},
 		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
 			"Name": "AIVisionSystem",
 			"Enabled": true
 		}

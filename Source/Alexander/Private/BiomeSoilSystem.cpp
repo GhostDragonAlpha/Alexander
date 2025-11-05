@@ -49,11 +49,11 @@ FSoilVariation UBiomeSoilSystem::GetSoilVariationFromDefinition(const FBiomeDefi
 	return Variation;
 }
 
-FSoilVariation UBiomeSoilSystem::GetBlendedSoilVariation(const TMap<int32, float>& BiomeWeights, const TArray<FBiomeDefinition>& BiomeDefinitions) const
+FSoilVariation UBiomeSoilSystem::GetBlendedSoilVariation(const TMap<int32, float>& BiomeWeights, const TArray<FBiomeDefinition>& InBiomeDefinitions) const
 {
 	FSoilVariation BlendedVariation;
 
-	if (BiomeWeights.Num() == 0 || BiomeDefinitions.Num() == 0)
+	if (BiomeWeights.Num() == 0 || InBiomeDefinitions.Num() == 0)
 	{
 		return BlendedVariation;
 	}
@@ -73,9 +73,9 @@ FSoilVariation UBiomeSoilSystem::GetBlendedSoilVariation(const TMap<int32, float
 		int32 BiomeIndex = WeightPair.Key;
 		float Weight = WeightPair.Value;
 
-		if (BiomeIndex >= 0 && BiomeIndex < BiomeDefinitions.Num())
+		if (BiomeIndex >= 0 && BiomeIndex < InBiomeDefinitions.Num())
 		{
-			const FBiomeDefinition& BiomeDef = BiomeDefinitions[BiomeIndex];
+			const FBiomeDefinition& BiomeDef = InBiomeDefinitions[BiomeIndex];
 			
 			BlendedQuality += ValidateSoilQuality(BiomeDef.BaseSoilQuality) * Weight;
 			BlendedColor += BiomeDef.SoilColor * Weight;

@@ -224,7 +224,7 @@ struct FAudioSystemInstance
 
 // Audio Settings (Simple)
 USTRUCT(BlueprintType)
-struct FAudioSettings
+struct FAudioSystemSettingsSimple
 {
     GENERATED_BODY()
 
@@ -243,6 +243,9 @@ struct FAudioSettings
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bEnableHRTF = true;
 };
+
+// Alias for backward compatibility
+typedef FAudioSystemSettingsSimple FAudioSettings;
 
 // Audio Settings
 USTRUCT(BlueprintType)

@@ -1,9 +1,12 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TickOptimizationComponent.h"
+#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "TickAnalysisComponent.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "GameFramework/PlayerController.h"
+#include "GameFramework/Pawn.h"
 
 UTickOptimizationComponent::UTickOptimizationComponent()
 {
@@ -61,7 +64,21 @@ void UTickOptimizationComponent::OptimizeComponent(UActorComponent* Component, E
         return;
     }
 
-    float Interval = AnalysisComponent->GetOptimalTickInterval(Priority); // Need to pass AnalysisComponent
+    // For now, use a default interval based on priority
+    float Interval = 0.1f; // Default interval
+    switch (Priority)
+    {
+    case ETickPriority::High:
+        Interval = 0.016f; // ~60 FPS
+        break;
+    case ETickPriority::Medium:
+        Interval = 0.033f; // ~30 FPS
+        break;
+    case ETickPriority::Low:
+        Interval = 0.1f; // ~10 FPS
+        break;
+    }
+    
     SetComponentTickInterval(Component, Interval);
 }
 
