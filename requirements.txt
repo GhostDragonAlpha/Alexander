@@ -1,0 +1,22 @@
+# Alexander VR Project - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core dependencies for AI integration and automation
+numpy>=1.24.0
+requests>=2.31.0
+
+# Optional but recommended
+# For enhanced image processing in AI vision system
+# Pillow>=10.0.0
+
+# For JSON schema validation
+# jsonschema>=4.17.0
+
+# For advanced data handling
+# pandas>=2.0.0
+
+# Installation Instructions:
+# 1. Open terminal/command prompt
+# 2. Navigate to project directory: cd C:\Users\allen\Desktop\Alexander\Alexander
+# 3. Install dependencies: pip install -r requirements.txt
+# 4. Verify installation: python -c "import numpy, requests; print('Dependencies installed successfully')"

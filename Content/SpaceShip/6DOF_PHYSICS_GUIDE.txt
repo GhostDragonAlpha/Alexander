@@ -1,0 +1,266 @@
+
+================================================================================
+6 DEGREES OF FREEDOM (6DOF) FLIGHT PHYSICS SYSTEM
+================================================================================
+
+OVERVIEW:
+This system implements realistic Newtonian space flight mechanics where:
+- No air resistance (space environment)
+- Objects in motion stay in motion
+- All forces affect velocity, not position directly
+- Rotation and translation are independent
+
+6 DEGREES OF FREEDOM:
+1. TRANSLATION (3 axes):
+   - Forward/Backward (Surge) - X axis
+   - Left/Right (Sway) - Y axis  
+   - Up/Down (Heave) - Z axis
+
+2. ROTATION (3 axes):
+   - Pitch - Rotate around Y axis (nose up/down)
+   - Yaw - Rotate around Z axis (nose left/right)
+   - Roll - Rotate around X axis (barrel roll)
+
+================================================================================
+CONTROL MAPPING
+================================================================================
+
+VR FLIGHT STICK (Left Hand):
+- Forward/Back   → Pitch (nose up/down)
+- Left/Right     → Roll (barrel roll)
+- Twist          → Yaw (nose left/right) [optional]
+- Trigger        → Fire primary weapon [future]
+
+VR THROTTLE (Right Hand):
+- Forward/Back   → Thrust forward/backward
+- Up/Down        → Strafe up/down
+- Left/Right     → Strafe left/right
+- Trigger        → Toggle flight assist [future]
+
+================================================================================
+PHYSICS IMPLEMENTATION
+================================================================================
+
+CORE COMPONENTS NEEDED:
+
+1. StaticMeshComponent or FloatingPawnMovement
+   - Provides physics simulation
+   - Handles velocity and acceleration
+   - No gravity (set in setup_vr_interaction.py)
+
+2. Motion Controller Components (Left/Right)
+   - Track VR hand positions
+   - Read controller input (trigger, grip, joystick)
+   - Provide haptic feedback
+
+3. Flight Physics Controller (BP_FlightPhysicsController)
+   - Reads control positions
+   - Calculates thrust vectors
+   - Applies forces to ship
+   - Manages flight assist modes
+
+PHYSICS FORMULAS:
+
+F = ma (Force = mass × acceleration)
+
+Thrust Force:
+- ForwardThrust = ThrottlePosition × MaxThrust
+- StrafeThrust = ThrottleOffset × MaxStrafeThrust
+
+Rotational Torque:
+- PitchTorque = StickPosition.Y × MaxPitchTorque
+- RollTorque = StickPosition.X × MaxRollTorque
+- YawTorque = StickTwist × MaxYawTorque
+
+Velocity Integration:
+- NewVelocity = CurrentVelocity + (ThrustForce / Mass) × DeltaTime
+- NewPosition = CurrentPosition + NewVelocity × DeltaTime
+
+Angular Velocity:
+- NewAngularVel = CurrentAngularVel + (Torque / Inertia) × DeltaTime
+- NewRotation = CurrentRotation + NewAngularVel × DeltaTime
+
+================================================================================
+IMPLEMENTATION STEPS
+================================================================================
+
+STEP 1: Configure VR Player Blueprint
+1. Open BP_VRSpaceshipPlayer in Unreal Editor
+2. Add StaticMeshComponent named "ShipBody"
+   - Set mesh to basic ship shape
+   - Enable "Simulate Physics"
+   - Disable "Enable Gravity"
+   - Set Mass to 10000 (kg)
+   - Set Linear Damping to 0.1 (minimal space drag)
+   - Set Angular Damping to 0.5 (rotation stability)
+
+3. Add VROrigin component (scene root)
+4. Add Camera component (child of VROrigin)
+5. Add MotionController_Left component
+6. Add MotionController_Right component
+
+STEP 2: Create Control Reading System
+In BP_VRSpaceshipPlayer Event Graph:
+
+Event Tick:
+1. Get MotionController_Left world location
+2. Convert to local position relative to pilot seat
+3. Map position to pitch/roll values (-1 to 1)
+4. Get MotionController_Right world location
+5. Convert to local position relative to throttle rest position
+6. Map position to thrust/strafe values (-1 to 1)
+
+STEP 3: Apply Forces
+In BP_FlightPhysicsController:
+
+1. Read control inputs from VR player
+2. Calculate thrust vectors:
+   - Forward = ForwardVector × ThrottleForward × MaxThrust
+   - Strafe = RightVector × ThrottleSide × MaxStrafeThrust
+   - Vertical = UpVector × ThrottleUp × MaxStrafeThrust
+
+3. Apply forces to ShipBody:
+   - AddForce(ThrustVector)
+
+4. Calculate torques:
+   - PitchTorque = StickY × MaxPitchTorque
+   - RollTorque = StickX × MaxRollTorque
+
+5. Apply torques:
+   - AddTorqueInDegrees(TorqueVector)
+
+STEP 4: Flight Assist (Optional Advanced Feature)
+Implement IFCS (Intelligent Flight Control System):
+
+- Coupled Mode: Ship rotates to face velocity direction
+- Decoupled Mode: Ship orientation independent of velocity
+- Auto-level: Gradually reduces angular velocity
+- Speed limiter: Caps maximum velocity
+- Collision avoidance: Automatic thrust corrections
+
+================================================================================
+TUNING PARAMETERS
+================================================================================
+
+THRUST VALUES (Newtons):
+- MaxThrust: 50000 N (main engine)
+- MaxStrafeThrust: 25000 N (maneuvering thrusters)
+- MaxReverseThrust: 30000 N (retro thrusters)
+
+TORQUE VALUES (N⋅m):
+- MaxPitchTorque: 100000
+- MaxRollTorque: 80000
+- MaxYawTorque: 60000
+
+MASS PROPERTIES:
+- ShipMass: 10000 kg (10 tons)
+- CenterOfMass: (0, 0, 0) - center of ship
+- MomentOfInertia: Auto-calculate or set custom tensor
+
+DAMPING:
+- LinearDamping: 0.1 (space has minimal drag)
+- AngularDamping: 0.5 (prevents spin-out)
+
+CONTROL SENSITIVITY:
+- StickDeadzone: 0.1 (ignore tiny movements)
+- ThrottleDeadzone: 0.05
+- MaxControlInput: 1.0 (full deflection)
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+□ VR headset tracks player head position
+□ Motion controllers visible in VR
+□ Grabbing flight stick shows hand attachment
+□ Moving stick forward pitches nose down
+□ Moving stick back pitches nose up
+□ Moving stick left rolls left
+□ Moving stick right rolls right
+□ Throttle forward accelerates forward
+□ Throttle backward decelerates/reverses
+□ Ship maintains velocity when controls released
+□ Ship rotates smoothly without wobble
+□ No gravity pulling ship down
+□ Collisions work properly
+□ Haptic feedback on control grab
+
+================================================================================
+NEXT FEATURES TO ADD
+================================================================================
+
+1. Heads-Up Display (HUD):
+   - Velocity vector indicator
+   - Orientation indicator
+   - Target reticle
+   - Speed readout
+   - G-force indicator
+
+2. Sound Effects:
+   - Thruster firing sounds
+   - Control movement sounds
+   - Cockpit ambience
+   - Speed-based wind simulation
+
+3. Visual Effects:
+   - Thruster flames/particles
+   - Speed streaks
+   - Atmospheric entry effects
+
+4. Advanced Flight:
+   - Boost mode (temporary high thrust)
+   - Strafe mode toggle
+   - Precision mode (reduced sensitivity)
+   - Auto-pilot waypoint system
+
+5. Environmental Interactions:
+   - Gravity wells (planets)
+   - Atmospheric drag
+   - Solar wind
+   - Magnetic fields
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+ISSUE: Ship falls down
+FIX: Ensure "Enable Gravity" is FALSE on ShipBody component
+
+ISSUE: Ship doesn't move
+FIX: Check "Simulate Physics" is TRUE, mass > 0, forces being applied
+
+ISSUE: Ship spins uncontrollably
+FIX: Increase Angular Damping, reduce torque values
+
+ISSUE: Controls don't respond
+FIX: Check motion controllers are tracking, verify input mapping
+
+ISSUE: Ship moves too fast/slow
+FIX: Adjust MaxThrust values or ship mass
+
+ISSUE: Jittery movement
+FIX: Increase Linear/Angular damping, reduce DeltaTime multipliers
+
+================================================================================
+REFERENCES
+================================================================================
+
+Unreal Engine Physics:
+- https://docs.unrealengine.com/5.6/en-US/physics-in-unreal-engine/
+
+VR Motion Controllers:
+- https://docs.unrealengine.com/5.6/en-US/vr-development-in-unreal-engine/
+
+Newtonian Mechanics:
+- Newton's Laws of Motion
+- Conservation of Momentum
+- Conservation of Angular Momentum
+
+Real Space Flight:
+- NASA Orbital Mechanics
+- Reaction Control Systems (RCS)
+- Inertial Measurement Units (IMU)
+
+================================================================================
+Generated by AI Vision System - November 3, 2025
+================================================================================

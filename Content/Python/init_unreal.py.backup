@@ -1,0 +1,55 @@
+# init_unreal.py - Automatically executed by Unreal Editor on startup
+# This file MUST be named exactly "init_unreal.py"
+
+import unreal
+import sys
+import os
+
+print("=" * 70)
+print("  AUTO-EXECUTING: init_unreal.py")
+print("=" * 70)
+
+# Add Python path
+content_python = r'C:\Users\allen\Desktop\Alexander\Alexander\Content\Python'
+if content_python not in sys.path:
+    sys.path.insert(0, content_python)
+
+try:
+    # Phase 1: Create blueprints and run continuous development
+    print("\n🤖 Phase 1: Initial Setup")
+    with open(os.path.join(content_python, 'visual_verification.py'), 'r') as f:
+        exec(f.read())
+    
+    # Phase 2: Build actual geometry
+    print("\n🎨 Phase 2: Building Cockpit Geometry")
+    with open(os.path.join(content_python, 'build_geometry.py'), 'r') as f:
+        exec(f.read())
+    
+    # Phase 3: Add VR interaction
+    print("\n🎮 Phase 3: VR Interaction Setup")
+    with open(os.path.join(content_python, 'setup_vr_interaction.py'), 'r') as f:
+        exec(f.read())
+    
+    # Phase 4: 6DOF Flight Physics
+    print("\n🚀 Phase 4: 6DOF Flight Physics System")
+    with open(os.path.join(content_python, 'flight_physics_6dof.py'), 'r') as f:
+        exec(f.read())
+    
+    # Phase 5: Planetary Systems
+    print("\n🌍 Phase 5: Procedural Planetary Systems")
+    with open(os.path.join(content_python, 'planetary_systems.py'), 'r') as f:
+        exec(f.read())
+    
+    print("\n" + "=" * 70)
+    print("  🚀 COMPLETE VR SPACESHIP WITH SOLAR SYSTEM!")
+    print("=" * 70)
+    
+    # Auto-screenshot after build completes
+    print("\n📸 Taking automatic screenshot in 5 seconds...")
+    with open(os.path.join(content_python, 'auto_screenshot.py'), 'r') as f:
+        exec(f.read())
+    
+except Exception as e:
+    print(f"❌ Error during auto-build: {e}")
+    import traceback
+    traceback.print_exc()

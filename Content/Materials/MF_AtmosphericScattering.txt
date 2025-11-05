@@ -1,0 +1,265 @@
+// Material Function: Atmospheric Scattering
+// This material function implements real-time atmospheric scattering for planetary atmospheres
+// Based on Rayleigh and Mie scattering models
+
+// INPUTS:
+// - ViewDirection (Vector3): Normalized view direction from camera
+// - SunDirection (Vector3): Normalized direction to sun
+// - ViewHeight (Float): Camera height above planet surface (km)
+// - PlanetRadius (Float): Planet radius in km
+// - AtmosphereHeight (Float): Atmosphere thickness in km
+// - RayleighCoefficient (Vector3): Rayleigh scattering coefficient (RGB wavelengths)
+// - MieCoefficient (Vector3): Mie scattering coefficient
+// - RayleighScaleHeight (Float): Scale height for Rayleigh scattering (km)
+// - MieScaleHeight (Float): Scale height for Mie scattering (km)
+// - MieAnisotropy (Float): Mie phase function anisotropy (-1 to 1)
+
+// OUTPUTS:
+// - ScatteredColor (Vector3): Final atmospheric color
+// - Transmittance (Float): Light transmittance through atmosphere
+
+// ============================================================================
+// PHASE FUNCTIONS
+// ============================================================================
+
+// Rayleigh Phase Function
+// Input: CosTheta (dot product of view and sun direction)
+// Output: Phase value
+float RayleighPhase(float CosTheta)
+{
+    const float ThreeOver16Pi = 3.0 / (16.0 * 3.14159265);
+    return ThreeOver16Pi * (1.0 + CosTheta * CosTheta);
+}
+
+// Mie Phase Function (Henyey-Greenstein)
+// Input: CosTheta, G (anisotropy parameter)
+// Output: Phase value
+float MiePhase(float CosTheta, float G)
+{
+    float G2 = G * G;
+    float Numerator = 1.0 - G2;
+    float Denominator = pow(1.0 + G2 - 2.0 * G * CosTheta, 1.5);
+    return (1.0 / (4.0 * 3.14159265)) * (Numerator / max(Denominator, 0.001));
+}
+
+// ============================================================================
+// OPTICAL DEPTH CALCULATION
+// ============================================================================
+
+// Calculate optical depth along a ray through atmosphere
+// Uses simplified exponential density model
+float CalculateOpticalDepth(float3 RayStart, float3 RayDir, float RayLength, 
+                           float3 PlanetCenter, float PlanetRadius, float ScaleHeight)
+{
+    const int SampleCount = 8;
+    float StepSize = RayLength / float(SampleCount);
+    float OpticalDepth = 0.0;
+    
+    for (int i = 0; i < SampleCount; i++)
+    {
+        float3 SamplePos = RayStart + RayDir * (float(i) + 0.5) * StepSize;
+        float Height = length(SamplePos - PlanetCenter) - PlanetRadius;
+        float Density = exp(-Height / ScaleHeight);
+        OpticalDepth += Density * StepSize;
+    }
+    
+    return OpticalDepth;
+}
+
+// ============================================================================
+// RAY-SPHERE INTERSECTION
+// ============================================================================
+
+// Test ray-sphere intersection for atmosphere boundaries
+bool RaySphereIntersection(float3 RayOrigin, float3 RayDir, float3 SphereCenter, 
+                          float SphereRadius, out float T0, out float T1)
+{
+    float3 L = SphereCenter - RayOrigin;
+    float Tca = dot(L, RayDir);
+    float D2 = dot(L, L) - Tca * Tca;
+    float Radius2 = SphereRadius * SphereRadius;
+    
+    if (D2 > Radius2)
+    {
+        T0 = 0.0;
+        T1 = 0.0;
+        return false;
+    }
+    
+    float Thc = sqrt(Radius2 - D2);
+    T0 = Tca - Thc;
+    T1 = Tca + Thc;
+    
+    return true;
+}
+
+// ============================================================================
+// MAIN SCATTERING FUNCTION
+// ============================================================================
+
+void CalculateAtmosphericScattering(
+    float3 ViewDirection,
+    float3 SunDirection,
+    float ViewHeight,
+    float PlanetRadius,
+    float AtmosphereHeight,
+    float3 RayleighCoefficient,
+    float3 MieCoefficient,
+    float RayleighScaleHeight,
+    float MieScaleHeight,
+    float MieAnisotropy,
+    float3 PlanetCenter,
+    float3 ViewPosition,
+    out float3 ScatteredColor,
+    out float Transmittance)
+{
+    // Initialize outputs
+    ScatteredColor = float3(0, 0, 0);
+    Transmittance = 1.0;
+    
+    // Calculate ray parameters
+    float3 RayOrigin = ViewPosition;
+    float3 RayDir = normalize(ViewDirection);
+    
+    // Find intersection with atmosphere
+    float AtmosphereRadius = PlanetRadius + AtmosphereHeight;
+    float T0, T1;
+    
+    if (!RaySphereIntersection(RayOrigin, RayDir, PlanetCenter, AtmosphereRadius, T0, T1))
+    {
+        return; // No intersection with atmosphere
+    }
+    
+    // Clamp ray to atmosphere bounds
+    T0 = max(T0, 0.0);
+    float RayLength = T1 - T0;
+    
+    // Check if ray hits planet surface
+    float SurfaceT0, SurfaceT1;
+    bool HitsSurface = RaySphereIntersection(RayOrigin, RayDir, PlanetCenter, PlanetRadius, SurfaceT0, SurfaceT1);
+    if (HitsSurface && SurfaceT0 > 0.0)
+    {
+        RayLength = min(RayLength, SurfaceT0 - T0);
+    }
+    
+    // Ray marching through atmosphere
+    const int NumSamples = 16;
+    float StepSize = RayLength / float(NumSamples);
+    
+    float3 RayleighAccum = float3(0, 0, 0);
+    float3 MieAccum = float3(0, 0, 0);
+    
+    float CosTheta = dot(RayDir, SunDirection);
+    float RayleighPhaseValue = RayleighPhase(CosTheta);
+    float MiePhaseValue = MiePhase(CosTheta, MieAnisotropy);
+    
+    for (int i = 0; i < NumSamples; i++)
+    {
+        float3 SamplePos = RayOrigin + RayDir * (T0 + (float(i) + 0.5) * StepSize);
+        float SampleHeight = length(SamplePos - PlanetCenter) - PlanetRadius;
+        
+        // Calculate density at sample point
+        float RayleighDensity = exp(-SampleHeight / RayleighScaleHeight);
+        float MieDensity = exp(-SampleHeight / MieScaleHeight);
+        
+        // Calculate optical depth to sun
+        float3 SunRayDir = SunDirection;
+        float SunT0, SunT1;
+        RaySphereIntersection(SamplePos, SunRayDir, PlanetCenter, AtmosphereRadius, SunT0, SunT1);
+        
+        float SunRayLength = SunT1;
+        float RayleighOpticalDepthSun = CalculateOpticalDepth(SamplePos, SunRayDir, SunRayLength, 
+                                                              PlanetCenter, PlanetRadius, RayleighScaleHeight);
+        float MieOpticalDepthSun = CalculateOpticalDepth(SamplePos, SunRayDir, SunRayLength, 
+                                                         PlanetCenter, PlanetRadius, MieScaleHeight);
+        
+        // Calculate optical depth to camera
+        float RaySegmentLength = (float(i) + 0.5) * StepSize;
+        float RayleighOpticalDepthCamera = CalculateOpticalDepth(RayOrigin + RayDir * T0, RayDir, RaySegmentLength,
+                                                                 PlanetCenter, PlanetRadius, RayleighScaleHeight);
+        float MieOpticalDepthCamera = CalculateOpticalDepth(RayOrigin + RayDir * T0, RayDir, RaySegmentLength,
+                                                            PlanetCenter, PlanetRadius, MieScaleHeight);
+        
+        // Calculate attenuation
+        float3 RayleighAttenuation = exp(-(RayleighCoefficient * (RayleighOpticalDepthSun + RayleighOpticalDepthCamera)));
+        float3 MieAttenuation = exp(-(MieCoefficient * (MieOpticalDepthSun + MieOpticalDepthCamera)));
+        
+        // Accumulate scattering
+        RayleighAccum += RayleighDensity * RayleighAttenuation * StepSize;
+        MieAccum += MieDensity * MieAttenuation * StepSize;
+    }
+    
+    // Apply phase functions and scattering coefficients
+    float3 RayleighScattering = RayleighCoefficient * RayleighPhaseValue * RayleighAccum;
+    float3 MieScattering = MieCoefficient * MiePhaseValue * MieAccum;
+    
+    // Combine scattering contributions
+    ScatteredColor = RayleighScattering + MieScattering;
+    
+    // Calculate transmittance
+    float TotalOpticalDepth = CalculateOpticalDepth(RayOrigin + RayDir * T0, RayDir, RayLength,
+                                                    PlanetCenter, PlanetRadius, RayleighScaleHeight);
+    Transmittance = exp(-TotalOpticalDepth * 0.1);
+}
+
+// ============================================================================
+// SIMPLIFIED VERSION FOR REAL-TIME USE
+// ============================================================================
+
+// Faster approximation using pre-computed lookup tables
+void CalculateAtmosphericScatteringFast(
+    float3 ViewDirection,
+    float3 SunDirection,
+    float ViewHeight,
+    float PlanetRadius,
+    float AtmosphereHeight,
+    float3 RayleighCoefficient,
+    float3 MieCoefficient,
+    float RayleighScaleHeight,
+    float MieScaleHeight,
+    float MieAnisotropy,
+    out float3 ScatteredColor)
+{
+    // Simplified calculation for real-time performance
+    float CosTheta = dot(normalize(ViewDirection), normalize(SunDirection));
+    
+    // Calculate phase functions
+    float RayleighPhaseValue = RayleighPhase(CosTheta);
+    float MiePhaseValue = MiePhase(CosTheta, MieAnisotropy);
+    
+    // Height-based density falloff
+    float NormalizedHeight = saturate(ViewHeight / AtmosphereHeight);
+    float RayleighDensity = exp(-NormalizedHeight * (AtmosphereHeight / RayleighScaleHeight));
+    float MieDensity = exp(-NormalizedHeight * (AtmosphereHeight / MieScaleHeight));
+    
+    // Sun elevation factor
+    float SunElevation = max(0.0, SunDirection.z);
+    float Attenuation = lerp(0.3, 1.0, SunElevation);
+    
+    // Calculate scattering
+    float3 RayleighScattering = RayleighCoefficient * RayleighPhaseValue * RayleighDensity * Attenuation;
+    float3 MieScattering = MieCoefficient * MiePhaseValue * MieDensity * pow(max(0.0, CosTheta), 2.0);
+    
+    ScatteredColor = RayleighScattering + MieScattering;
+}
+
+// ============================================================================
+// USAGE IN MATERIAL
+// ============================================================================
+
+// In your material graph:
+// 1. Get camera position and view direction
+// 2. Get sun direction from directional light
+// 3. Calculate view height above planet surface
+// 4. Call CalculateAtmosphericScatteringFast for real-time rendering
+// 5. Use result as emissive color or blend with base color
+// 6. For higher quality, use CalculateAtmosphericScattering with fewer samples
+
+// Example parameter values for Earth-like atmosphere:
+// PlanetRadius: 6371.0 km
+// AtmosphereHeight: 100.0 km
+// RayleighCoefficient: (0.0058, 0.0135, 0.0331) - Blue scatters more
+// MieCoefficient: (0.021, 0.021, 0.021) - Wavelength independent
+// RayleighScaleHeight: 8.0 km
+// MieScaleHeight: 1.2 km
+// MieAnisotropy: 0.76 (forward scattering)

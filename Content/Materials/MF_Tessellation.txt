@@ -1,0 +1,352 @@
+# Material Function: Dynamic Tessellation
+
+## Description
+Implements distance-based tessellation to add geometric detail to terrain surfaces without requiring high-poly base meshes.
+
+## Material Setup
+
+### Material Properties
+- **Material Domain**: Surface
+- **Blend Mode**: Opaque
+- **Enable Tessellation**: True
+- **D3D11 Tessellation Mode**: PN Triangles (or Flat)
+
+### Tessellation Outputs
+- **Tessellation Multiplier**: Controls tessellation density
+- **World Displacement**: Displaces vertices along normal
+
+## Inputs
+- **HeightTexture** (Texture2D) - Height/displacement map
+- **UV** (Vector2) - UV coordinates
+- **WorldNormal** (Vector3) - Surface normal in world space
+- **ViewDistance** (Scalar) - Distance from camera
+- **MaxTessellationDistance** (Scalar) - Maximum distance for tessellation
+- **TessellationMultiplier** (Scalar) - Base tessellation strength
+- **DisplacementScale** (Scalar) - Height displacement amount
+- **EnableTessellation** (Scalar) - Enable/disable switch
+
+## Outputs
+- **TessellationFactor** (Scalar) - Tessellation density (0-1+)
+- **WorldDisplacement** (Vector3) - Displacement vector
+
+## Implementation
+
+### Tessellation Multiplier Calculation
+
+```hlsl
+// Calculate distance-based tessellation factor
+float CalculateTessellationFactor(float ViewDistance, float MaxDistance, float BaseTessellation)
+{
+    // Linear falloff from camera to max distance
+    float DistanceFactor = saturate(1.0 - (ViewDistance / MaxDistance));
+    
+    // Apply exponential falloff for smoother transition
+    DistanceFactor = pow(DistanceFactor, 2.0);
+    
+    // Scale by base tessellation multiplier
+    float TessellationFactor = BaseTessellation * DistanceFactor;
+    
+    // Clamp to reasonable range (0-4)
+    return clamp(TessellationFactor, 0.0, 4.0);
+}
+```
+
+### World Displacement Calculation
+
+```hlsl
+// Calculate displacement from height map
+float3 CalculateWorldDisplacement(Texture2D HeightMap, float2 UV, 
+                                  float3 WorldNormal, float DisplacementScale,
+                                  float TessellationFactor)
+{
+    // Sample height map
+    float Height = HeightMap.Sample(HeightSampler, UV).r;
+    
+    // Center height around 0 (assuming height is 0-1)
+    float CenteredHeight = (Height - 0.5) * 2.0;
+    
+    // Scale displacement by tessellation factor
+    float DisplacementAmount = CenteredHeight * DisplacementScale * TessellationFactor;
+    
+    // Displace along world normal
+    float3 Displacement = WorldNormal * DisplacementAmount;
+    
+    return Displacement;
+}
+```
+
+### Advanced: Adaptive Tessellation
+
+```hlsl
+// Adjust tessellation based on surface curvature
+float CalculateAdaptiveTessellation(float3 WorldNormal, float3 VertexNormal, 
+                                    float BaseTessellation)
+{
+    // Calculate angle between vertex normal and interpolated normal
+    float NormalDifference = 1.0 - dot(WorldNormal, VertexNormal);
+    
+    // Increase tessellation on curved surfaces
+    float CurvatureFactor = saturate(NormalDifference * 2.0);
+    
+    // Boost tessellation on curved areas
+    return BaseTessellation * (1.0 + CurvatureFactor);
+}
+```
+
+### Advanced: Slope-Based Tessellation
+
+```hlsl
+// Increase tessellation on steep slopes
+float CalculateSlopeTessellation(float3 WorldNormal, float BaseTessellation)
+{
+    // Calculate slope (0 = flat, 1 = vertical)
+    float Slope = 1.0 - abs(WorldNormal.z);
+    
+    // Increase tessellation on slopes
+    float SlopeFactor = saturate(Slope * 2.0);
+    
+    return BaseTessellation * (1.0 + SlopeFactor * 0.5);
+}
+```
+
+## Blueprint Node Setup
+
+### Tessellation Multiplier Output
+
+1. **Length** (Calculate View Distance)
+   - Input: CameraPosition - WorldPosition
+
+2. **Divide** (Distance Factor)
+   - A: ViewDistance
+   - B: MaxTessellationDistance
+
+3. **OneMinus** (Invert)
+   - Input: Distance Factor
+
+4. **Saturate** (Clamp 0-1)
+
+5. **Power** (Exponential Falloff)
+   - Base: Saturated Distance Factor
+   - Exp: 2.0
+
+6. **Multiply** (Apply Base Multiplier)
+   - A: Falloff Result
+   - B: TessellationMultiplier
+
+7. **Clamp** (Final Limit)
+   - Value: Result
+   - Min: 0.0
+   - Max: 4.0
+
+8. **Branch** (Enable Check)
+   - Condition: EnableTessellation > 0.5
+   - True: Calculated Factor
+   - False: 0.0
+
+9. **Connect to Tessellation Multiplier output**
+
+### World Displacement Output
+
+1. **Texture Sample** (Height Map)
+   - Texture: HeightTexture
+   - UVs: UV
+
+2. **Subtract** (Center Height)
+   - A: Height Sample
+   - B: 0.5
+
+3. **Multiply** (Scale to -1 to 1)
+   - A: Centered Height
+   - B: 2.0
+
+4. **Multiply** (Apply Displacement Scale)
+   - A: Scaled Height
+   - B: DisplacementScale
+
+5. **Multiply** (Apply Tessellation Factor)
+   - A: Scaled Displacement
+   - B: TessellationFactor
+
+6. **Multiply** (Displace Along Normal)
+   - A: WorldNormal
+   - B: Displacement Amount
+
+7. **Branch** (Enable Check)
+   - Condition: EnableTessellation > 0.5
+   - True: Displacement Vector
+   - False: (0, 0, 0)
+
+8. **Connect to World Displacement output**
+
+## Usage in Master Material
+
+```
+// Material Graph:
+
+// 1. Calculate view distance
+float ViewDistance = length(CameraPosition - WorldPosition);
+
+// 2. Calculate tessellation factor
+float TessFactor = CalculateTessellationFactor(
+    ViewDistance,
+    MaxTessellationDistance,
+    TessellationMultiplier
+);
+
+// 3. Calculate world displacement
+float3 Displacement = CalculateWorldDisplacement(
+    HeightTexture,
+    UV,
+    WorldNormal,
+    DisplacementScale,
+    TessFactor
+);
+
+// 4. Output to material pins
+TessellationMultiplier = TessFactor;
+WorldDisplacement = Displacement;
+```
+
+## Parameter Guidelines
+
+### Tessellation Multiplier
+- **Low Quality**: 0.5 - 1.0
+- **Medium Quality**: 1.0 - 2.0
+- **High Quality**: 2.0 - 3.0
+- **Epic Quality**: 3.0 - 4.0
+
+### Max Tessellation Distance
+- **VR (Performance Critical)**: 20-30m
+- **Desktop (Balanced)**: 50-75m
+- **High-End (Quality)**: 100m+
+
+### Displacement Scale
+- **Subtle Detail**: 0.1 - 0.5
+- **Moderate Relief**: 0.5 - 2.0
+- **Dramatic Features**: 2.0 - 10.0
+
+## Performance Considerations
+
+### Triangle Budget
+- Base mesh: ~1000 triangles per tile
+- With tessellation (factor 2.0): ~4000 triangles
+- With tessellation (factor 4.0): ~16000 triangles
+
+### Distance-Based LOD
+```cpp
+// Adjust max distance based on performance
+if(FrameRate < 90.0f) // VR target
+{
+    MaxTessellationDistance *= 0.75f; // Reduce by 25%
+}
+```
+
+### Quality Levels
+- **Low**: Disabled
+- **Medium**: Max distance 30m, multiplier 1.0
+- **High**: Max distance 50m, multiplier 2.0
+- **Epic**: Max distance 75m, multiplier 3.0
+
+## Visual Quality
+
+### Benefits
+- Adds geometric detail without high-poly meshes
+- Smooth silhouettes on terrain edges
+- Realistic surface relief
+- Shadows cast by displaced geometry
+
+### Best Practices
+- Use high-quality height maps (1024x1024+)
+- Match height map to normal map
+- Blend displacement at distance
+- Avoid extreme displacement values
+
+## Integration with Other Features
+
+### With Parallax Occlusion Mapping
+```
+// Use tessellation for geometric detail
+// Use parallax for micro-detail
+if(ViewDistance < 10.0f)
+{
+    // Close: Both tessellation and parallax
+    EnableTessellation = 1.0;
+    EnableParallax = 1.0;
+}
+else if(ViewDistance < 50.0f)
+{
+    // Medium: Tessellation only
+    EnableTessellation = 1.0;
+    EnableParallax = 0.0;
+}
+else
+{
+    // Far: Neither
+    EnableTessellation = 0.0;
+    EnableParallax = 0.0;
+}
+```
+
+### With LOD System
+```cpp
+// Adjust tessellation per LOD level
+void UpdateTessellationForLOD(int LODLevel)
+{
+    switch(LODLevel)
+    {
+        case 0: // Highest detail
+            MaterialInstance->SetScalarParameterValue("TessellationMultiplier", 3.0f);
+            MaterialInstance->SetScalarParameterValue("MaxTessellationDistance", 75.0f);
+            break;
+        case 1:
+            MaterialInstance->SetScalarParameterValue("TessellationMultiplier", 2.0f);
+            MaterialInstance->SetScalarParameterValue("MaxTessellationDistance", 50.0f);
+            break;
+        case 2:
+            MaterialInstance->SetScalarParameterValue("TessellationMultiplier", 1.0f);
+            MaterialInstance->SetScalarParameterValue("MaxTessellationDistance", 30.0f);
+            break;
+        default: // LOD 3+
+            MaterialInstance->SetScalarParameterValue("EnableTessellation", 0.0f);
+            break;
+    }
+}
+```
+
+## Common Issues
+
+### Cracks Between Tiles
+- Ensure consistent tessellation at tile boundaries
+- Use same height map resolution
+- Match displacement scale across tiles
+- Enable crack-free tessellation mode
+
+### Performance Drops
+- Reduce max tessellation distance
+- Lower tessellation multiplier
+- Disable on distant tiles
+- Use adaptive tessellation
+
+### Displacement Artifacts
+- Reduce displacement scale
+- Use higher resolution height maps
+- Smooth height map in texture editor
+- Clamp displacement values
+
+### Popping at Distance
+- Increase blend range
+- Use smoother falloff curve
+- Match tessellation to LOD transitions
+- Add dithering to transition
+
+## Testing Checklist
+
+- [ ] Tessellation visible up close
+- [ ] Smooth falloff at max distance
+- [ ] No cracks between terrain tiles
+- [ ] Performance maintains 90 FPS in VR
+- [ ] Displacement matches height map
+- [ ] Shadows cast correctly
+- [ ] Works with all material layers
+- [ ] Quality scales with settings
+

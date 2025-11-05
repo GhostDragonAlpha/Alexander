@@ -1,0 +1,316 @@
+# Terrain Master Material Implementation Guide
+
+This document describes the shader implementation for the advanced terrain material features.
+The actual material should be created in Unreal Editor, but this serves as a reference for the node setup.
+
+## Material Properties
+
+- **Material Domain**: Surface
+- **Blend Mode**: Opaque
+- **Shading Model**: Default Lit
+- **Enable Tessellation**: Yes (for tessellation feature)
+- **D3D11 Tessellation Mode**: PN Triangles
+
+## Material Parameters
+
+### Scalar Parameters
+
+#### Advanced Features
+- EnableParallaxOcclusion (float, default: 1.0)
+- ParallaxDepthScale (float, default: 0.05)
+- EnableTessellation (float, default: 1.0)
+- TessellationMultiplier (float, default: 1.0)
+- TessellationFactor (float, default: 0.0)
+- MaxTessellationDistance (float, default: 50.0)
+- WetnessIntensity (float, default: 0.0)
+- GlobalTilingScale (float, default: 1.0)
+
+#### Per-Layer Parameters (0-7)
+- Layer{N}_TilingScale
+- Layer{N}_UseTriplanar
+- Layer{N}_TriplanarSharpness
+- Layer{N}_MacroBlend
+- Layer{N}_Weight
+
+#### Environmental Parameters
+- CurrentSlope
+- CurrentAltitude
+- CurrentMoisture
+- CurrentTemperature
+
+### Texture Parameters
+
+#### Per-Layer Textures (0-7)
+- Layer{N}_BaseColor
+- Layer{N}_Normal
+- Layer{N}_Roughness
+- Layer{N}_Metallic
+- Layer{N}_AO
+- Layer{N}_Height
+
+#### Macro Detail Textures (0-7)
+- Layer{N}_MacroBaseColor
+- Layer{N}_MacroNormal
+- Layer{N}_MacroRoughness
+
+## Shader Implementation
+
+### 1. Parallax Occlusion Mapping
+
+```
+// Custom node or material function: ParallaxOcclusionMapping
+// Inputs: HeightTexture, UV, ViewVector, DepthScale, NumSteps
+// Output: Offset UV
+
+float2 ParallaxOcclusionMapping(Texture2D HeightMap, float2 UV, float3 ViewDir, float DepthScale, int NumSteps)
+{
+    // Normalize view direction in tangent space
+    float3 ViewDirTangent = normalize(ViewDir);
+    
+    // Calculate step size
+    float StepSize = 1.0 / NumSteps;
+    float2 UVDelta = ViewDirTangent.xy * DepthScale / NumSteps;
+    
+    // Initialize
+    float CurrentHeight = 1.0;
+    float2 CurrentUV = UV;
+    float HeightFromTexture = Texture2DSample(HeightMap, CurrentUV).r;
+    
+    // Ray march through height field
+    for(int i = 0; i < NumSteps && CurrentHeight > HeightFromTexture; i++)
+    {
+        CurrentUV -= UVDelta;
+        HeightFromTexture = Texture2DSample(HeightMap, CurrentUV).r;
+        CurrentHeight -= StepSize;
+    }
+    
+    // Refine with binary search (optional, for quality)
+    float2 PrevUV = CurrentUV + UVDelta;
+    float PrevHeight = CurrentHeight + StepSize;
+    
+    // Interpolate between last two steps
+    float Weight = (PrevHeight - Texture2DSample(HeightMap, PrevUV).r) / 
+                   (PrevHeight - HeightFromTexture + CurrentHeight - HeightFromTexture);
+    
+    return lerp(PrevUV, CurrentUV, Weight);
+}
+
+// Usage in material:
+// 1. Get camera vector in tangent space
+// 2. Apply parallax offset to UVs
+// 3. Use offset UVs for all texture samples
+```
+
+### 2. Triplanar Projection
+
+```
+// Material Function: TriplanarProjection
+// Inputs: Texture, WorldPosition, WorldNormal, TilingScale, BlendSharpness
+// Output: Color/Value
+
+float4 TriplanarProjection(Texture2D Tex, float3 WorldPos, float3 WorldNormal, float Scale, float Sharpness)
+{
+    // Calculate blend weights based on normal
+    float3 BlendWeights = abs(WorldNormal);
+    BlendWeights = pow(BlendWeights, Sharpness);
+    BlendWeights /= (BlendWeights.x + BlendWeights.y + BlendWeights.z);
+    
+    // Sample texture from three planes
+    float4 ColorX = Texture2DSample(Tex, WorldPos.yz * Scale);
+    float4 ColorY = Texture2DSample(Tex, WorldPos.xz * Scale);
+    float4 ColorZ = Texture2DSample(Tex, WorldPos.xy * Scale);
+    
+    // Blend based on normal direction
+    return ColorX * BlendWeights.x + ColorY * BlendWeights.y + ColorZ * BlendWeights.z;
+}
+```
+
+### 3. Macro/Micro Detail Blending
+
+```
+// Material Function: MacroMicroBlend
+// Inputs: MicroTexture, MacroTexture, ViewDistance, BlendDistance, BlendRange
+// Output: Blended Color/Value
+
+float4 MacroMicroBlend(float4 MicroColor, float4 MacroColor, float ViewDistance, float BlendDistance, float BlendRange)
+{
+    // Calculate blend factor based on distance
+    float BlendFactor = saturate((ViewDistance - BlendDistance) / BlendRange);
+    
+    // Smooth blend between micro and macro
+    return lerp(MicroColor, MacroColor, BlendFactor);
+}
+
+// Apply to each texture channel:
+// - BaseColor: Blend micro and macro albedo
+// - Normal: Blend micro and macro normals (normalize after)
+// - Roughness: Blend micro and macro roughness
+```
+
+### 4. Dynamic Wetness System
+
+```
+// Material Function: ApplyWetness
+// Inputs: BaseColor, Roughness, Normal, WetnessAmount
+// Outputs: Modified BaseColor, Roughness, Normal
+
+void ApplyWetness(inout float3 BaseColor, inout float Roughness, inout float3 Normal, float Wetness)
+{
+    // Darken base color (wet surfaces are darker)
+    float DarkenFactor = lerp(1.0, 0.7, Wetness);
+    BaseColor *= DarkenFactor;
+    
+    // Reduce roughness (wet surfaces are smoother/shinier)
+    float WetRoughness = lerp(Roughness, 0.1, Wetness);
+    Roughness = WetRoughness;
+    
+    // Slightly flatten normal (water pools smooth out detail)
+    float3 WetNormal = lerp(Normal, float3(0, 0, 1), Wetness * 0.3);
+    Normal = normalize(WetNormal);
+    
+    // Add specular highlight boost (implicit in roughness reduction)
+}
+```
+
+### 5. Tessellation Implementation
+
+```
+// World Displacement node:
+// - Connect to World Displacement output
+// - Use height map to displace vertices
+
+float3 CalculateTessellationDisplacement(float Height, float3 WorldNormal, float TessellationFactor)
+{
+    // Scale height by tessellation factor
+    float DisplacementAmount = (Height - 0.5) * 2.0 * TessellationFactor;
+    
+    // Displace along normal
+    return WorldNormal * DisplacementAmount;
+}
+
+// Tessellation Multiplier node:
+// - Connect to Tessellation Multiplier output
+// - Control tessellation density
+
+float CalculateTessellationMultiplier(float ViewDistance, float MaxDistance, float BaseTessellation)
+{
+    // Distance-based falloff
+    float DistanceFactor = saturate(1.0 - (ViewDistance / MaxDistance));
+    
+    // Apply base tessellation multiplier
+    return BaseTessellation * DistanceFactor;
+}
+```
+
+## Material Graph Structure
+
+### Main Material Function Flow
+
+1. **UV Calculation**
+   - World Position → UV Coordinates
+   - Apply Global Tiling Scale
+   - Branch: Use Triplanar or Standard UVs
+
+2. **Parallax Offset** (if enabled)
+   - Camera Vector (Tangent Space)
+   - Height Texture Sample
+   - Parallax Occlusion Mapping Function
+   - Offset UVs for all subsequent samples
+
+3. **Layer Sampling** (for each of 8 layers)
+   - Sample Micro Textures (BaseColor, Normal, Roughness, Metallic, AO, Height)
+   - Sample Macro Textures
+   - Blend Micro/Macro based on distance
+   - Apply Triplanar Projection if enabled
+
+4. **Layer Blending**
+   - Calculate layer weights (slope, altitude, biome, moisture, temperature)
+   - Blend all 8 layers based on weights
+   - Normalize weights to sum to 1.0
+
+5. **Wetness Application** (if enabled)
+   - Apply wetness to BaseColor
+   - Apply wetness to Roughness
+   - Apply wetness to Normal
+
+6. **Tessellation** (if enabled)
+   - Calculate tessellation multiplier based on distance
+   - Calculate displacement from height
+   - Output to World Displacement
+
+7. **Final Output**
+   - BaseColor → Base Color
+   - Normal → Normal
+   - Roughness → Roughness
+   - Metallic → Metallic
+   - AO → Ambient Occlusion
+   - Displacement → World Displacement (tessellation)
+
+## Performance Optimization
+
+### Static Switches
+
+Use static switches for optional features to reduce shader complexity:
+
+- `USE_PARALLAX_OCCLUSION` - Enable/disable parallax
+- `USE_TESSELLATION` - Enable/disable tessellation
+- `USE_TRIPLANAR` - Enable/disable triplanar per layer
+- `USE_WETNESS` - Enable/disable wetness system
+- `USE_MACRO_DETAIL` - Enable/disable macro textures
+
+### Quality Levels
+
+Implement quality scalability:
+
+- **Low**: No parallax, no tessellation, 4 layers max
+- **Medium**: Simple parallax, no tessellation, 6 layers
+- **High**: Full parallax, distance tessellation, 8 layers
+- **Epic**: Full features, high tessellation, all layers
+
+### Distance-Based LOD
+
+- Disable parallax beyond 50m
+- Disable tessellation beyond MaxTessellationDistance
+- Switch to macro textures beyond MacroBlendDistance
+- Reduce layer count at distance
+
+## Blueprint Integration
+
+### Material Instance Creation
+
+```cpp
+// In Blueprint or C++
+UMaterialInstanceDynamic* MatInst = UMaterialInstanceDynamic::Create(MasterMaterial, this);
+
+// Enable features
+MatInst->SetScalarParameterValue("EnableParallaxOcclusion", 1.0f);
+MatInst->SetScalarParameterValue("ParallaxDepthScale", 0.05f);
+MatInst->SetScalarParameterValue("EnableTessellation", 1.0f);
+MatInst->SetScalarParameterValue("TessellationMultiplier", 1.0f);
+MatInst->SetScalarParameterValue("WetnessIntensity", 0.0f);
+```
+
+### Runtime Updates
+
+```cpp
+// Update wetness from weather
+float Wetness = WeatherComponent->GetCurrentWetness();
+MatInst->SetScalarParameterValue("WetnessIntensity", Wetness);
+
+// Update tessellation based on distance
+float Distance = GetDistanceToCamera();
+float TessFactor = CalculateTessellationFactor(Distance);
+MatInst->SetScalarParameterValue("TessellationFactor", TessFactor);
+```
+
+## Testing Checklist
+
+- [ ] Parallax occlusion visible on close surfaces
+- [ ] No UV stretching on vertical surfaces (triplanar)
+- [ ] Smooth transition between micro and macro textures
+- [ ] Wetness darkens and smooths surfaces
+- [ ] Tessellation adds geometric detail up close
+- [ ] Performance maintains 90 FPS in VR
+- [ ] No visible seams between terrain tiles
+- [ ] Material blending is smooth across biomes
+

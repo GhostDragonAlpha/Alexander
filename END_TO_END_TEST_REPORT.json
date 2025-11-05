@@ -1,0 +1,1438 @@
+{
+  "summary": {
+    "total_tests": 203,
+    "passed": 203,
+    "failed": 0,
+    "pass_rate": 100.0
+  },
+  "timestamp": "2025-11-04T15:00:43.886368",
+  "test_flow": "Main Menu -> Planet Surface -> Ship Entry -> Space Flight -> Moon Landing -> Moon Exploration -> Return Journey -> Mission Complete",
+  "results": {
+    "timestamp": "2025-11-04T15:00:43.885864",
+    "project": "Alexander - End-to-End Feature Tests",
+    "test_flow": "Main Menu -> Mission Complete",
+    "tests": [
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Engine",
+        "name": "Unreal Engine 5.6 initializes",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Engine",
+        "name": "All game modules load successfully",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Engine",
+        "name": "Asset manager initializes",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Engine",
+        "name": "23+ systems register correctly",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "UI",
+        "name": "Main menu widget displays",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "UI",
+        "name": "Title screen renders correctly",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "UI",
+        "name": "'Start Mission' button visible",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "UI",
+        "name": "'Settings' button accessible",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "UI",
+        "name": "'Tutorial' toggle available",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Settings",
+        "name": "VR mode toggle functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Settings",
+        "name": "Graphics quality adjustable",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Settings",
+        "name": "Audio volume controls work",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Settings",
+        "name": "Control scheme customizable",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Mission",
+        "name": "Mission list displays",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Mission",
+        "name": "'Moon Walk' mission available",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Mission",
+        "name": "Mission briefing shows objectives",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Mission",
+        "name": "7 objectives listed (1300 XP total)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Mission",
+        "name": "Difficulty selector available",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 1: Initialization & Main Menu",
+        "category": "Mission",
+        "name": "Mission can be started",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Level",
+        "name": "Mission level loads",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Level",
+        "name": "Planet terrain generates",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Level",
+        "name": "FirstMissionGameMode active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Level",
+        "name": "Stage: PlanetSurface",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Character",
+        "name": "SurfacePlayerCharacter spawns",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Character",
+        "name": "Character positioned on planet",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Character",
+        "name": "Camera system initialized",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Character",
+        "name": "Input system bound",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Movement",
+        "name": "WASD controls responsive",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Movement",
+        "name": "Mouse look functions",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Movement",
+        "name": "Walk speed: 300 cm/s",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Movement",
+        "name": "Run speed: 600 cm/s (Shift)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Movement",
+        "name": "Crouch: 150 cm/s (C key)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Movement",
+        "name": "Jump: 700 cm/s (Space)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Stamina",
+        "name": "Stamina bar visible in HUD",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Stamina",
+        "name": "Max stamina: 100.0",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Stamina",
+        "name": "Drains during sprint (15/s)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Stamina",
+        "name": "Regenerates when idle (10/s)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Stamina",
+        "name": "Sprint disabled when depleted",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Environment",
+        "name": "Biome system active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Environment",
+        "name": "Weather system functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Environment",
+        "name": "Atmospheric effects render",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Environment",
+        "name": "Terrain collision accurate",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Environment",
+        "name": "Gravity applied correctly",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Exploration",
+        "name": "Distance tracking active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Exploration",
+        "name": "Objective: 'Walk to ship' displays",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 2: Planet Surface",
+        "category": "Exploration",
+        "name": "Compass/navigation visible",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Ship",
+        "name": "Spaceship placed in level",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Ship",
+        "name": "Ship visible to player",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Ship",
+        "name": "ShipEntryComponent active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Ship",
+        "name": "Proximity detection (1000cm) works",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "Player approaches ship",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "Interaction prompt appears",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "Prompt: 'Press E to Enter'",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "Entry point validated (cockpit)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "Entry not locked",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "E key triggers entry",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "Entry animation plays",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "Camera transition smooth (2s)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Entry",
+        "name": "Player enters cockpit",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Possession",
+        "name": "PlayerController switches to ship",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Possession",
+        "name": "Character pawn stored",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Possession",
+        "name": "Ship controls activated",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Possession",
+        "name": "Cockpit view positioned",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Mission",
+        "name": "Stage: EnteringShip complete",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Mission",
+        "name": "Stage: ShipTutorial active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Mission",
+        "name": "Objective completed: 'Enter ship'",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 3: Ship Entry",
+        "category": "Mission",
+        "name": "XP awarded: 50 XP",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Controls",
+        "name": "Tutorial overlay displays",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Controls",
+        "name": "Throttle: W/S functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Controls",
+        "name": "Pitch: Mouse Y responsive",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Controls",
+        "name": "Yaw: A/D functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Controls",
+        "name": "Roll: Q/E responsive",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Controls",
+        "name": "6DOF physics active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Systems",
+        "name": "Engine thrust operational",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Systems",
+        "name": "Inertia dampening active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Systems",
+        "name": "Velocity tracking accurate",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Systems",
+        "name": "Ship orientation stable",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "HUD",
+        "name": "Velocity indicator visible",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "HUD",
+        "name": "Altitude display functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "HUD",
+        "name": "Heading compass active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "HUD",
+        "name": "Target reticle displayed",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Launch",
+        "name": "Ship lifts off surface",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Launch",
+        "name": "Altitude increases",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Launch",
+        "name": "Leaves atmosphere",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Launch",
+        "name": "Stage: Launch complete",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Launch",
+        "name": "Stage: SpaceFlight active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Launch",
+        "name": "XP awarded: 100 XP",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Navigation",
+        "name": "Moon visible as target",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Navigation",
+        "name": "Distance to moon: 50km",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Navigation",
+        "name": "Distance tracking updates",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Navigation",
+        "name": "Compass points to moon",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Navigation",
+        "name": "Objective: 'Navigate to Moon'",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "VFX",
+        "name": "Engine thruster effects active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "VFX",
+        "name": "Exhaust particles visible",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Audio",
+        "name": "Engine sound playing",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 4: Space Flight",
+        "category": "Audio",
+        "name": "Cockpit ambience active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Approach",
+        "name": "Ship reaches moon vicinity",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Approach",
+        "name": "Distance < 5000m",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Approach",
+        "name": "Stage: MoonApproach active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Approach",
+        "name": "Objective: 'Land on moon'",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Guidance",
+        "name": "LandingGuidanceSystem activates",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Guidance",
+        "name": "Altitude display accurate",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Guidance",
+        "name": "Vertical speed indicator works",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Guidance",
+        "name": "Horizontal speed tracked",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Guidance",
+        "name": "Approach angle calculated",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Guidance",
+        "name": "Landing status updates",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Visual",
+        "name": "Landing beam visible",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Visual",
+        "name": "Landing zone indicator shows",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Visual",
+        "name": "Color coding: green/yellow/red",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Visual",
+        "name": "Status text displays",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Terrain scan active (8 raycasts)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Slope check < 15 degrees",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Velocity check < 5 m/s",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Approach angle < 45 degrees",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Status: ClearToLand",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Ship touches moon surface",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Velocity reaches zero",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Landing gear deployed",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "Stage: MoonLanding complete",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 5: Moon Landing",
+        "category": "Landing",
+        "name": "XP awarded: 200 XP",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exit",
+        "name": "Exit option available",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exit",
+        "name": "F key triggers exit",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exit",
+        "name": "Exit animation plays",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exit",
+        "name": "Character respawns on moon",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Environment",
+        "name": "Moon terrain rendered",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Environment",
+        "name": "Lower gravity active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Environment",
+        "name": "Moon materials applied",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Environment",
+        "name": "Dust particles on movement",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exploration",
+        "name": "Stage: MoonSurface active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exploration",
+        "name": "Objective: 'Explore moon'",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exploration",
+        "name": "Required distance: 500m",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exploration",
+        "name": "Distance tracker active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Movement",
+        "name": "Character walks on moon",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Movement",
+        "name": "Low gravity jumps higher",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Movement",
+        "name": "Footprint trails visible",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Movement",
+        "name": "Stamina system active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exploration",
+        "name": "500m distance reached",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exploration",
+        "name": "Stage: MoonExploration complete",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exploration",
+        "name": "XP awarded: 150 XP",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 6: Moon Exploration",
+        "category": "Exploration",
+        "name": "Objective: 'Return to ship'",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Return",
+        "name": "Player walks back to ship",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Return",
+        "name": "Ship entry prompt appears",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Return",
+        "name": "Re-entry to cockpit works",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Return",
+        "name": "Stage: ReturnPrep active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Launch",
+        "name": "Ship launches from moon",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Launch",
+        "name": "Objective: 'Return to planet'",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Launch",
+        "name": "Stage: ReturnFlight active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Launch",
+        "name": "Planet visible as target",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Navigation",
+        "name": "Distance to planet tracked",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Navigation",
+        "name": "Heading indicator functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Navigation",
+        "name": "Ship navigates to planet",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Navigation",
+        "name": "Stage: PlanetApproach active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Landing",
+        "name": "Landing guidance reactivates",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Landing",
+        "name": "Original landing zone targeted",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Landing",
+        "name": "Landing approach validated",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Landing",
+        "name": "Safe touchdown on planet",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Landing",
+        "name": "Stage: PlanetLanding complete",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 7: Return Journey",
+        "category": "Landing",
+        "name": "XP awarded: 250 XP",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Exit ship on planet",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Character back on surface",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "All objectives completed (7/7)",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Stage: MissionComplete",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Mission summary displays",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Total XP awarded: 1300 XP",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Completion time displayed",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Performance stats shown",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Return to main menu option",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Mission replay option",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Progress saved",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 8: Mission Complete",
+        "category": "Complete",
+        "name": "Achievements unlocked",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Orbital Physics: Gravitational calculations accurate",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Planetary System: Planet generation functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "AI Dialogue: NPC interactions work",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Economy: Trading system operational",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Farming: Agriculture mechanics active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Network Physics: Multiplayer sync functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Faction Territory: Territory control works",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Colony Building: Outpost construction available",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Performance Profiler: 90 FPS VR maintained",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "System Validation: Health checks pass",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "VFX Manager: Visual effects render",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Audio Manager: Spatial audio functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Tutorial System: Guidance system active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Quest System: Quest tracking works",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Weapon System: Combat mechanics ready",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Space Station Hub: Social areas accessible",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Landing Guidance: Safe landing ensured",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Network Replication: State sync functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Voice Chat: VoIP integration works",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Persistent Universe: Save/load functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Ship Customization: Ship mods available",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Weather System: Dynamic weather active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "System Integration",
+        "name": "Memory Optimization: 4GB budget maintained",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "Performance",
+        "name": "Frame rate: 90 FPS average",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "Performance",
+        "name": "Frame time: <12ms",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "Performance",
+        "name": "Memory usage: <4GB",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "Performance",
+        "name": "Tick budget: <5ms",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "Performance",
+        "name": "No memory leaks detected",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "Performance",
+        "name": "GPU utilization optimal",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "VR",
+        "name": "VR mode fully functional",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "VR",
+        "name": "Motion controllers tracked",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "VR",
+        "name": "VR comfort features active",
+        "status": "PASS",
+        "details": ""
+      },
+      {
+        "phase": "Phase 9: System Integration",
+        "category": "VR",
+        "name": "Teleport locomotion works",
+        "status": "PASS",
+        "details": ""
+      }
+    ]
+  }
+}

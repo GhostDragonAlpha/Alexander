@@ -1,0 +1,81 @@
+{
+  "summary": {
+    "total_tests": 26,
+    "passed": 26,
+    "failed": 0,
+    "pass_rate": 100.0
+  },
+  "timestamp": "2025-11-04T14:51:44.228897",
+  "results": {
+    "timestamp": "2025-11-04T14:51:44.228897",
+    "project": "Alexander Space Simulation",
+    "tests": [
+      {
+        "name": "Alexander.Systems.OrbitalPhysics",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.PlanetarySystem",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.AIDialogue",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.Economy",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.Farming",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.NetworkPhysics",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.Validation",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.PerformanceProfiler",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.FactionTerritory",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Systems.ColonyBuilding",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      },
+      {
+        "name": "Alexander.Integration.SystemCoordination",
+        "status": "PASS",
+        "duration": 0.0,
+        "details": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,352 @@
+
+================================================================================
+PROCEDURAL PLANETARY SYSTEMS GUIDE
+================================================================================
+
+OVERVIEW:
+This system generates realistic star systems with planets, moons, and orbital
+mechanics. The scale is reduced for gameplay but maintains realistic proportions.
+
+SCALE:
+- 1 Astronomical Unit (AU) = 1 kilometer in game units
+- Real Earth: 1 AU = 149,597,871 km
+- Game Earth: 1 AU = 1 km (149,597,871:1 scale)
+- This allows traveling between planets in minutes, not years
+
+================================================================================
+CELESTIAL BODIES CREATED
+================================================================================
+
+SUN (Central Star):
+- Radius: 500 meters
+- Position: (0, 0, 0) - System center
+- Type: G-type main sequence star
+- Color: Yellow/Orange
+
+PLANETS (8 total):
+
+1. MERCURY
+   - Radius: 20m
+   - Distance: 0.4 AU (400m from Sun)
+   - Orbital Speed: 0.05 rad/s
+   - Type: Rocky terrestrial
+
+2. VENUS
+   - Radius: 60m
+   - Distance: 0.7 AU (700m)
+   - Orbital Speed: 0.04 rad/s
+   - Type: Rocky terrestrial
+
+3. EARTH
+   - Radius: 64m
+   - Distance: 1.0 AU (1km)
+   - Orbital Speed: 0.03 rad/s
+   - Type: Rocky terrestrial
+   - Moon: Yes (Luna)
+
+4. MARS
+   - Radius: 34m
+   - Distance: 1.5 AU (1.5km)
+   - Orbital Speed: 0.025 rad/s
+   - Type: Rocky terrestrial
+   - Moons: Phobos, Deimos
+
+5. JUPITER
+   - Radius: 700m
+   - Distance: 5.2 AU (5.2km)
+   - Orbital Speed: 0.01 rad/s
+   - Type: Gas giant
+   - Moons: Io, Europa, Ganymede, Callisto
+
+6. SATURN
+   - Radius: 580m
+   - Distance: 9.5 AU (9.5km)
+   - Orbital Speed: 0.008 rad/s
+   - Type: Gas giant
+   - Rings: To be added (future feature)
+
+7. URANUS
+   - Radius: 250m
+   - Distance: 19.2 AU (19.2km)
+   - Orbital Speed: 0.005 rad/s
+   - Type: Ice giant
+
+8. NEPTUNE
+   - Radius: 240m
+   - Distance: 30 AU (30km)
+   - Orbital Speed: 0.004 rad/s
+   - Type: Ice giant
+
+MOONS (7 total):
+- Moon (Earth)
+- Phobos (Mars)
+- Deimos (Mars)
+- Io (Jupiter)
+- Europa (Jupiter)
+- Ganymede (Jupiter)
+- Callisto (Jupiter)
+
+================================================================================
+ORBITAL MECHANICS
+================================================================================
+
+PHYSICS FORMULAS:
+
+Gravitational Force:
+F = G × (m1 × m2) / r²
+
+Where:
+- G = Gravitational constant (6.674 × 10⁻¹¹ m³/kg⋅s²)
+- m1 = Mass of body 1
+- m2 = Mass of body 2
+- r = Distance between bodies
+
+Orbital Velocity:
+v = √(G × M / r)
+
+Where:
+- M = Mass of central body
+- r = Orbital radius
+
+Orbital Period:
+T = 2π × √(r³ / (G × M))
+
+Escape Velocity:
+v_escape = √(2 × G × M / r)
+
+================================================================================
+IMPLEMENTATION
+================================================================================
+
+BLUEPRINT: BP_OrbitalMechanics
+Purpose: Manages orbital motion for all celestial bodies
+
+Components:
+1. Celestial Body Array
+   - Stores all planets and moons
+   - Tracks position, velocity, mass
+
+2. Orbital Calculator
+   - Calculates gravitational forces
+   - Updates positions each frame
+   - Maintains stable orbits
+
+3. Time Acceleration
+   - Speed up/slow down time
+   - Watch orbits in fast-forward
+   - Useful for testing
+
+BLUEPRINT: BP_GravityWell
+Purpose: Applies gravitational forces to player ship
+
+Components:
+1. Sphere Collider
+   - Radius = Sphere of Influence
+   - Triggers gravity when ship enters
+
+2. Gravity Force Calculator
+   - F = G × M × m / r²
+   - Direction: Toward planet center
+
+3. Atmospheric Drag (optional)
+   - Slows ship in atmosphere
+   - Heat buildup during entry
+
+================================================================================
+GRAVITY WELL IMPLEMENTATION
+================================================================================
+
+Each planet has a "Sphere of Influence" where its gravity affects the ship:
+
+Planet Gravity Strengths (m/s²):
+- Sun: 274 (deadly close, slingshot from distance)
+- Mercury: 3.7
+- Venus: 8.87
+- Earth: 9.81 (1G - comfortable)
+- Mars: 3.71
+- Jupiter: 24.79 (very strong)
+- Saturn: 10.44
+- Uranus: 8.69
+- Neptune: 11.15
+- Moon: 1.62
+
+Sphere of Influence Radius:
+- Calculated as: r_SOI = r_orbit × (m_planet / m_sun)^(2/5)
+- Ship only affected by closest body
+
+INTEGRATION WITH SHIP:
+1. Ship enters planet's SOI
+2. BP_GravityWell detects ship
+3. Calculates gravity vector
+4. Adds force to ship physics
+5. Ship follows parabolic/orbital path
+
+================================================================================
+ORBITAL TYPES
+================================================================================
+
+CIRCULAR ORBIT:
+- Velocity perpendicular to gravity
+- Constant altitude
+- v = √(G × M / r)
+
+ELLIPTICAL ORBIT:
+- Periapsis (closest point)
+- Apoapsis (farthest point)
+- v varies throughout orbit
+
+PARABOLIC TRAJECTORY:
+- Escape velocity reached
+- Never returns
+- v = √(2 × G × M / r)
+
+HYPERBOLIC TRAJECTORY:
+- Exceeds escape velocity
+- Slingshot maneuver
+- v > √(2 × G × M / r)
+
+================================================================================
+NAVIGATION SYSTEM
+================================================================================
+
+HUD ELEMENTS TO ADD:
+
+1. Orbit Predictor Line
+   - Shows future path
+   - Accounts for gravity
+   - Updates in real-time
+
+2. Maneuver Nodes
+   - Plan burns ahead of time
+   - Show delta-V required
+   - Estimated time to target
+
+3. Target Marker
+   - Select planet/moon
+   - Shows distance
+   - Calculates intercept
+
+4. Altitude Indicator
+   - Height above surface
+   - Safe landing altitude
+   - Atmosphere boundary
+
+================================================================================
+FLIGHT PROCEDURES
+================================================================================
+
+ORBIT INSERTION:
+1. Approach planet at angle
+2. Burn retrograde to slow down
+3. Circularize at desired altitude
+4. Match orbital velocity
+
+ORBITAL TRANSFER:
+1. Burn prograde at periapsis (raise apoapsis)
+2. Coast to new apoapsis
+3. Burn prograde again (circularize)
+4. Hohmann transfer complete
+
+LANDING:
+1. Deorbit burn (reduce velocity)
+2. Enter atmosphere at shallow angle
+3. Use atmospheric drag to slow
+4. Final powered descent
+5. Touchdown at <5 m/s
+
+ESCAPE:
+1. Burn prograde (increase velocity)
+2. Reach escape velocity
+3. Exit sphere of influence
+4. Free from planet gravity
+
+================================================================================
+TESTING CHECKLIST
+================================================================================
+
+□ All 8 planets spawned correctly
+□ All 7 moons spawned at correct positions
+□ Sun at system center
+□ Planets at correct distances from Sun
+□ Moons at correct distances from planets
+□ Orbital mechanics blueprint created
+□ Gravity well blueprint created
+□ Ship affected by planet gravity when close
+□ Can orbit planets at correct velocity
+□ Can escape planet gravity with enough thrust
+□ Slingshot maneuvers work around large planets
+□ No collision with planets (pass through for now)
+
+================================================================================
+FUTURE ENHANCEMENTS
+================================================================================
+
+1. VISUAL IMPROVEMENTS:
+   - Realistic planet textures
+   - Atmospheric shaders
+   - Clouds and weather
+   - Saturn's rings
+   - Asteroid belt
+   - Comets
+
+2. PROCEDURAL GENERATION:
+   - Random star systems
+   - Different star types
+   - Variable planet counts
+   - Unique moon configurations
+
+3. ADVANCED PHYSICS:
+   - N-body simulation
+   - Lagrange points
+   - Tidal forces
+   - Barycenter orbits
+
+4. GAMEPLAY FEATURES:
+   - Land on planets
+   - Establish bases
+   - Mine resources
+   - Trade routes
+   - Fuel refueling stations
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+ISSUE: Planets not visible
+FIX: Check World Outliner, verify spawn locations, increase scale
+
+ISSUE: Ship falls into planets
+FIX: Disable collision on planet meshes (will add atmosphere boundary)
+
+ISSUE: Orbits unstable
+FIX: Reduce time scale, increase physics sub-steps
+
+ISSUE: Gravity too strong/weak
+FIX: Adjust mass values in BP_GravityWell
+
+ISSUE: Can't escape planet
+FIX: Increase ship thrust or reduce planet mass
+
+================================================================================
+REFERENCES
+================================================================================
+
+NASA Solar System Data:
+- https://solarsystem.nasa.gov/
+
+Orbital Mechanics Primer:
+- https://en.wikipedia.org/wiki/Orbital_mechanics
+
+Kepler's Laws:
+- First Law: Orbits are ellipses
+- Second Law: Equal areas in equal times
+- Third Law: T² ∝ r³
+
+Game Development:
+- Kerbal Space Program (excellent reference)
+- Elite Dangerous (scale handling)
+- Star Citizen (planetary tech)
+
+================================================================================
+Generated by AI Vision System - November 3, 2025
+================================================================================

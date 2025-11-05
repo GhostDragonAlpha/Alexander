@@ -1,0 +1,680 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#include "Planet.h"
+#include "Components/StaticMeshComponent.h"
+#include "UObject/ConstructorHelpers.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "PlanetAtmosphereComponent.h"
+#include "AtmosphericFogComponent.h"
+#include "PlanetCloudComponent.h"
+#include "PlanetWeatherComponent.h"
+#include "DayNightCycleComponent.h"
+#include "PlanetFarmingComponent.h"
+#include "BiomeManager.h"
+#include "BiomeBlendingSystem.h"
+#include "BiomeFeatureGenerator.h"
+#include "TerrainMaterialSystem.h"
+#include "ProceduralNoiseGenerator.h"
+#include "DrawDebugHelpers.h"
+
+APlanet::APlanet()
+{
+	PrimaryActorTick.bCanEverTick = true;
+
+	// Planets orbit the Sun by default
+	OrbitMode = EOrbitMode::Orbit;
+	Mass = 5.972e24f; // Mass of Earth in kg (default)
+	OrbitRadius = 10000.0f; // Default orbit distance
+	OrbitSpeed = 10.0f; // Default orbital speed (degrees per second)
+	OrbitInclination = 0.0f; // Default to same plane as Sun
+
+	// Create root scene component
+	USceneComponent* RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+	RootComponent = RootComp;
+
+	// Create mesh component
+	PlanetMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlanetMesh"));
+	PlanetMesh->SetupAttachment(RootComponent);
+
+	// Load sphere mesh
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereMesh(TEXT("/Engine/BasicShapes/Sphere"));
+	if (SphereMesh.Succeeded())
+	{
+		PlanetMesh->SetStaticMesh(SphereMesh.Object);
+	}
+
+	// Create enhanced components
+	AtmosphereComponent = CreateDefaultSubobject<UPlanetAtmosphereComponent>(TEXT("AtmosphereComponent"));
+	AtmosphereComponent->SetupAttachment(RootComponent);
+
+	FogComponent = CreateDefaultSubobject<UAtmosphericFogComponent>(TEXT("FogComponent"));
+	FogComponent->SetupAttachment(RootComponent);
+
+	CloudComponent = CreateDefaultSubobject<UPlanetCloudComponent>(TEXT("CloudComponent"));
+	CloudComponent->SetupAttachment(RootComponent);
+
+	WeatherComponent = CreateDefaultSubobject<UPlanetWeatherComponent>(TEXT("WeatherComponent"));
+
+	DayNightCycleComponent = CreateDefaultSubobject<UDayNightCycleComponent>(TEXT("DayNightCycleComponent"));
+
+	FarmingComponent = CreateDefaultSubobject<UPlanetFarmingComponent>(TEXT("FarmingComponent"));
+
+	// Initialize biome systems (will be properly initialized in BeginPlay)
+	BiomeManager = nullptr;
+	BiomeBlendingSystem = nullptr;
+	BiomeFeatureGenerator = nullptr;
+
+	// Initialize material system
+	MaterialSystem = nullptr;
+	TerrainMasterMaterial = nullptr;
+
+	// Default visual properties
+	PlanetScale = 0.5f;
+	PlanetColor = FLinearColor(0.5f, 0.5f, 0.8f, 1.0f); // Default blue-ish
+}
+
+void APlanet::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Apply configuration if available
+	if (PlanetConfig)
+	{
+		ApplyConfiguration();
+	}
+	else
+	{
+		// Apply legacy properties with enhanced defaults
+		PlanetMesh->SetWorldScale3D(FVector(PlanetScale));
+
+		// Apply color to material
+		if (PlanetMesh->GetStaticMesh())
+		{
+			UMaterialInterface* BaseMaterial = PlanetMesh->GetMaterial(0);
+			if (BaseMaterial)
+			{
+				UMaterialInstanceDynamic* DynMaterial = UMaterialInstanceDynamic::Create(BaseMaterial, this);
+				if (DynMaterial)
+				{
+					DynMaterial->SetVectorParameterValue(FName("Color"), PlanetColor);
+					DynMaterial->SetScalarParameterValue(FName("PlanetRadius"), PlanetRadius);
+					PlanetMesh->SetMaterial(0, DynMaterial);
+				}
+			}
+		}
+	}
+
+	// Initialize biome systems before material system
+	InitializeBiomeSystems();
+
+	// Initialize material system after biomes are ready
+	InitializeMaterialSystem();
+
+	// Initialize atmosphere component
+	if (AtmosphereComponent && PlanetConfig && PlanetConfig->bHasAtmosphere)
+	{
+		AtmosphereComponent->InitializeAtmosphere(PlanetRadius, PlanetConfig->AtmosphereConfig);
+		UE_LOG(LogTemp, Log, TEXT("Planet '%s' atmosphere initialized"), *GetName());
+	}
+
+	// Initialize fog component
+	if (FogComponent && PlanetConfig && PlanetConfig->bHasAtmosphere)
+	{
+		// Create fog configuration based on atmosphere settings
+		FAtmosphericFogConfig FogConfig;
+		FogConfig.BaseFogDensity = PlanetConfig->AtmosphereConfig.FogDensity;
+		FogConfig.HeightFalloff = PlanetConfig->AtmosphereConfig.FogHeightFalloff;
+		FogConfig.MaxFogAltitude = PlanetConfig->AtmosphereConfig.AtmosphereHeight * 0.5f; // Fog extends to half atmosphere height
+		FogConfig.GroundFogColor = PlanetConfig->AtmosphereConfig.GroundAlbedo;
+		FogConfig.HighAltitudeFogColor = PlanetConfig->AtmosphereConfig.RayleighScatteringCoefficient;
+		FogConfig.InscatteringColor = PlanetConfig->AtmosphereConfig.RayleighScatteringCoefficient;
+		
+		// Link fog component to atmosphere component
+		FogComponent->AtmosphereComponent = AtmosphereComponent;
+		FogComponent->InitializeFog(PlanetRadius, FogConfig);
+		UE_LOG(LogTemp, Log, TEXT("Planet '%s' atmospheric fog initialized"), *GetName());
+	}
+
+	// Initialize weather system
+	if (WeatherComponent && PlanetConfig)
+	{
+		WeatherComponent->InitializeWeather(PlanetConfig->WeatherPresets);
+		
+		// Connect weather component to cloud component for weather-driven cloud changes
+		if (CloudComponent)
+		{
+			WeatherComponent->SetCloudComponent(CloudComponent);
+			UE_LOG(LogTemp, Log, TEXT("Planet '%s' weather-cloud integration established"), *GetName());
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("Planet '%s' weather system initialized with %d presets"), 
+			*GetName(), PlanetConfig->WeatherPresets.Num());
+	}
+
+	// Initialize day-night cycle
+	if (DayNightCycleComponent)
+	{
+		// Configure day-night cycle based on planet properties
+		if (PlanetConfig)
+		{
+			FDayNightCycleConfig CycleConfig;
+			CycleConfig.DayLengthInSeconds = PlanetConfig->RotationPeriod * 3600.0f; // Convert hours to seconds
+			CycleConfig.AxialTilt = PlanetConfig->AxialTilt;
+			CycleConfig.StartTimeOfDay = 12.0f; // Start at noon
+			CycleConfig.bAutoProgress = true;
+			CycleConfig.TimeSpeed = 1.0f;
+			
+			DayNightCycleComponent->CycleConfig = CycleConfig;
+		}
+		
+		// Connect day-night cycle to cloud component for sun direction
+		if (CloudComponent)
+		{
+			CloudComponent->SetDayNightCycleComponent(DayNightCycleComponent);
+			UE_LOG(LogTemp, Log, TEXT("Planet '%s' cloud-daynight integration established"), *GetName());
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("Planet '%s' day-night cycle initialized"), *GetName());
+	}
+
+	// Initialize farming system
+	if (FarmingComponent)
+	{
+		FarmingComponent->InitializeFarming(this);
+		UE_LOG(LogTemp, Log, TEXT("Planet '%s' farming system initialized"), *GetName());
+	}
+
+	// Generate initial terrain
+	GeneratePlanetTerrain();
+
+	// Apply biome materials after all systems are initialized
+	ApplyBiomeMaterials();
+
+	UE_LOG(LogTemp, Log, TEXT("Planet '%s' fully initialized with radius %.1f km and %d biomes"), 
+		*GetName(), PlanetRadius, PlanetConfig ? PlanetConfig->Biomes.Num() : 0);
+}
+
+void APlanet::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	// Draw debug visualization if enabled
+	if (bShowDebugInfo)
+	{
+		DrawDebugVisualization();
+	}
+}
+
+void APlanet::ApplyConfiguration()
+{
+	if (!PlanetConfig)
+		return;
+
+	// Apply physical properties
+	PlanetRadius = PlanetConfig->Radius;
+	Mass = PlanetConfig->PlanetMass;
+	TerrainConfig = PlanetConfig->TerrainConfig;
+	TerrainSeed = PlanetConfig->TerrainConfig.Seed;
+
+	// Apply atmosphere settings
+	if (AtmosphereComponent && PlanetConfig->bHasAtmosphere)
+	{
+		AtmosphereComponent->ApplyAtmosphereSettings(PlanetConfig->AtmosphereConfig);
+		AtmosphereComponent->PlanetRadius = PlanetRadius;
+	}
+
+	// Apply weather presets
+	if (WeatherComponent)
+	{
+		WeatherComponent->WeatherPresets = PlanetConfig->WeatherPresets;
+	}
+
+	// Scale mesh based on radius (simplified - actual scale would be more complex)
+	float ScaleFactor = PlanetRadius / 6371.0f; // Normalize to Earth radius
+	PlanetMesh->SetWorldScale3D(FVector(ScaleFactor * PlanetScale));
+}
+
+void APlanet::GeneratePlanetTerrain()
+{
+	UE_LOG(LogTemp, Log, TEXT("GeneratePlanetTerrain called for %s (Seed: %d, Radius: %.1f km)"),
+		*GetName(), TerrainSeed, PlanetRadius);
+
+	if (!BiomeManager || !PlanetConfig)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cannot generate terrain - BiomeManager or PlanetConfig is null"));
+		return;
+	}
+
+	// Configure noise parameters for terrain generation
+	FNoiseConfig ContinentalNoise;
+	ContinentalNoise.Seed = TerrainSeed;
+	ContinentalNoise.NoiseType = ENoiseType::Perlin;
+	ContinentalNoise.Frequency = TerrainConfig.ContinentalFrequency;
+	ContinentalNoise.Octaves = 4;
+	ContinentalNoise.Lacunarity = 2.0f;
+	ContinentalNoise.Persistence = 0.5f;
+	ContinentalNoise.Amplitude = TerrainConfig.MaxElevation * 0.6f; // Continental scale features
+
+	FNoiseConfig MountainNoise;
+	MountainNoise.Seed = TerrainSeed + 1000;
+	MountainNoise.NoiseType = ENoiseType::RidgedMultifractal;
+	MountainNoise.Frequency = TerrainConfig.MountainFrequency;
+	MountainNoise.Octaves = 5;
+	MountainNoise.Lacunarity = 2.2f;
+	MountainNoise.Persistence = 0.6f;
+	MountainNoise.Amplitude = TerrainConfig.MaxElevation;
+
+	FNoiseConfig DetailNoise;
+	DetailNoise.Seed = TerrainSeed + 2000;
+	DetailNoise.NoiseType = ENoiseType::Perlin;
+	DetailNoise.Frequency = TerrainConfig.DetailFrequency;
+	DetailNoise.Octaves = 3;
+	DetailNoise.Lacunarity = 2.0f;
+	DetailNoise.Persistence = 0.4f;
+	DetailNoise.Amplitude = TerrainConfig.MaxElevation * 0.1f; // Fine detail features
+
+	// Log terrain generation configuration
+	UE_LOG(LogTemp, Log, TEXT("Terrain generation configured:"));
+	UE_LOG(LogTemp, Log, TEXT("  Continental: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
+		ContinentalNoise.Frequency, ContinentalNoise.Octaves, ContinentalNoise.Amplitude);
+	UE_LOG(LogTemp, Log, TEXT("  Mountain: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
+		MountainNoise.Frequency, MountainNoise.Octaves, MountainNoise.Amplitude);
+	UE_LOG(LogTemp, Log, TEXT("  Detail: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
+		DetailNoise.Frequency, DetailNoise.Octaves, DetailNoise.Amplitude);
+
+	// Generate sample terrain at a few test points to verify
+	int32 SampleCount = 8;
+	for (int32 i = 0; i < SampleCount; ++i)
+	{
+		float Lat = FMath::RandRange(-90.0f, 90.0f);
+		float Lon = FMath::RandRange(-180.0f, 180.0f);
+
+		// Convert spherical to 3D coordinates
+		FVector Position = UProceduralNoiseGenerator::SphericalToCartesian(Lat, Lon, PlanetRadius);
+
+		// Generate continental base
+		float ContinentalHeight = UProceduralNoiseGenerator::FractalNoise2D(
+			Lon, Lat, ContinentalNoise
+		);
+
+		// Generate mountain features (only apply where continental height is positive)
+		float MountainHeight = 0.0f;
+		if (ContinentalHeight > 0.0f)
+		{
+			MountainHeight = UProceduralNoiseGenerator::RidgedMultifractalNoise2D(
+				Lon * 2.0f, Lat * 2.0f, MountainNoise
+			) * ContinentalHeight; // Mountains only on land
+		}
+
+		// Generate detail features
+		float DetailHeight = UProceduralNoiseGenerator::FractalNoise2D(
+			Lon * 4.0f, Lat * 4.0f, DetailNoise
+		);
+
+		// Get biome at this location for biome-specific modulation
+		int32 BiomeIndex = BiomeManager->GetDominantBiomeAtLocation(Position);
+		float BiomeHeightModifier = 1.0f;
+
+		if (BiomeIndex >= 0 && BiomeIndex < PlanetConfig->Biomes.Num())
+		{
+			const FBiomeDefinition& Biome = PlanetConfig->Biomes[BiomeIndex];
+
+			// Modulate terrain height based on biome type
+			switch (Biome.BiomeType)
+			{
+				case EBiomeType::Ocean:
+					BiomeHeightModifier = -0.5f; // Oceans are below sea level
+					break;
+				case EBiomeType::Desert:
+					BiomeHeightModifier = 0.3f; // Deserts are relatively flat
+					MountainHeight *= 0.5f; // Less mountainous
+					break;
+				case EBiomeType::Mountains:
+					BiomeHeightModifier = 1.5f; // Amplify mountain features
+					MountainHeight *= 2.0f;
+					break;
+				case EBiomeType::Tundra:
+				case EBiomeType::IceCaps:
+					BiomeHeightModifier = 0.8f;
+					DetailHeight *= 1.5f; // More surface detail from ice formations
+					break;
+				case EBiomeType::Volcanic:
+					MountainHeight *= 2.5f; // Dramatic volcanic peaks
+					DetailHeight *= 0.5f; // Smoother volcanic flows
+					break;
+				default:
+					BiomeHeightModifier = 1.0f;
+					break;
+			}
+		}
+
+		// Combine all layers
+		float FinalHeight = (ContinentalHeight + MountainHeight + DetailHeight) * BiomeHeightModifier;
+
+		UE_LOG(LogTemp, Log, TEXT("  Sample %d (Lat: %.1f, Lon: %.1f): Height=%.1fm (Continental=%.1f, Mountain=%.1f, Detail=%.1f, BiomeMod=%.2f)"),
+			i, Lat, Lon, FinalHeight, ContinentalHeight, MountainHeight, DetailHeight, BiomeHeightModifier);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Terrain generation complete for %s"), *GetName());
+}
+
+float APlanet::GetTerrainHeightAtLocation(FVector2D Coordinates) const
+{
+	if (!BiomeManager || !PlanetConfig)
+	{
+		return 0.0f;
+	}
+
+	float Lat = Coordinates.X;
+	float Lon = Coordinates.Y;
+
+	// Configure noise (same as GeneratePlanetTerrain for consistency)
+	FNoiseConfig ContinentalNoise;
+	ContinentalNoise.Seed = TerrainSeed;
+	ContinentalNoise.NoiseType = ENoiseType::Perlin;
+	ContinentalNoise.Frequency = TerrainConfig.ContinentalFrequency;
+	ContinentalNoise.Octaves = 4;
+	ContinentalNoise.Lacunarity = 2.0f;
+	ContinentalNoise.Persistence = 0.5f;
+	ContinentalNoise.Amplitude = TerrainConfig.MaxElevation * 0.6f;
+
+	FNoiseConfig MountainNoise;
+	MountainNoise.Seed = TerrainSeed + 1000;
+	MountainNoise.NoiseType = ENoiseType::RidgedMultifractal;
+	MountainNoise.Frequency = TerrainConfig.MountainFrequency;
+	MountainNoise.Octaves = 5;
+	MountainNoise.Lacunarity = 2.2f;
+	MountainNoise.Persistence = 0.6f;
+	MountainNoise.Amplitude = TerrainConfig.MaxElevation;
+
+	FNoiseConfig DetailNoise;
+	DetailNoise.Seed = TerrainSeed + 2000;
+	DetailNoise.NoiseType = ENoiseType::Perlin;
+	DetailNoise.Frequency = TerrainConfig.DetailFrequency;
+	DetailNoise.Octaves = 3;
+	DetailNoise.Lacunarity = 2.0f;
+	DetailNoise.Persistence = 0.4f;
+	DetailNoise.Amplitude = TerrainConfig.MaxElevation * 0.1f;
+
+	// Generate height layers
+	float ContinentalHeight = UProceduralNoiseGenerator::FractalNoise2D(
+		Lon, Lat, ContinentalNoise
+	);
+
+	float MountainHeight = 0.0f;
+	if (ContinentalHeight > 0.0f)
+	{
+		MountainHeight = UProceduralNoiseGenerator::RidgedMultifractalNoise2D(
+			Lon * 2.0f, Lat * 2.0f, MountainNoise
+		) * ContinentalHeight;
+	}
+
+	float DetailHeight = UProceduralNoiseGenerator::FractalNoise2D(
+		Lon * 4.0f, Lat * 4.0f, DetailNoise
+	);
+
+	// Get biome modifier
+	FVector Position = UProceduralNoiseGenerator::SphericalToCartesian(Lat, Lon, PlanetRadius);
+	int32 BiomeIndex = BiomeManager->GetDominantBiomeAtLocation(Position);
+	float BiomeHeightModifier = 1.0f;
+
+	if (BiomeIndex >= 0 && BiomeIndex < PlanetConfig->Biomes.Num())
+	{
+		const FBiomeDefinition& Biome = PlanetConfig->Biomes[BiomeIndex];
+
+		switch (Biome.BiomeType)
+		{
+			case EBiomeType::Ocean:
+				BiomeHeightModifier = -0.5f;
+				break;
+			case EBiomeType::Desert:
+				BiomeHeightModifier = 0.3f;
+				MountainHeight *= 0.5f;
+				break;
+			case EBiomeType::Mountains:
+				BiomeHeightModifier = 1.5f;
+				MountainHeight *= 2.0f;
+				break;
+			case EBiomeType::Tundra:
+			case EBiomeType::IceCaps:
+				BiomeHeightModifier = 0.8f;
+				DetailHeight *= 1.5f;
+				break;
+			case EBiomeType::Volcanic:
+				MountainHeight *= 2.5f;
+				DetailHeight *= 0.5f;
+				break;
+			default:
+				BiomeHeightModifier = 1.0f;
+				break;
+		}
+	}
+
+	// Combine all layers
+	return (ContinentalHeight + MountainHeight + DetailHeight) * BiomeHeightModifier;
+}
+
+void APlanet::DrawDebugVisualization()
+{
+	if (!GetWorld())
+		return;
+
+	FVector PlanetLocation = GetActorLocation();
+
+	// Show atmosphere bounds
+	if (bShowAtmosphereBounds && AtmosphereComponent)
+	{
+		float AtmosphereRadius = (PlanetRadius + AtmosphereComponent->AtmosphereSettings.AtmosphereHeight) * 100.0f; // Convert km to cm
+		DrawDebugSphere(GetWorld(), PlanetLocation, AtmosphereRadius, 32, FColor::Cyan, false, -1.0f, 0, 2.0f);
+	}
+
+	// Show cloud bounds
+	if (bShowCloudBounds && CloudComponent)
+	{
+		float CloudRadius = (PlanetRadius + CloudComponent->CloudLayerHeight) * 100.0f; // Convert km to cm
+		DrawDebugSphere(GetWorld(), PlanetLocation, CloudRadius, 32, FColor::White, false, -1.0f, 0, 2.0f);
+	}
+
+	// Show terrain grid
+	if (bShowTerrainGrid)
+	{
+		float SurfaceRadius = PlanetRadius * 100.0f; // Convert km to cm
+		DrawDebugSphere(GetWorld(), PlanetLocation, SurfaceRadius, 16, FColor::Green, false, -1.0f, 0, 3.0f);
+	}
+
+	// Show debug text
+	if (bShowDebugInfo)
+	{
+		FString DebugText = FString::Printf(TEXT("Planet: %s\nRadius: %.1f km\nWeather: %s"),
+			PlanetConfig ? *PlanetConfig->PlanetName : TEXT("Unnamed"),
+			PlanetRadius,
+			WeatherComponent ? *UEnum::GetValueAsString(WeatherComponent->CurrentWeather) : TEXT("N/A")
+		);
+
+		DrawDebugString(GetWorld(), PlanetLocation + FVector(0, 0, 500.0f), DebugText, nullptr, FColor::Yellow, 0.0f, true);
+	}
+}
+
+void APlanet::InitializeBiomeSystems()
+{
+	// Create biome manager
+	if (!BiomeManager)
+	{
+		BiomeManager = NewObject<UBiomeManager>(this);
+	}
+
+	// Initialize with biomes from config or empty array
+	TArray<FBiomeDefinition> Biomes;
+	if (PlanetConfig)
+	{
+		Biomes = PlanetConfig->Biomes;
+	}
+
+	BiomeManager->Initialize(Biomes, PlanetRadius, TerrainSeed);
+
+	// Create blending system
+	if (!BiomeBlendingSystem)
+	{
+		BiomeBlendingSystem = NewObject<UBiomeBlendingSystem>(this);
+	}
+	BiomeBlendingSystem->Initialize(BiomeManager);
+
+	// Create feature generator
+	if (!BiomeFeatureGenerator)
+	{
+		BiomeFeatureGenerator = NewObject<UBiomeFeatureGenerator>(this);
+	}
+	BiomeFeatureGenerator->Initialize(BiomeManager, BiomeBlendingSystem, TerrainSeed);
+
+	UE_LOG(LogTemp, Log, TEXT("Planet '%s' biome systems initialized with %d biomes"), 
+		*GetName(), Biomes.Num());
+}
+
+int32 APlanet::GetBiomeAtLocation(FVector WorldLocation) const
+{
+	if (!BiomeManager)
+	{
+		return -1;
+	}
+
+	return BiomeManager->GetDominantBiomeAtLocation(WorldLocation);
+}
+
+FBlendedTerrainParameters APlanet::GetBlendedBiomeParameters(FVector WorldLocation) const
+{
+	FBlendedTerrainParameters DefaultParams;
+
+	if (!BiomeBlendingSystem)
+	{
+		return DefaultParams;
+	}
+
+	return BiomeBlendingSystem->GetBlendedParameters(WorldLocation);
+}
+
+void APlanet::InitializeMaterialSystem()
+{
+	// Create material system
+	if (!MaterialSystem)
+	{
+		MaterialSystem = NewObject<UTerrainMaterialSystem>(this);
+	}
+
+	// Initialize with master material if available
+	if (TerrainMasterMaterial)
+	{
+		MaterialSystem->Initialize(TerrainMasterMaterial);
+		UE_LOG(LogTemp, Log, TEXT("Planet '%s' material system initialized with master material"), *GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Planet '%s' has no master material assigned"), *GetName());
+	}
+}
+
+void APlanet::UpdateTerrainMaterials(FVector ViewerLocation)
+{
+	if (!MaterialSystem || !PlanetMesh)
+	{
+		return;
+	}
+
+	// Get or create material instance for the planet mesh
+	UMaterialInstanceDynamic* MaterialInstance = Cast<UMaterialInstanceDynamic>(PlanetMesh->GetMaterial(0));
+	if (!MaterialInstance && TerrainMasterMaterial)
+	{
+		MaterialInstance = MaterialSystem->CreateTerrainMaterialInstance();
+		if (MaterialInstance)
+		{
+			PlanetMesh->SetMaterial(0, MaterialInstance);
+		}
+	}
+
+	if (!MaterialInstance)
+	{
+		return;
+	}
+
+	// Get blended biome parameters at viewer location
+	FBlendedTerrainParameters BlendedParams = GetBlendedBiomeParameters(ViewerLocation);
+
+	// Update biome blend weights
+	MaterialSystem->SetBiomeBlendWeights(MaterialInstance, BlendedParams.BiomeWeights);
+
+	// Calculate slope and altitude at viewer location
+	FVector LocalPosition = ViewerLocation - GetActorLocation();
+	float Distance = LocalPosition.Size();
+	float Altitude = (Distance - (PlanetRadius * 100.0f)) / 100.0f; // Convert to meters
+
+	// Calculate slope (simplified - would need actual terrain data)
+	float SlopeAngle = 0.0f; // Placeholder
+
+	// Update material blending
+	MaterialSystem->UpdateSlopeBlending(MaterialInstance, SlopeAngle);
+	MaterialSystem->UpdateAltitudeBlending(MaterialInstance, Altitude);
+
+	// Update wetness based on weather
+	if (WeatherComponent)
+	{
+		float WetnessAmount = WeatherComponent->GetWetnessAmount();
+		MaterialSystem->UpdateWetness(MaterialInstance, WetnessAmount);
+	}
+
+	// Update tessellation based on distance
+	float ViewDistance = FVector::Dist(ViewerLocation, GetActorLocation());
+	MaterialSystem->UpdateTessellation(MaterialInstance, ViewDistance);
+}
+
+void APlanet::ApplyBiomeMaterials()
+{
+	if (!MaterialSystem || !BiomeManager || !PlanetMesh)
+	{
+		return;
+	}
+
+	// Create material instance if needed
+	UMaterialInstanceDynamic* MaterialInstance = Cast<UMaterialInstanceDynamic>(PlanetMesh->GetMaterial(0));
+	if (!MaterialInstance && TerrainMasterMaterial)
+	{
+		MaterialInstance = MaterialSystem->CreateTerrainMaterialInstance();
+		if (MaterialInstance)
+		{
+			PlanetMesh->SetMaterial(0, MaterialInstance);
+		}
+	}
+
+	if (!MaterialInstance)
+	{
+		return;
+	}
+
+	// Configure material layers based on biomes
+	const TArray<FBiomeDefinition>& Biomes = BiomeManager->GetAllBiomes();
+	
+	for (int32 i = 0; i < FMath::Min(Biomes.Num(), 8); i++)
+	{
+		const FBiomeDefinition& Biome = Biomes[i];
+		
+		// Map biome to material slot (simplified mapping)
+		ETerrainMaterialSlot Slot = static_cast<ETerrainMaterialSlot>(i);
+		
+		FTerrainMaterialLayerConfig LayerConfig;
+		LayerConfig.LayerName = Biome.BiomeName;
+		LayerConfig.Slot = Slot;
+		
+		// Configure based on biome properties
+		if (Biome.MaterialLayers.Num() > 0)
+		{
+			const FTerrainMaterialLayer& BiomeLayer = Biome.MaterialLayers[0];
+			// Set texture references from biome material layer
+			// (In a real implementation, these would be properly mapped)
+		}
+		
+		MaterialSystem->ConfigureLayer(Slot, LayerConfig);
+	}
+
+	// Update textures in material instance
+	MaterialSystem->UpdateLayerTextures(MaterialInstance);
+
+	UE_LOG(LogTemp, Log, TEXT("Applied biome materials to planet '%s'"), *GetName());
+}

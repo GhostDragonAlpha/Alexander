@@ -1,0 +1,128 @@
+{
+  "_comment": "Workflow Configuration - Control what runs on Unreal startup",
+  "_instructions": "Set 'enabled' to true/false to control each phase. NO code editing required!",
+  "phases": {
+    "phase_0_test_arena": {
+      "enabled": true,
+      "description": "AI Vision Test Arena - 5 cameras, 4 test zones",
+      "script": "auto_build_test_env.py",
+      "target_level": "/Game/AIVisionTestArena",
+      "run_once": true,
+      "creates_level": true
+    },
+    "phase_0_5_screenshots": {
+      "enabled": true,
+      "description": "Auto-capture screenshots from test cameras",
+      "script": "snap_all_test_cameras.py",
+      "requires": [
+        "phase_0_test_arena"
+      ],
+      "run_once": false
+    },
+    "phase_1_visual_verification": {
+      "enabled": true,
+      "description": "Create cockpit blueprints and assets",
+      "script": "visual_verification.py",
+      "target_level": "/Game/VRTemplateMap",
+      "run_once": true
+    },
+    "phase_2_build_geometry": {
+      "enabled": true,
+      "description": "Build 3D cockpit geometry",
+      "script": "build_geometry.py",
+      "target_level": "/Game/VRTemplateMap",
+      "requires": [
+        "phase_1_visual_verification"
+      ],
+      "run_once": true
+    },
+    "phase_3_vr_interaction": {
+      "enabled": true,
+      "description": "Setup VR physics and interaction",
+      "script": "setup_vr_interaction.py",
+      "target_level": "/Game/VRTemplateMap",
+      "requires": [
+        "phase_2_build_geometry"
+      ],
+      "run_once": true
+    },
+    "phase_4_flight_physics": {
+      "enabled": true,
+      "description": "6DOF flight physics system",
+      "script": "flight_physics_6dof.py",
+      "target_level": "/Game/VRTemplateMap",
+      "requires": [
+        "phase_3_vr_interaction"
+      ],
+      "run_once": true
+    },
+    "phase_5_planetary_systems": {
+      "enabled": true,
+      "description": "Procedural planets and star systems",
+      "script": "planetary_systems.py",
+      "target_level": "/Game/VRTemplateMap",
+      "run_once": true
+    },
+    "phase_space_farming": {
+      "enabled": true,
+      "description": "Advanced space farming and agricultural mechanics",
+      "script": "space_farming_mechanics.py",
+      "target_level": "/Game/VRTemplateMap",
+      "run_once": true
+    },
+    "phase_multiplayer_foundation": {
+      "enabled": true,
+      "description": "Multiplayer foundation with networking, voice chat, and replication",
+      "script": "multiplayer_foundation.py",
+      "target_level": "/Game/VRTemplateMap",
+      "run_once": true
+    },
+    "phase_advanced_content_expansion": {
+      "enabled": true,
+      "description": "Advanced content expansion with housing, factions, mini-games, and economy",
+      "script": "advanced_content_expansion.py",
+      "target_level": "/Game/VRTemplateMap",
+      "run_once": true
+    },
+    "phase_ai_society_evolution": {
+      "enabled": true,
+      "description": "AI society evolution with neural networks, governance, and emergent storytelling",
+      "script": "ai_society_evolution_complete.py",
+      "target_level": "/Game/VRTemplateMap",
+      "run_once": true
+    },
+    "phase_next_generation_vr": {
+      "enabled": true,
+      "description": "Next-generation VR systems with full body tracking, haptic feedback, and neural interfaces",
+      "script": "next_generation_vr_systems.py",
+      "target_level": "/Game/VRTemplateMap",
+      "run_once": true
+    },
+    "phase_continuous_improvement": {
+      "enabled": true,
+      "description": "Continuous AI-driven autonomous development loop",
+      "script": "continuous_improvement_loop.py",
+      "target_level": "/Game/VRTemplateMap",
+      "run_once": false,
+      "continuous": true
+    }
+  },
+  "settings": {
+    "auto_screenshot_after_build": true,
+    "save_level_after_build": true,
+    "skip_if_already_built": true,
+    "verbose_logging": true
+  },
+  "_usage": {
+    "test_arena_only": "Set only phase_0 and phase_0_5 to enabled: true",
+    "game_development": "Enable phases 1-5, disable phase 0",
+    "clean_slate": "Disable ALL phases for manual control",
+    "full_build": "Enable all phases (WARNING: will mix test + game content!)",
+    "continuous_mode": "Enable phase_continuous_improvement for endless autonomous development",
+    "space_farming_mode": "Enable phase_space_farming for agricultural mechanics",
+    "multiplayer_mode": "Enable phase_multiplayer_foundation for networking systems",
+    "advanced_content_mode": "Enable phase_advanced_content_expansion for housing, factions, and mini-games",
+    "ai_society_mode": "Enable phase_ai_society_evolution for neural networks and living virtual society",
+    "next_generation_vr_mode": "Enable phase_next_generation_vr for full body tracking, haptic feedback, and neural interfaces"
+  }
+}

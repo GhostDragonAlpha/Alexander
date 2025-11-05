@@ -1,0 +1,296 @@
+// Planet Atmosphere Master Material
+// This material implements atmospheric rendering for planets
+// Can be applied to a sphere mesh or used as a post-process effect
+
+// MATERIAL DOMAIN: Surface or Post Process
+// BLEND MODE: Translucent or Additive
+// SHADING MODEL: Unlit (for atmosphere glow)
+
+// ============================================================================
+// MATERIAL PARAMETERS
+// ============================================================================
+
+// Planet Properties
+Scalar: PlanetRadius = 6371.0 (km)
+Scalar: AtmosphereHeight = 100.0 (km)
+Vector3: PlanetCenter = (0, 0, 0) (World space)
+
+// Scattering Coefficients
+Vector3: RayleighCoefficient = (0.0058, 0.0135, 0.0331) (RGB wavelengths)
+Vector3: MieCoefficient = (0.021, 0.021, 0.021)
+
+// Scale Heights
+Scalar: RayleighScaleHeight = 8.0 (km)
+Scalar: MieScaleHeight = 1.2 (km)
+
+// Phase Function
+Scalar: MieAnisotropy = 0.76 (forward scattering)
+
+// Fog Properties
+Scalar: FogDensity = 0.5
+Scalar: FogHeightFalloff = 2.0
+
+// Ground Properties
+Vector3: GroundAlbedo = (0.3, 0.3, 0.3)
+
+// Quality Settings
+Scalar: RayMarchingSamples = 16
+Boolean: UseLookupTables = true
+Boolean: UseRayMarching = false
+
+// Lookup Tables
+Texture2D: TransmittanceLUT
+Texture2D: SingleScatteringLUT
+Texture2D: MultipleScatteringLUT
+
+// Sun Direction
+Vector3: SunDirection = (0, 0, 1) (Normalized)
+
+// ============================================================================
+// MATERIAL GRAPH STRUCTURE
+// ============================================================================
+
+// INPUT NODES:
+// - Absolute World Position
+// - Camera Position World
+// - Camera Vector (View Direction)
+// - Scene Depth
+// - Custom Expression nodes for calculations
+
+// MAIN CALCULATION FLOW:
+
+// 1. Calculate View Parameters
+ViewPosition = CameraPositionWS
+ViewDirection = normalize(CameraVector)
+PlanetCenterWS = PlanetCenter
+
+// Calculate distance from planet center
+DistanceFromCenter = length(ViewPosition - PlanetCenterWS)
+ViewHeight = (DistanceFromCenter - PlanetRadius * 100000.0) / 100000.0 // Convert to km
+
+// 2. Calculate Angles for LUT Sampling
+RelativePosition = ViewPosition - PlanetCenterWS
+ViewZenithAngle = acos(dot(normalize(RelativePosition), ViewDirection))
+SunZenithAngle = acos(dot(normalize(RelativePosition), SunDirection))
+
+// 3. Choose Rendering Path
+if (UseLookupTables)
+{
+    // Fast path: Use pre-computed lookup tables
+    
+    // Sample transmittance
+    TransmittanceUV = float2(ViewZenithAngle / PI, ViewHeight / AtmosphereHeight)
+    Transmittance = Texture2DSample(TransmittanceLUT, TransmittanceUV)
+    
+    // Sample scattering
+    ScatteringUV = float2(ViewZenithAngle / PI, SunZenithAngle / PI)
+    Scattering = Texture2DSample(SingleScatteringLUT, ScatteringUV)
+    
+    // Sample multiple scattering
+    MultipleScattering = Texture2DSample(MultipleScatteringLUT, TransmittanceUV)
+    
+    // Combine
+    FinalColor = Scattering + MultipleScattering * 0.5
+}
+else if (UseRayMarching)
+{
+    // High quality path: Real-time ray marching
+    // Use Custom Expression node with the ray marching code
+    FinalColor = CalculateAtmosphericScatteringRayMarched(
+        ViewDirection,
+        SunDirection,
+        ViewPosition,
+        PlanetCenterWS,
+        PlanetRadius,
+        AtmosphereHeight,
+        RayleighCoefficient,
+        MieCoefficient,
+        RayleighScaleHeight,
+        MieScaleHeight,
+        MieAnisotropy,
+        RayMarchingSamples)
+}
+else
+{
+    // Fast approximation path
+    FinalColor = CalculateAtmosphericScatteringFast(
+        ViewDirection,
+        SunDirection,
+        ViewHeight,
+        PlanetRadius,
+        AtmosphereHeight,
+        RayleighCoefficient,
+        MieCoefficient,
+        RayleighScaleHeight,
+        MieScaleHeight,
+        MieAnisotropy)
+}
+
+// 4. Apply Fog
+if (ViewHeight < AtmosphereHeight)
+{
+    FogDensityAtHeight = FogDensity * exp(-ViewHeight / AtmosphereHeight * FogHeightFalloff)
+    
+    // Get scene depth
+    SceneDepth = SceneDepth
+    
+    // Calculate fog amount based on distance
+    FogAmount = 1.0 - exp(-SceneDepth * FogDensityAtHeight * 0.0001)
+    
+    // Blend atmosphere color with fog
+    FinalColor = lerp(FinalColor, FinalColor * 0.5, FogAmount)
+}
+
+// 5. Apply Sun Glow
+CosTheta = dot(ViewDirection, SunDirection)
+if (CosTheta > 0.99) // Near sun
+{
+    SunGlow = pow(CosTheta, 100.0) * 10.0
+    FinalColor += float3(SunGlow, SunGlow * 0.9, SunGlow * 0.7)
+}
+
+// 6. Calculate Opacity
+// Atmosphere is more opaque when looking through more atmosphere
+OpacityFactor = saturate(1.0 - ViewHeight / AtmosphereHeight)
+Opacity = OpacityFactor * 0.8
+
+// ============================================================================
+// OUTPUT CONNECTIONS
+// ============================================================================
+
+// Emissive Color: FinalColor
+// Opacity: Opacity
+// Refraction: 1.0 (no refraction)
+
+// ============================================================================
+// CUSTOM EXPRESSION: RAY MARCHING
+// ============================================================================
+
+// Custom Expression Node: CalculateAtmosphericScatteringRayMarched
+// Inputs: ViewDirection, SunDirection, ViewPosition, PlanetCenter, etc.
+// Output: float3 (RGB color)
+// Code: (See MF_AtmosphericScattering.txt for full implementation)
+
+float3 CalculateAtmosphericScatteringRayMarched(
+    float3 ViewDirection,
+    float3 SunDirection,
+    float3 ViewPosition,
+    float3 PlanetCenter,
+    float PlanetRadius,
+    float AtmosphereHeight,
+    float3 RayleighCoefficient,
+    float3 MieCoefficient,
+    float RayleighScaleHeight,
+    float MieScaleHeight,
+    float MieAnisotropy,
+    int Samples)
+{
+    // Ray marching implementation
+    // (Full code in MF_AtmosphericScattering.txt)
+    
+    // This is a simplified version for the material
+    float3 RayOrigin = ViewPosition;
+    float3 RayDir = normalize(ViewDirection);
+    
+    // Find atmosphere intersection
+    float AtmosphereRadius = (PlanetRadius + AtmosphereHeight) * 100000.0;
+    float PlanetRadiusCm = PlanetRadius * 100000.0;
+    
+    // Simplified ray marching
+    float3 ScatteredColor = float3(0, 0, 0);
+    float StepSize = AtmosphereHeight * 1000.0 / float(Samples);
+    
+    for (int i = 0; i < Samples; i++)
+    {
+        float3 SamplePos = RayOrigin + RayDir * (float(i) * StepSize);
+        float Height = (length(SamplePos - PlanetCenter) - PlanetRadiusCm) / 100000.0;
+        
+        if (Height < 0.0 || Height > AtmosphereHeight)
+            continue;
+        
+        float RayleighDensity = exp(-Height / RayleighScaleHeight);
+        float MieDensity = exp(-Height / MieScaleHeight);
+        
+        float CosTheta = dot(RayDir, SunDirection);
+        float RayleighPhase = 0.75 * (1.0 + CosTheta * CosTheta);
+        float MiePhase = 0.5 * (1.0 + CosTheta);
+        
+        ScatteredColor += (RayleighCoefficient * RayleighPhase * RayleighDensity +
+                          MieCoefficient * MiePhase * MieDensity) * StepSize;
+    }
+    
+    return ScatteredColor;
+}
+
+// ============================================================================
+// CUSTOM EXPRESSION: FAST APPROXIMATION
+// ============================================================================
+
+// Custom Expression Node: CalculateAtmosphericScatteringFast
+// Inputs: ViewDirection, SunDirection, ViewHeight, etc.
+// Output: float3 (RGB color)
+
+float3 CalculateAtmosphericScatteringFast(
+    float3 ViewDirection,
+    float3 SunDirection,
+    float ViewHeight,
+    float PlanetRadius,
+    float AtmosphereHeight,
+    float3 RayleighCoefficient,
+    float3 MieCoefficient,
+    float RayleighScaleHeight,
+    float MieScaleHeight,
+    float MieAnisotropy)
+{
+    // Fast approximation using simplified calculations
+    float CosTheta = dot(normalize(ViewDirection), normalize(SunDirection));
+    
+    // Phase functions
+    float RayleighPhase = 0.75 * (1.0 + CosTheta * CosTheta);
+    float G = MieAnisotropy;
+    float G2 = G * G;
+    float MiePhase = (1.0 / (4.0 * 3.14159)) * ((1.0 - G2) / pow(1.0 + G2 - 2.0 * G * CosTheta, 1.5));
+    
+    // Height-based density
+    float NormalizedHeight = saturate(ViewHeight / AtmosphereHeight);
+    float RayleighDensity = exp(-NormalizedHeight * (AtmosphereHeight / RayleighScaleHeight));
+    float MieDensity = exp(-NormalizedHeight * (AtmosphereHeight / MieScaleHeight));
+    
+    // Sun elevation factor
+    float SunElevation = max(0.0, SunDirection.z);
+    float Attenuation = lerp(0.3, 1.0, SunElevation);
+    
+    // Calculate scattering
+    float3 RayleighScattering = RayleighCoefficient * RayleighPhase * RayleighDensity * Attenuation;
+    float3 MieScattering = MieCoefficient * MiePhase * MieDensity * pow(max(0.0, CosTheta), 2.0);
+    
+    return RayleighScattering + MieScattering;
+}
+
+// ============================================================================
+// USAGE INSTRUCTIONS
+// ============================================================================
+
+// 1. Create a new Material in Unreal Editor
+// 2. Set Material Domain to "Surface" or "Post Process"
+// 3. Set Blend Mode to "Translucent" or "Additive"
+// 4. Set Shading Model to "Unlit"
+// 5. Add the parameters listed above as Material Parameters
+// 6. Create Custom Expression nodes with the code above
+// 7. Connect the nodes as described in the Material Graph Structure
+// 8. Apply the material to a sphere mesh scaled to atmosphere size
+// 9. Position the sphere at the planet center
+// 10. Adjust parameters to match your planet's atmosphere
+
+// PERFORMANCE TIPS:
+// - Use lookup tables for best performance (UseLookupTables = true)
+// - Use fast approximation for medium quality (UseRayMarching = false)
+// - Use ray marching only for cinematic quality (UseRayMarching = true, Samples = 32)
+// - Generate lookup tables once at startup, not every frame
+// - Consider using material instances for different planets
+
+// INTEGRATION WITH SKY ATMOSPHERE:
+// - This material can work alongside Unreal's Sky Atmosphere component
+// - Use Sky Atmosphere for distant views
+// - Use this material for close-up planetary atmospheres
+// - Blend between them based on distance from planet

@@ -1,0 +1,207 @@
+# Material Function: Atmospheric Perspective
+# Applies distance-based fog and color shift to simulate atmospheric scattering
+
+## Description
+This material function implements atmospheric perspective effects that make distant objects appear hazier and color-shifted. It integrates with the AtmosphericFogComponent to provide realistic depth cues and atmospheric scattering.
+
+## Inputs
+- **BaseColor** (Vector3): The original color of the surface
+- **WorldPosition** (Vector3): World space position of the pixel
+- **CameraPosition** (Vector3): World space position of the camera
+- **FogColor** (Vector3): Color of the atmospheric fog (from AtmosphericFogComponent)
+- **FogDensity** (Scalar): Density of the fog at current altitude
+- **PerspectiveDistance** (Scalar): Distance at which perspective is fully applied (km)
+- **PerspectiveIntensity** (Scalar): Overall intensity of the effect (0-1)
+
+## Outputs
+- **Result** (Vector3): Color with atmospheric perspective applied
+
+## Implementation
+
+### Distance Calculation
+```
+Distance = length(WorldPosition - CameraPosition) / 100000.0  // Convert cm to km
+```
+
+### Perspective Factor
+```
+PerspectiveFactor = saturate(Distance / PerspectiveDistance)
+PerspectiveFactor = pow(PerspectiveFactor, 2.0)  // Quadratic falloff
+PerspectiveFactor *= PerspectiveIntensity
+```
+
+### Fog Application
+```
+// Exponential fog based on distance
+FogAmount = 1.0 - exp(-Distance * FogDensity)
+FogAmount = saturate(FogAmount)
+
+// Combine with perspective factor
+FinalFogAmount = FogAmount * PerspectiveFactor
+```
+
+### Color Blending
+```
+// Blend base color with fog color
+FoggedColor = lerp(BaseColor, FogColor, FinalFogAmount)
+
+// Desaturate distant objects
+Desaturation = FinalFogAmount * 0.3
+Luminance = dot(FoggedColor, float3(0.299, 0.587, 0.114))
+Result = lerp(FoggedColor, Luminance.xxx, Desaturation)
+```
+
+## Usage in Materials
+
+### In Terrain Master Material
+```
+// Get atmospheric perspective parameters from material parameter collection
+float3 FogColor = MPC_Atmosphere.FogColor
+float FogDensity = MPC_Atmosphere.FogDensity
+float PerspectiveDistance = MPC_Atmosphere.PerspectiveDistance
+
+// Apply atmospheric perspective
+float3 BaseColor = TerrainColor  // From terrain layers
+float3 FinalColor = MF_AtmosphericPerspective(
+    BaseColor,
+    WorldPosition,
+    CameraPosition,
+    FogColor,
+    FogDensity,
+    PerspectiveDistance,
+    1.0  // Full intensity
+)
+```
+
+### In Object Materials
+```
+// Apply to any material that needs atmospheric depth
+float3 ObjectColor = BaseColorTexture.rgb
+float3 FinalColor = MF_AtmosphericPerspective(
+    ObjectColor,
+    WorldPosition,
+    CameraPosition,
+    FogColor,
+    FogDensity,
+    50.0,  // 50km perspective distance
+    0.8    // 80% intensity
+)
+```
+
+## Integration with Lumen
+
+The atmospheric perspective function works seamlessly with Lumen global illumination:
+
+1. **Volumetric Fog**: The exponential height fog component provides volumetric scattering that Lumen uses for light shafts and atmospheric effects
+
+2. **Indirect Lighting**: Fog color is influenced by Lumen's indirect lighting, creating realistic atmospheric lighting
+
+3. **Distance Field Shadows**: Atmospheric perspective respects distance field shadows, making shadowed areas appear darker through fog
+
+## Performance Considerations
+
+- **Material Complexity**: Adds ~10 instructions to pixel shader
+- **Optimization**: Use material parameter collections to share fog parameters across materials
+- **LOD**: Can be disabled on distant LODs where the effect is less noticeable
+- **Mobile**: Simplified version available with single exponential fog calculation
+
+## Parameters for Material Parameter Collection
+
+Create a Material Parameter Collection named "MPC_AtmosphericFog" with these parameters:
+
+```
+Scalar Parameters:
+- FogDensity (default: 0.02)
+- FogHeightFalloff (default: 0.2)
+- PerspectiveDistance (default: 50.0)
+- PerspectiveIntensity (default: 1.0)
+
+Vector Parameters:
+- FogColor (default: 0.7, 0.75, 0.8)
+- HighAltitudeFogColor (default: 0.5, 0.6, 0.8)
+```
+
+These parameters are automatically updated by the AtmosphericFogComponent based on viewer altitude and atmospheric conditions.
+
+## Advanced Features
+
+### Altitude-Based Color Shift
+```
+// Interpolate fog color based on altitude
+float Altitude = (length(WorldPosition - PlanetCenter) - PlanetRadius) / 100000.0
+float AltitudeFactor = saturate(Altitude / MaxFogAltitude)
+float3 FogColor = lerp(GroundFogColor, HighAltitudeFogColor, AltitudeFactor)
+```
+
+### Sun Influence
+```
+// Add sun glow to fog
+float3 SunDirection = normalize(DirectionalLightVector)
+float3 ViewDirection = normalize(WorldPosition - CameraPosition)
+float SunDot = saturate(dot(ViewDirection, SunDirection))
+float SunGlow = pow(SunDot, DirectionalInscatteringExponent) * DirectionalInscatteringIntensity
+float3 FogColor = FogColor + SunGlow * DirectionalInscatteringColor
+```
+
+### Weather Integration
+```
+// Adjust fog density based on weather
+float WeatherFogMultiplier = 1.0
+if (CurrentWeather == Rain) WeatherFogMultiplier = 2.0
+if (CurrentWeather == Fog) WeatherFogMultiplier = 5.0
+FogDensity *= WeatherFogMultiplier
+```
+
+## Blueprint Integration
+
+The atmospheric perspective effect can be controlled from Blueprints:
+
+```blueprint
+// Get fog component
+FogComponent = Planet->GetComponentByClass(AtmosphericFogComponent)
+
+// Update fog settings
+FogSettings.BaseFogDensity = 0.05
+FogSettings.PerspectiveIntensity = 1.5
+FogComponent->ApplyFogSettings(FogSettings)
+
+// Get fog color at specific altitude
+FogColor = FogComponent->GetFogColorAtAltitude(5.0)  // 5km altitude
+
+// Calculate perspective for custom rendering
+PerspectiveColor = FogComponent->CalculateAtmosphericPerspective(
+    ViewPosition,
+    TargetPosition,
+    BaseColor
+)
+```
+
+## Troubleshooting
+
+### Fog Too Dense
+- Reduce BaseFogDensity parameter
+- Increase HeightFalloff for faster altitude falloff
+- Reduce PerspectiveIntensity
+
+### Fog Not Visible
+- Increase BaseFogDensity parameter
+- Check that bEnableVolumetricFog is true
+- Verify ExponentialHeightFog component is active
+- Check PerspectiveDistance is appropriate for scene scale
+
+### Color Mismatch
+- Ensure FogColor matches atmosphere scattering colors
+- Verify GroundAlbedo in atmosphere settings
+- Check directional light color and intensity
+
+### Performance Issues
+- Disable volumetric fog on lower quality settings
+- Reduce RayMarchingSamples in atmosphere component
+- Use simplified fog calculation on distant objects
+- Consider using fog cards for very distant objects
+
+## References
+
+- UE5 Exponential Height Fog: https://docs.unrealengine.com/5.0/en-US/exponential-height-fog-in-unreal-engine/
+- Lumen Global Illumination: https://docs.unrealengine.com/5.0/en-US/lumen-global-illumination-and-reflections-in-unreal-engine/
+- Atmospheric Scattering: GPU Gems 2, Chapter 16

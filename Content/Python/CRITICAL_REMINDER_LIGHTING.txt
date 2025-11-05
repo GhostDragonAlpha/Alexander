@@ -1,0 +1,65 @@
+
+================================================================================
+  ⚠️  CRITICAL: ALWAYS TRIGGER BUILD AFTER LIGHTING CHANGES!
+================================================================================
+
+WHENEVER you modify lighting in Unreal Engine, you MUST:
+
+1. Execute: trigger_lighting_build.py via remote connection
+2. Wait 10-30 seconds for build to complete
+3. Then capture screenshots
+
+WHY THIS IS CRITICAL:
+- Unreal doesn't automatically update lighting
+- Changes to lights, materials, or scene require rebuild
+- Without rebuild = black screen, errors, or no changes visible
+
+================================================================================
+  📋 LIGHTING CHANGE CHECKLIST
+================================================================================
+
+□ Made lighting changes (lights, materials, mobility)
+□ Executed: trigger_lighting_build.py
+□ Waited for build completion (check editor for progress)
+□ Refreshed viewport
+□ THEN captured screenshots
+
+================================================================================
+  🔧 COMMON LIGHTING ISSUES & SOLUTIONS
+================================================================================
+
+Issue: "Too many overlapping movable lights"
+Solution:
+  - Limit to 4-5 movable lights per area
+  - Set SkyLights to STATIC (they don't count!)
+  - Remove excess fill lights
+
+Issue: Black screenshots
+Solution:
+  - Check XR/VR mode (exit with Alt+P)
+  - Trigger lighting build
+  - Check viewport show flags (viewmode lit)
+  - Verify materials are assigned
+
+Issue: Swarm initialization failure
+Solution:
+  - Use MOVABLE lights (no Swarm needed)
+  - SkyLights can be STATIC without Swarm
+
+================================================================================
+  🎯 FINAL LIGHTING SETUP (AI VISION TEST ARENA)
+================================================================================
+
+MOVABLE LIGHTS (4 total - under limit):
+  • Star_Dynamic: 500,000 (point light at 2000,0,1000)
+  • Cockpit_Light_Front: 100,000
+  • Cockpit_Light_Above: 100,000
+  • Cockpit_Fill_Direct: 100,000
+
+STATIC LIGHTS (don't count towards limit):
+  • Starlight_Ambient: 10.0 (SkyLight - STATIC!)
+
+MATERIALS:
+  • All objects: DefaultMaterial (white/gray)
+
+================================================================================

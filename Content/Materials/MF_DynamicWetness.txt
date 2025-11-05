@@ -1,0 +1,251 @@
+# Material Function: Dynamic Wetness
+
+## Description
+Applies realistic wetness effects to terrain surfaces based on weather conditions.
+
+## Inputs
+- **BaseColor** (Vector3) - Original surface color
+- **Roughness** (Scalar) - Original surface roughness
+- **Normal** (Vector3) - Original surface normal (tangent space)
+- **Metallic** (Scalar) - Original metallic value
+- **WetnessAmount** (Scalar) - Wetness intensity (0-1)
+- **WorldNormal** (Vector3) - World space normal for rain accumulation
+
+## Outputs
+- **WetBaseColor** (Vector3) - Modified base color
+- **WetRoughness** (Scalar) - Modified roughness
+- **WetNormal** (Vector3) - Modified normal
+- **WetMetallic** (Scalar) - Modified metallic
+
+## Implementation
+
+### Material Function Graph
+
+```
+// 1. Calculate rain accumulation based on surface angle
+float RainAccumulation = saturate(WorldNormal.z); // Upward facing surfaces get wetter
+RainAccumulation = pow(RainAccumulation, 2.0); // Sharpen the effect
+
+// 2. Adjust wetness by accumulation
+float EffectiveWetness = WetnessAmount * RainAccumulation;
+
+// 3. Darken base color (wet surfaces absorb more light)
+float3 DarkenedColor = BaseColor * lerp(1.0, 0.6, EffectiveWetness);
+
+// 4. Add subtle color shift (wet surfaces are slightly more saturated)
+float Luminance = dot(BaseColor, float3(0.299, 0.587, 0.114));
+float3 SaturatedColor = lerp(BaseColor, BaseColor / max(Luminance, 0.001), 0.2);
+float3 WetColor = lerp(DarkenedColor, DarkenedColor * SaturatedColor, EffectiveWetness * 0.3);
+
+// 5. Reduce roughness (wet surfaces are smoother/shinier)
+float WetRoughness = lerp(Roughness, 0.05, EffectiveWetness);
+
+// 6. Flatten normal slightly (water pools smooth out micro-detail)
+float3 FlattenedNormal = lerp(Normal, float3(0, 0, 1), EffectiveWetness * 0.2);
+float3 WetNormal = normalize(FlattenedNormal);
+
+// 7. Slight metallic boost for water reflection
+float WetMetallic = lerp(Metallic, min(Metallic + 0.1, 1.0), EffectiveWetness * 0.5);
+```
+
+### Advanced Features
+
+#### Puddle Formation
+
+```hlsl
+// Add puddles in low areas using height map
+float PuddleThreshold = 0.3; // Height below which puddles form
+float PuddleMask = saturate((PuddleThreshold - HeightValue) / 0.1);
+PuddleMask *= WetnessAmount;
+
+// Puddles are very smooth and reflective
+float PuddleRoughness = 0.01;
+float PuddleMetallic = 0.3;
+
+// Blend puddle properties
+WetRoughness = lerp(WetRoughness, PuddleRoughness, PuddleMask);
+WetMetallic = lerp(WetMetallic, PuddleMetallic, PuddleMask);
+
+// Flatten normal completely in puddles
+WetNormal = lerp(WetNormal, float3(0, 0, 1), PuddleMask * 0.8);
+```
+
+#### Rain Ripples
+
+```hlsl
+// Animated ripples on wet surfaces
+float Time = GameTime;
+float2 RippleUV = WorldPosition.xy * 0.5;
+
+// Multiple ripple layers
+float Ripple1 = sin(length(RippleUV - Time * 0.3) * 10.0 - Time * 5.0);
+float Ripple2 = sin(length(RippleUV * 1.3 + Time * 0.2) * 15.0 - Time * 7.0);
+float Ripple3 = sin(length(RippleUV * 0.7 - Time * 0.4) * 8.0 - Time * 4.0);
+
+float RipplePattern = (Ripple1 + Ripple2 + Ripple3) / 3.0;
+RipplePattern *= 0.1; // Scale down
+
+// Apply ripples to normal
+float3 RippleNormal = float3(
+    ddx(RipplePattern),
+    ddy(RipplePattern),
+    1.0
+);
+RippleNormal = normalize(RippleNormal);
+
+// Blend ripples based on wetness and puddle mask
+float RippleStrength = WetnessAmount * PuddleMask * 0.5;
+WetNormal = normalize(lerp(WetNormal, RippleNormal, RippleStrength));
+```
+
+#### Wetness Transition
+
+```hlsl
+// Smooth transition as surfaces dry
+float DryingSpeed = 0.1; // Adjust based on weather
+float TransitionNoise = PerlinNoise(WorldPosition.xy * 2.0);
+
+// Non-uniform drying pattern
+float DryingMask = saturate(TransitionNoise + (1.0 - WetnessAmount));
+float TransitionWetness = WetnessAmount * DryingMask;
+
+// Apply transition to all wet properties
+WetColor = lerp(BaseColor, WetColor, TransitionWetness);
+WetRoughness = lerp(Roughness, WetRoughness, TransitionWetness);
+```
+
+## Blueprint Node Setup
+
+### Basic Wetness
+
+1. **Lerp** (Base Color Darkening)
+   - A: BaseColor
+   - B: BaseColor * 0.6
+   - Alpha: WetnessAmount
+
+2. **Lerp** (Roughness Reduction)
+   - A: Roughness
+   - B: 0.05
+   - Alpha: WetnessAmount
+
+3. **Lerp** (Normal Flattening)
+   - A: Normal
+   - B: (0, 0, 1)
+   - Alpha: WetnessAmount * 0.2
+
+### With Puddles
+
+1. **Subtract** (Puddle Detection)
+   - A: PuddleThreshold (0.3)
+   - B: HeightValue
+   - Divide by 0.1, Saturate
+
+2. **Multiply** (Puddle Mask)
+   - A: Puddle Detection Result
+   - B: WetnessAmount
+
+3. **Lerp** (Apply Puddle Properties)
+   - Use Puddle Mask as alpha
+
+## Usage in Master Material
+
+```
+// Get wetness amount from material parameter
+float Wetness = WetnessIntensity; // 0-1 from weather system
+
+// Get world normal for rain accumulation
+float3 WorldNormal = TransformTangentToWorld(PixelNormal);
+
+// Apply wetness function
+float3 WetColor;
+float WetRoughness;
+float3 WetNormal;
+float WetMetallic;
+
+ApplyWetness(
+    BaseColor, 
+    Roughness, 
+    Normal, 
+    Metallic,
+    Wetness,
+    WorldNormal,
+    WetColor,
+    WetRoughness,
+    WetNormal,
+    WetMetallic
+);
+
+// Output to material
+BaseColor = WetColor;
+Roughness = WetRoughness;
+Normal = WetNormal;
+Metallic = WetMetallic;
+```
+
+## Performance
+
+- **Cost**: ~10-15 instructions
+- **Optimization**: Use static switch to disable when dry
+- **Quality Levels**:
+  - Low: Basic darkening and roughness only
+  - Medium: Full wetness without ripples
+  - High: Full wetness with puddles
+  - Epic: Full wetness with puddles and ripples
+
+## Visual Effects
+
+- Surfaces darken when wet (realistic light absorption)
+- Increased specularity (water reflection)
+- Reduced micro-detail (water smooths surface)
+- Puddle formation in low areas
+- Animated rain ripples on water surfaces
+- Non-uniform drying patterns
+
+## Integration with Weather
+
+```cpp
+// In C++ weather component
+void UWeatherComponent::UpdateWetness(float DeltaTime)
+{
+    float TargetWetness = 0.0f;
+    
+    switch(CurrentWeather)
+    {
+        case EWeatherType::LightRain:
+            TargetWetness = 0.4f;
+            break;
+        case EWeatherType::HeavyRain:
+            TargetWetness = 0.9f;
+            break;
+        case EWeatherType::Thunderstorm:
+            TargetWetness = 1.0f;
+            break;
+        default:
+            TargetWetness = 0.0f;
+            break;
+    }
+    
+    // Smooth transition
+    float TransitionSpeed = (TargetWetness > CurrentWetness) ? 0.1f : 0.05f;
+    CurrentWetness = FMath::FInterpTo(CurrentWetness, TargetWetness, DeltaTime, TransitionSpeed);
+    
+    // Update material
+    MaterialSystem->UpdateWetness(TerrainMaterial, CurrentWetness);
+}
+```
+
+## Common Issues
+
+### Too Shiny
+- Reduce minimum roughness from 0.05 to 0.1
+- Reduce metallic boost
+
+### Not Visible
+- Increase darkening factor (reduce from 0.6 to 0.5)
+- Increase roughness reduction
+
+### Puddles Everywhere
+- Increase puddle threshold
+- Add noise to puddle mask
+- Reduce puddle mask strength
+

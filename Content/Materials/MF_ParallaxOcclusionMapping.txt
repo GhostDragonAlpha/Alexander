@@ -1,0 +1,131 @@
+# Material Function: Parallax Occlusion Mapping
+
+## Description
+Implements parallax occlusion mapping for realistic surface depth without additional geometry.
+
+## Inputs
+- **HeightTexture** (Texture2D) - Height/displacement map
+- **UV** (Vector2) - Base UV coordinates
+- **ViewVector** (Vector3) - Camera view direction in tangent space
+- **DepthScale** (Scalar) - Depth multiplier (default: 0.05)
+- **NumSteps** (Scalar) - Ray marching steps (default: 16)
+- **EnablePOM** (Scalar) - Enable/disable switch (0 or 1)
+
+## Output
+- **OffsetUV** (Vector2) - UV coordinates with parallax offset applied
+
+## Implementation Notes
+
+### Custom HLSL Node
+
+```hlsl
+// Material Custom node code
+// Inputs: HeightTexture, UV, ViewDir, DepthScale, NumSteps
+// Output: float2
+
+float2 ParallaxOcclusionMapping(Texture2D HeightMap, SamplerState HeightSampler, 
+                                float2 UV, float3 ViewDir, float DepthScale, int NumSteps)
+{
+    // Early out if view is perpendicular to surface
+    if(abs(ViewDir.z) < 0.01)
+        return UV;
+    
+    // Calculate step size and UV delta
+    float StepSize = 1.0 / float(NumSteps);
+    float2 UVDelta = (ViewDir.xy / ViewDir.z) * DepthScale / float(NumSteps);
+    
+    // Initialize ray marching
+    float CurrentLayerHeight = 1.0;
+    float2 CurrentUV = UV;
+    float HeightFromTexture = HeightMap.Sample(HeightSampler, CurrentUV).r;
+    
+    // Ray march through height field
+    [unroll(16)]
+    for(int i = 0; i < NumSteps && CurrentLayerHeight > HeightFromTexture; i++)
+    {
+        CurrentUV -= UVDelta;
+        HeightFromTexture = HeightMap.Sample(HeightSampler, CurrentUV).r;
+        CurrentLayerHeight -= StepSize;
+    }
+    
+    // Parallax occlusion with binary search refinement
+    float2 PrevUV = CurrentUV + UVDelta;
+    float PrevLayerHeight = CurrentLayerHeight + StepSize;
+    float PrevHeightFromTexture = HeightMap.Sample(HeightSampler, PrevUV).r;
+    
+    // Calculate intersection weight
+    float AfterDepth = HeightFromTexture - CurrentLayerHeight;
+    float BeforeDepth = PrevHeightFromTexture - PrevLayerHeight;
+    float Weight = AfterDepth / (AfterDepth - BeforeDepth);
+    
+    // Interpolate final UV
+    return lerp(CurrentUV, PrevUV, Weight);
+}
+```
+
+### Blueprint Node Setup
+
+1. **Custom Node** (ParallaxOcclusionMapping)
+   - Code: Insert HLSL code above
+   - Inputs: HeightTexture, UV, ViewVector, DepthScale, NumSteps
+   - Output Type: float2
+
+2. **Branch Node** (EnablePOM check)
+   - Condition: EnablePOM > 0.5
+   - True: Use offset UV from custom node
+   - False: Use original UV
+
+3. **Camera Vector** node
+   - Transform to Tangent Space
+   - Normalize
+   - Connect to ViewVector input
+
+## Usage Example
+
+```
+// In master material:
+1. Get Camera Vector (World Space)
+2. Transform to Tangent Space
+3. Normalize
+4. Pass to ParallaxOcclusionMapping function
+5. Use returned UV for all texture samples
+
+// Parameters to expose:
+- ParallaxDepthScale (0.01 - 0.1)
+- ParallaxSteps (8 - 32, higher = better quality)
+- EnableParallaxOcclusion (0 or 1)
+```
+
+## Performance Considerations
+
+- **Cost**: ~16-32 texture samples per pixel
+- **Optimization**: Use static switch to disable entirely when not needed
+- **Distance LOD**: Disable beyond 50 meters
+- **Quality Levels**:
+  - Low: Disabled
+  - Medium: 8 steps
+  - High: 16 steps
+  - Epic: 32 steps
+
+## Visual Quality
+
+- Adds convincing depth to flat surfaces
+- Self-shadowing effect
+- Silhouette edges appear correct
+- Works best with high-contrast height maps
+- Requires good normal maps for best results
+
+## Common Issues
+
+### UV Swimming
+- Cause: Too high depth scale
+- Fix: Reduce ParallaxDepthScale to 0.03-0.05
+
+### Performance Drops
+- Cause: Too many steps
+- Fix: Reduce NumSteps or disable at distance
+
+### Artifacts at Grazing Angles
+- Cause: Insufficient steps
+- Fix: Increase NumSteps or add angle-based step adjustment
+

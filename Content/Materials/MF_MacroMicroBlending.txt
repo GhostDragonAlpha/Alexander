@@ -1,0 +1,286 @@
+# Material Function: Macro/Micro Detail Blending
+
+## Description
+Blends between high-frequency micro detail textures (for close viewing) and low-frequency macro textures (for distant viewing) to maintain visual quality at all distances.
+
+## Inputs
+- **MicroTexture** (Texture2D) - High-detail texture for close viewing
+- **MacroTexture** (Texture2D) - Low-detail texture for distant viewing
+- **UV** (Vector2) - UV coordinates
+- **MicroTiling** (Scalar) - Tiling scale for micro texture (e.g., 5.0)
+- **MacroTiling** (Scalar) - Tiling scale for macro texture (e.g., 0.5)
+- **ViewDistance** (Scalar) - Distance from camera to surface
+- **BlendDistance** (Scalar) - Distance at which blending starts (e.g., 50m)
+- **BlendRange** (Scalar) - Distance range for smooth transition (e.g., 50m)
+
+## Outputs
+- **BlendedColor** (Vector3/4) - Blended texture result
+- **BlendFactor** (Scalar) - Current blend amount (0=micro, 1=macro)
+
+## Implementation
+
+### Material Function Graph
+
+```hlsl
+// Calculate blend factor based on distance
+float CalculateBlendFactor(float ViewDistance, float BlendDistance, float BlendRange)
+{
+    // Linear blend from BlendDistance to BlendDistance + BlendRange
+    float BlendStart = BlendDistance;
+    float BlendEnd = BlendDistance + BlendRange;
+    
+    float BlendFactor = saturate((ViewDistance - BlendStart) / BlendRange);
+    
+    // Optional: Use smoothstep for smoother transition
+    BlendFactor = smoothstep(0.0, 1.0, BlendFactor);
+    
+    return BlendFactor;
+}
+
+// Sample and blend textures
+float4 MacroMicroBlend(Texture2D MicroTex, Texture2D MacroTex, 
+                       float2 UV, float MicroScale, float MacroScale,
+                       float ViewDistance, float BlendDistance, float BlendRange)
+{
+    // Calculate blend factor
+    float BlendFactor = CalculateBlendFactor(ViewDistance, BlendDistance, BlendRange);
+    
+    // Sample micro texture with high tiling
+    float4 MicroColor = MicroTex.Sample(MicroSampler, UV * MicroScale);
+    
+    // Sample macro texture with low tiling
+    float4 MacroColor = MacroTex.Sample(MacroSampler, UV * MacroScale);
+    
+    // Blend between micro and macro
+    float4 BlendedColor = lerp(MicroColor, MacroColor, BlendFactor);
+    
+    return BlendedColor;
+}
+```
+
+### Advanced: Height-Corrected Blending
+
+```hlsl
+// For height/displacement maps, blend in a height-preserving way
+float HeightCorrectedBlend(float MicroHeight, float MacroHeight, float BlendFactor)
+{
+    // Preserve height variation from micro detail
+    float MicroVariation = MicroHeight - 0.5;
+    
+    // Scale variation based on blend factor
+    float ScaledVariation = MicroVariation * (1.0 - BlendFactor);
+    
+    // Add scaled variation to macro height
+    return MacroHeight + ScaledVariation * 0.5;
+}
+```
+
+### Advanced: Normal Map Blending
+
+```hlsl
+// Proper normal map blending (not simple lerp)
+float3 BlendNormals(float3 MicroNormal, float3 MacroNormal, float BlendFactor)
+{
+    // Unpack normals from [0,1] to [-1,1] if needed
+    MicroNormal = MicroNormal * 2.0 - 1.0;
+    MacroNormal = MacroNormal * 2.0 - 1.0;
+    
+    // Blend using partial derivative blending (better than lerp)
+    float3 BlendedNormal = normalize(float3(
+        MicroNormal.xy + MacroNormal.xy * BlendFactor,
+        MicroNormal.z * MacroNormal.z
+    ));
+    
+    // Pack back to [0,1] if needed
+    return BlendedNormal * 0.5 + 0.5;
+}
+```
+
+## Blueprint Node Setup
+
+### Basic Setup
+
+1. **Divide** (Calculate Blend Factor)
+   - A: (ViewDistance - BlendDistance)
+   - B: BlendRange
+   - Saturate result
+
+2. **Multiply** (Micro UV)
+   - A: UV
+   - B: MicroTiling
+
+3. **Multiply** (Macro UV)
+   - A: UV
+   - B: MacroTiling
+
+4. **Texture Sample** (Micro)
+   - Texture: MicroTexture
+   - UVs: Micro UV
+
+5. **Texture Sample** (Macro)
+   - Texture: MacroTexture
+   - UVs: Macro UV
+
+6. **Lerp** (Blend)
+   - A: Micro Sample
+   - B: Macro Sample
+   - Alpha: Blend Factor
+
+### With Smoothstep
+
+1. **Smoothstep** node
+   - Min: 0
+   - Max: 1
+   - Value: Raw Blend Factor
+   - Use result as final blend factor
+
+## Usage in Master Material
+
+```
+// For each material layer:
+
+// 1. Calculate view distance
+float ViewDistance = length(CameraPosition - WorldPosition);
+
+// 2. Get blend parameters
+float BlendDistance = Layer_MacroBlendDistance; // e.g., 50m
+float BlendRange = BlendDistance * 0.5; // e.g., 25m
+
+// 3. Blend base color
+float3 BaseColor = MacroMicroBlend(
+    Layer_BaseColor,
+    Layer_MacroBaseColor,
+    UV,
+    Layer_MicroTiling,
+    Layer_MacroTiling,
+    ViewDistance,
+    BlendDistance,
+    BlendRange
+).rgb;
+
+// 4. Blend normal map (use special normal blending)
+float3 Normal = BlendNormals(
+    Layer_Normal.Sample(UV * Layer_MicroTiling).rgb,
+    Layer_MacroNormal.Sample(UV * Layer_MacroTiling).rgb,
+    BlendFactor
+);
+
+// 5. Blend roughness
+float Roughness = MacroMicroBlend(
+    Layer_Roughness,
+    Layer_MacroRoughness,
+    UV,
+    Layer_MicroTiling,
+    Layer_MacroTiling,
+    ViewDistance,
+    BlendDistance,
+    BlendRange
+).r;
+
+// 6. Blend other PBR channels similarly
+```
+
+## Tiling Scale Guidelines
+
+### Micro Detail (Close Range)
+- **BaseColor**: 5.0 - 10.0 (high frequency)
+- **Normal**: 5.0 - 10.0 (detailed surface)
+- **Roughness**: 5.0 - 10.0 (micro variation)
+- **Distance**: 0 - 50m
+
+### Macro Detail (Far Range)
+- **BaseColor**: 0.1 - 0.5 (low frequency)
+- **Normal**: 0.1 - 0.5 (large features)
+- **Roughness**: 0.1 - 0.5 (broad variation)
+- **Distance**: 50m+
+
+## Distance Guidelines by Terrain Type
+
+### Rocky Terrain
+- Blend Start: 30m
+- Blend Range: 30m
+- Micro Tiling: 8.0
+- Macro Tiling: 0.3
+
+### Grass/Vegetation
+- Blend Start: 20m
+- Blend Range: 20m
+- Micro Tiling: 10.0
+- Macro Tiling: 0.5
+
+### Sand/Desert
+- Blend Start: 50m
+- Blend Range: 50m
+- Micro Tiling: 5.0
+- Macro Tiling: 0.2
+
+### Snow/Ice
+- Blend Start: 40m
+- Blend Range: 40m
+- Micro Tiling: 6.0
+- Macro Tiling: 0.25
+
+## Performance
+
+- **Cost**: 2x texture samples per channel
+- **Optimization**: 
+  - Use single texture atlas for micro/macro
+  - Disable micro sampling beyond blend range
+  - Use lower resolution macro textures
+- **Memory**: Doubles texture memory per layer
+
+## Visual Benefits
+
+- Maintains detail at all distances
+- Eliminates texture repetition at distance
+- Smooth transition prevents popping
+- Preserves performance (fewer high-res samples at distance)
+- Allows larger terrain without tiling artifacts
+
+## Integration with LOD System
+
+```cpp
+// In C++ LOD manager
+void UpdateMaterialLOD(float ViewDistance)
+{
+    // Adjust blend distances based on LOD level
+    if(ViewDistance < 100.0f)
+    {
+        // Close range - use micro detail
+        MaterialInstance->SetScalarParameterValue("BlendDistance", 50.0f);
+    }
+    else if(ViewDistance < 500.0f)
+    {
+        // Medium range - blend to macro
+        MaterialInstance->SetScalarParameterValue("BlendDistance", 30.0f);
+    }
+    else
+    {
+        // Far range - macro only
+        MaterialInstance->SetScalarParameterValue("BlendDistance", 0.0f);
+    }
+}
+```
+
+## Common Issues
+
+### Visible Transition Line
+- Increase BlendRange for smoother transition
+- Use smoothstep instead of linear blend
+- Add noise to blend factor
+
+### Texture Repetition Still Visible
+- Reduce macro tiling further
+- Use larger macro textures
+- Add subtle noise overlay
+
+### Performance Issues
+- Reduce number of layers using macro detail
+- Use lower resolution macro textures
+- Disable macro detail on distant terrain tiles
+
+### Mismatched Detail Levels
+- Ensure macro textures are derived from micro textures
+- Match color/brightness between micro and macro
+- Adjust blend range to hide differences
+

@@ -1,0 +1,383 @@
+name: Alexander CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+env:
+  PYTHON_VERSION: '3.10'
+  UE_VERSION: '5.6'
+
+jobs:
+  # Job 1: Unit Tests
+  unit-tests:
+    name: Unit Tests
+    runs-on: windows-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if (Test-Path requirements.txt) { pip install -r requirements.txt }
+        shell: pwsh
+      
+      - name: Run Unit Tests
+        id: unit_tests
+        run: |
+          python run_comprehensive_tests.py
+        shell: pwsh
+        continue-on-error: false
+      
+      - name: Upload Unit Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-test-reports
+          path: |
+            TEST_REPORT.json
+            TEST_REPORT.md
+          retention-days: 30
+      
+      - name: Check Unit Test Results
+        if: always()
+        run: |
+          if (Test-Path TEST_REPORT.json) {
+            $report = Get-Content TEST_REPORT.json | ConvertFrom-Json
+            Write-Host "Unit Tests: $($report.summary.passed) passed, $($report.summary.failed) failed"
+            if ($report.summary.failed -gt 0) {
+              Write-Error "Unit tests failed!"
+              exit 1
+            }
+          } else {
+            Write-Error "Test report not found!"
+            exit 1
+          }
+        shell: pwsh
+
+  # Job 2: End-to-End Tests
+  e2e-tests:
+    name: End-to-End Tests
+    runs-on: windows-latest
+    timeout-minutes: 60
+    needs: unit-tests
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+      
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if (Test-Path requirements.txt) { pip install -r requirements.txt }
+        shell: pwsh
+      
+      - name: Run End-to-End Tests
+        id: e2e_tests
+        run: |
+          python run_end_to_end_tests.py
+        shell: pwsh
+        continue-on-error: false
+      
+      - name: Upload E2E Test Reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-test-reports
+          path: |
+            END_TO_END_TEST_REPORT.json
+            END_TO_END_TEST_REPORT.md
+          retention-days: 30
+      
+      - name: Check E2E Test Results
+        if: always()
+        run: |
+          if (Test-Path END_TO_END_TEST_REPORT.json) {
+            $report = Get-Content END_TO_END_TEST_REPORT.json | ConvertFrom-Json
+            Write-Host "E2E Tests: $($report.summary.total_phases) phases, $($report.summary.total_tests) tests"
+            Write-Host "Passed: $($report.summary.total_passed), Failed: $($report.summary.total_failed)"
+            if ($report.summary.total_failed -gt 0) {
+              Write-Error "E2E tests failed!"
+              exit 1
+            }
+          } else {
+            Write-Error "E2E test report not found!"
+            exit 1
+          }
+        shell: pwsh
+
+  # Job 3: Performance Regression Detection
+  performance-check:
+    name: Performance Regression Check
+    runs-on: windows-latest
+    timeout-minutes: 20
+    needs: [unit-tests, e2e-tests]
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Download Test Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: unit-test-reports
+          path: ./reports/unit
+      
+      - name: Download E2E Reports
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-test-reports
+          path: ./reports/e2e
+      
+      - name: Analyze Performance Metrics
+        id: perf_check
+        run: |
+          Write-Host "=== Performance Analysis ==="
+          
+          # Check unit test performance
+          if (Test-Path ./reports/unit/TEST_REPORT.json) {
+            $unitReport = Get-Content ./reports/unit/TEST_REPORT.json | ConvertFrom-Json
+            Write-Host "`nUnit Tests Execution Time: $($unitReport.metadata.total_time_seconds)s"
+            
+            # Performance regression threshold: 20% slower than baseline
+            $baselineTime = 3.0  # seconds
+            $threshold = $baselineTime * 1.2
+            
+            if ($unitReport.metadata.total_time_seconds -gt $threshold) {
+              Write-Warning "Unit tests took longer than expected: $($unitReport.metadata.total_time_seconds)s (threshold: ${threshold}s)"
+            } else {
+              Write-Host "✓ Unit test performance within acceptable range"
+            }
+          }
+          
+          # Check E2E test performance
+          if (Test-Path ./reports/e2e/END_TO_END_TEST_REPORT.json) {
+            $e2eReport = Get-Content ./reports/e2e/END_TO_END_TEST_REPORT.json | ConvertFrom-Json
+            Write-Host "`nE2E Tests Total: $($e2eReport.summary.total_tests) tests"
+            Write-Host "E2E Tests Passed: $($e2eReport.summary.total_passed)"
+            
+            # Check for performance issues in specific phases
+            foreach ($phase in $e2eReport.phases) {
+              if ($phase.failed -gt 0) {
+                Write-Warning "Phase '$($phase.phase_name)' has failures"
+              }
+            }
+          }
+          
+          Write-Host "`n=== Performance Check Complete ==="
+        shell: pwsh
+
+  # Job 4: Code Quality & Linting
+  code-quality:
+    name: Code Quality Check
+    runs-on: windows-latest
+    timeout-minutes: 15
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      
+      - name: Install Linting Tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install pylint flake8 black
+        shell: pwsh
+      
+      - name: Run Python Linting
+        run: |
+          Write-Host "=== Python Code Quality Check ==="
+          
+          # Find all Python files
+          $pythonFiles = Get-ChildItem -Path . -Filter "*.py" -Recurse -File | Where-Object { 
+            $_.FullName -notmatch "\\venv\\" -and 
+            $_.FullName -notmatch "\\Intermediate\\" -and 
+            $_.FullName -notmatch "\\Saved\\" 
+          }
+          
+          if ($pythonFiles.Count -gt 0) {
+            Write-Host "Found $($pythonFiles.Count) Python files to check"
+            
+            # Run flake8 for style checking (non-blocking)
+            Write-Host "`nRunning flake8..."
+            flake8 --max-line-length=120 --extend-ignore=E501,W503 $($pythonFiles.FullName) || true
+            
+            Write-Host "`nPython linting complete"
+          } else {
+            Write-Host "No Python files found for linting"
+          }
+        shell: pwsh
+        continue-on-error: true
+
+  # Job 5: Documentation Check
+  documentation-check:
+    name: Documentation Validation
+    runs-on: windows-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Check Required Documentation
+        run: |
+          Write-Host "=== Documentation Check ==="
+          
+          $requiredDocs = @(
+            "README.md",
+            "PROJECT_TEST_STATUS.md",
+            "TEST_VALIDATION_DOCUMENTATION.md",
+            "VISUAL_QUALITY_VALIDATION.md"
+          )
+          
+          $missingDocs = @()
+          
+          foreach ($doc in $requiredDocs) {
+            if (Test-Path $doc) {
+              Write-Host "✓ Found: $doc"
+            } else {
+              Write-Warning "✗ Missing: $doc"
+              $missingDocs += $doc
+            }
+          }
+          
+          if ($missingDocs.Count -gt 0) {
+            Write-Error "Missing required documentation files: $($missingDocs -join ', ')"
+            exit 1
+          }
+          
+          Write-Host "`n✓ All required documentation present"
+        shell: pwsh
+
+  # Job 6: Build Summary & Notification
+  build-summary:
+    name: Build Summary
+    runs-on: windows-latest
+    timeout-minutes: 10
+    needs: [unit-tests, e2e-tests, performance-check, code-quality, documentation-check]
+    if: always()
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+      
+      - name: Generate Build Summary
+        run: |
+          Write-Host "=== Alexander CI/CD Build Summary ==="
+          Write-Host "Build Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss UTC')"
+          Write-Host "Commit: ${{ github.sha }}"
+          Write-Host "Branch: ${{ github.ref_name }}"
+          Write-Host "Triggered by: ${{ github.event_name }}"
+          
+          Write-Host "`nJob Results:"
+          Write-Host "- Unit Tests: ${{ needs.unit-tests.result }}"
+          Write-Host "- E2E Tests: ${{ needs.e2e-tests.result }}"
+          Write-Host "- Performance Check: ${{ needs.performance-check.result }}"
+          Write-Host "- Code Quality: ${{ needs.code-quality.result }}"
+          Write-Host "- Documentation: ${{ needs.documentation-check.result }}"
+          
+          # Check if all critical jobs passed
+          if ("${{ needs.unit-tests.result }}" -eq "success" -and 
+              "${{ needs.e2e-tests.result }}" -eq "success" -and
+              "${{ needs.documentation-check.result }}" -eq "success") {
+            Write-Host "`n✓ BUILD SUCCESSFUL - All critical checks passed"
+            exit 0
+          } else {
+            Write-Host "`n✗ BUILD FAILED - Some checks did not pass"
+            exit 1
+          }
+        shell: pwsh
+      
+      - name: Upload Build Summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-summary
+          path: ./artifacts
+          retention-days: 30
+
+  # Job 7: Security Scan (Optional)
+  security-scan:
+    name: Security Scan
+    runs-on: windows-latest
+    timeout-minutes: 15
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Run Security Scan
+        run: |
+          Write-Host "=== Security Scan ==="
+          Write-Host "Checking for common security issues..."
+          
+          # Check for sensitive information in code
+          $sensitivePatterns = @(
+            "password\s*=",
+            "api[_-]?key\s*=",
+            "secret\s*=",
+            "token\s*="
+          )
+          
+          $issues = @()
+          foreach ($pattern in $sensitivePatterns) {
+            $matches = Get-ChildItem -Path . -Recurse -File | 
+              Where-Object { $_.Extension -match "\.(py|cpp|h|txt|md)$" } |
+              Select-String -Pattern $pattern -SimpleMatch:$false
+            
+            if ($matches) {
+              $issues += $matches
+            }
+          }
+          
+          if ($issues.Count -gt 0) {
+            Write-Warning "Found $($issues.Count) potential security issues"
+            $issues | ForEach-Object { Write-Host $_ }
+          } else {
+            Write-Host "✓ No obvious security issues found"
+          }
+        shell: pwsh
+        continue-on-error: true

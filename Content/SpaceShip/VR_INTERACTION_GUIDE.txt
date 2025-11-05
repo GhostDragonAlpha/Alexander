@@ -1,0 +1,58 @@
+
+# VR INTERACTION SETUP GUIDE
+
+## Components Created:
+✅ FlightStick - Left hand control (physics enabled)
+✅ Throttle - Right hand control (physics enabled)  
+✅ VR_CameraPosition - Player head reference
+✅ Cockpit geometry - Seats, panels, displays
+
+## Next Steps for Full VR:
+
+### 1. VR Pawn Setup (BP_VRSpaceshipPlayer)
+- Add VROrigin (Scene Component)
+- Add Camera (under VROrigin) at eye level
+- Add MotionController_Left with:
+  - GrabComponent or PhysicsHandle
+  - Hand mesh/visualization
+- Add MotionController_Right with:
+  - GrabComponent or PhysicsHandle  
+  - Hand mesh/visualization
+
+### 2. Input Mapping
+Create Input Actions for:
+- Grab_Left (Trigger on left controller)
+- Grab_Right (Trigger on right controller)
+- Release (Release triggers)
+
+### 3. Grab Logic
+In motion controller blueprints:
+- On Grab: Line trace from controller
+- If hit FlightStick/Throttle: Attach to hand
+- While grabbed: Apply forces based on hand movement
+- On Release: Detach from hand
+
+### 4. Flight Control Integration
+Map hand positions to flight controls:
+- FlightStick position → Pitch/Roll
+- Throttle position → Forward/Backward thrust
+- Button presses → Systems (lights, shields, etc.)
+
+### 5. Testing in VR
+- Set BP_VRSpaceshipPlayer as default pawn
+- PIE (Play In Editor) with VR headset
+- Test grabbing and moving controls
+- Adjust physics damping for feel
+
+## Current Status:
+✅ Cockpit geometry built
+✅ Physics enabled on interactive objects
+✅ VR pawn blueprint created
+⏳ Need to configure motion controllers and grab logic
+⏳ Need input mappings
+⏳ Need to connect to flight physics
+
+## Files to Edit:
+- /Game/SpaceShip/Blueprints/BP_VRSpaceshipPlayer
+- Project Settings → Input → Action Mappings
+- Create BP_FlightController for physics simulation
