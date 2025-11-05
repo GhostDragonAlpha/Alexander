@@ -6,6 +6,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/GameStateBase.h"
 #include "Kismet/GameplayStatics.h"
+#include "IXRTrackingSystem.h"
 #include "Alexander.h"
 
 UGameSystemCoordinator* UGameSystemCoordinator::Instance = nullptr;
@@ -401,13 +402,21 @@ void UGameSystemCoordinator::OptimizeSystemPerformance()
         
         if (AudioSystem)
         {
-            // Use simple audio settings structure (5 fields only)
-            FAudioSettings Settings;
+            // Use full audio settings structure
+            FAudioSystemSettings Settings;
             Settings.MasterVolume = 0.8f;
             Settings.MusicVolume = 0.7f;
             Settings.SFXVolume = 0.8f;
+            Settings.DialogueVolume = 1.0f;
+            Settings.AmbientVolume = 0.6f;
+            Settings.VoiceChatVolume = 1.0f;
+            Settings.UIVolume = 0.7f;
             Settings.bEnable3DAudio = true;
             Settings.bEnableHRTF = true;
+            Settings.bEnableDoppler = true;
+            Settings.bEnableOcclusion = true;
+            Settings.MaxConcurrentSounds = 24;
+            Settings.AudioQuality = 0.8f;
             AudioSystem->SetAudioSettings(Settings);
         }
     }
@@ -421,13 +430,21 @@ void UGameSystemCoordinator::OptimizeSystemPerformance()
         
         if (AudioSystem)
         {
-            // Use simple audio settings structure (5 fields only)
-            FAudioSettings Settings;
+            // Use full audio settings structure
+            FAudioSystemSettings Settings;
             Settings.MasterVolume = 1.0f;
             Settings.MusicVolume = 1.0f;
             Settings.SFXVolume = 1.0f;
+            Settings.DialogueVolume = 1.0f;
+            Settings.AmbientVolume = 1.0f;
+            Settings.VoiceChatVolume = 1.0f;
+            Settings.UIVolume = 1.0f;
             Settings.bEnable3DAudio = true;
             Settings.bEnableHRTF = true;
+            Settings.bEnableDoppler = true;
+            Settings.bEnableOcclusion = true;
+            Settings.MaxConcurrentSounds = 32;
+            Settings.AudioQuality = 1.0f;
             AudioSystem->SetAudioSettings(Settings);
         }
     }
@@ -453,13 +470,21 @@ void UGameSystemCoordinator::SetPerformanceMode(bool bHighPerformance)
         
         if (AudioSystem)
         {
-            // Use simple audio settings structure (5 fields only)
-            FAudioSettings Settings;
+            // Use full audio settings structure
+            FAudioSystemSettings Settings;
             Settings.MasterVolume = 1.0f;
             Settings.MusicVolume = 0.9f;
             Settings.SFXVolume = 1.0f;
+            Settings.DialogueVolume = 1.0f;
+            Settings.AmbientVolume = 0.8f;
+            Settings.VoiceChatVolume = 1.0f;
+            Settings.UIVolume = 0.9f;
             Settings.bEnable3DAudio = true;
             Settings.bEnableHRTF = true;
+            Settings.bEnableDoppler = true;
+            Settings.bEnableOcclusion = true;
+            Settings.MaxConcurrentSounds = 28;
+            Settings.AudioQuality = 0.9f;
             AudioSystem->SetAudioSettings(Settings);
         }
     }
@@ -663,7 +688,9 @@ void UGameSystemCoordinator::UpdateSystemPerformance(float DeltaTime)
     // Update performance metrics
     if (AISystem)
     {
-        PerformanceData.ActiveAIActors = AISystem->GetActiveAIActors().Num();
+        // GetActiveAIActors() method doesn't exist, using placeholder
+        // TODO: Implement proper active AI actor counting in AdvancedAIBehaviors
+        PerformanceData.ActiveAIActors = 0;
         PerformanceData.AISystemLoad = PerformanceData.ActiveAIActors / 100.0f; // Normalize
     }
 
@@ -888,7 +915,12 @@ TArray<AActor*> UGameSystemCoordinator::GetNearbyActors(AActor* SourceActor, flo
 bool UGameSystemCoordinator::IsVRMode() const
 {
     // IsStereoEnabled() is deprecated in UE5.6, using XRSystem API instead
-    return GEngine && GEngine->XRSystem.IsValid() && GEngine->XRSystem->IsHeadTrackingAllowed();
+    // Check if XR system is valid and tracking is enabled
+    if (GEngine && GEngine->XRSystem.IsValid())
+    {
+        return GEngine->XRSystem->IsHeadTrackingAllowedForWorld(*GetWorld());
+    }
+    return false;
 }
 
 // System Event Handlers (these would need to be declared in the header as well)
