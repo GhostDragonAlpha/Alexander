@@ -230,6 +230,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Physics")
 	bool WillEscape() const;
 
+	// Get the radius of the target body (in km)
+	UFUNCTION(BlueprintCallable, Category = "Physics")
+	float GetTargetBodyRadius() const;
+
+	// Get the sphere of influence radius (in km)
+	UFUNCTION(BlueprintCallable, Category = "Physics")
+	float GetSphereOfInfluence() const;
+
+	// Get the radius of this body (in km)
+	UFUNCTION(BlueprintCallable, Category = "Physics")
+	float GetBodyRadius() const { return Radius; }
+
 	// ============================================================================
 	// ORBIT CONTROL
 	// ============================================================================
@@ -296,6 +308,12 @@ protected:
 
 	// Draw debug information
 	void DrawDebug() const;
+
+	// Update orbital position based on Kepler mechanics
+	void UpdateOrbitalPosition(float DeltaTime);
+
+	// Update ballistic trajectory
+	void UpdateBallisticTrajectory(float DeltaTime);
 
 	// Constants
 	static constexpr float GravitationalConstant = 6.67430e-11f; // G in m³/(kg·s²)

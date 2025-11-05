@@ -25,6 +25,12 @@ AFirstMissionGameMode::AFirstMissionGameMode()
     // Initialize tracking
     TotalDistanceTraveled = 0.0f;
     CurrentObjectiveIndex = 0;
+
+    // Initialize system pointers
+    TutorialSystem = nullptr;
+    QuestSystem = nullptr;
+    AudioManager = nullptr;
+    VFXManager = nullptr;
 }
 
 void AFirstMissionGameMode::BeginPlay()
@@ -52,38 +58,38 @@ void AFirstMissionGameMode::InitializeMission()
     TArray<AActor*> FoundActors;
     
     // Find Tutorial System
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), ATutorialSystem::StaticClass(), FoundActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), UTutorialSystem::StaticClass(), FoundActors);
     if (FoundActors.Num() > 0)
     {
-        TutorialSystem = Cast<ATutorialSystem>(FoundActors[0]);
+        TutorialSystem = Cast<UTutorialSystem>(FoundActors[0]);
     }
     else
     {
-        TutorialSystem = GetWorld()->SpawnActor<ATutorialSystem>();
+        TutorialSystem = GetWorld()->SpawnActor<UTutorialSystem>();
     }
 
     // Find Quest System
     FoundActors.Empty();
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AQuestSystem::StaticClass(), FoundActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), UQuestSystem::StaticClass(), FoundActors);
     if (FoundActors.Num() > 0)
     {
-        QuestSystem = Cast<AQuestSystem>(FoundActors[0]);
+        QuestSystem = Cast<UQuestSystem>(FoundActors[0]);
     }
 
     // Find Audio Manager
     FoundActors.Empty();
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAudioManager::StaticClass(), FoundActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), UAudioManager::StaticClass(), FoundActors);
     if (FoundActors.Num() > 0)
     {
-        AudioManager = Cast<AAudioManager>(FoundActors[0]);
+        AudioManager = Cast<UAudioManager>(FoundActors[0]);
     }
 
     // Find VFX Manager
     FoundActors.Empty();
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AVFXManager::StaticClass(), FoundActors);
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), UVFXManager::StaticClass(), FoundActors);
     if (FoundActors.Num() > 0)
     {
-        VFXManager = Cast<AVFXManager>(FoundActors[0]);
+        VFXManager = Cast<UVFXManager>(FoundActors[0]);
     }
 
     // Setup objectives
@@ -385,7 +391,8 @@ void AFirstMissionGameMode::ShowTutorialStep(const FString& StepID)
 {
     if (TutorialSystem)
     {
-        TutorialSystem->StartTutorialStep(StepID);
+        // TutorialSystem->StartTutorialStep(StepID); // TODO: Implement StartTutorialStep in UTutorialSystem
+        UE_LOG(LogTemp, Log, TEXT("FirstMissionGameMode: Tutorial step requested: %s (not implemented)"), *StepID);
     }
 }
 
@@ -393,7 +400,8 @@ void AFirstMissionGameMode::CompleteTutorialStep(const FString& StepID)
 {
     if (TutorialSystem)
     {
-        TutorialSystem->CompleteTutorialStep(StepID);
+        // TutorialSystem->CompleteTutorialStep(StepID); // TODO: Implement CompleteTutorialStep in UTutorialSystem
+        UE_LOG(LogTemp, Log, TEXT("FirstMissionGameMode: Tutorial step completion requested: %s (not implemented)"), *StepID);
     }
 }
 
@@ -463,10 +471,11 @@ void AFirstMissionGameMode::ProcessStageTransitions()
     {
         case EMissionStage::ShipTutorial:
             // Transition to launch after tutorial complete
-            if (TutorialSystem && TutorialSystem->IsTutorialStepCompleted("ship_controls"))
-            {
-                SetMissionStage(EMissionStage::Launch);
-            }
+            // TODO: Implement IsTutorialStepCompleted in UTutorialSystem
+            // if (TutorialSystem && TutorialSystem->IsTutorialStepCompleted("ship_controls"))
+            // {
+            //     SetMissionStage(EMissionStage::Launch);
+            // }
             break;
 
         case EMissionStage::MoonApproach:

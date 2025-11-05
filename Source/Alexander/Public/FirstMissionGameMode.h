@@ -11,9 +11,9 @@
 class ASpaceship;
 class APlanet;
 class UTutorialSystem;
-class AQuestSystem;
-class AAudioManager;
-class AVFXManager;
+class UQuestSystem;
+class UAudioManager;
+class UVFXManager;
 
 /**
  * Mission Stages
@@ -319,14 +319,14 @@ protected:
     UPROPERTY()
     UTutorialSystem* TutorialSystem;
 
-// UPROPERTY()
-    // AQuestSystem* QuestSystem;
+    UPROPERTY()
+    UQuestSystem* QuestSystem;
 
-    // UPROPERTY()
-    // AAudioManager* AudioManager;
+    UPROPERTY()
+    UAudioManager* AudioManager;
 
-    // UPROPERTY()
-    // AVFXManager* VFXManager;
+    UPROPERTY()
+    UVFXManager* VFXManager;
 
     // Configuration
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission|Config")

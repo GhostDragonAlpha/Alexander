@@ -77,6 +77,9 @@ AOrbitalBody::AOrbitalBody()
     
     // Initialize debugging
     bDrawDebug = false;
+    
+    // Initialize time control
+    TimeWarpFactor = 1.0f; // Real-time by default
     DebugColor = FColor::White;
     
     // Enable replication

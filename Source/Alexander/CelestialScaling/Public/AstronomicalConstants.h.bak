@@ -1,0 +1,37 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+// TEMPORARY STUB - To be replaced by Agent 1's implementation
+
+#pragma once
+
+#include "CoreMinimal.h"
+
+/**
+ * Astronomical and physical constants for celestial body calculations
+ * This is a temporary stub until Agent 1 completes the full implementation
+ */
+namespace AstronomicalConstants
+{
+	// Gravitational constant (m³/kg·s²)
+	constexpr double G = 6.67430e-11;
+
+	// Speed of light (m/s)
+	constexpr double C = 299792458.0;
+
+	// Astronomical Unit (meters)
+	constexpr double AU = 1.495978707e11;
+
+	// Solar masses
+	constexpr double SOLAR_MASS = 1.98892e30;
+
+	// Earth properties
+	constexpr double EARTH_MASS = 5.972e24;
+	constexpr double EARTH_RADIUS = 6371000.0; // meters
+	constexpr double EARTH_GRAVITY = 9.80665; // m/s²
+
+	// Unreal scaling constants (to be defined by Agent 1)
+	constexpr double DISTANCE_SCALE = 1.0e-5; // Default 1:100000 scale
+	constexpr double TIME_SCALE = 1.0; // Real-time by default
+
+	// Maximum practical distances for floating point precision (cm)
+	constexpr double MAX_FLOAT_DISTANCE = 2000000.0 * 100.0; // 2000 km in cm
+}

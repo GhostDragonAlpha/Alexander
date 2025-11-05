@@ -614,8 +614,8 @@ void UFarmStatusWidget::AddMonitoringDataRow(const FCropMonitoringData& Data, in
 		if (NameText)
 		{
 			NameText->SetText(FText::FromString(Data.CropName));
-			UGridSlot* Slot = CropMonitoringGrid->AddChildToGrid(NameText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = CropMonitoringGrid->AddChildToGrid(NameText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -629,8 +629,8 @@ void UFarmStatusWidget::AddMonitoringDataRow(const FCropMonitoringData& Data, in
 				FText::AsNumber(Data.MatureCount),
 				FText::AsNumber(Data.TotalCount)
 			));
-			UGridSlot* Slot = CropMonitoringGrid->AddChildToGrid(CountText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = CropMonitoringGrid->AddChildToGrid(CountText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -641,8 +641,8 @@ void UFarmStatusWidget::AddMonitoringDataRow(const FCropMonitoringData& Data, in
 		{
 			GrowthText->SetText(FormatPercentage(Data.AverageGrowthProgress));
 			GrowthText->SetColorAndOpacity(FSlateColor(GetQualityColor(Data.AverageGrowthProgress)));
-			UGridSlot* Slot = CropMonitoringGrid->AddChildToGrid(GrowthText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = CropMonitoringGrid->AddChildToGrid(GrowthText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -653,8 +653,8 @@ void UFarmStatusWidget::AddMonitoringDataRow(const FCropMonitoringData& Data, in
 		{
 			HealthText->SetText(FormatPercentage(Data.AverageHealth));
 			HealthText->SetColorAndOpacity(FSlateColor(GetQualityColor(Data.AverageHealth)));
-			UGridSlot* Slot = CropMonitoringGrid->AddChildToGrid(HealthText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = CropMonitoringGrid->AddChildToGrid(HealthText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -664,8 +664,8 @@ void UFarmStatusWidget::AddMonitoringDataRow(const FCropMonitoringData& Data, in
 		if (TimeText)
 		{
 			TimeText->SetText(FormatTimespan(Data.EstimatedTimeToHarvest));
-			UGridSlot* Slot = CropMonitoringGrid->AddChildToGrid(TimeText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = CropMonitoringGrid->AddChildToGrid(TimeText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -679,8 +679,8 @@ void UFarmStatusWidget::AddMonitoringDataRow(const FCropMonitoringData& Data, in
 			{
 				WaterText->SetColorAndOpacity(FSlateColor(NeedsWaterColor));
 			}
-			UGridSlot* Slot = CropMonitoringGrid->AddChildToGrid(WaterText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = CropMonitoringGrid->AddChildToGrid(WaterText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 }
@@ -1038,10 +1038,10 @@ void UFarmStatusWidget::AddAlertRow(const FFarmAlert& Alert, int32 Row)
 			}
 
 			PriorityImage->SetColorAndOpacity(PriorityColor);
-			UGridSlot* Slot = AlertListGrid->AddChildToGrid(PriorityImage, Row, Col++);
-			if (Slot)
+			UGridSlot* GridSlot = AlertListGrid->AddChildToGrid(PriorityImage, Row, Col++);
+			if (GridSlot)
 			{
-				Slot->SetPadding(FMargin(5.0f, 2.0f));
+				GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 			}
 		}
 	}
@@ -1059,10 +1059,10 @@ void UFarmStatusWidget::AddAlertRow(const FFarmAlert& Alert, int32 Row)
 				MessageText->SetColorAndOpacity(FSlateColor(FLinearColor(0.5f, 0.5f, 0.5f)));
 			}
 
-			UGridSlot* Slot = AlertListGrid->AddChildToGrid(MessageText, Row, Col++);
-			if (Slot)
+			UGridSlot* GridSlot = AlertListGrid->AddChildToGrid(MessageText, Row, Col++);
+			if (GridSlot)
 			{
-				Slot->SetPadding(FMargin(5.0f, 2.0f));
+				GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 			}
 		}
 	}
@@ -1093,10 +1093,10 @@ void UFarmStatusWidget::AddAlertRow(const FFarmAlert& Alert, int32 Row)
 			TimeText->SetText(FText::FromString(TimeString));
 			TimeText->SetColorAndOpacity(FSlateColor(FLinearColor(0.7f, 0.7f, 0.7f)));
 
-			UGridSlot* Slot = AlertListGrid->AddChildToGrid(TimeText, Row, Col++);
-			if (Slot)
+			UGridSlot* GridSlot = AlertListGrid->AddChildToGrid(TimeText, Row, Col++);
+			if (GridSlot)
 			{
-				Slot->SetPadding(FMargin(5.0f, 2.0f));
+				GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 			}
 		}
 	}
@@ -1286,10 +1286,10 @@ void UFarmStatusWidget::AddHarvestStatsHeaderRow(int32 Row)
 			HeaderText->SetText(FText::FromString(Headers[Col]));
 			HeaderText->SetColorAndOpacity(FSlateColor(FLinearColor(0.8f, 0.8f, 0.8f, 1.0f)));
 			
-			UGridSlot* Slot = HarvestStatisticsGrid->AddChildToGrid(HeaderText, Row, Col);
-			if (Slot)
+			UGridSlot* GridSlot = HarvestStatisticsGrid->AddChildToGrid(HeaderText, Row, Col);
+			if (GridSlot)
 			{
-				Slot->SetPadding(FMargin(5.0f, 2.0f));
+				GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 			}
 		}
 	}
@@ -1310,8 +1310,8 @@ void UFarmStatusWidget::AddHarvestStatsDataRow(const FHarvestStatistics& Stats, 
 		if (NameText)
 		{
 			NameText->SetText(FText::FromString(Stats.CropName));
-			UGridSlot* Slot = HarvestStatisticsGrid->AddChildToGrid(NameText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = HarvestStatisticsGrid->AddChildToGrid(NameText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1321,8 +1321,8 @@ void UFarmStatusWidget::AddHarvestStatsDataRow(const FHarvestStatistics& Stats, 
 		if (HarvestsText)
 		{
 			HarvestsText->SetText(FText::AsNumber(Stats.TotalHarvests));
-			UGridSlot* Slot = HarvestStatisticsGrid->AddChildToGrid(HarvestsText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = HarvestStatisticsGrid->AddChildToGrid(HarvestsText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1335,8 +1335,8 @@ void UFarmStatusWidget::AddHarvestStatsDataRow(const FHarvestStatistics& Stats, 
 				FText::FromString(TEXT("{0}")),
 				FText::AsNumber(FMath::RoundToInt(Stats.AverageYield))
 			));
-			UGridSlot* Slot = HarvestStatisticsGrid->AddChildToGrid(YieldText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = HarvestStatisticsGrid->AddChildToGrid(YieldText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1347,8 +1347,8 @@ void UFarmStatusWidget::AddHarvestStatsDataRow(const FHarvestStatistics& Stats, 
 		{
 			QualityText->SetText(FormatPercentage(Stats.AverageQuality));
 			QualityText->SetColorAndOpacity(FSlateColor(GetQualityColor(Stats.AverageQuality)));
-			UGridSlot* Slot = HarvestStatisticsGrid->AddChildToGrid(QualityText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = HarvestStatisticsGrid->AddChildToGrid(QualityText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1359,8 +1359,8 @@ void UFarmStatusWidget::AddHarvestStatsDataRow(const FHarvestStatistics& Stats, 
 		{
 			ValueText->SetText(FormatCurrency(Stats.TotalEconomicValue));
 			ValueText->SetColorAndOpacity(FSlateColor(FLinearColor(0.0f, 1.0f, 0.5f)));
-			UGridSlot* Slot = HarvestStatisticsGrid->AddChildToGrid(ValueText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = HarvestStatisticsGrid->AddChildToGrid(ValueText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1371,8 +1371,8 @@ void UFarmStatusWidget::AddHarvestStatsDataRow(const FHarvestStatistics& Stats, 
 		{
 			BestText->SetText(FText::AsNumber(Stats.BestYield));
 			BestText->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 0.8f, 0.0f)));
-			UGridSlot* Slot = HarvestStatisticsGrid->AddChildToGrid(BestText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = HarvestStatisticsGrid->AddChildToGrid(BestText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 }
@@ -1400,10 +1400,10 @@ void UFarmStatusWidget::AddRecentHarvestsHeaderRow(int32 Row)
 			HeaderText->SetText(FText::FromString(Headers[Col]));
 			HeaderText->SetColorAndOpacity(FSlateColor(FLinearColor(0.8f, 0.8f, 0.8f, 1.0f)));
 			
-			UGridSlot* Slot = RecentHarvestsGrid->AddChildToGrid(HeaderText, Row, Col);
-			if (Slot)
+			UGridSlot* GridSlot = RecentHarvestsGrid->AddChildToGrid(HeaderText, Row, Col);
+			if (GridSlot)
 			{
-				Slot->SetPadding(FMargin(5.0f, 2.0f));
+				GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 			}
 		}
 	}
@@ -1451,8 +1451,8 @@ void UFarmStatusWidget::AddRecentHarvestDataRow(const FHarvestRecord& Record, in
 
 			TimeText->SetText(FText::FromString(TimeString));
 			TimeText->SetColorAndOpacity(FSlateColor(FLinearColor(0.7f, 0.7f, 0.7f)));
-			UGridSlot* Slot = RecentHarvestsGrid->AddChildToGrid(TimeText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = RecentHarvestsGrid->AddChildToGrid(TimeText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1462,8 +1462,8 @@ void UFarmStatusWidget::AddRecentHarvestDataRow(const FHarvestRecord& Record, in
 		if (CropText)
 		{
 			CropText->SetText(FText::FromString(Record.CropName));
-			UGridSlot* Slot = RecentHarvestsGrid->AddChildToGrid(CropText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = RecentHarvestsGrid->AddChildToGrid(CropText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1473,8 +1473,8 @@ void UFarmStatusWidget::AddRecentHarvestDataRow(const FHarvestRecord& Record, in
 		if (YieldText)
 		{
 			YieldText->SetText(FText::AsNumber(Record.YieldAmount));
-			UGridSlot* Slot = RecentHarvestsGrid->AddChildToGrid(YieldText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = RecentHarvestsGrid->AddChildToGrid(YieldText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1485,8 +1485,8 @@ void UFarmStatusWidget::AddRecentHarvestDataRow(const FHarvestRecord& Record, in
 		{
 			QualityText->SetText(FormatPercentage(Record.Quality));
 			QualityText->SetColorAndOpacity(FSlateColor(GetQualityColor(Record.Quality)));
-			UGridSlot* Slot = RecentHarvestsGrid->AddChildToGrid(QualityText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = RecentHarvestsGrid->AddChildToGrid(QualityText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 
@@ -1497,8 +1497,8 @@ void UFarmStatusWidget::AddRecentHarvestDataRow(const FHarvestRecord& Record, in
 		{
 			ValueText->SetText(FormatCurrency(Record.EconomicValue));
 			ValueText->SetColorAndOpacity(FSlateColor(FLinearColor(0.0f, 1.0f, 0.5f)));
-			UGridSlot* Slot = RecentHarvestsGrid->AddChildToGrid(ValueText, Row, Col++);
-			if (Slot) Slot->SetPadding(FMargin(5.0f, 2.0f));
+			UGridSlot* GridSlot = RecentHarvestsGrid->AddChildToGrid(ValueText, Row, Col++);
+			if (GridSlot) GridSlot->SetPadding(FMargin(5.0f, 2.0f));
 		}
 	}
 }
