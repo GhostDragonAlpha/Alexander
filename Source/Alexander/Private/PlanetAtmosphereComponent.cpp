@@ -167,13 +167,13 @@ float UPlanetAtmosphereComponent::RayleighPhase(float CosTheta)
 	return ThreeOver16Pi * (1.0f + CosTheta * CosTheta);
 }
 
-float UPlanetAtmosphereComponent::MiePhase(float CosTheta, float G)
+float UPlanetAtmosphereComponent::MiePhase(float CosTheta, float MieG)
 {
 	// Henyey-Greenstein phase function for Mie scattering
 	// This creates the forward-scattering halo around the sun
-	float G2 = G * G;
+	float G2 = MieG * MieG;
 	float Numerator = 1.0f - G2;
-	float Denominator = FMath::Pow(1.0f + G2 - 2.0f * G * CosTheta, 1.5f);
+	float Denominator = FMath::Pow(1.0f + G2 - 2.0f * MieG * CosTheta, 1.5f);
 	
 	// Avoid division by zero
 	if (FMath::Abs(Denominator) < SMALL_NUMBER)

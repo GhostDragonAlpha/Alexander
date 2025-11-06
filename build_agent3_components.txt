@@ -1,0 +1,18 @@
+Using bundled DotNet SDK version: 8.0.300 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" AlexanderEditor Win64 Development C:/Users/allen/Desktop/Alexander/Alexander/Alexander.uproject -waitmutex
+Log file: C:\Users\allen\AppData\Local\UnrealBuildTool\Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\allen\Desktop\Alexander\Alexander).
+Invalidating makefile for AlexanderEditor (source file added)
+Available x64 toolchains (2):
+ * C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35219, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+ * C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35217, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2022 compiler version 14.44.35219 is not a preferred version. Please use the latest preferred version 14.38.33130
+Parsing headers for AlexanderEditor
+  Running Internal UnrealHeaderTool C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject C:\Users\allen\Desktop\Alexander\Alexander\Intermediate\Build\Win64\AlexanderEditor\Development\AlexanderEditor.uhtmanifest -WarningsAsErrors -installed
+C:\Users\allen\Desktop\Alexander\Alexander\Intermediate\Build\Win64\AlexanderEditor\Development\AlexanderEditor.uhtmanifest(1): Error: Two headers with the same name is not allowed. 'C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\CelestialScaling\Public\CelestialBodyComponent.h' conflicts with 'C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\CelestialBodyComponent.h'
+Total of 0 written
+
+Result: Failed (OtherCompilationError)
+Total execution time: 2.18 seconds

@@ -129,7 +129,7 @@ private:
 	float RayleighPhase(float CosTheta);
 
 	// Phase function for Mie scattering (Henyey-Greenstein)
-	float MiePhase(float CosTheta, float G);
+	float MiePhase(float CosTheta, float MieG);
 
 	// Calculate optical depth for ray through atmosphere
 	float CalculateOpticalDepth(FVector RayOrigin, FVector RayDirection, float RayLength, float ScaleHeight);

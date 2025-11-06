@@ -1,0 +1,796 @@
+Using bundled DotNet SDK version: 8.0.300 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" Alexander Win64 Development C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject -WaitMutex
+Log file: C:\Users\allen\AppData\Local\UnrealBuildTool\Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\allen\Desktop\Alexander\Alexander).
+Building Alexander...
+Using Visual Studio 2022 14.44.35219 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2022 compiler is not a preferred version
+[Upgrade]
+[Upgrade] Using backward-compatible include order. The latest version of UE has changed the order of includes, which may require code changes. The current setting is:
+[Upgrade]     IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3
+[Upgrade] Suppress this message by setting 'IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;' in Alexander.Target.cs.
+[Upgrade] Alternatively you can set this to 'EngineIncludeOrderVersion.Latest' to always use the latest include order. This will potentially cause compile errors when integrating new versions of the engine.
+[Upgrade]
+[Adaptive Build] Excluded from Alexander unity file: ColonyBuildingSystem.cpp, AdvancedAIBehaviors.cpp, AlexanderAssetManager.cpp, AudioSystemManager.cpp, EnhancedVFXSystem.cpp, FarmStatusWidget.cpp, FirstMissionGameMode.cpp, GameSystemsTest.cpp, MissionAIController.cpp, OutpostManager.cpp, PlanetaryLandingZone.cpp, ProceduralMissionGenerator.cpp, QuadTreeTileManager.cpp, ShipEntryComponent.cpp, TerrainStreamingManager.cpp, TickOptimizationManager.cpp, TurbulenceCameraShake.cpp, AIVisionTestStation.cpp, CelestialScalingTestStation.cpp, FarmingTestStation.cpp, NavigationKioskWidget.cpp, PerformanceBenchmarkStation.cpp, PerformanceMonitorWidget.cpp, PlanetLandingTestStation.cpp, SpaceshipFlightTestStation.cpp, TestLevelGameMode.cpp, TestResultsWidget.cpp, TestStation.cpp, TestUtilities.cpp, VRTestStation.cpp
+Determining max actions to execute in parallel (24 physical cores, 32 logical cores)
+  Executing up to 24 processes, one per physical core
+Using Unreal Build Accelerator local executor to run 5 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 251105_222309 ----
+UbaSessionServer - Disable remote execution (remote sessions will finish current processes)
+------ Building 5 action(s) started ------
+[1/5] Compile [x64] EnhancedVFXSystem.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(35,5): error C3861: 'InitializeDefaultEffects': identifier not found
+    InitializeDefaultEffects();
+    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(118,31): error C2664: 'bool TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Contains(const EVFXEffectType) const': cannot convert argument 1 from 'FName' to 'const EVFXEffectType'
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+        if (EffectDefinitions.Contains(Instance.InstanceName))
+                              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(118,48): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+        if (EffectDefinitions.Contains(Instance.InstanceName))
+                                               ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(788,33): note: see declaration of 'TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Contains'
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+	[[nodiscard]] FORCEINLINE bool Contains(KeyConstPointerType Key) const
+	                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(118,31): note: while trying to match the argument list '(FName)'
+        if (EffectDefinitions.Contains(Instance.InstanceName))
+                              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(120,54): error C2679: binary '[': no operator found which takes a right-hand operand of type 'FName' (or there is no acceptable conversion)
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                     ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(1473,45): note: could be 'const FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType) const'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+	[[nodiscard]] FORCEINLINE const ValueType& operator[](KeyConstPointerType Key) const
+	                                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(120,54): note: 'const FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType) const': cannot convert argument 2 from 'FName' to 'const EVFXEffectType'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(120,80): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                                               ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(1469,39): note: or       'FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType)'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+	[[nodiscard]] FORCEINLINE ValueType& operator[](KeyConstPointerType Key)
+	                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(120,54): note: 'FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType)': cannot convert argument 2 from 'FName' to 'const EVFXEffectType'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(120,80): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(120,54): note: while trying to match the argument list '(TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>, FName)'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(120,52): error C2530: 'Definition': references must be initialized
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(148,86): error C2039: 'ToFVector': is not a member of 'FLinearColor'
+            Instance.ParticleComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+                                                                                     ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Math\Color.h(47,8): note: see declaration of 'FLinearColor'
+struct FLinearColor
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(148,116): error C2039: 'ToFVector': is not a member of 'FLinearColor'
+            Instance.ParticleComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+                                                                                                                   ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Math\Color.h(47,8): note: see declaration of 'FLinearColor'
+struct FLinearColor
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(148,41): error C2660: 'UParticleSystemComponent::SetVectorParameter': function does not take 1 arguments
+            Instance.ParticleComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+                                        ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Engine\Classes\Particles\ParticleSystemComponent.h(1157,18): note: see declaration of 'UParticleSystemComponent::SetVectorParameter'
+	ENGINE_API void SetVectorParameter(FName ParameterName, FVector Param) override;
+	                ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(148,41): note: while trying to match the argument list '(const char [6])'
+            Instance.ParticleComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+                                        ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(155,85): error C2039: 'ToFVector': is not a member of 'FLinearColor'
+            Instance.NiagaraComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+                                                                                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Math\Color.h(47,8): note: see declaration of 'FLinearColor'
+struct FLinearColor
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(155,115): error C2039: 'ToFVector': is not a member of 'FLinearColor'
+            Instance.NiagaraComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+                                                                                                                  ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Math\Color.h(47,8): note: see declaration of 'FLinearColor'
+struct FLinearColor
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(155,40): error C2660: 'UNiagaraComponent::SetVectorParameter': function does not take 1 arguments
+            Instance.NiagaraComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+                                       ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Plugins\FX\Niagara\Source\Niagara\Public\NiagaraComponent.h(76,27): note: see declaration of 'UNiagaraComponent::SetVectorParameter'
+	NIAGARA_API virtual void SetVectorParameter(FName ParameterName, FVector Param) override;
+	                         ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(155,40): note: while trying to match the argument list '(const char [6])'
+            Instance.NiagaraComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+                                       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,23): error C2665: 'TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add': no overloaded function could convert all the argument types
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                      ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(411,25): note: could be 'ValueType &TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add(KeyType &&,ValueType &&)'
+        with
+        [
+            ValueType=FVFXEffectDefinition,
+            KeyType=EVFXEffectType,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+	FORCEINLINE ValueType& Add(		 KeyType&& InKey,		ValueType&& InValue) { return Emplace(MoveTempIfPossible(InKey), MoveTempIfPossible(InValue)); }
+	                       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,23): note: 'ValueType &TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add(KeyType &&,ValueType &&)': cannot convert argument 1 from 'FName' to 'KeyType &&'
+        with
+        [
+            ValueType=FVFXEffectDefinition,
+            KeyType=EVFXEffectType,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+        and
+        [
+            KeyType=EVFXEffectType
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,27): note: Reason: cannot convert from 'FName' to 'KeyType'
+        with
+        [
+            KeyType=EVFXEffectType
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,27): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(410,25): note: or       'ValueType &TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add(KeyType &&,const ValueType &)'
+        with
+        [
+            ValueType=FVFXEffectDefinition,
+            KeyType=EVFXEffectType,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+	FORCEINLINE ValueType& Add(		 KeyType&& InKey, const ValueType&  InValue) { return Emplace(MoveTempIfPossible(InKey), InValue); }
+	                       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,23): note: 'ValueType &TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add(KeyType &&,const ValueType &)': cannot convert argument 1 from 'FName' to 'KeyType &&'
+        with
+        [
+            ValueType=FVFXEffectDefinition,
+            KeyType=EVFXEffectType,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+        and
+        [
+            KeyType=EVFXEffectType
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,27): note: Reason: cannot convert from 'FName' to 'KeyType'
+        with
+        [
+            KeyType=EVFXEffectType
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,27): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(409,25): note: or       'ValueType &TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add(const KeyType &,ValueType &&)'
+        with
+        [
+            ValueType=FVFXEffectDefinition,
+            KeyType=EVFXEffectType,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+	FORCEINLINE ValueType& Add(const KeyType&  InKey,		ValueType&& InValue) { return Emplace(InKey, MoveTempIfPossible(InValue)); }
+	                       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,23): note: 'ValueType &TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add(const KeyType &,ValueType &&)': cannot convert argument 1 from 'FName' to 'const KeyType &'
+        with
+        [
+            ValueType=FVFXEffectDefinition,
+            KeyType=EVFXEffectType,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+        and
+        [
+            KeyType=EVFXEffectType
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,27): note: Reason: cannot convert from 'FName' to 'const KeyType'
+        with
+        [
+            KeyType=EVFXEffectType
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,27): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(408,25): note: or       'ValueType &TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add(const KeyType &,const ValueType &)'
+        with
+        [
+            ValueType=FVFXEffectDefinition,
+            KeyType=EVFXEffectType,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+	FORCEINLINE ValueType& Add(const KeyType&  InKey, const ValueType&  InValue) { return Emplace(InKey, InValue); }
+	                       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,23): note: 'ValueType &TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Add(const KeyType &,const ValueType &)': cannot convert argument 1 from 'FName' to 'const KeyType &'
+        with
+        [
+            ValueType=FVFXEffectDefinition,
+            KeyType=EVFXEffectType,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+        and
+        [
+            KeyType=EVFXEffectType
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,27): note: Reason: cannot convert from 'FName' to 'const KeyType'
+        with
+        [
+            KeyType=EVFXEffectType
+        ]
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,27): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(304,23): note: while trying to match the argument list '(FName, const FVFXEffectDefinition)'
+    EffectDefinitions.Add(EffectName, EffectDefinition);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(594,71): error C2039: 'ToFVector': is not a member of 'FLinearColor'
+        Instance.ParticleComponent->SetVectorParameter("Color", Color.ToFVector());
+                                                                      ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Math\Color.h(47,8): note: see declaration of 'FLinearColor'
+struct FLinearColor
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(594,37): error C2660: 'UParticleSystemComponent::SetVectorParameter': function does not take 1 arguments
+        Instance.ParticleComponent->SetVectorParameter("Color", Color.ToFVector());
+                                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Engine\Classes\Particles\ParticleSystemComponent.h(1157,18): note: see declaration of 'UParticleSystemComponent::SetVectorParameter'
+	ENGINE_API void SetVectorParameter(FName ParameterName, FVector Param) override;
+	                ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(594,37): note: while trying to match the argument list '(const char [6])'
+        Instance.ParticleComponent->SetVectorParameter("Color", Color.ToFVector());
+                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(600,70): error C2039: 'ToFVector': is not a member of 'FLinearColor'
+        Instance.NiagaraComponent->SetVectorParameter("Color", Color.ToFVector());
+                                                                     ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Math\Color.h(47,8): note: see declaration of 'FLinearColor'
+struct FLinearColor
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(600,36): error C2660: 'UNiagaraComponent::SetVectorParameter': function does not take 1 arguments
+        Instance.NiagaraComponent->SetVectorParameter("Color", Color.ToFVector());
+                                   ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Plugins\FX\Niagara\Source\Niagara\Public\NiagaraComponent.h(76,27): note: see declaration of 'UNiagaraComponent::SetVectorParameter'
+	NIAGARA_API virtual void SetVectorParameter(FName ParameterName, FVector Param) override;
+	                         ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(600,36): note: while trying to match the argument list '(const char [6])'
+        Instance.NiagaraComponent->SetVectorParameter("Color", Color.ToFVector());
+                                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(648,23): error C2665: 'TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject': no overloaded function could convert all the argument types
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy
+        ]
+        TimerDelegate.BindUObject(this, &UEnhancedVFXSystem::StopEffect, EffectName, true);
+                      ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Delegates\DelegateSignatureImpl.inl(284,14): note: could be 'void TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject<UEnhancedVFXSystem,const FName&,bool>(const UserClass *,void (__cdecl UEnhancedVFXSystem::* )(FName,bool) const,const FName &,bool &&)'
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy,
+            UserClass=UEnhancedVFXSystem
+        ]
+	inline void BindUObject(const UserClass* InUserObject, typename TMemFunPtrType<true, UserClass, RetValType (ParamTypes..., std::decay_t<VarTypes>...)>::Type InFunc, VarTypes&&... Vars)
+	            ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(648,23): note: 'void TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject<UEnhancedVFXSystem,const FName&,bool>(const UserClass *,void (__cdecl UEnhancedVFXSystem::* )(FName,bool) const,const FName &,bool &&)': cannot convert argument 2 from 'void (__cdecl UEnhancedVFXSystem::* )(const FName &,bool)' to 'void (__cdecl UEnhancedVFXSystem::* )(FName,bool) const'
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy,
+            UserClass=UEnhancedVFXSystem
+        ]
+        TimerDelegate.BindUObject(this, &UEnhancedVFXSystem::StopEffect, EffectName, true);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(648,41): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+        TimerDelegate.BindUObject(this, &UEnhancedVFXSystem::StopEffect, EffectName, true);
+                                        ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Delegates\DelegateSignatureImpl.inl(277,14): note: or       'void TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject<UEnhancedVFXSystem,const FName&,bool>(UserClass *,void (__cdecl UEnhancedVFXSystem::* )(FName,bool),const FName &,bool &&)'
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy,
+            UserClass=UEnhancedVFXSystem
+        ]
+	inline void BindUObject(UserClass* InUserObject, typename TMemFunPtrType<false, UserClass, RetValType (ParamTypes..., std::decay_t<VarTypes>...)>::Type InFunc, VarTypes&&... Vars)
+	            ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(648,23): note: 'void TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject<UEnhancedVFXSystem,const FName&,bool>(UserClass *,void (__cdecl UEnhancedVFXSystem::* )(FName,bool),const FName &,bool &&)': cannot convert argument 2 from 'void (__cdecl UEnhancedVFXSystem::* )(const FName &,bool)' to 'void (__cdecl UEnhancedVFXSystem::* )(FName,bool)'
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy,
+            UserClass=UEnhancedVFXSystem
+        ]
+        TimerDelegate.BindUObject(this, &UEnhancedVFXSystem::StopEffect, EffectName, true);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(648,41): note: Types pointed to are unrelated; conversion requires reinterpret_cast, C-style cast or parenthesized function-style cast
+        TimerDelegate.BindUObject(this, &UEnhancedVFXSystem::StopEffect, EffectName, true);
+                                        ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Delegates\DelegateSignatureImpl.inl(296,14): note: or       'void TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject(TObjectPtr<UObjectTemplate>,TMemFunPtrType<true,UserClass,void(decay<VarTypes>::type...)>::Type,VarTypes ...)'
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy
+        ]
+	inline void BindUObject(TObjectPtr<UserClass> InUserObject, typename TMemFunPtrType<true, UserClass, RetValType (ParamTypes..., std::decay_t<VarTypes>...)>::Type InFunc, VarTypes&&... Vars)
+	            ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(648,23): note: 'void TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject(TObjectPtr<UObjectTemplate>,TMemFunPtrType<true,UserClass,void(decay<VarTypes>::type...)>::Type,VarTypes ...)': could not deduce template argument for 'TObjectPtr<UObjectTemplate>' from 'UEnhancedVFXSystem *'
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy
+        ]
+        TimerDelegate.BindUObject(this, &UEnhancedVFXSystem::StopEffect, EffectName, true);
+                      ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Delegates\DelegateSignatureImpl.inl(289,14): note: or       'void TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject(TObjectPtr<UObjectTemplate>,TMemFunPtrType<false,UserClass,void(decay<VarTypes>::type...)>::Type,VarTypes ...)'
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy
+        ]
+	inline void BindUObject(TObjectPtr<UserClass> InUserObject, typename TMemFunPtrType<false, UserClass, RetValType (ParamTypes..., std::decay_t<VarTypes>...)>::Type InFunc, VarTypes&&... Vars)
+	            ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(648,23): note: 'void TDelegateRegistration<InRetValType (void),UserPolicy>::BindUObject(TObjectPtr<UObjectTemplate>,TMemFunPtrType<false,UserClass,void(decay<VarTypes>::type...)>::Type,VarTypes ...)': could not deduce template argument for 'TObjectPtr<UObjectTemplate>' from 'UEnhancedVFXSystem *'
+        with
+        [
+            InRetValType=void,
+            UserPolicy=FNotThreadSafeNotCheckedDelegateUserPolicy
+        ]
+        TimerDelegate.BindUObject(this, &UEnhancedVFXSystem::StopEffect, EffectName, true);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(648,23): note: while trying to match the argument list '(UEnhancedVFXSystem *, void (__cdecl UEnhancedVFXSystem::* )(const FName &,bool), const FName, bool)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(702,36): error C2039: 'ResetParameters': is not a member of 'UNiagaraComponent'
+        Instance.NiagaraComponent->ResetParameters();
+                                   ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Plugins\FX\Niagara\Source\Niagara\Public\NiagaraComponent.h(60,7): note: see declaration of 'UNiagaraComponent'
+class UNiagaraComponent : public UFXSystemComponent
+      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(724,27): error C2664: 'bool TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Contains(const EVFXEffectType) const': cannot convert argument 1 from 'const FName' to 'const EVFXEffectType'
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+    if (EffectDefinitions.Contains(Instance.InstanceName))
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(724,44): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+    if (EffectDefinitions.Contains(Instance.InstanceName))
+                                           ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(788,33): note: see declaration of 'TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Contains'
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+	[[nodiscard]] FORCEINLINE bool Contains(KeyConstPointerType Key) const
+	                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(724,27): note: while trying to match the argument list '(const FName)'
+    if (EffectDefinitions.Contains(Instance.InstanceName))
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(726,16): error C2678: binary '[': no operator found which takes a left-hand operand of type 'const TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>' (or there is no acceptable conversion)
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+        return EffectDefinitions[Instance.InstanceName].EffectColor;
+               ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(1473,45): note: could be 'const FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType) const'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+	[[nodiscard]] FORCEINLINE const ValueType& operator[](KeyConstPointerType Key) const
+	                                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(726,16): note: 'const FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType) const': cannot convert argument 2 from 'const FName' to 'const EVFXEffectType'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+        return EffectDefinitions[Instance.InstanceName].EffectColor;
+               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(726,42): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+        return EffectDefinitions[Instance.InstanceName].EffectColor;
+                                         ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(1469,39): note: or       'FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType)'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+	[[nodiscard]] FORCEINLINE ValueType& operator[](KeyConstPointerType Key)
+	                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(726,16): note: 'FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType)': cannot convert 'this' pointer from 'const TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>' to 'TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>> &'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+        return EffectDefinitions[Instance.InstanceName].EffectColor;
+               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(726,16): note: Conversion loses qualifiers
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(726,16): note: while trying to match the argument list '(const TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>, const FName)'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(766,31): error C2664: 'bool TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Contains(const EVFXEffectType) const': cannot convert argument 1 from 'FName' to 'const EVFXEffectType'
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+        if (EffectDefinitions.Contains(Instance.InstanceName))
+                              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(766,48): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+        if (EffectDefinitions.Contains(Instance.InstanceName))
+                                               ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(788,33): note: see declaration of 'TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Contains'
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+	[[nodiscard]] FORCEINLINE bool Contains(KeyConstPointerType Key) const
+	                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(766,31): note: while trying to match the argument list '(FName)'
+        if (EffectDefinitions.Contains(Instance.InstanceName))
+                              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(768,54): error C2679: binary '[': no operator found which takes a right-hand operand of type 'FName' (or there is no acceptable conversion)
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                     ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(1473,45): note: could be 'const FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType) const'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+	[[nodiscard]] FORCEINLINE const ValueType& operator[](KeyConstPointerType Key) const
+	                                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(768,54): note: 'const FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType) const': cannot convert argument 2 from 'FName' to 'const EVFXEffectType'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(768,80): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                                               ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(1469,39): note: or       'FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType)'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+	[[nodiscard]] FORCEINLINE ValueType& operator[](KeyConstPointerType Key)
+	                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(768,54): note: 'FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType)': cannot convert argument 2 from 'FName' to 'const EVFXEffectType'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(768,80): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(768,54): note: while trying to match the argument list '(TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>, FName)'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(768,52): error C2530: 'Definition': references must be initialized
+            const FVFXEffectDefinition& Definition = EffectDefinitions[Instance.InstanceName];
+                                                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(882,51): error C2039: 'Purple': is not a member of 'FLinearColor'
+    GravityDefinition.EffectColor = FLinearColor::Purple;
+                                                  ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Math\Color.h(47,8): note: see declaration of 'FLinearColor'
+struct FLinearColor
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(882,51): error C2065: 'Purple': undeclared identifier
+    GravityDefinition.EffectColor = FLinearColor::Purple;
+                                                  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(894,50): error C2039: 'Cyan': is not a member of 'FLinearColor'
+    PlasmaDefinition.EffectColor = FLinearColor::Cyan;
+                                                 ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Math\Color.h(47,8): note: see declaration of 'FLinearColor'
+struct FLinearColor
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(894,50): error C2065: 'Cyan': undeclared identifier
+    PlasmaDefinition.EffectColor = FLinearColor::Cyan;
+                                                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(954,37): error C2660: 'USceneComponent::DetachFromComponent': function does not take 0 arguments
+        Instance.ParticleComponent->DetachFromComponent();
+                                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(768,26): note: see declaration of 'USceneComponent::DetachFromComponent'
+	ENGINE_API virtual void DetachFromComponent(const FDetachmentTransformRules& DetachmentRules);
+	                        ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(954,37): note: while trying to match the argument list '()'
+        Instance.ParticleComponent->DetachFromComponent();
+                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(960,36): error C2660: 'USceneComponent::DetachFromComponent': function does not take 0 arguments
+        Instance.NiagaraComponent->DetachFromComponent();
+                                   ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.h(768,26): note: see declaration of 'USceneComponent::DetachFromComponent'
+	ENGINE_API virtual void DetachFromComponent(const FDetachmentTransformRules& DetachmentRules);
+	                        ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(960,36): note: while trying to match the argument list '()'
+        Instance.NiagaraComponent->DetachFromComponent();
+                                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1272,27): error C2664: 'bool TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Contains(const EVFXEffectType) const': cannot convert argument 1 from 'const FName' to 'const EVFXEffectType'
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+    if (EffectDefinitions.Contains(Instance.InstanceName))
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1272,44): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+    if (EffectDefinitions.Contains(Instance.InstanceName))
+                                           ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(788,33): note: see declaration of 'TMapBase<KeyType,ValueType,SetAllocator,KeyFuncs>::Contains'
+        with
+        [
+            KeyType=EVFXEffectType,
+            ValueType=FVFXEffectDefinition,
+            SetAllocator=FDefaultSetAllocator,
+            KeyFuncs=TDefaultMapHashableKeyFuncs<EVFXEffectType,FVFXEffectDefinition,false>
+        ]
+	[[nodiscard]] FORCEINLINE bool Contains(KeyConstPointerType Key) const
+	                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1272,27): note: while trying to match the argument list '(const FName)'
+    if (EffectDefinitions.Contains(Instance.InstanceName))
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1274,21): error C2678: binary '[': no operator found which takes a left-hand operand of type 'const TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>' (or there is no acceptable conversion)
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+        BaseColor = EffectDefinitions[Instance.InstanceName].EffectColor;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(1473,45): note: could be 'const FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType) const'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+	[[nodiscard]] FORCEINLINE const ValueType& operator[](KeyConstPointerType Key) const
+	                                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1274,21): note: 'const FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType) const': cannot convert argument 2 from 'const FName' to 'const EVFXEffectType'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+        BaseColor = EffectDefinitions[Instance.InstanceName].EffectColor;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1274,47): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+        BaseColor = EffectDefinitions[Instance.InstanceName].EffectColor;
+                                              ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Map.h(1469,39): note: or       'FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType)'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+	[[nodiscard]] FORCEINLINE ValueType& operator[](KeyConstPointerType Key)
+	                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1274,21): note: 'FVFXEffectDefinition &TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>::operator [](const EVFXEffectType)': cannot convert 'this' pointer from 'const TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>' to 'TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>> &'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+        BaseColor = EffectDefinitions[Instance.InstanceName].EffectColor;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1274,21): note: Conversion loses qualifiers
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1274,21): note: while trying to match the argument list '(const TMap<EVFXEffectType,FVFXEffectDefinition,FDefaultSetAllocator,TDefaultMapHashableKeyFuncs<InKeyType,InValueType,false>>, const FName)'
+        with
+        [
+            InKeyType=EVFXEffectType,
+            InValueType=FVFXEffectDefinition
+        ]
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\EnhancedVFXSystem.cpp(1345,26): error C2039: 'InitializeDefaultEffects': is not a member of 'UEnhancedVFXSystem'
+void UEnhancedVFXSystem::InitializeDefaultEffects()
+                         ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\EnhancedVFXSystem.h(274,21): note: see declaration of 'UEnhancedVFXSystem'
+class ALEXANDER_API UEnhancedVFXSystem : public UObject
+                    ^
+[2/5] Compile [x64] Module.Alexander.53.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetAtmosphereComponent.cpp(10,4): warning C5038: data member 'UPlanetAtmosphereComponent::LookupTables' will be initialized after data member 'UPlanetAtmosphereComponent::bUseSkyAtmosphere'
+	, LookupTables(nullptr)
+	  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(123,24): error C2660: 'FOnSystemStatusChanged::Broadcast': function does not take 3 arguments
+	OnSystemStatusChanged.Broadcast(SystemType, OldStatus, NewStatus);
+	                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\ShipSystemsManager.h(41,1): note: see declaration of 'FOnSystemStatusChanged::Broadcast'
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSystemStatusChanged, EShipSystemType, SystemType, EShipSystemStatus, NewStatus);
+^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(123,24): note: while trying to match the argument list '(EShipSystemType, EShipSystemStatus, EShipSystemStatus)'
+	OnSystemStatusChanged.Broadcast(SystemType, OldStatus, NewStatus);
+	                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(200,19): error C2660: 'FOnSystemRepaired::Broadcast': function does not take 2 arguments
+	OnSystemRepaired.Broadcast(SystemType, RepairAmount);
+	                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\ShipSystemsManager.h(43,1): note: see declaration of 'FOnSystemRepaired::Broadcast'
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSystemRepaired, EShipSystemType, SystemType);
+^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(200,19): note: while trying to match the argument list '(EShipSystemType, float)'
+	OnSystemRepaired.Broadcast(SystemType, RepairAmount);
+	                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(701,28): error C2084: function 'float UShipSystemsManager::CalculateAverageTemperature(void) const' already has a body
+float UShipSystemsManager::CalculateAverageTemperature() const
+                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(524,28): note: see previous definition of 'UShipSystemsManager::CalculateAverageTemperature'
+float UShipSystemsManager::CalculateAverageTemperature() const
+                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(712,27): error C2601: 'UShipSystemsManager::InitializeDefaultSystems': local function definitions are illegal
+void UShipSystemsManager::InitializeDefaultSystems()
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(702,1): note: this line contains a '{' which has not yet been matched
+{
+^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(726,38): error C2601: 'UShipSystemsManager::CreateSystem': local function definitions are illegal
+FShipSystemData UShipSystemsManager::CreateSystem(EShipSystemType Type, const FString& Name, bool bCritical)
+                                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(702,1): note: this line contains a '{' which has not yet been matched
+{
+^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(742,27): error C2601: 'UShipSystemsManager::UpdateSystemStatusMessage': local function definitions are illegal
+void UShipSystemsManager::UpdateSystemStatusMessage(FShipSystemData& System)
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(702,1): note: this line contains a '{' which has not yet been matched
+{
+^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(764,27): error C2601: 'UShipSystemsManager::IsSystemCritical': local function definitions are illegal
+bool UShipSystemsManager::IsSystemCritical(EShipSystemType SystemType) const
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(702,1): note: this line contains a '{' which has not yet been matched
+{
+^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipSystemsManager.cpp(702,1): fatal error C1075: '{': no matching token found
+[3/5] Compile [x64] Module.Alexander.54.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Spaceship.cpp(145,2): warning C4996: 'AActor::NetUpdateFrequency': Public access to NetUpdateFrequency has been deprecated. Use SetNetUpdateFrequency() and GetNetUpdateFrequency() instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	NetUpdateFrequency = 20.0f; // 20 updates per second default
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Spaceship.cpp(146,2): warning C4996: 'AActor::MinNetUpdateFrequency': Public access MinNetUpdateFrequency has been deprecated. Use SetMinNetUpdateFrequency() and GetMinNetUpdateFrequency() instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	MinNetUpdateFrequency = 5.0f;
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Spaceship.cpp(147,2): warning C4996: 'AActor::NetCullDistanceSquared': Public access to NetCullDistanceSquared has been deprecated. Use SetNetCullDistanceSquared() and GetNetCullDistanceSquared() instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	NetCullDistanceSquared = 100000000.0f; // 100km squared
+	^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\MemoryOps.h(99,2): error C2139: 'FMarketItem': an undefined class is not allowed as an argument to compiler intrinsic type trait '__is_trivially_destructible'
+	UE_REQUIRES(sizeof(ElementType) > 0 && !std::is_trivially_destructible_v<ElementType>) // the sizeof here should improve the error messages we get when we try to call this function with incomplete types
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Intermediate\Build\Win64\UnrealGame\Inc\Alexander\UHT\SpaceStationHub.generated.h(25,8): note: see declaration of 'FMarketItem'
+struct FMarketItem;
+       ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\MemoryOps.h(99,2): note: the template instantiation context (the oldest one first) is
+	UE_REQUIRES(sizeof(ElementType) > 0 && !std::is_trivially_destructible_v<ElementType>) // the sizeof here should improve the error messages we get when we try to call this function with incomplete types
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\SpaceStationHub.cpp(366,39): note: see reference to class template instantiation 'TArray<FMarketItem,FDefaultAllocator>' being compiled
+TArray<FMarketItem> ASpaceStationHub::GetAvailableItems()
+                                      ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Array.h(966,3): note: while compiling class template member function 'TArray<FMarketItem,FDefaultAllocator>::~TArray(void)'
+	~TArray()
+	 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\SpaceStationHub.cpp(368,25): note: see the first reference to 'TArray<FMarketItem,FDefaultAllocator>::~TArray' in 'ASpaceStationHub::GetAvailableItems'
+    TArray<FMarketItem> Items;
+                        ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Array.h(968,3): note: see reference to function template instantiation 'void DestructItems(ElementType *,SizeType)' being compiled
+		DestructItems(GetData(), ArrayNum);
+		^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\MemoryOps.h(99,2): note: see reference to variable template 'const bool is_trivially_destructible_v<FMarketItem>' being compiled
+	UE_REQUIRES(sizeof(ElementType) > 0 && !std::is_trivially_destructible_v<ElementType>) // the sizeof here should improve the error messages we get when we try to call this function with incomplete types
+	^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Array.h(968,3): error C2672: 'DestructItems': no matching overloaded function found
+		DestructItems(GetData(), ArrayNum);
+		^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\MemoryOps.h(101,20): note: could be 'void DestructItems(ElementType *,SizeType)'
+FORCENOINLINE void DestructItems(ElementType* Element, SizeType Count)
+                   ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Array.h(968,3): note: the associated constraints are not satisfied
+		DestructItems(GetData(), ArrayNum);
+		^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\MemoryOps.h(99,2): note: use of undefined type 'FMarketItem'
+	UE_REQUIRES(sizeof(ElementType) > 0 && !std::is_trivially_destructible_v<ElementType>) // the sizeof here should improve the error messages we get when we try to call this function with incomplete types
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Intermediate\Build\Win64\UnrealGame\Inc\Alexander\UHT\SpaceStationHub.generated.h(25,8): note: see declaration of 'FMarketItem'
+struct FMarketItem;
+       ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\MemoryOps.h(93,18): note: or       'void DestructItems(ElementType *,SizeType)'
+FORCEINLINE void DestructItems(ElementType* Element, SizeType Count)
+                 ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Array.h(968,3): note: the associated constraints are not satisfied
+		DestructItems(GetData(), ArrayNum);
+		^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\MemoryOps.h(91,2): note: use of undefined type 'FMarketItem'
+	UE_REQUIRES(sizeof(ElementType) > 0 && std::is_trivially_destructible_v<ElementType>) // the sizeof here should improve the error messages we get when we try to call this function with incomplete types
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Intermediate\Build\Win64\UnrealGame\Inc\Alexander\UHT\SpaceStationHub.generated.h(25,8): note: see declaration of 'FMarketItem'
+struct FMarketItem;
+       ^
+Trace written to file C:/Users/allen/AppData/Local/UnrealBuildTool/Log.uba with size 21.9kb
+Total time in Unreal Build Accelerator local executor: 4.56 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 5.55 seconds

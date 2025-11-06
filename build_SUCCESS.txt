@@ -1,0 +1,84 @@
+Using bundled DotNet SDK version: 8.0.300 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" Alexander Win64 Development C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject -WaitMutex
+Log file: C:\Users\allen\AppData\Local\UnrealBuildTool\Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\allen\Desktop\Alexander\Alexander).
+Invalidating makefile for Alexander (source file removed)
+Available x64 toolchains (2):
+ * C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35219, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+ * C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35217, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2022 compiler version 14.44.35219 is not a preferred version. Please use the latest preferred version 14.38.33130
+C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject does not list plugin 'XRBase' as a dependency, but module 'Alexander' depends on 'XRBase'.
+Building Alexander...
+Using Visual Studio 2022 14.44.35219 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2022 compiler is not a preferred version
+[Upgrade]
+[Upgrade] Using backward-compatible include order. The latest version of UE has changed the order of includes, which may require code changes. The current setting is:
+[Upgrade]     IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3
+[Upgrade] Suppress this message by setting 'IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;' in Alexander.Target.cs.
+[Upgrade] Alternatively you can set this to 'EngineIncludeOrderVersion.Latest' to always use the latest include order. This will potentially cause compile errors when integrating new versions of the engine.
+[Upgrade]
+[Adaptive Build] Excluded from Alexander unity file: Alexander.cpp, MissionBoardComponent.cpp, OrbitalBody.cpp, PlanetaryLandingZone.cpp, PlanetAtmosphereComponent.cpp, ShipSystemsManager.cpp, SpaceStationHub.cpp
+Determining max actions to execute in parallel (24 physical cores, 32 logical cores)
+  Executing up to 24 processes, one per physical core
+Using Unreal Build Accelerator local executor to run 7 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 251105_224300 ----
+UbaSessionServer - Disable remote execution (remote sessions will finish current processes)
+------ Building 7 action(s) started ------
+[1/7] Compile [x64] Module.Alexander.24.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\Phase7IntegrationTest.h(6,1): fatal error C1083: Cannot open include file: 'GameSystemCoordinator.h': No such file or directory
+#include "GameSystemCoordinator.h"
+^
+[2/7] Compile [x64] Module.Alexander.51.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\Phase7IntegrationTest.h(6,1): fatal error C1083: Cannot open include file: 'GameSystemCoordinator.h': No such file or directory
+#include "GameSystemCoordinator.h"
+^
+[3/7] Compile [x64] Alexander.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Alexander.cpp(11,19): error C2143: syntax error: missing ';' before '*'
+UEnhancedVFXSystem* FAlexanderModule::VFXSystem = nullptr;
+                  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Alexander.cpp(11,1): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+UEnhancedVFXSystem* FAlexanderModule::VFXSystem = nullptr;
+^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Alexander.cpp(11,39): error C2039: 'VFXSystem': is not a member of 'FAlexanderModule'
+UEnhancedVFXSystem* FAlexanderModule::VFXSystem = nullptr;
+                                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\Alexander.h(17,21): note: see declaration of 'FAlexanderModule'
+class ALEXANDER_API FAlexanderModule : public IModuleInterface
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Alexander.cpp(11,39): error C4430: missing type specifier - int assumed. Note: C++ does not support default-int
+UEnhancedVFXSystem* FAlexanderModule::VFXSystem = nullptr;
+                                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Alexander.cpp(48,17): error C2672: 'NewObject': no matching overloaded function found
+    VFXSystem = NewObject<UEnhancedVFXSystem>();
+                ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectGlobals.h(1904,5): note: could be 'T *NewObject(UObject *,FName,EObjectFlags,UObject *,bool,FObjectInstancingGraph *,UPackage *)'
+	T* NewObject(UObject* Outer, FName Name, EObjectFlags Flags = RF_NoFlags, UObject* Template = nullptr, bool bCopyTransientsFromClassDefaults = false, FObjectInstancingGraph* InInstanceGraph = nullptr, UPackage* InExternalPackage = nullptr)
+	   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Alexander.cpp(48,27): note: 'NewObject': invalid template argument for 'T', type expected
+    VFXSystem = NewObject<UEnhancedVFXSystem>();
+                          ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectGlobals.h(1889,5): note: or       'T *NewObject(UObject *)'
+	T* NewObject(UObject* Outer = (UObject*)GetTransientPackage())
+	   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Alexander.cpp(48,27): note: 'NewObject': invalid template argument for 'T', type expected
+    VFXSystem = NewObject<UEnhancedVFXSystem>();
+                          ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\UObjectGlobals.h(1861,5): note: or       'T *NewObject(UObject *,const UClass *,FName,EObjectFlags,UObject *,bool,FObjectInstancingGraph *,UPackage *)'
+	T* NewObject(UObject* Outer, const UClass* Class, FName Name = NAME_None, EObjectFlags Flags = RF_NoFlags, UObject* Template = nullptr, bool bCopyTransientsFromClassDefaults = false, FObjectInstancingGraph* InInstanceGraph = nullptr, UPackage* InExternalPackage = nullptr)
+	   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Alexander.cpp(48,27): note: 'NewObject': invalid template argument for 'T', type expected
+    VFXSystem = NewObject<UEnhancedVFXSystem>();
+                          ^
+[4/7] Compile [x64] Module.Alexander.55.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\VRPerformanceOptimizer.cpp(21,4): warning C5038: data member 'UVRPerformanceOptimizer::LastDrawCallCount' will be initialized after data member 'UVRPerformanceOptimizer::FrameHistoryIndex'
+	, LastDrawCallCount(0)
+	  ^
+[5/7] Compile [x64] Module.Alexander.48.cpp
+Trace written to file C:/Users/allen/AppData/Local/UnrealBuildTool/Log.uba with size 7.6kb
+Total time in Unreal Build Accelerator local executor: 6.22 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 9.06 seconds

@@ -377,14 +377,15 @@ public:
     void ProcessTradeActivity(const FName& ItemID, int32 Quantity, bool bBuy);
 
     // Mission Integration
-    UFUNCTION(BlueprintCallable, Category = "Missions")
-    void GenerateLocalMissions();
+    // DISABLED: Mission system temporarily disabled
+    // UFUNCTION(BlueprintCallable, Category = "Missions")
+    // void GenerateLocalMissions();
 
-    UFUNCTION(BlueprintCallable, Category = "Missions")
-    TArray<FName> GetAvailableMissionTypes();
+    // UFUNCTION(BlueprintCallable, Category = "Missions")
+    // TArray<FName> GetAvailableMissionTypes();
 
-    UFUNCTION(BlueprintCallable, Category = "Missions")
-    bool SupportsMissionType(EMissionType MissionType);
+    // UFUNCTION(BlueprintCallable, Category = "Missions")
+    // bool SupportsMissionType(EMissionType MissionType);
 
     // Utilities
     UFUNCTION(BlueprintCallable, Category = "Utilities")

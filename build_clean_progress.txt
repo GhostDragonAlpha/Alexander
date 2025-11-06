@@ -1,0 +1,132 @@
+Using bundled DotNet SDK version: 8.0.300 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" Alexander Win64 Development C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject -WaitMutex
+Log file: C:\Users\allen\AppData\Local\UnrealBuildTool\Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\allen\Desktop\Alexander\Alexander).
+Invalidating makefile for Alexander (source file removed)
+Available x64 toolchains (2):
+ * C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35219, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+ * C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35217, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2022 compiler version 14.44.35219 is not a preferred version. Please use the latest preferred version 14.38.33130
+C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject does not list plugin 'XRBase' as a dependency, but module 'Alexander' depends on 'XRBase'.
+Parsing headers for Alexander
+  Running Internal UnrealHeaderTool C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject C:\Users\allen\Desktop\Alexander\Alexander\Intermediate\Build\Win64\Alexander\Development\Alexander.uhtmanifest -WarningsAsErrors -installed
+Total of 1 written
+Reflection code generated for Alexander in 0.9104697 seconds
+Building Alexander...
+Using Visual Studio 2022 14.44.35219 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2022 compiler is not a preferred version
+[Upgrade]
+[Upgrade] Using backward-compatible include order. The latest version of UE has changed the order of includes, which may require code changes. The current setting is:
+[Upgrade]     IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3
+[Upgrade] Suppress this message by setting 'IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;' in Alexander.Target.cs.
+[Upgrade] Alternatively you can set this to 'EngineIncludeOrderVersion.Latest' to always use the latest include order. This will potentially cause compile errors when integrating new versions of the engine.
+[Upgrade]
+[Adaptive Build] Excluded from Alexander unity file: MissionBoardComponent.cpp, OrbitalBody.cpp, PlanetaryLandingZone.cpp, PlanetAtmosphereComponent.cpp, ShipSystemsManager.cpp, SpaceStationHub.cpp
+Determining max actions to execute in parallel (24 physical cores, 32 logical cores)
+  Executing up to 24 processes, one per physical core
+Using Unreal Build Accelerator local executor to run 49 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 251105_224151 ----
+UbaServer - Listening on 0.0.0.0:1345
+------ Building 49 action(s) started ------
+[1/49] Compile [x64] Module.Alexander.24.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\Phase7IntegrationTest.h(6,1): fatal error C1083: Cannot open include file: 'GameSystemCoordinator.h': No such file or directory
+#include "GameSystemCoordinator.h"
+^
+[2/49] Compile [x64] Module.Alexander.26.cpp
+[3/49] Compile [x64] Module.Alexander.29.cpp
+[4/49] Compile [x64] Module.Alexander.23.cpp
+[5/49] Compile [x64] Module.Alexander.18.cpp
+[6/49] Compile [x64] Module.Alexander.34.cpp
+[7/49] Compile [x64] Module.Alexander.30.cpp
+[8/49] Compile [x64] Module.Alexander.13.cpp
+[9/49] Compile [x64] Module.Alexander.15.cpp
+[10/49] Compile [x64] Module.Alexander.25.cpp
+[11/49] Compile [x64] Module.Alexander.17.cpp
+[12/49] Compile [x64] Module.Alexander.21.cpp
+[13/49] Compile [x64] Module.Alexander.28.cpp
+[14/49] Compile [x64] Module.Alexander.31.cpp
+[15/49] Compile [x64] Module.Alexander.19.cpp
+[16/49] Compile [x64] Module.Alexander.14.cpp
+[17/49] Compile [x64] Module.Alexander.20.cpp
+[18/49] Compile [x64] Module.Alexander.27.cpp
+[19/49] Compile [x64] Module.Alexander.12.cpp
+[20/49] Compile [x64] Module.Alexander.22.cpp
+[21/49] Compile [x64] Module.Alexander.33.cpp
+[22/49] Compile [x64] Module.Alexander.16.cpp
+[23/49] Compile [x64] Module.Alexander.35.cpp
+[24/49] Compile [x64] Module.Alexander.32.cpp
+[25/49] Compile [x64] Module.Alexander.3.cpp
+[26/49] Compile [x64] Module.Alexander.41.cpp
+[27/49] Compile [x64] Module.Alexander.42.cpp
+[28/49] Compile [x64] Module.Alexander.36.cpp
+[29/49] Compile [x64] Module.Alexander.44.cpp
+[30/49] Compile [x64] Module.Alexander.43.cpp
+[31/49] Compile [x64] Module.Alexander.47.cpp
+[32/49] Compile [x64] Module.Alexander.45.cpp
+[33/49] Compile [x64] Module.Alexander.37.cpp
+[34/49] Compile [x64] Module.Alexander.40.cpp
+[35/49] Compile [x64] Module.Alexander.46.cpp
+[36/49] Compile [x64] PlanetaryLandingZone.cpp
+[37/49] Compile [x64] Module.Alexander.38.cpp
+[38/49] Compile [x64] Module.Alexander.39.cpp
+[39/49] Compile [x64] Module.Alexander.51.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PerformanceProfiler.cpp(15,1): fatal error C1083: Cannot open include file: 'GameSystemCoordinator.h': No such file or directory
+#include "GameSystemCoordinator.h"
+^
+[40/49] Compile [x64] Module.Alexander.48.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\Alexander.h(8,1): fatal error C1083: Cannot open include file: 'EnhancedVFXSystem.h': No such file or directory
+#include "EnhancedVFXSystem.h"
+^
+[41/49] Compile [x64] OrbitalBody.cpp
+[42/49] Compile [x64] Module.Alexander.55.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\VRPerformanceOptimizer.cpp(21,4): warning C5038: data member 'UVRPerformanceOptimizer::LastDrawCallCount' will be initialized after data member 'UVRPerformanceOptimizer::FrameHistoryIndex'
+	, LastDrawCallCount(0)
+	  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\ComprehensiveSystemTests.cpp(21,1): fatal error C1083: Cannot open include file: 'GameSystemCoordinator.h': No such file or directory
+#include "GameSystemCoordinator.h"
+^
+[43/49] Compile [x64] Module.Alexander.49.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\AlexanderAtmosphericFogComponent.cpp(14,4): warning C5038: data member 'UAlexanderAtmosphericFogComponent::HeightFogComponent' will be initialized after data member 'UAlexanderAtmosphericFogComponent::AtmosphereComponent'
+	: HeightFogComponent(nullptr)
+	  ^
+[44/49] Compile [x64] Module.Alexander.52.cpp
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\Templates\Casts.h(159,6): warning C4996: 'Cast::FStaticWarningMsg_159::condition': Attempting to use Cast<> on types that are not related
+					UE_STATIC_ASSERT_WARN((std::is_base_of_v<From, To>), "Attempting to use Cast<> on types that are not related");
+					^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\Templates\Casts.h(159,6): note: the template instantiation context (the oldest one first) is
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipEntryComponent.cpp(507,55): note: see reference to function template instantiation 'APawn *Cast<APawn,ASpaceship>(From *)' being compiled
+        with
+        [
+            From=ASpaceship
+        ]
+            TransferPlayerControl(OriginalPlayerPawn, Cast<APawn>(OwningShip));
+                                                      ^
+[45/49] Compile [x64] Module.Alexander.54.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Testing\PerformanceMonitorWidget.cpp(566,39): warning C4996: 'GGPUFrameTime': Direct use of GGPUFrameTime is deprecated. Call the global scope RHIGetGPUFrameCycles() function instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	return FPlatformTime::ToMilliseconds(GGPUFrameTime);
+	                                     ^
+[46/49] Compile [x64] Module.Alexander.50.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmStatusWidget.cpp(19,4): warning C5038: data member 'UFarmStatusWidget::FarmPlot' will be initialized after data member 'UFarmStatusWidget::UpdateInterval'
+	, FarmPlot(nullptr)
+	  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmStatusWidget.cpp(38,4): warning C5038: data member 'UFarmStatusWidget::TimeSinceLastUpdate' will be initialized after data member 'UFarmStatusWidget::CropTypeFilter'
+	, TimeSinceLastUpdate(0.0f)
+	  ^
+[47/49] Compile [x64] Module.Alexander.53.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Spaceship.cpp(145,2): warning C4996: 'AActor::NetUpdateFrequency': Public access to NetUpdateFrequency has been deprecated. Use SetNetUpdateFrequency() and GetNetUpdateFrequency() instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	NetUpdateFrequency = 20.0f; // 20 updates per second default
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Spaceship.cpp(146,2): warning C4996: 'AActor::MinNetUpdateFrequency': Public access MinNetUpdateFrequency has been deprecated. Use SetMinNetUpdateFrequency() and GetMinNetUpdateFrequency() instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	MinNetUpdateFrequency = 5.0f;
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\Spaceship.cpp(147,2): warning C4996: 'AActor::NetCullDistanceSquared': Public access to NetCullDistanceSquared has been deprecated. Use SetNetCullDistanceSquared() and GetNetCullDistanceSquared() instead. - Please update your code to the new API before upgrading to the next release, otherwise your project will no longer compile.
+	NetCullDistanceSquared = 100000000.0f; // 100km squared
+	^
+Trace written to file C:/Users/allen/AppData/Local/UnrealBuildTool/Log.uba with size 14.5kb
+Total time in Unreal Build Accelerator local executor: 16.13 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 19.83 seconds

@@ -5,7 +5,8 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 #include "AdvancedAIBehaviors.h"
-#include "EnhancedVFXSystem.h"
+// DISABLED: EnhancedVFXSystem temporarily disabled
+//#include "EnhancedVFXSystem.h"
 #include "AudioSystemManager.h"
 #include "TutorialOnboardingSystem.h"
 
@@ -21,13 +22,15 @@ public:
 
     // System Accessors
     static UAdvancedAIBehaviors* GetAISystem() { return AISystem; }
-    static UEnhancedVFXSystem* GetVFXSystem() { return VFXSystem; }
+    // DISABLED: EnhancedVFXSystem temporarily disabled
+    //static UEnhancedVFXSystem* GetVFXSystem() { return VFXSystem; }
     static UAudioSystemManager* GetAudioSystem() { return AudioSystem; }
     static UTutorialOnboardingSystem* GetTutorialSystem() { return TutorialSystem; }
 
 private:
     static UAdvancedAIBehaviors* AISystem;
-    static UEnhancedVFXSystem* VFXSystem;
+    // DISABLED: EnhancedVFXSystem temporarily disabled
+    //static UEnhancedVFXSystem* VFXSystem;
     static UAudioSystemManager* AudioSystem;
     static UTutorialOnboardingSystem* TutorialSystem;
 

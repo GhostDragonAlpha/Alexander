@@ -619,3 +619,75 @@ float UProceduralNoiseGenerator::FractalPerlinWorleyNoise3D(float X, float Y, fl
 	// Normalize to [0, 1]
 	return Result / MaxValue;
 }
+
+float UProceduralNoiseGenerator::GenerateIceFormations(float X, float Y, float Z, int32 Seed, float Temperature)
+{
+	// Use Perlin noise to create ice crystal patterns
+	float IceNoise = PerlinNoise3D(X * 0.5f, Y * 0.5f, Z * 0.5f, Seed);
+	
+	// Normalize to [0, 1]
+	IceNoise = (IceNoise + 1.0f) * 0.5f;
+	
+	// Temperature factor: colder = more ice
+	float TemperatureFactor = FMath::Max(0.0f, 1.0f - (Temperature / 100.0f));
+	
+	// Combine with fractal for complexity
+	float FractalIce = FractalPerlinNoise3D(X, Y, Z, Seed, 4, 1.0f, 2.0f, 0.5f);
+	
+	// Weight by temperature
+	float Result = (IceNoise * 0.5f + FractalIce * 0.5f) * TemperatureFactor;
+	
+	return FMath::Clamp(Result, 0.0f, 1.0f);
+}
+
+float UProceduralNoiseGenerator::BlendTerrainLayers(const TArray<float>& Layers, const TArray<float>& Weights)
+{
+	if (Layers.Num() == 0)
+	{
+		return 0.0f;
+	}
+	
+	if (Layers.Num() != Weights.Num())
+	{
+		// Weights and layers must be same size
+		return Layers[0];
+	}
+	
+	float BlendedValue = 0.0f;
+	float TotalWeight = 0.0f;
+	
+	for (int32 i = 0; i < Layers.Num(); ++i)
+	{
+		BlendedValue += Layers[i] * Weights[i];
+		TotalWeight += Weights[i];
+	}
+	
+	if (TotalWeight > 0.0f)
+	{
+		BlendedValue /= TotalWeight;
+	}
+	
+	return BlendedValue;
+}
+
+FVector UProceduralNoiseGenerator::SphericalToCartesian(float Lat, float Lon, float Radius)
+{
+	// Convert latitude/longitude (in degrees) to Cartesian coordinates
+	float LatRad = FMath::DegreesToRadians(Lat);
+	float LonRad = FMath::DegreesToRadians(Lon);
+	
+	float X = Radius * FMath::Cos(LatRad) * FMath::Cos(LonRad);
+	float Y = Radius * FMath::Cos(LatRad) * FMath::Sin(LonRad);
+	float Z = Radius * FMath::Sin(LatRad);
+	
+	return FVector(X, Y, Z);
+}
+
+FVector2D UProceduralNoiseGenerator::CartesianToSpherical(FVector Position, float Radius)
+{
+	// Convert Cartesian coordinates to latitude/longitude (in degrees)
+	float Lat = FMath::RadiansToDegrees(FMath::Asin(Position.Z / Radius));
+	float Lon = FMath::RadiansToDegrees(FMath::Atan2(Position.Y, Position.X));
+	
+	return FVector2D(Lat, Lon);
+}

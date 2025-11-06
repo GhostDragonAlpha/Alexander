@@ -1,0 +1,987 @@
+Using bundled DotNet SDK version: 8.0.300 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" Alexander Win64 Development C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject -WaitMutex
+Log file: C:\Users\allen\AppData\Local\UnrealBuildTool\Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\allen\Desktop\Alexander\Alexander).
+Invalidating makefile for Alexander (working set of source files changed)
+Available x64 toolchains (2):
+ * C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35219, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+ * C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35217, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2022 compiler version 14.44.35219 is not a preferred version. Please use the latest preferred version 14.38.33130
+C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject does not list plugin 'XRBase' as a dependency, but module 'Alexander' depends on 'XRBase'.
+Building Alexander...
+Using Visual Studio 2022 14.44.35219 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2022 compiler is not a preferred version
+[Upgrade]
+[Upgrade] Using backward-compatible include order. The latest version of UE has changed the order of includes, which may require code changes. The current setting is:
+[Upgrade]     IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3
+[Upgrade] Suppress this message by setting 'IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;' in Alexander.Target.cs.
+[Upgrade] Alternatively you can set this to 'EngineIncludeOrderVersion.Latest' to always use the latest include order. This will potentially cause compile errors when integrating new versions of the engine.
+[Upgrade]
+[Adaptive Build] Excluded from Alexander unity file: ShipSystemsManager.cpp
+Determining max actions to execute in parallel (24 physical cores, 32 logical cores)
+  Executing up to 24 processes, one per physical core
+Using Unreal Build Accelerator local executor to run 5 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 251105_222523 ----
+UbaSessionServer - Disable remote execution (remote sessions will finish current processes)
+------ Building 5 action(s) started ------
+[1/5] Compile [x64] ShipSystemsManager.cpp
+[2/5] Compile [x64] Module.Alexander.53.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetAtmosphereComponent.cpp(10,4): warning C5038: data member 'UPlanetAtmosphereComponent::LookupTables' will be initialized after data member 'UPlanetAtmosphereComponent::bUseSkyAtmosphere'
+	, LookupTables(nullptr)
+	  ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\Templates\Casts.h(159,6): warning C4996: 'Cast::FStaticWarningMsg_159::condition': Attempting to use Cast<> on types that are not related
+					UE_STATIC_ASSERT_WARN((std::is_base_of_v<From, To>), "Attempting to use Cast<> on types that are not related");
+					^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\Templates\Casts.h(159,6): note: the template instantiation context (the oldest one first) is
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ShipEntryComponent.cpp(507,55): note: see reference to function template instantiation 'APawn *Cast<APawn,ASpaceship>(From *)' being compiled
+        with
+        [
+            From=ASpaceship
+        ]
+            TransferPlayerControl(OriginalPlayerPawn, Cast<APawn>(OwningShip));
+                                                      ^
+[3/5] Compile [x64] Module.Alexander.52.cpp
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(13,32): error C2371: 'FMissionObjective': redefinition; different basic types
+typedef FMissionBoardObjective FMissionObjective;
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(406,60): error C2440: 'initializing': cannot convert from 'ElementType' to 'FMissionObjective &'
+        with
+        [
+            ElementType=FMissionBoardObjective
+        ]
+    for (FMissionObjective& Objective : Mission->Objectives)
+                                                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(410,23): error C2039: 'CurrentCount': is not a member of 'FMissionObjective'
+            Objective.CurrentCount = FMath::Min(Objective.CurrentCount + Progress, Objective.TargetCount);
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(410,59): error C2039: 'CurrentCount': is not a member of 'FMissionObjective'
+            Objective.CurrentCount = FMath::Min(Objective.CurrentCount + Progress, Objective.TargetCount);
+                                                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(410,94): error C2039: 'TargetCount': is not a member of 'FMissionObjective'
+            Objective.CurrentCount = FMath::Min(Objective.CurrentCount + Progress, Objective.TargetCount);
+                                                                                             ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(410,45): error C2672: 'FGenericPlatformMath::Min': no matching overloaded function found
+            Objective.CurrentCount = FMath::Min(Objective.CurrentCount + Progress, Objective.TargetCount);
+                                            ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\GenericPlatform\GenericPlatformMath.h(1042,23): note: could be 'T FGenericPlatformMath::Min(const TArray<T,FDefaultAllocator> &,int32 *)'
+	static FORCEINLINE T Min(const TArray<T>& Values, int32* MinIndex)
+	                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(410,45): note: 'T FGenericPlatformMath::Min(const TArray<T,FDefaultAllocator> &,int32 *)': expects 2 arguments - 1 provided
+            Objective.CurrentCount = FMath::Min(Objective.CurrentCount + Progress, Objective.TargetCount);
+                                            ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\GenericPlatform\GenericPlatformMath.h(1016,37): note: or       'T FGenericPlatformMath::Min(const TArray<T,FDefaultAllocator> &)'
+	[[nodiscard]] static FORCEINLINE T Min(const TArray<T>& Values)
+	                                   ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\GenericPlatform\GenericPlatformMath.h(1008,2): note: or       'unknown-type FGenericPlatformMath::Min(Arg1,Arg2)'
+	MIX_SIGNED_INTS_2_ARGS_CONSTEXPR(Min);
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(410,45): note: 'unknown-type FGenericPlatformMath::Min(Arg1,Arg2)': expects 2 arguments - 1 provided
+            Objective.CurrentCount = FMath::Min(Objective.CurrentCount + Progress, Objective.TargetCount);
+                                            ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\GenericPlatform\GenericPlatformMath.h(1004,2): note: or       'unknown-type FGenericPlatformMath::Min(Arg1,Arg2)'
+	MIX_FLOATS_2_ARGS(Min);
+	^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(410,45): note: 'unknown-type FGenericPlatformMath::Min(Arg1,Arg2)': expects 2 arguments - 1 provided
+            Objective.CurrentCount = FMath::Min(Objective.CurrentCount + Progress, Objective.TargetCount);
+                                            ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\GenericPlatform\GenericPlatformMath.h(993,47): note: or       'T FGenericPlatformMath::Min(T,OtherTypes...)'
+	[[nodiscard]] static constexpr FORCEINLINE T Min(T A, OtherTypes... Others)
+	                                             ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\GenericPlatform\GenericPlatformMath.h(982,47): note: or       'T FGenericPlatformMath::Min(T,T)'
+	[[nodiscard]] static constexpr FORCEINLINE T Min(T A, T B)
+	                                             ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(410,45): note: 'T FGenericPlatformMath::Min(T,T)': expects 2 arguments - 1 provided
+            Objective.CurrentCount = FMath::Min(Objective.CurrentCount + Progress, Objective.TargetCount);
+                                            ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(412,27): error C2039: 'CurrentCount': is not a member of 'FMissionObjective'
+            if (Objective.CurrentCount >= Objective.TargetCount)
+                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(412,53): error C2039: 'TargetCount': is not a member of 'FMissionObjective'
+            if (Objective.CurrentCount >= Objective.TargetCount)
+                                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(431,60): error C2440: 'initializing': cannot convert from 'ElementType' to 'FMissionObjective &'
+        with
+        [
+            ElementType=FMissionBoardObjective
+        ]
+    for (FMissionObjective& Objective : Mission->Objectives)
+                                                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(435,23): error C2039: 'bIsCompleted': is not a member of 'FMissionObjective'
+            Objective.bIsCompleted = true;
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(453,66): error C2440: 'initializing': cannot convert from 'ElementType' to 'const FMissionObjective &'
+        with
+        [
+            ElementType=FMissionBoardObjective
+        ]
+    for (const FMissionObjective& Objective : Mission->Objectives)
+                                                                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(453,66): note: Reason: cannot convert from 'ElementType' to 'const FMissionObjective'
+        with
+        [
+            ElementType=FMissionBoardObjective
+        ]
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(453,66): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(455,23): error C2039: 'bIsRequired': is not a member of 'FMissionObjective'
+        if (Objective.bIsRequired && !Objective.bIsCompleted)
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(455,49): error C2039: 'bIsCompleted': is not a member of 'FMissionObjective'
+        if (Objective.bIsRequired && !Objective.bIsCompleted)
+                                                ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(486,66): error C2440: 'initializing': cannot convert from 'ElementType' to 'const FMissionObjective &'
+        with
+        [
+            ElementType=FMissionBoardObjective
+        ]
+    for (const FMissionObjective& Objective : Mission->Objectives)
+                                                                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(486,66): note: Reason: cannot convert from 'ElementType' to 'const FMissionObjective'
+        with
+        [
+            ElementType=FMissionBoardObjective
+        ]
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(486,66): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(489,23): error C2039: 'bIsCompleted': is not a member of 'FMissionObjective'
+        if (Objective.bIsCompleted)
+                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(498,51): error C2556: 'TArray<FMissionObjective,FDefaultAllocator> UMissionBoardComponent::GetMissionObjectives(const FName &)': overloaded function differs only by return type from 'TArray<FMissionBoardObjective,FDefaultAllocator> UMissionBoardComponent::GetMissionObjectives(const FName &)'
+TArray<FMissionObjective> UMissionBoardComponent::GetMissionObjectives(const FName& MissionID)
+                                                  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\MissionBoardComponent.h(342,36): note: see declaration of 'UMissionBoardComponent::GetMissionObjectives'
+    TArray<FMissionBoardObjective> GetMissionObjectives(const FName& MissionID);
+                                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(498,51): error C2371: 'UMissionBoardComponent::GetMissionObjectives': redefinition; different basic types
+TArray<FMissionObjective> UMissionBoardComponent::GetMissionObjectives(const FName& MissionID)
+                                                  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\MissionBoardComponent.h(342,36): note: see declaration of 'UMissionBoardComponent::GetMissionObjectives'
+    TArray<FMissionBoardObjective> GetMissionObjectives(const FName& MissionID);
+                                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(657,60): error C2440: 'initializing': cannot convert from 'ElementType' to 'FMissionObjective &'
+        with
+        [
+            ElementType=FMissionBoardObjective
+        ]
+    for (FMissionObjective& Objective : Mission->Objectives)
+                                                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(659,19): error C2039: 'bIsCompleted': is not a member of 'FMissionObjective'
+        Objective.bIsCompleted = false;
+                  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(660,19): error C2039: 'CurrentCount': is not a member of 'FMissionObjective'
+        Objective.CurrentCount = 0;
+                  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(661,19): error C2039: 'TimeRemaining': is not a member of 'FMissionObjective'
+        Objective.TimeRemaining = Objective.TimeLimit;
+                  ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(661,45): error C2039: 'TimeLimit': is not a member of 'FMissionObjective'
+        Objective.TimeRemaining = Objective.TimeLimit;
+                                            ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,14): error C2679: binary '=': no operator found which takes a right-hand operand of type 'FName' (or there is no acceptable conversion)
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+             ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(230,28): note: could be 'FString &FString::operator =(const FString::ElementType *)'
+	CORE_API UE_STRING_CLASS& operator=(const ElementType* Str);
+	                          ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,14): note: 'FString &FString::operator =(const FString::ElementType *)': cannot convert argument 2 from 'FName' to 'const FString::ElementType *'
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+             ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,34): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+                                 ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(76,19): note: or       'FString &FString::operator =(const FString &)'
+	UE_STRING_CLASS& operator=(const UE_STRING_CLASS&) = default;
+	                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,14): note: 'FString &FString::operator =(const FString &)': cannot convert argument 2 from 'FName' to 'const FString &'
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+             ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,34): note: Reason: cannot convert from 'FName' to 'const FString'
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+                                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,34): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(75,19): note: or       'FString &FString::operator =(FString &&)'
+	UE_STRING_CLASS& operator=(UE_STRING_CLASS&&) = default;
+	                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,14): note: 'FString &FString::operator =(FString &&)': cannot convert argument 2 from 'FName' to 'FString &&'
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+             ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,34): note: Reason: cannot convert from 'FName' to 'FString'
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+                                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,34): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(241,31): note: or       'FString &FString::operator =(CharRangeType &&)'
+	FORCEINLINE UE_STRING_CLASS& operator=(CharRangeType&& Range)
+	                             ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,14): note: 'FString &FString::operator =(CharRangeType &&)': could not deduce template argument for 'CharRangeElementType'
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+             ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(234,35): note: 'TElementType_T' : Failed to specialize alias template
+		typename CharRangeElementType = TElementType_T<CharRangeType>
+		                                ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Traits\ElementType.h(57,50): note: 'Type': is not a member of any direct or indirect base class of 'TElementType<T>'
+        with
+        [
+            T=FName
+        ]
+using TElementType_T = typename TElementType<T>::Type;
+                                                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1187,14): note: while trying to match the argument list '(FString, FName)'
+    Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
+             ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1188,15): error C2039: 'Description': is not a member of 'FMissionObjective'
+    Objective.Description = TEXT("Complete the mission objective");
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1189,15): error C2039: 'bIsCompleted': is not a member of 'FMissionObjective'
+    Objective.bIsCompleted = false;
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1190,15): error C2039: 'bIsRequired': is not a member of 'FMissionObjective'
+    Objective.bIsRequired = true;
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1191,15): error C2039: 'TargetCount': is not a member of 'FMissionObjective'
+    Objective.TargetCount = 1;
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1192,15): error C2039: 'CurrentCount': is not a member of 'FMissionObjective'
+    Objective.CurrentCount = 0;
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(47,8): note: see declaration of 'FMissionObjective'
+struct FMissionObjective
+       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1194,24): error C2665: 'TArray<FMissionBoardObjective,FDefaultAllocator>::Add': no overloaded function could convert all the argument types
+    Mission.Objectives.Add(Objective);
+                       ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Array.h(2719,34): note: could be 'int TArray<FMissionBoardObjective,FDefaultAllocator>::Add(const FMissionBoardObjective &)'
+	UE_NODEBUG FORCEINLINE SizeType Add(const ElementType& Item)
+	                                ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1194,24): note: 'int TArray<FMissionBoardObjective,FDefaultAllocator>::Add(const FMissionBoardObjective &)': cannot convert argument 1 from 'FMissionObjective' to 'const FMissionBoardObjective &'
+    Mission.Objectives.Add(Objective);
+                       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1194,28): note: Reason: cannot convert from 'FMissionObjective' to 'const FMissionBoardObjective'
+    Mission.Objectives.Add(Objective);
+                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1194,28): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\Array.h(2706,34): note: or       'int TArray<FMissionBoardObjective,FDefaultAllocator>::Add(FMissionBoardObjective &&)'
+	UE_NODEBUG FORCEINLINE SizeType Add(ElementType&& Item)
+	                                ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1194,24): note: 'int TArray<FMissionBoardObjective,FDefaultAllocator>::Add(FMissionBoardObjective &&)': cannot convert argument 1 from 'FMissionObjective' to 'FMissionBoardObjective &&'
+    Mission.Objectives.Add(Objective);
+                       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1194,28): note: Reason: cannot convert from 'FMissionObjective' to 'FMissionBoardObjective'
+    Mission.Objectives.Add(Objective);
+                           ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1194,28): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1194,24): note: while trying to match the argument list '(FMissionObjective)'
+    Mission.Objectives.Add(Objective);
+                       ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1225,30): error C2511: 'bool UMissionBoardComponent::ValidateMissionObjective(const FMissionObjective &)': overloaded member function not found in 'UMissionBoardComponent'
+bool UMissionBoardComponent::ValidateMissionObjective(const FMissionObjective& Objective)
+                             ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\MissionBoardComponent.h(265,21): note: see declaration of 'UMissionBoardComponent'
+class ALEXANDER_API UMissionBoardComponent : public UActorComponent
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): error C2678: binary '!=': no operator found which takes a left-hand operand of type 'const EName' (or there is no acceptable conversion)
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(1094,33): note: could be 'bool FString::operator !=(const FString &) const'
+	[[nodiscard]] FORCEINLINE bool operator!=(const UE_STRING_CLASS& Rhs) const
+	                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool FString::operator !=(const FString &) const': cannot convert argument 2 from 'const EName' to 'const FString &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: Reason: cannot convert from 'const EName' to 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(1053,33): note: or 'bool FString::operator ==(const FString &) const' [rewritten expression '!(x == y)']
+	[[nodiscard]] FORCEINLINE bool operator==(const UE_STRING_CLASS& Rhs) const
+	                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool FString::operator ==(const FString &) const': cannot convert argument 2 from 'const EName' to 'const FString &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: Reason: cannot convert from 'const EName' to 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(215,21): note: or 'bool FString::operator ==(FIntrusiveUnsetOptionalState) const' [rewritten expression '!(x == y)']
+	[[nodiscard]] bool operator==(FIntrusiveUnsetOptionalState Tag) const
+	                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool FString::operator ==(FIntrusiveUnsetOptionalState) const': cannot convert argument 2 from 'const EName' to 'FIntrusiveUnsetOptionalState'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Json\Public\Dom\JsonValue.h(348,15): note: or 'bool operator ==(const JsonSimpleValueVariant &,const JsonSimpleValueVariant &)' [rewritten expression '!(x == y)']
+JSON_API bool operator==(const JsonSimpleValueVariant& Lhs, const JsonSimpleValueVariant& Rhs);
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const JsonSimpleValueVariant &,const JsonSimpleValueVariant &)': cannot convert argument 1 from 'const FString' to 'const JsonSimpleValueVariant &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: Reason: cannot convert from 'const FString' to 'const JsonSimpleValueVariant'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Json\Public\Dom\JsonValue.h(349,15): note: or 'bool operator ==(const JsonNumberValueVariants &,const JsonNumberValueVariants &)' [rewritten expression '!(x == y)']
+JSON_API bool operator==(const JsonNumberValueVariants& Lhs, const JsonNumberValueVariants& Rhs);
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const JsonNumberValueVariants &,const JsonNumberValueVariants &)': cannot convert argument 1 from 'const FString' to 'const JsonNumberValueVariants &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: Reason: cannot convert from 'const FString' to 'const JsonNumberValueVariants'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Json\Public\Dom\JsonValue.h(350,15): note: or 'bool operator ==(const JsonNumberValueVariants &,const FString &)' [rewritten expression '!(x == y)']
+JSON_API bool operator==(const JsonNumberValueVariants& Lhs, const FString& Rhs);
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const JsonNumberValueVariants &,const FString &)': cannot convert argument 1 from 'const FString' to 'const JsonNumberValueVariants &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: Reason: cannot convert from 'const FString' to 'const JsonNumberValueVariants'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\RHI\Public\RHIResources.h(3510,18): note: or 'bool operator ==(const FRayTracingGeometryInitializer &,const FRayTracingGeometryInitializer &)' [rewritten expression '!(x == y)']
+FORCEINLINE bool operator==(const FRayTracingGeometryInitializer& LHS, const FRayTracingGeometryInitializer& RHS)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const FRayTracingGeometryInitializer &,const FRayTracingGeometryInitializer &)': cannot convert argument 1 from 'const FString' to 'const FRayTracingGeometryInitializer &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: Reason: cannot convert from 'const FString' to 'const FRayTracingGeometryInitializer'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\RenderCore\Public\ShaderCore.h(60,6): note: or 'bool operator ==(const FShaderStatVariant,const FShaderStatVariant)' [rewritten expression '!(x == y)']
+bool operator==(const FShaderStatVariant LHS, const FShaderStatVariant RHS);
+     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const FShaderStatVariant,const FShaderStatVariant)': cannot convert argument 1 from 'const FString' to 'const FShaderStatVariant'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\RemoteExecutor.h(87,22): note: or 'bool operator ==(FRemoteWorkPriority,FRemoteWorkPriority)' [rewritten expression '!(x == y)']
+COREUOBJECT_API bool operator==(FRemoteWorkPriority Lhs, FRemoteWorkPriority Rhs);
+                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(FRemoteWorkPriority,FRemoteWorkPriority)': cannot convert argument 1 from 'const FString' to 'FRemoteWorkPriority'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Json\Public\Dom\JsonValue.h(348,15): note: or 'bool operator ==(const JsonSimpleValueVariant &,const JsonSimpleValueVariant &)' [synthesized expression '!(y == x)']
+JSON_API bool operator==(const JsonSimpleValueVariant& Lhs, const JsonSimpleValueVariant& Rhs);
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const JsonSimpleValueVariant &,const JsonSimpleValueVariant &)': cannot convert argument 1 from 'const EName' to 'const JsonSimpleValueVariant &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: Reason: cannot convert from 'const EName' to 'const JsonSimpleValueVariant'
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Json\Public\Dom\JsonValue.h(349,15): note: or 'bool operator ==(const JsonNumberValueVariants &,const JsonNumberValueVariants &)' [synthesized expression '!(y == x)']
+JSON_API bool operator==(const JsonNumberValueVariants& Lhs, const JsonNumberValueVariants& Rhs);
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const JsonNumberValueVariants &,const JsonNumberValueVariants &)': cannot convert argument 1 from 'const EName' to 'const JsonNumberValueVariants &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: Reason: cannot convert from 'const EName' to 'const JsonNumberValueVariants'
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Json\Public\Dom\JsonValue.h(350,15): note: or 'bool operator ==(const JsonNumberValueVariants &,const FString &)' [synthesized expression '!(y == x)']
+JSON_API bool operator==(const JsonNumberValueVariants& Lhs, const FString& Rhs);
+              ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const JsonNumberValueVariants &,const FString &)': cannot convert argument 1 from 'const EName' to 'const JsonNumberValueVariants &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: Reason: cannot convert from 'const EName' to 'const JsonNumberValueVariants'
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\RHI\Public\RHIResources.h(3510,18): note: or 'bool operator ==(const FRayTracingGeometryInitializer &,const FRayTracingGeometryInitializer &)' [synthesized expression '!(y == x)']
+FORCEINLINE bool operator==(const FRayTracingGeometryInitializer& LHS, const FRayTracingGeometryInitializer& RHS)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const FRayTracingGeometryInitializer &,const FRayTracingGeometryInitializer &)': cannot convert argument 1 from 'const EName' to 'const FRayTracingGeometryInitializer &'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: Reason: cannot convert from 'const EName' to 'const FRayTracingGeometryInitializer'
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\RenderCore\Public\ShaderCore.h(60,6): note: or 'bool operator ==(const FShaderStatVariant,const FShaderStatVariant)' [synthesized expression '!(y == x)']
+bool operator==(const FShaderStatVariant LHS, const FShaderStatVariant RHS);
+     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const FShaderStatVariant,const FShaderStatVariant)': cannot convert argument 1 from 'const EName' to 'const FShaderStatVariant'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\RemoteExecutor.h(87,22): note: or 'bool operator ==(FRemoteWorkPriority,FRemoteWorkPriority)' [synthesized expression '!(y == x)']
+COREUOBJECT_API bool operator==(FRemoteWorkPriority Lhs, FRemoteWorkPriority Rhs);
+                     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(FRemoteWorkPriority,FRemoteWorkPriority)': cannot convert argument 1 from 'const EName' to 'FRemoteWorkPriority'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,37): note: No user-defined-conversion operator available that can perform this conversion, or the operator cannot be called
+    return Objective.ObjectiveID != NAME_None;
+                                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(1108,33): note: or       'bool FString::operator !=(const CharType *) const'
+	[[nodiscard]] FORCEINLINE bool operator!=(const CharType* Rhs) const
+	                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool FString::operator !=(const CharType *) const': could not deduce template argument for 'const CharType *' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(1067,33): note: or 'bool FString::operator ==(const CharType *) const' [rewritten expression '!(x == y)']
+	[[nodiscard]] FORCEINLINE bool operator==(const CharType* Rhs) const
+	                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool FString::operator ==(const CharType *) const': could not deduce template argument for 'const CharType *' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\LazyObjectPtr.h(455,18): note: or       'bool operator !=(TYPE_OF_NULLPTR,const TLazyObjectPtr<T> &)'
+FORCEINLINE bool operator!=(TYPE_OF_NULLPTR, const TLazyObjectPtr<T>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(TYPE_OF_NULLPTR,const TLazyObjectPtr<T> &)': could not deduce template argument for 'const TLazyObjectPtr<T> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\LazyObjectPtr.h(448,18): note: or       'bool operator !=(const U *,const TLazyObjectPtr<T> &)'
+FORCEINLINE bool operator!=(const U* Lhs, const TLazyObjectPtr<T>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const U *,const TLazyObjectPtr<T> &)': could not deduce template argument for 'const U *' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(327,20): note: or       'bool operator !=(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)'
+[[nodiscard]] bool operator!=(const UE::Text::Private::TDisplayStringPtr<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringPtr<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringPtr<ObjectType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(321,20): note: or       'bool operator !=(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)'
+[[nodiscard]] bool operator!=(const UE::Text::Private::TDisplayStringPtr<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringRef<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringPtr<ObjectType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(315,20): note: or       'bool operator !=(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)'
+[[nodiscard]] bool operator!=(const UE::Text::Private::TDisplayStringRef<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringPtr<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringRef<ObjectType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(309,20): note: or       'bool operator !=(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)'
+[[nodiscard]] bool operator!=(const UE::Text::Private::TDisplayStringRef<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringRef<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringRef<ObjectType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2117,32): note: or       'bool operator !=(TYPE_OF_NULLPTR,const TWeakPtr<ObjectType,InMode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TYPE_OF_NULLPTR, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(TYPE_OF_NULLPTR,const TWeakPtr<ObjectType,InMode> &)': could not deduce template argument for 'const TWeakPtr<ObjectType,InMode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2105,32): note: or       'bool operator !=(const TWeakPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)'
+[[nodiscard]] FORCEINLINE bool operator!=( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TYPE_OF_NULLPTR )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TWeakPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'const TWeakPtr<ObjectType,InMode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2093,32): note: or       'bool operator !=(const TSharedPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TSharedPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2081,32): note: or       'bool operator !=(const TSharedRef<CastToType,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TSharedRef< ObjectTypeA, Mode > const& InSharedRefA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TSharedRef<CastToType,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2069,32): note: or       'bool operator !=(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2057,32): note: or       'bool operator !=(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedRef<CastFromType,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TSharedRef< ObjectTypeB, Mode > const& InSharedRefB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedRef<CastFromType,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2045,32): note: or       'bool operator !=(const TWeakPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TWeakPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1949,32): note: or       'bool operator !=(const TSharedPtr<ObjectTypeB,Mode> &,const TSharedRef<CastToType,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TSharedPtr< ObjectTypeB, Mode > const& InSharedPtr, TSharedRef< ObjectTypeA, Mode > const& InSharedRef )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TSharedPtr<ObjectTypeB,Mode> &,const TSharedRef<CastToType,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeB,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1925,32): note: or       'bool operator !=(const TSharedRef<CastToType,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TSharedRef< ObjectTypeA, Mode > const& InSharedRef, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtr )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TSharedRef<CastToType,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1901,32): note: or       'bool operator !=(TYPE_OF_NULLPTR,const TSharedPtr<ObjectType,InMode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TYPE_OF_NULLPTR, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(TYPE_OF_NULLPTR,const TSharedPtr<ObjectType,InMode> &)': could not deduce template argument for 'const TSharedPtr<ObjectType,InMode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1889,32): note: or       'bool operator !=(const TSharedPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)'
+[[nodiscard]] FORCEINLINE bool operator!=( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TYPE_OF_NULLPTR )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TSharedPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'const TSharedPtr<ObjectType,InMode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1877,32): note: or       'bool operator !=(const TSharedPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TSharedPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1829,32): note: or       'bool operator !=(const TSharedRef<CastToType,Mode> &,const TSharedRef<CastFromType,Mode> &)'
+[[nodiscard]] FORCEINLINE bool operator!=( TSharedRef< ObjectTypeA, Mode > const& InSharedRefA, TSharedRef< ObjectTypeB, Mode > const& InSharedRefB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const TSharedRef<CastToType,Mode> &,const TSharedRef<CastFromType,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\ArrayView.h(914,6): note: or       'bool operator !=(TArrayView<InElementType,InSizeType>,TArrayView<OtherElementType,OtherSizeType>)'
+bool operator!=(TArrayView<ElementType, SizeType>, TArrayView<OtherElementType, OtherSizeType>) = delete;
+     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(TArrayView<InElementType,InSizeType>,TArrayView<OtherElementType,OtherSizeType>)': could not deduce template argument for 'TArrayView<InElementType,InSizeType>' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(1122,40): note: or       'bool operator !=(const CharType *,const FString &)'
+	[[nodiscard]] FORCEINLINE friend bool operator!=(const CharType* Lhs, const UE_STRING_CLASS& Rhs)
+	                                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator !=(const CharType *,const FString &)': could not deduce template argument for 'const CharType *' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(1081,40): note: or 'bool operator ==(const CharType *,const FString &)' [rewritten expression '!(x == y)']
+	[[nodiscard]] FORCEINLINE friend bool operator==(const CharType* Lhs, const UE_STRING_CLASS& Rhs)
+	                                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const CharType *,const FString &)': could not deduce template argument for 'const CharType *' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\ArrayView.h(912,6): note: or 'bool operator ==(TArrayView<InElementType,InSizeType>,TArrayView<OtherElementType,OtherSizeType>)' [rewritten expression '!(x == y)']
+bool operator==(TArrayView<ElementType, SizeType>, TArrayView<OtherElementType, OtherSizeType>) = delete;
+     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TArrayView<InElementType,InSizeType>,TArrayView<OtherElementType,OtherSizeType>)': could not deduce template argument for 'TArrayView<InElementType,InSizeType>' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\ArrayView.h(927,20): note: or 'bool operator ==(RangeType &&,TArrayView<ElementType,int32>)' [rewritten expression '!(x == y)']
+[[nodiscard]] bool operator==(RangeType&& Lhs, TArrayView<ElementType> Rhs)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(RangeType &&,TArrayView<ElementType,int32>)': could not deduce template argument for 'TArrayView<ElementType,int32>' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\ArrayView.h(938,20): note: or 'bool operator ==(TArrayView<ElementType,int32>,RangeType &&)' [rewritten expression '!(x == y)']
+[[nodiscard]] bool operator==(TArrayView<ElementType> Lhs, RangeType&& Rhs)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TArrayView<ElementType,int32>,RangeType &&)': could not deduce template argument for 'TArrayView<ElementType,int32>' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1817,32): note: or 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TSharedRef<CastFromType,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedRef< ObjectTypeA, Mode > const& InSharedRefA, TSharedRef< ObjectTypeB, Mode > const& InSharedRefB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TSharedRef<CastFromType,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1841,32): note: or 'bool operator ==(const TSharedPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1853,32): note: or 'bool operator ==(const TSharedPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TYPE_OF_NULLPTR )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'const TSharedPtr<ObjectType,InMode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1865,32): note: or 'bool operator ==(TYPE_OF_NULLPTR,const TSharedPtr<ObjectType,InMode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TYPE_OF_NULLPTR, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TYPE_OF_NULLPTR,const TSharedPtr<ObjectType,InMode> &)': could not deduce template argument for 'const TSharedPtr<ObjectType,InMode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1913,32): note: or 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedRef< ObjectTypeA, Mode > const& InSharedRef, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtr )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1937,32): note: or 'bool operator ==(const TSharedPtr<ObjectTypeB,Mode> &,const TSharedRef<CastToType,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedPtr< ObjectTypeB, Mode > const& InSharedPtr, TSharedRef< ObjectTypeA, Mode > const& InSharedRef )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedPtr<ObjectTypeB,Mode> &,const TSharedRef<CastToType,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeB,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1961,32): note: or 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1973,32): note: or 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedRef<CastFromType,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TSharedRef< ObjectTypeB, Mode > const& InSharedRefB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedRef<CastFromType,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1985,32): note: or 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1997,32): note: or 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedRef< ObjectTypeA, Mode > const& InSharedRefA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2009,32): note: or 'bool operator ==(const TSharedPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeA,Mode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2021,32): note: or 'bool operator ==(const TWeakPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TYPE_OF_NULLPTR )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TWeakPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'const TWeakPtr<ObjectType,InMode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2033,32): note: or 'bool operator ==(TYPE_OF_NULLPTR,const TWeakPtr<ObjectType,InMode> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] FORCEINLINE bool operator==( TYPE_OF_NULLPTR, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TYPE_OF_NULLPTR,const TWeakPtr<ObjectType,InMode> &)': could not deduce template argument for 'const TWeakPtr<ObjectType,InMode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Misc\NotNull.h(265,21): note: or 'unknown-type operator ==(const TNotNull<T> &,const TNotNull<U> &)' [rewritten expression '!(x == y)']
+	[[nodiscard]] auto operator==(const TNotNull<T>& Lhs, const TNotNull<U>& Rhs) -> decltype((T)Lhs == (U)Rhs)
+	                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const TNotNull<T> &,const TNotNull<U> &)': could not deduce template argument for 'const TNotNull<T> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Misc\NotNull.h(270,21): note: or 'unknown-type operator ==(const TNotNull<T> &,const U &)' [rewritten expression '!(x == y)']
+	[[nodiscard]] auto operator==(const TNotNull<T>& Lhs, const U& Rhs) -> decltype((T)Lhs == Rhs)
+	                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const TNotNull<T> &,const U &)': could not deduce template argument for 'const TNotNull<T> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Misc\NotNull.h(278,7): note: or 'bool operator ==(const TNotNull<T> &,TYPE_OF_NULLPTR)' [rewritten expression '!(x == y)']
+	bool operator==(const TNotNull<T>& Lhs, TYPE_OF_NULLPTR Rhs) = delete;
+	     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TNotNull<T> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'const TNotNull<T> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(285,20): note: or 'bool operator ==(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] bool operator==(const UE::Text::Private::TDisplayStringRef<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringRef<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringRef<ObjectType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(291,20): note: or 'bool operator ==(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] bool operator==(const UE::Text::Private::TDisplayStringRef<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringPtr<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringRef<ObjectType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(297,20): note: or 'bool operator ==(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] bool operator==(const UE::Text::Private::TDisplayStringPtr<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringRef<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringPtr<ObjectType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(303,20): note: or 'bool operator ==(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)' [rewritten expression '!(x == y)']
+[[nodiscard]] bool operator==(const UE::Text::Private::TDisplayStringPtr<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringPtr<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringPtr<ObjectType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(440,18): note: or 'unknown-type operator ==(const TFieldPath<PropertyType> &,const TFieldPath<PropertyType> &)' [rewritten expression '!(x == y)']
+FORCEINLINE auto operator==(const TFieldPath<LhsType>& Lhs, const TFieldPath<LhsType>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const TFieldPath<PropertyType> &,const TFieldPath<PropertyType> &)': could not deduce template argument for 'const TFieldPath<PropertyType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(452,18): note: or 'unknown-type operator ==(const TFieldPath<PropertyType> &,const RhsType *)' [rewritten expression '!(x == y)']
+FORCEINLINE auto operator==(const TFieldPath<LhsType>& Lhs, const RhsType* Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const TFieldPath<PropertyType> &,const RhsType *)': could not deduce template argument for 'const TFieldPath<PropertyType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(464,18): note: or 'unknown-type operator ==(const LhsType *,const TFieldPath<RhsType> &)' [rewritten expression '!(x == y)']
+FORCEINLINE auto operator==(const LhsType* Lhs, const TFieldPath<RhsType>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const LhsType *,const TFieldPath<RhsType> &)': could not deduce template argument for 'const LhsType *' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(475,18): note: or 'bool operator ==(TFieldPath<PropertyType> &,TYPE_OF_NULLPTR)' [rewritten expression '!(x == y)']
+FORCEINLINE bool operator==(TFieldPath<LhsType>& Lhs, TYPE_OF_NULLPTR)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TFieldPath<PropertyType> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'TFieldPath<PropertyType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(485,18): note: or 'bool operator ==(TYPE_OF_NULLPTR,TFieldPath<PropertyType> &)' [rewritten expression '!(x == y)']
+FORCEINLINE bool operator==(TYPE_OF_NULLPTR, TFieldPath<RhsType>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TYPE_OF_NULLPTR,TFieldPath<PropertyType> &)': could not deduce template argument for 'TFieldPath<PropertyType> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\LazyObjectPtr.h(434,18): note: or 'bool operator ==(const U *,const TLazyObjectPtr<T> &)' [rewritten expression '!(x == y)']
+FORCEINLINE bool operator==(const U* Lhs, const TLazyObjectPtr<T>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const U *,const TLazyObjectPtr<T> &)': could not deduce template argument for 'const U *' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\LazyObjectPtr.h(441,18): note: or 'bool operator ==(TYPE_OF_NULLPTR,const TLazyObjectPtr<T> &)' [rewritten expression '!(x == y)']
+FORCEINLINE bool operator==(TYPE_OF_NULLPTR, const TLazyObjectPtr<T>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TYPE_OF_NULLPTR,const TLazyObjectPtr<T> &)': could not deduce template argument for 'const TLazyObjectPtr<T> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\UnrealString.h.inl(1081,40): note: or 'bool operator ==(const CharType *,const FString &)' [synthesized expression '!(y == x)']
+	[[nodiscard]] FORCEINLINE friend bool operator==(const CharType* Lhs, const UE_STRING_CLASS& Rhs)
+	                                      ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const CharType *,const FString &)': could not deduce template argument for 'const CharType *' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\ArrayView.h(912,6): note: or 'bool operator ==(TArrayView<InElementType,InSizeType>,TArrayView<OtherElementType,OtherSizeType>)' [synthesized expression '!(y == x)']
+bool operator==(TArrayView<ElementType, SizeType>, TArrayView<OtherElementType, OtherSizeType>) = delete;
+     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TArrayView<InElementType,InSizeType>,TArrayView<OtherElementType,OtherSizeType>)': could not deduce template argument for 'TArrayView<InElementType,InSizeType>' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\ArrayView.h(927,20): note: or 'bool operator ==(RangeType &&,TArrayView<ElementType,int32>)' [synthesized expression '!(y == x)']
+[[nodiscard]] bool operator==(RangeType&& Lhs, TArrayView<ElementType> Rhs)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(RangeType &&,TArrayView<ElementType,int32>)': could not deduce template argument for 'TArrayView<ElementType,int32>' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Containers\ArrayView.h(938,20): note: or 'bool operator ==(TArrayView<ElementType,int32>,RangeType &&)' [synthesized expression '!(y == x)']
+[[nodiscard]] bool operator==(TArrayView<ElementType> Lhs, RangeType&& Rhs)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TArrayView<ElementType,int32>,RangeType &&)': could not deduce template argument for 'TArrayView<ElementType,int32>' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1817,32): note: or 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TSharedRef<CastFromType,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedRef< ObjectTypeA, Mode > const& InSharedRefA, TSharedRef< ObjectTypeB, Mode > const& InSharedRefB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TSharedRef<CastFromType,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1841,32): note: or 'bool operator ==(const TSharedPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeA,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1853,32): note: or 'bool operator ==(const TSharedPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TYPE_OF_NULLPTR )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'const TSharedPtr<ObjectType,InMode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1865,32): note: or 'bool operator ==(TYPE_OF_NULLPTR,const TSharedPtr<ObjectType,InMode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TYPE_OF_NULLPTR, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TYPE_OF_NULLPTR,const TSharedPtr<ObjectType,InMode> &)': could not deduce template argument for 'const TSharedPtr<ObjectType,InMode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1913,32): note: or 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedRef< ObjectTypeA, Mode > const& InSharedRef, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtr )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1937,32): note: or 'bool operator ==(const TSharedPtr<ObjectTypeB,Mode> &,const TSharedRef<CastToType,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedPtr< ObjectTypeB, Mode > const& InSharedPtr, TSharedRef< ObjectTypeA, Mode > const& InSharedRef )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedPtr<ObjectTypeB,Mode> &,const TSharedRef<CastToType,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeB,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1961,32): note: or 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1973,32): note: or 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedRef<CastFromType,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TSharedRef< ObjectTypeB, Mode > const& InSharedRefB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedRef<CastFromType,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1985,32): note: or 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TSharedPtr< ObjectTypeB, Mode > const& InSharedPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TWeakPtr<ObjectTypeA,Mode> &,const TSharedPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TWeakPtr<ObjectTypeA,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(1997,32): note: or 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedRef< ObjectTypeA, Mode > const& InSharedRefA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedRef<CastToType,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedRef<CastToType,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2009,32): note: or 'bool operator ==(const TSharedPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TSharedPtr< ObjectTypeA, Mode > const& InSharedPtrA, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TSharedPtr<ObjectTypeA,Mode> &,const TWeakPtr<ObjectTypeB,Mode> &)': could not deduce template argument for 'const TSharedPtr<ObjectTypeA,Mode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2021,32): note: or 'bool operator ==(const TWeakPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TWeakPtr< ObjectTypeA, Mode > const& InWeakPtrA, TYPE_OF_NULLPTR )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TWeakPtr<ObjectType,InMode> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'const TWeakPtr<ObjectType,InMode> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Templates\SharedPointer.h(2033,32): note: or 'bool operator ==(TYPE_OF_NULLPTR,const TWeakPtr<ObjectType,InMode> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] FORCEINLINE bool operator==( TYPE_OF_NULLPTR, TWeakPtr< ObjectTypeB, Mode > const& InWeakPtrB )
+                               ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TYPE_OF_NULLPTR,const TWeakPtr<ObjectType,InMode> &)': could not deduce template argument for 'const TWeakPtr<ObjectType,InMode> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Misc\NotNull.h(265,21): note: or 'unknown-type operator ==(const TNotNull<T> &,const TNotNull<U> &)' [synthesized expression '!(y == x)']
+	[[nodiscard]] auto operator==(const TNotNull<T>& Lhs, const TNotNull<U>& Rhs) -> decltype((T)Lhs == (U)Rhs)
+	                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const TNotNull<T> &,const TNotNull<U> &)': could not deduce template argument for 'const TNotNull<T> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Misc\NotNull.h(270,21): note: or 'unknown-type operator ==(const TNotNull<T> &,const U &)' [synthesized expression '!(y == x)']
+	[[nodiscard]] auto operator==(const TNotNull<T>& Lhs, const U& Rhs) -> decltype((T)Lhs == Rhs)
+	                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const TNotNull<T> &,const U &)': could not deduce template argument for 'const TNotNull<T> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Misc\NotNull.h(278,7): note: or 'bool operator ==(const TNotNull<T> &,TYPE_OF_NULLPTR)' [synthesized expression '!(y == x)']
+	bool operator==(const TNotNull<T>& Lhs, TYPE_OF_NULLPTR Rhs) = delete;
+	     ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const TNotNull<T> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'const TNotNull<T> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(285,20): note: or 'bool operator ==(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] bool operator==(const UE::Text::Private::TDisplayStringRef<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringRef<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringRef<ObjectType> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(291,20): note: or 'bool operator ==(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] bool operator==(const UE::Text::Private::TDisplayStringRef<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringPtr<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const UE::Text::Private::TDisplayStringRef<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringRef<ObjectType> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(297,20): note: or 'bool operator ==(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] bool operator==(const UE::Text::Private::TDisplayStringPtr<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringRef<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringRef<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringPtr<ObjectType> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\Internationalization\LocalizedTextSourceTypes.h(303,20): note: or 'bool operator ==(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)' [synthesized expression '!(y == x)']
+[[nodiscard]] bool operator==(const UE::Text::Private::TDisplayStringPtr<ObjectTypeA>& A, const UE::Text::Private::TDisplayStringPtr<ObjectTypeB>& B)
+                   ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const UE::Text::Private::TDisplayStringPtr<ObjectType> &,const UE::Text::Private::TDisplayStringPtr<ObjectTypeB> &)': could not deduce template argument for 'const UE::Text::Private::TDisplayStringPtr<ObjectType> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(440,18): note: or 'unknown-type operator ==(const TFieldPath<PropertyType> &,const TFieldPath<PropertyType> &)' [synthesized expression '!(y == x)']
+FORCEINLINE auto operator==(const TFieldPath<LhsType>& Lhs, const TFieldPath<LhsType>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const TFieldPath<PropertyType> &,const TFieldPath<PropertyType> &)': could not deduce template argument for 'const TFieldPath<PropertyType> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(452,18): note: or 'unknown-type operator ==(const TFieldPath<PropertyType> &,const RhsType *)' [synthesized expression '!(y == x)']
+FORCEINLINE auto operator==(const TFieldPath<LhsType>& Lhs, const RhsType* Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const TFieldPath<PropertyType> &,const RhsType *)': could not deduce template argument for 'const TFieldPath<PropertyType> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(464,18): note: or 'unknown-type operator ==(const LhsType *,const TFieldPath<RhsType> &)' [synthesized expression '!(y == x)']
+FORCEINLINE auto operator==(const LhsType* Lhs, const TFieldPath<RhsType>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'unknown-type operator ==(const LhsType *,const TFieldPath<RhsType> &)': could not deduce template argument for 'const LhsType *' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(475,18): note: or 'bool operator ==(TFieldPath<PropertyType> &,TYPE_OF_NULLPTR)' [synthesized expression '!(y == x)']
+FORCEINLINE bool operator==(TFieldPath<LhsType>& Lhs, TYPE_OF_NULLPTR)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TFieldPath<PropertyType> &,TYPE_OF_NULLPTR)': could not deduce template argument for 'TFieldPath<PropertyType> &' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\FieldPath.h(485,18): note: or 'bool operator ==(TYPE_OF_NULLPTR,TFieldPath<PropertyType> &)' [synthesized expression '!(y == x)']
+FORCEINLINE bool operator==(TYPE_OF_NULLPTR, TFieldPath<RhsType>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TYPE_OF_NULLPTR,TFieldPath<PropertyType> &)': could not deduce template argument for 'TFieldPath<PropertyType> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\LazyObjectPtr.h(434,18): note: or 'bool operator ==(const U *,const TLazyObjectPtr<T> &)' [synthesized expression '!(y == x)']
+FORCEINLINE bool operator==(const U* Lhs, const TLazyObjectPtr<T>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(const U *,const TLazyObjectPtr<T> &)': could not deduce template argument for 'const U *' from 'const EName'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\CoreUObject\Public\UObject\LazyObjectPtr.h(441,18): note: or 'bool operator ==(TYPE_OF_NULLPTR,const TLazyObjectPtr<T> &)' [synthesized expression '!(y == x)']
+FORCEINLINE bool operator==(TYPE_OF_NULLPTR, const TLazyObjectPtr<T>& Rhs)
+                 ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: 'bool operator ==(TYPE_OF_NULLPTR,const TLazyObjectPtr<T> &)': could not deduce template argument for 'const TLazyObjectPtr<T> &' from 'const FString'
+    return Objective.ObjectiveID != NAME_None;
+                    ^
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MissionBoardComponent.cpp(1227,21): note: while trying to match the argument list '(const FString, const EName)'
+Trace written to file C:/Users/allen/AppData/Local/UnrealBuildTool/Log.uba with size 11.6kb
+Total time in Unreal Build Accelerator local executor: 7.22 seconds
+
+Result: Failed (OtherCompilationError)
+Total execution time: 9.43 seconds

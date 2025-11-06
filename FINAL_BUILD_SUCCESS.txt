@@ -1,0 +1,20 @@
+Using bundled DotNet SDK version: 8.0.300 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" Alexander Development Win64 -Project=C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject
+Log file: C:\Users\allen\AppData\Local\UnrealBuildTool\Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\allen\Desktop\Alexander\Alexander).
+Invalidating makefile for Alexander (working set of source files changed)
+Available x64 toolchains (2):
+ * C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35219, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+ * C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35217, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2022 compiler version 14.44.35219 is not a preferred version. Please use the latest preferred version 14.38.33130
+Parsing headers for Alexander
+  Running Internal UnrealHeaderTool C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject C:\Users\allen\Desktop\Alexander\Alexander\Intermediate\Build\Win64\Alexander\Development\Alexander.uhtmanifest -WarningsAsErrors -installed
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(323): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'AQuestSystem'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(326): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'AAudioManager'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Public\FirstMissionGameMode.h(329): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'AVFXManager'
+Total of 0 written
+
+Result: Failed (OtherCompilationError)
+Total execution time: 2.20 seconds

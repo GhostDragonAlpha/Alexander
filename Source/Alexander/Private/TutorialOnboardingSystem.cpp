@@ -1389,3 +1389,17 @@ void UTutorialOnboardingSystem::DrawDebugTutorialInfo()
         DrawDebugSphere(GetWorld(), HighlightMesh->GetComponentLocation(), 50.0f, 16, FColor::Yellow, false, 0.0f);
     }
 }
+
+void UTutorialOnboardingSystem::UnregisterTutorialEventHandler(const FString& EventName)
+{
+    // Remove the event handler for the specified event
+    if (TutorialEventHandlers.Contains(EventName))
+    {
+        TutorialEventHandlers.Remove(EventName);
+        UE_LOG(LogTemp, Log, TEXT("Unregistered tutorial event handler: %s"), *EventName);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Could not find tutorial event handler: %s"), *EventName);
+    }
+}

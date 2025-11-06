@@ -3,6 +3,7 @@
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
+#include "TradingPostComponent.h"
 
 ASpaceStationHub::ASpaceStationHub()
 {

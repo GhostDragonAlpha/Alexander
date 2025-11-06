@@ -8,7 +8,7 @@
 
 // Static member definitions
 UAdvancedAIBehaviors* FAlexanderModule::AISystem = nullptr;
-UEnhancedVFXSystem* FAlexanderModule::VFXSystem = nullptr;
+//UEnhancedVFXSystem* FAlexanderModule::VFXSystem = nullptr;
 UAudioSystemManager* FAlexanderModule::AudioSystem = nullptr;
 UTutorialOnboardingSystem* FAlexanderModule::TutorialSystem = nullptr;
 
@@ -44,6 +44,8 @@ void FAlexanderModule::InitializePhase7Systems()
         UE_LOG(LogTemp, Log, TEXT("Advanced AI Behaviors System Initialized"));
     }
     
+    // DISABLED: EnhancedVFXSystem temporarily disabled
+    /*
     // Create Enhanced VFX System
     VFXSystem = NewObject<UEnhancedVFXSystem>();
     if (VFXSystem)
@@ -51,6 +53,7 @@ void FAlexanderModule::InitializePhase7Systems()
         VFXSystem->InitializeVFXSystem();
         UE_LOG(LogTemp, Log, TEXT("Enhanced VFX System Initialized"));
     }
+    */
     
     // Create Audio System Manager
     AudioSystem = NewObject<UAudioSystemManager>();
@@ -87,6 +90,8 @@ void FAlexanderModule::ShutdownPhase7Systems()
         UE_LOG(LogTemp, Log, TEXT("Audio System Manager Shutdown"));
     }
     
+    // DISABLED: EnhancedVFXSystem temporarily disabled
+    /*
     // Shutdown VFX System
     if (VFXSystem)
     {
@@ -94,6 +99,7 @@ void FAlexanderModule::ShutdownPhase7Systems()
         VFXSystem = nullptr;
         UE_LOG(LogTemp, Log, TEXT("Enhanced VFX System Shutdown"));
     }
+    */
     
     // Shutdown AI System
     if (AISystem)

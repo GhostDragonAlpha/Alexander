@@ -120,7 +120,7 @@ void UShipSystemsManager::SetSystemStatus(EShipSystemType SystemType, EShipSyste
 	UpdateSystemStatusMessage(*System);
 	
 	// Broadcast status change
-	OnSystemStatusChanged.Broadcast(SystemType, OldStatus, NewStatus);
+	OnSystemStatusChanged.Broadcast(SystemType, NewStatus);
 	
 	UE_LOG(LogTemp, Log, TEXT("System %s status changed to %s"), 
 		*System->SystemName, *UEnum::GetValueAsString(NewStatus));
@@ -197,7 +197,7 @@ void UShipSystemsManager::RepairSystem(EShipSystemType SystemType, float RepairA
 	System->Efficiency = System->Health / 100.0f;
 	
 	// Broadcast repair event
-	OnSystemRepaired.Broadcast(SystemType, RepairAmount);
+	OnSystemRepaired.Broadcast(SystemType);
 	
 	UE_LOG(LogTemp, Log, TEXT("System %s repaired %.1f, health: %.1f%%"), 
 		*System->SystemName, RepairAmount, System->Health);
@@ -698,17 +698,6 @@ void UShipSystemsManager::HandlePowerSurge()
 	}
 }
 
-float UShipSystemsManager::CalculateAverageTemperature() const
-{
-	if (ShipSystems.Num() == 0)
-		return 20.0f;
-		
-	float TotalTemp = 0.0f;
-	for (const FShipSystemData& System : ShipSystems)
-	{
-		TotalTemp += System.Temperature;
-}
-
 void UShipSystemsManager::InitializeDefaultSystems()
 {
 	// Create essential ship systems
@@ -767,4 +756,25 @@ bool UShipSystemsManager::IsSystemCritical(EShipSystemType SystemType) const
 		   SystemType == EShipSystemType::Power || 
 		   SystemType == EShipSystemType::Cooling ||
 		   SystemType == EShipSystemType::Navigation;
+}
+
+void UShipSystemsManager::SetPowerPriority(EShipSystemType SystemType, int32 Priority)
+{
+	// Clamp priority to valid range (0 = lowest, 100 = highest)
+	int32 ClampedPriority = FMath::Clamp(Priority, 0, 100);
+	
+	// Find the system and update its priority
+	for (FShipSystemData& System : ShipSystems)
+	{
+		if (System.SystemType == SystemType)
+		{
+			// Store priority (could be in FShipSystemData if needed)
+			// For now, adjust power allocation based on priority
+			float PriorityMultiplier = (ClampedPriority / 100.0f) * 2.0f; // 0.0 to 2.0
+			System.PowerUsage *= PriorityMultiplier;
+			
+			UE_LOG(LogTemp, Log, TEXT("Set power priority for %s to %d"), *System.SystemName, ClampedPriority);
+			break;
+		}
+	}
 }

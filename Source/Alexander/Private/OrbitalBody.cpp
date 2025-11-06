@@ -756,7 +756,89 @@ void AOrbitalBody::SetOrbitalElements(float InSemiMajorAxis, float InEccentricit
     // Velocity is perpendicular to radius vector
     FVector VelocityDirection = FVector(-Position2D.Y, Position2D.X, 0.0f).GetSafeNormal();
     Velocity = VelocityDirection * OrbitalSpeed;
-	
+
 	// Set to ballistic mode to use physics simulation
 	OrbitMode = EOrbitMode::Ballistic;
+}
+
+void AOrbitalBody::UpdateRotation(float DeltaTime)
+{
+	// Update rotation based on rotation period (in hours)
+	if (!FMath::IsNearlyZero(RotationPeriod))
+	{
+		// Convert DeltaTime from seconds to hours and calculate rotation increment
+		float DeltaHours = DeltaTime / 3600.0f;
+		float RotationIncrement = (DeltaHours / RotationPeriod) * 360.0f; // Degrees per frame
+
+		CurrentRotation += RotationIncrement;
+		CurrentRotation = FMath::Fmod(CurrentRotation, 360.0f); // Keep in 0-360 range
+
+		// Apply to actor rotation
+		FRotator NewRotation = GetActorRotation();
+		NewRotation.Yaw = CurrentRotation;
+		SetActorRotation(NewRotation);
+	}
+}
+
+void AOrbitalBody::DrawDebug() const
+{
+	// Debug visualization using DrawDebugHelpers
+	if (GetWorld())
+	{
+		FVector Location = GetActorLocation();
+
+		// Draw body as sphere
+		DrawDebugSphere(GetWorld(), Location, Radius, 12, FColor::Green, false, -1.0f, 0, 2.0f);
+
+		// Draw orbit path if we have a target
+		if (OrbitTarget.IsValid() && OrbitalMechanics)
+		{
+			// TODO: Draw orbital path visualization
+		}
+	}
+}
+
+void AOrbitalBody::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	
+	// Initialize physics component after all components are created
+	if (!PhysicsComponent)
+	{
+		PhysicsComponent = FindComponentByClass<UPrimitiveComponent>();
+	}
+}
+
+void AOrbitalBody::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+	
+	// Construction-time initialization
+	if (MeshComponent && !MeshComponent->GetStaticMesh())
+	{
+		// Will be set up in editor or at runtime
+	}
+}
+
+void AOrbitalBody::PostLoad()
+{
+	Super::PostLoad();
+	
+	// Post-load initialization
+	if (OrbitalMechanics)
+	{
+		OrbitalMechanics->Initialize();
+	}
+}
+
+void AOrbitalBody::NotifyHit(UPrimitiveComponent* MyComp, AActor* Other, UPrimitiveComponent* OtherComp, 
+	bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
+{
+	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
+	
+	// Handle collisions if needed
+	if (bEnableCollision && Other)
+	{
+		// Collision handling
+	}
 }

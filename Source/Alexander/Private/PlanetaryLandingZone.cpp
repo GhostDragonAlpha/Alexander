@@ -759,6 +759,8 @@ void APlanetaryLandingZone::ProcessTradeActivity(const FName& ItemID, int32 Quan
     UpdateItemPrice(ItemID);
 }
 
+// DISABLED: Mission system temporarily disabled - these functions were commented out in header
+/*
 void APlanetaryLandingZone::GenerateLocalMissions()
 {
     if (!LandingZoneData.Services.bMissionBoard)
@@ -811,7 +813,7 @@ TArray<FName> APlanetaryLandingZone::GetAvailableMissionTypes()
 bool APlanetaryLandingZone::SupportsMissionType(EMissionType MissionType)
 {
     TArray<FName> AvailableTypes = GetAvailableMissionTypes();
-    
+
     switch (MissionType)
     {
         case EMissionType::Delivery:
@@ -831,6 +833,7 @@ bool APlanetaryLandingZone::SupportsMissionType(EMissionType MissionType)
             return false;
     }
 }
+*/
 
 float APlanetaryLandingZone::GetDistanceToZone(const FVector& Location)
 {

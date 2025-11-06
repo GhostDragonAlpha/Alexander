@@ -1,595 +1,430 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PerformanceProfiler.h"
-#include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
-#include "GameFramework/Actor.h"
-#include "HAL/PlatformMemory.h"
-#include "Stats/Stats.h"
-#include "RenderingThread.h"
-#include "Misc/FileHelper.h"
-#include "Misc/Paths.h"
-#include "HAL/PlatformTime.h"
-#include "Engine/Engine.h"
-#include "EngineUtils.h"
-#include "GameSystemCoordinator.h"
+#include "GameFramework/GameState.h"
+#include "HAL/Platform.h"
+#include "Containers/List.h"
 
 UPerformanceProfiler::UPerformanceProfiler()
+	: ProfilingLevel(EProfilingLevel::Basic)
+	, bEnableAutoExport(false)
+	, AutoExportInterval(60.0f)
+	, ExportDirectory(TEXT("Saved/Profiling"))
+	, bDisplayOverlay(false)
+	, OverlayUpdateRate(0.1f)
+	, MaxStoredFrames(3600) // 1 minute at 60 FPS
+	, bIsProfiling(false)
+	, TimeSinceLastExport(0.0f)
+	, TimeSinceLastOverlayUpdate(0.0f)
 {
-    PrimaryComponentTick.bCanEverTick = true;
-    PrimaryComponentTick.TickInterval = 0.0f; // Tick every frame for accurate profiling
-    
-    // Default settings
-    ProfilingLevel = EProfilingLevel::Detailed;
-    bEnableAutoExport = false;
-    AutoExportInterval = 300.0f; // 5 minutes
-    ExportDirectory = FPaths::ProjectSavedDir() + TEXT("Profiling/");
-    bDisplayOverlay = false;
-    OverlayUpdateRate = 0.5f;
-    MaxStoredFrames = 1000;
-    
-    // Internal state
-    bIsProfiling = false;
-    TimeSinceLastExport = 0.0f;
-    TimeSinceLastOverlayUpdate = 0.0f;
+	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.TickInterval = 0.016f; // ~60 FPS
 }
 
 void UPerformanceProfiler::BeginPlay()
 {
-    Super::BeginPlay();
-    
-    // Auto-start profiling if level is not None
-    if (ProfilingLevel != EProfilingLevel::None)
-    {
-        StartProfiling();
-    }
+	Super::BeginPlay();
+	
+	if (ProfilingLevel != EProfilingLevel::None)
+	{
+		StartProfiling();
+	}
 }
 
 void UPerformanceProfiler::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    // Export final report if auto-export is enabled
-    if (bEnableAutoExport && bIsProfiling)
-    {
-        ExportSystemReport(TEXT("FinalReport"));
-    }
-    
-    StopProfiling();
-    Super::EndPlay(EndPlayReason);
+	StopProfiling();
+	Super::EndPlay(EndPlayReason);
 }
 
 void UPerformanceProfiler::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    
-    if (!bIsProfiling || ProfilingLevel == EProfilingLevel::None)
-    {
-        return;
-    }
-    
-    // Capture frame metrics
-    CaptureFrameMetrics();
-    
-    // Check performance thresholds
-    CheckPerformanceThresholds();
-    
-    // Handle auto-export
-    if (bEnableAutoExport)
-    {
-        TimeSinceLastExport += DeltaTime;
-        if (TimeSinceLastExport >= AutoExportInterval)
-        {
-            AutoExport();
-            TimeSinceLastExport = 0.0f;
-        }
-    }
-    
-    // Update overlay if enabled
-    if (bDisplayOverlay)
-    {
-        TimeSinceLastOverlayUpdate += DeltaTime;
-        if (TimeSinceLastOverlayUpdate >= OverlayUpdateRate)
-        {
-            UpdateOverlay();
-            TimeSinceLastOverlayUpdate = 0.0f;
-        }
-    }
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	if (!bIsProfiling || ProfilingLevel == EProfilingLevel::None)
+	{
+		return;
+	}
+	
+	// Capture frame metrics
+	CaptureFrameMetrics();
+	
+	// Check thresholds
+	CheckPerformanceThresholds();
+	
+	// Update overlay
+	if (bDisplayOverlay)
+	{
+		TimeSinceLastOverlayUpdate += DeltaTime;
+		if (TimeSinceLastOverlayUpdate >= OverlayUpdateRate)
+		{
+			UpdateOverlay();
+			TimeSinceLastOverlayUpdate = 0.0f;
+		}
+	}
+	
+	// Auto-export if enabled
+	if (bEnableAutoExport)
+	{
+		TimeSinceLastExport += DeltaTime;
+		if (TimeSinceLastExport >= AutoExportInterval)
+		{
+			AutoExport();
+			TimeSinceLastExport = 0.0f;
+		}
+	}
 }
 
 void UPerformanceProfiler::StartProfiling()
 {
-    if (bIsProfiling)
-    {
-        return;
-    }
-    
-    bIsProfiling = true;
-    ResetMetrics();
-    
-    UE_LOG(LogTemp, Log, TEXT("Performance Profiler: Started profiling at level %d"), (int32)ProfilingLevel);
+	bIsProfiling = true;
+	FrameHistory.Reset();
+	SystemData.Reset();
+	CurrentWarnings.Reset();
 }
 
 void UPerformanceProfiler::StopProfiling()
 {
-    if (!bIsProfiling)
-    {
-        return;
-    }
-    
-    bIsProfiling = false;
-    UE_LOG(LogTemp, Log, TEXT("Performance Profiler: Stopped profiling"));
+	bIsProfiling = false;
 }
 
 void UPerformanceProfiler::ResetMetrics()
 {
-    FrameHistory.Empty();
-    SystemData.Empty();
-    SystemTickStartTimes.Empty();
-    CurrentWarnings.Empty();
-    
-    CurrentFrame = FAlexanderFrameMetrics();
+	FrameHistory.Reset();
+	SystemData.Reset();
+	CurrentWarnings.Reset();
+	TimeSinceLastExport = 0.0f;
 }
 
 void UPerformanceProfiler::SetProfilingLevel(EProfilingLevel NewLevel)
 {
-    ProfilingLevel = NewLevel;
-    
-    if (NewLevel == EProfilingLevel::None && bIsProfiling)
-    {
-        StopProfiling();
-    }
-    else if (NewLevel != EProfilingLevel::None && !bIsProfiling)
-    {
-        StartProfiling();
-    }
+	ProfilingLevel = NewLevel;
+	
+	if (ProfilingLevel == EProfilingLevel::None)
+	{
+		StopProfiling();
+	}
+	else if (!bIsProfiling)
+	{
+		StartProfiling();
+	}
 }
 
 void UPerformanceProfiler::RegisterSystem(const FString& SystemName, EPerformanceCategory Category)
 {
-    if (!SystemData.Contains(SystemName))
-    {
-        FPerformanceProfilerData NewData;
-        NewData.SystemName = SystemName;
-        NewData.Category = Category;
-        SystemData.Add(SystemName, NewData);
-        SystemCategories.Add(SystemName, Category);
-        
-        UE_LOG(LogTemp, Verbose, TEXT("Performance Profiler: Registered system '%s'"), *SystemName);
-    }
+	if (!SystemData.Contains(SystemName))
+	{
+		FPerformanceProfilerData NewData;
+		NewData.SystemName = SystemName;
+		NewData.Category = Category;
+		SystemData.Add(SystemName, NewData);
+		SystemCategories.Add(SystemName, Category);
+	}
 }
 
 void UPerformanceProfiler::UnregisterSystem(const FString& SystemName)
 {
-    SystemData.Remove(SystemName);
-    SystemTickStartTimes.Remove(SystemName);
-    SystemCategories.Remove(SystemName);
+	SystemData.Remove(SystemName);
+	SystemTickStartTimes.Remove(SystemName);
+	SystemCategories.Remove(SystemName);
 }
 
 void UPerformanceProfiler::BeginSystemTick(const FString& SystemName)
 {
-    if (ProfilingLevel == EProfilingLevel::Detailed || ProfilingLevel == EProfilingLevel::Exhaustive)
-    {
-        SystemTickStartTimes.Add(SystemName, FPlatformTime::Seconds());
-    }
+	if (ProfilingLevel == EProfilingLevel::None)
+	{
+		return;
+	}
+	
+	SystemTickStartTimes.FindOrAdd(SystemName) = FPlatformTime::Seconds();
 }
 
 void UPerformanceProfiler::EndSystemTick(const FString& SystemName)
 {
-    if (ProfilingLevel == EProfilingLevel::Detailed || ProfilingLevel == EProfilingLevel::Exhaustive)
-    {
-        double* StartTime = SystemTickStartTimes.Find(SystemName);
-        if (StartTime)
-        {
-            double EndTime = FPlatformTime::Seconds();
-            float TickTime = (EndTime - *StartTime) * 1000.0f; // Convert to milliseconds
-            
-            UpdateSystemMetrics(SystemName, TickTime);
-            SystemTickStartTimes.Remove(SystemName);
-        }
-    }
-}
-
-void UPerformanceProfiler::CaptureFrameMetrics()
-{
-    // Get basic frame timing
-    UWorld* World = GetWorld();
-    if (!World)
-    {
-        return;
-    }
-    
-    CurrentFrame.FrameTimeMs = World->GetDeltaSeconds() * 1000.0f;
-    CurrentFrame.FPS = CurrentFrame.FrameTimeMs > 0.0f ? 1000.0f / CurrentFrame.FrameTimeMs : 0.0f;
-    
-    // Get memory usage
-    CurrentFrame.MemoryUsedMB = GetPlatformMemoryUsage();
-    
-    // Get actor count
-    CurrentFrame.ActiveActors = 0;
-    for (TActorIterator<AActor> It(World); It; ++It)
-    {
-        CurrentFrame.ActiveActors++;
-    }
-    
-    // Get rendering stats (only in Exhaustive mode for performance)
-    if (ProfilingLevel == EProfilingLevel::Exhaustive)
-    {
-        CurrentFrame.DrawCalls = GetDrawCallCount();
-        CurrentFrame.Triangles = GetTriangleCount();
-        CurrentFrame.GPUTimeMs = GetGPUTime();
-    }
-    
-    // Store frame history
-    FrameHistory.Add(CurrentFrame);
-    TrimFrameHistory();
-}
-
-void UPerformanceProfiler::UpdateSystemMetrics(const FString& SystemName, float TickTime)
-{
-    FPerformanceProfilerData* Data = SystemData.Find(SystemName);
-    if (!Data)
-    {
-        // Auto-register if not registered
-        RegisterSystem(SystemName, EPerformanceCategory::Custom);
-        Data = SystemData.Find(SystemName);
-    }
-    
-    if (Data)
-    {
-        // Update statistics
-        Data->TickCount++;
-        Data->MaxTickTimeMs = FMath::Max(Data->MaxTickTimeMs, TickTime);
-        Data->MinTickTimeMs = FMath::Min(Data->MinTickTimeMs, TickTime);
-        
-        // Update running average
-        float TotalTime = Data->AverageTickTimeMs * (Data->TickCount - 1);
-        Data->AverageTickTimeMs = (TotalTime + TickTime) / Data->TickCount;
-    }
-}
-
-void UPerformanceProfiler::CheckPerformanceThresholds()
-{
-    CurrentWarnings.Empty();
-    
-    // Check frame time
-    if (CurrentFrame.FrameTimeMs > Thresholds.CriticalFrameTimeMs)
-    {
-        FString Warning = FString::Printf(TEXT("CRITICAL: Frame time %.2fms exceeds critical threshold %.2fms"),
-            CurrentFrame.FrameTimeMs, Thresholds.CriticalFrameTimeMs);
-        CurrentWarnings.Add(Warning);
-        OnPerformanceWarning.Broadcast(EPerformanceCategory::Rendering, Warning);
-    }
-    else if (CurrentFrame.FrameTimeMs > Thresholds.WarningFrameTimeMs)
-    {
-        FString Warning = FString::Printf(TEXT("WARNING: Frame time %.2fms exceeds warning threshold %.2fms"),
-            CurrentFrame.FrameTimeMs, Thresholds.WarningFrameTimeMs);
-        CurrentWarnings.Add(Warning);
-    }
-    
-    // Check memory usage
-    if (CurrentFrame.MemoryUsedMB > Thresholds.CriticalMemoryMB)
-    {
-        FString Warning = FString::Printf(TEXT("CRITICAL: Memory usage %.2fMB exceeds critical threshold %.2fMB"),
-            CurrentFrame.MemoryUsedMB, Thresholds.CriticalMemoryMB);
-        CurrentWarnings.Add(Warning);
-        OnPerformanceWarning.Broadcast(EPerformanceCategory::Custom, Warning);
-    }
-    else if (CurrentFrame.MemoryUsedMB > Thresholds.WarningMemoryMB)
-    {
-        FString Warning = FString::Printf(TEXT("WARNING: Memory usage %.2fMB exceeds warning threshold %.2fMB"),
-            CurrentFrame.MemoryUsedMB, Thresholds.WarningMemoryMB);
-        CurrentWarnings.Add(Warning);
-    }
-    
-    // Check draw calls (if available)
-    if (CurrentFrame.DrawCalls > Thresholds.CriticalDrawCalls)
-    {
-        FString Warning = FString::Printf(TEXT("CRITICAL: Draw calls %d exceed critical threshold %d"),
-            CurrentFrame.DrawCalls, Thresholds.CriticalDrawCalls);
-        CurrentWarnings.Add(Warning);
-        OnPerformanceWarning.Broadcast(EPerformanceCategory::Rendering, Warning);
-    }
-    else if (CurrentFrame.DrawCalls > Thresholds.WarningDrawCalls)
-    {
-        FString Warning = FString::Printf(TEXT("WARNING: Draw calls %d exceed warning threshold %d"),
-            CurrentFrame.DrawCalls, Thresholds.WarningDrawCalls);
-        CurrentWarnings.Add(Warning);
-    }
-}
-
-void UPerformanceProfiler::UpdateOverlay()
-{
-    // This would display on-screen stats
-    // In a real implementation, this would use Canvas or UMG
-    FAlexanderFrameMetrics AvgMetrics = GetAverageFrameMetrics();
-    
-    UE_LOG(LogTemp, Display, TEXT("=== Performance Stats ==="));
-    UE_LOG(LogTemp, Display, TEXT("FPS: %.1f | Frame: %.2fms | Memory: %.1fMB | Actors: %d"),
-        AvgMetrics.FPS, AvgMetrics.FrameTimeMs, AvgMetrics.MemoryUsedMB, AvgMetrics.ActiveActors);
-    
-    if (CurrentWarnings.Num() > 0)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Active Warnings: %d"), CurrentWarnings.Num());
-    }
-}
-
-void UPerformanceProfiler::AutoExport()
-{
-    FString Timestamp = FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
-    FString Filename = FString::Printf(TEXT("AutoExport_%s"), *Timestamp);
-    ExportToCSV(Filename);
-}
-
-FString UPerformanceProfiler::GetExportFilePath(const FString& Filename) const
-{
-    FString Directory = ExportDirectory;
-    if (!Directory.EndsWith(TEXT("/")))
-    {
-        Directory += TEXT("/");
-    }
-    
-    // Create directory if it doesn't exist
-    IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
-    if (!PlatformFile.DirectoryExists(*Directory))
-    {
-        PlatformFile.CreateDirectoryTree(*Directory);
-    }
-    
-    return Directory + Filename;
-}
-
-void UPerformanceProfiler::TrimFrameHistory()
-{
-    if (FrameHistory.Num() > MaxStoredFrames)
-    {
-        int32 NumToRemove = FrameHistory.Num() - MaxStoredFrames;
-        FrameHistory.RemoveAt(0, NumToRemove);
-    }
+	if (ProfilingLevel == EProfilingLevel::None)
+	{
+		return;
+	}
+	
+	double* StartTimePtr = SystemTickStartTimes.Find(SystemName);
+	if (StartTimePtr)
+	{
+		double TickTime = (FPlatformTime::Seconds() - *StartTimePtr) * 1000.0; // Convert to ms
+		UpdateSystemMetrics(SystemName, (float)TickTime);
+	}
 }
 
 FAlexanderFrameMetrics UPerformanceProfiler::GetCurrentFrameMetrics() const
 {
-    return CurrentFrame;
+	return CurrentFrame;
 }
 
 FAlexanderFrameMetrics UPerformanceProfiler::GetAverageFrameMetrics() const
 {
-    if (FrameHistory.Num() == 0)
-    {
-        return FAlexanderFrameMetrics();
-    }
-    
-    FAlexanderFrameMetrics Average;
-    for (const FAlexanderFrameMetrics& Frame : FrameHistory)
-    {
-        Average.FrameTimeMs += Frame.FrameTimeMs;
-        Average.GameThreadTimeMs += Frame.GameThreadTimeMs;
-        Average.RenderThreadTimeMs += Frame.RenderThreadTimeMs;
-        Average.GPUTimeMs += Frame.GPUTimeMs;
-        Average.DrawCalls += Frame.DrawCalls;
-        Average.Triangles += Frame.Triangles;
-        Average.MemoryUsedMB += Frame.MemoryUsedMB;
-        Average.ActiveActors += Frame.ActiveActors;
-        Average.FPS += Frame.FPS;
-    }
-    
-    int32 Count = FrameHistory.Num();
-    Average.FrameTimeMs /= Count;
-    Average.GameThreadTimeMs /= Count;
-    Average.RenderThreadTimeMs /= Count;
-    Average.GPUTimeMs /= Count;
-    Average.DrawCalls /= Count;
-    Average.Triangles /= Count;
-    Average.MemoryUsedMB /= Count;
-    Average.ActiveActors /= Count;
-    Average.FPS /= Count;
-    
-    return Average;
+	if (FrameHistory.Num() == 0)
+	{
+		return FAlexanderFrameMetrics();
+	}
+	
+	FAlexanderFrameMetrics Average;
+	for (const auto& Frame : FrameHistory)
+	{
+		Average.FrameTimeMs += Frame.FrameTimeMs;
+		Average.GameThreadTimeMs += Frame.GameThreadTimeMs;
+		Average.RenderThreadTimeMs += Frame.RenderThreadTimeMs;
+		Average.GPUTimeMs += Frame.GPUTimeMs;
+		Average.DrawCalls += Frame.DrawCalls;
+		Average.Triangles += Frame.Triangles;
+		Average.MemoryUsedMB += Frame.MemoryUsedMB;
+		Average.ActiveActors += Frame.ActiveActors;
+		Average.FPS += Frame.FPS;
+	}
+	
+	int32 Count = FrameHistory.Num();
+	Average.FrameTimeMs /= Count;
+	Average.GameThreadTimeMs /= Count;
+	Average.RenderThreadTimeMs /= Count;
+	Average.GPUTimeMs /= Count;
+	Average.DrawCalls /= Count;
+	Average.Triangles /= Count;
+	Average.MemoryUsedMB /= Count;
+	Average.ActiveActors /= Count;
+	Average.FPS /= Count;
+	
+	return Average;
 }
 
 TArray<FPerformanceProfilerData> UPerformanceProfiler::GetSystemPerformanceData() const
 {
-    TArray<FPerformanceProfilerData> Result;
-    SystemData.GenerateValueArray(Result);
-    return Result;
+	TArray<FPerformanceProfilerData> Result;
+	for (const auto& Pair : SystemData)
+	{
+		Result.Add(Pair.Value);
+	}
+	return Result;
 }
 
 FPerformanceProfilerData UPerformanceProfiler::GetSystemData(const FString& SystemName) const
 {
-    const FPerformanceProfilerData* Data = SystemData.Find(SystemName);
-    return Data ? *Data : FPerformanceProfilerData();
+	const FPerformanceProfilerData* Data = SystemData.Find(SystemName);
+	return Data ? *Data : FPerformanceProfilerData();
 }
 
 float UPerformanceProfiler::GetAverageFPS() const
 {
-    return GetAverageFrameMetrics().FPS;
+	FAlexanderFrameMetrics Average = GetAverageFrameMetrics();
+	return Average.FPS;
 }
 
 float UPerformanceProfiler::GetCurrentFPS() const
 {
-    return CurrentFrame.FPS;
+	return CurrentFrame.FPS;
 }
 
 float UPerformanceProfiler::GetMemoryUsageMB() const
 {
-    return CurrentFrame.MemoryUsedMB;
+	return GetPlatformMemoryUsage();
 }
 
 bool UPerformanceProfiler::ExportToCSV(const FString& Filename)
 {
-    FString FilePath = GetExportFilePath(Filename + TEXT(".csv"));
-    
-    FString CSVContent = TEXT("Frame,FrameTimeMs,FPS,MemoryMB,DrawCalls,Triangles,ActiveActors\n");
-    
-    for (int32 i = 0; i < FrameHistory.Num(); ++i)
-    {
-        const FAlexanderFrameMetrics& Frame = FrameHistory[i];
-        CSVContent += FString::Printf(TEXT("%d,%.2f,%.1f,%.1f,%d,%d,%d\n"),
-            i, Frame.FrameTimeMs, Frame.FPS, Frame.MemoryUsedMB,
-            Frame.DrawCalls, Frame.Triangles, Frame.ActiveActors);
-    }
-    
-    bool bSuccess = FFileHelper::SaveStringToFile(CSVContent, *FilePath);
-    
-    if (bSuccess)
-    {
-        UE_LOG(LogTemp, Log, TEXT("Performance Profiler: Exported CSV to %s"), *FilePath);
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Performance Profiler: Failed to export CSV to %s"), *FilePath);
-    }
-    
-    return bSuccess;
+	FString FilePath = GetExportFilePath(Filename);
+	
+	// Create CSV content
+	FString CSVContent = TEXT("FrameNumber,FrameTime,GameThreadTime,RenderThreadTime,GPUTime,DrawCalls,Triangles,Memory,ActiveActors,FPS\n");
+	
+	for (int32 i = 0; i < FrameHistory.Num(); ++i)
+	{
+		const FAlexanderFrameMetrics& Frame = FrameHistory[i];
+		CSVContent += FString::Printf(
+			TEXT("%d,%.2f,%.2f,%.2f,%.2f,%d,%d,%.2f,%d,%.2f\n"),
+			i,
+			Frame.FrameTimeMs,
+			Frame.GameThreadTimeMs,
+			Frame.RenderThreadTimeMs,
+			Frame.GPUTimeMs,
+			Frame.DrawCalls,
+			Frame.Triangles,
+			Frame.MemoryUsedMB,
+			Frame.ActiveActors,
+			Frame.FPS
+		);
+	}
+	
+	return FFileHelper::SaveStringToFile(CSVContent, *FilePath);
 }
 
 bool UPerformanceProfiler::ExportSystemReport(const FString& Filename)
 {
-    FString FilePath = GetExportFilePath(Filename + TEXT(".txt"));
-    FString Report = GeneratePerformanceReport();
-    
-    bool bSuccess = FFileHelper::SaveStringToFile(Report, *FilePath);
-    
-    if (bSuccess)
-    {
-        UE_LOG(LogTemp, Log, TEXT("Performance Profiler: Exported report to %s"), *FilePath);
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Performance Profiler: Failed to export report to %s"), *FilePath);
-    }
-    
-    return bSuccess;
+	FString FilePath = GetExportFilePath(Filename);
+	
+	FString Report = GeneratePerformanceReport();
+	return FFileHelper::SaveStringToFile(Report, *FilePath);
 }
 
 FString UPerformanceProfiler::GeneratePerformanceReport() const
 {
-    FString Report = TEXT("====================================\n");
-    Report += TEXT("   PERFORMANCE PROFILING REPORT\n");
-    Report += TEXT("====================================\n\n");
-    
-    // Time information
-    Report += FString::Printf(TEXT("Generated: %s\n"), *FDateTime::Now().ToString());
-    Report += FString::Printf(TEXT("Profiling Level: %d\n"), (int32)ProfilingLevel);
-    Report += FString::Printf(TEXT("Frames Captured: %d\n\n"), FrameHistory.Num());
-    
-    // Average metrics
-    FAlexanderFrameMetrics Avg = GetAverageFrameMetrics();
-    Report += TEXT("--- Average Frame Metrics ---\n");
-    Report += FString::Printf(TEXT("FPS: %.1f\n"), Avg.FPS);
-    Report += FString::Printf(TEXT("Frame Time: %.2fms\n"), Avg.FrameTimeMs);
-    Report += FString::Printf(TEXT("Memory Usage: %.1fMB\n"), Avg.MemoryUsedMB);
-    Report += FString::Printf(TEXT("Active Actors: %d\n"), Avg.ActiveActors);
-    Report += FString::Printf(TEXT("Draw Calls: %d\n"), Avg.DrawCalls);
-    Report += FString::Printf(TEXT("Triangles: %d\n\n"), Avg.Triangles);
-    
-    // System performance
-    if (SystemData.Num() > 0)
-    {
-        Report += TEXT("--- System Performance ---\n");
-        
-        TArray<FPerformanceProfilerData> Systems;
-        SystemData.GenerateValueArray(Systems);
-        
-        // Sort by average tick time
-        Systems.Sort([](const FPerformanceProfilerData& A, const FPerformanceProfilerData& B) {
-            return A.AverageTickTimeMs > B.AverageTickTimeMs;
-        });
-        
-        for (const FPerformanceProfilerData& System : Systems)
-        {
-            Report += FString::Printf(TEXT("\n%s:\n"), *System.SystemName);
-            Report += FString::Printf(TEXT("  Avg Tick: %.3fms\n"), System.AverageTickTimeMs);
-            Report += FString::Printf(TEXT("  Min Tick: %.3fms\n"), System.MinTickTimeMs);
-            Report += FString::Printf(TEXT("  Max Tick: %.3fms\n"), System.MaxTickTimeMs);
-            Report += FString::Printf(TEXT("  Tick Count: %d\n"), System.TickCount);
-        }
-    }
-    
-    // Performance warnings
-    if (CurrentWarnings.Num() > 0)
-    {
-        Report += TEXT("\n--- Current Warnings ---\n");
-        for (const FString& Warning : CurrentWarnings)
-        {
-            Report += Warning + TEXT("\n");
-        }
-    }
-    
-    // Bottleneck analysis
-    TArray<FString> Bottlenecks = GetBottleneckSystems(5);
-    if (Bottlenecks.Num() > 0)
-    {
-        Report += TEXT("\n--- Top 5 Bottleneck Systems ---\n");
-        for (int32 i = 0; i < Bottlenecks.Num(); ++i)
-        {
-            Report += FString::Printf(TEXT("%d. %s\n"), i + 1, *Bottlenecks[i]);
-        }
-    }
-    
-    Report += TEXT("\n====================================\n");
-    return Report;
+	FString Report = TEXT("=== Performance Report ===\n\n");
+	
+	// Current metrics
+	FAlexanderFrameMetrics Current = GetCurrentFrameMetrics();
+	FAlexanderFrameMetrics Average = GetAverageFrameMetrics();
+	
+	Report += FString::Printf(TEXT("Current Frame Time: %.2f ms (%.1f FPS)\n"), Current.FrameTimeMs, Current.FPS);
+	Report += FString::Printf(TEXT("Average Frame Time: %.2f ms (%.1f FPS)\n"), Average.FrameTimeMs, Average.FPS);
+	Report += FString::Printf(TEXT("Memory Usage: %.2f MB\n\n"), GetMemoryUsageMB());
+	
+	// System metrics
+	Report += TEXT("System Metrics:\n");
+	for (const auto& Pair : SystemData)
+	{
+		const FPerformanceProfilerData& Data = Pair.Value;
+		Report += FString::Printf(
+			TEXT("  %s: Avg=%.2f ms, Max=%.2f ms, Min=%.2f ms, Ticks=%d\n"),
+			*Data.SystemName,
+			Data.AverageTickTimeMs,
+			Data.MaxTickTimeMs,
+			Data.MinTickTimeMs,
+			Data.TickCount
+		);
+	}
+	
+	// Warnings
+	if (CurrentWarnings.Num() > 0)
+	{
+		Report += TEXT("\nWarnings:\n");
+		for (const FString& Warning : CurrentWarnings)
+		{
+			Report += FString::Printf(TEXT("  - %s\n"), *Warning);
+		}
+	}
+	
+	return Report;
 }
 
 TArray<FString> UPerformanceProfiler::GetBottleneckSystems(int32 TopN) const
 {
-    TArray<FPerformanceProfilerData> Systems;
-    SystemData.GenerateValueArray(Systems);
-    
-    // Sort by average tick time descending
-    Systems.Sort([](const FPerformanceProfilerData& A, const FPerformanceProfilerData& B) {
-        return A.AverageTickTimeMs > B.AverageTickTimeMs;
-    });
-    
-    TArray<FString> Result;
-    for (int32 i = 0; i < FMath::Min(TopN, Systems.Num()); ++i)
-    {
-        Result.Add(FString::Printf(TEXT("%s (%.3fms avg)"),
-            *Systems[i].SystemName, Systems[i].AverageTickTimeMs));
-    }
-    
-    return Result;
+	TArray<FString> Bottlenecks;
+	
+	TArray<FPerformanceProfilerData> SystemList;
+	for (const auto& Pair : SystemData)
+	{
+		SystemList.Add(Pair.Value);
+	}
+	
+	// Sort by average tick time (descending)
+	SystemList.Sort([](const FPerformanceProfilerData& A, const FPerformanceProfilerData& B)
+	{
+		return A.AverageTickTimeMs > B.AverageTickTimeMs;
+	});
+	
+	for (int32 i = 0; i < FMath::Min(TopN, SystemList.Num()); ++i)
+	{
+		Bottlenecks.Add(SystemList[i].SystemName);
+	}
+	
+	return Bottlenecks;
 }
 
 bool UPerformanceProfiler::IsPerformanceHealthy() const
 {
-    FAlexanderFrameMetrics Avg = GetAverageFrameMetrics();
-    
-    // Check if metrics are within acceptable ranges
-    bool bFrameTimeOk = Avg.FrameTimeMs <= Thresholds.WarningFrameTimeMs;
-    bool bMemoryOk = Avg.MemoryUsedMB <= Thresholds.WarningMemoryMB;
-    bool bDrawCallsOk = Avg.DrawCalls <= Thresholds.WarningDrawCalls;
-    
-    return bFrameTimeOk && bMemoryOk && bDrawCallsOk;
+	FAlexanderFrameMetrics Current = GetCurrentFrameMetrics();
+	
+	return Current.FrameTimeMs < Thresholds.WarningFrameTimeMs &&
+		   GetMemoryUsageMB() < Thresholds.WarningMemoryMB &&
+		   Current.DrawCalls < Thresholds.WarningDrawCalls;
 }
 
-TArray<FString> UPerformanceProfiler::GetPerformanceWarnings() const
+void UPerformanceProfiler::CaptureFrameMetrics()
 {
-    return CurrentWarnings;
+	CurrentFrame.FrameTimeMs = FPlatformTime::GetLastTime() * 1000.0f;
+	CurrentFrame.FPS = 1.0f / FMath::Max(0.001f, CurrentFrame.FrameTimeMs / 1000.0f);
+	CurrentFrame.MemoryUsedMB = GetPlatformMemoryUsage();
+	CurrentFrame.DrawCalls = GetDrawCallCount();
+	CurrentFrame.Triangles = GetTriangleCount();
+	
+	FrameHistory.Add(CurrentFrame);
+	TrimFrameHistory();
+}
+
+void UPerformanceProfiler::UpdateSystemMetrics(const FString& SystemName, float TickTime)
+{
+	FPerformanceProfilerData* Data = SystemData.Find(SystemName);
+	if (!Data)
+	{
+		return;
+	}
+	
+	Data->TickCount++;
+	Data->MaxTickTimeMs = FMath::Max(Data->MaxTickTimeMs, TickTime);
+	Data->MinTickTimeMs = FMath::Min(Data->MinTickTimeMs, TickTime);
+	
+	// Calculate running average
+	Data->AverageTickTimeMs = ((Data->AverageTickTimeMs * (Data->TickCount - 1)) + TickTime) / Data->TickCount;
+}
+
+void UPerformanceProfiler::CheckPerformanceThresholds()
+{
+	CurrentWarnings.Reset();
+	
+	if (CurrentFrame.FrameTimeMs > Thresholds.CriticalFrameTimeMs)
+	{
+		CurrentWarnings.Add(FString::Printf(TEXT("Critical frame time: %.2f ms"), CurrentFrame.FrameTimeMs));
+		OnPerformanceWarning.Broadcast(EPerformanceCategory::Rendering, TEXT("Frame time critical"));
+	}
+	
+	if (GetMemoryUsageMB() > Thresholds.CriticalMemoryMB)
+	{
+		CurrentWarnings.Add(FString::Printf(TEXT("Critical memory usage: %.2f MB"), GetMemoryUsageMB()));
+		OnPerformanceWarning.Broadcast(EPerformanceCategory::Custom, TEXT("Memory usage critical"));
+	}
+}
+
+void UPerformanceProfiler::UpdateOverlay()
+{
+	// Placeholder for HUD overlay updates
+}
+
+void UPerformanceProfiler::AutoExport()
+{
+	ExportToCSV(TEXT("Performance_Auto.csv"));
+	ExportSystemReport(TEXT("Performance_Report_Auto.txt"));
+}
+
+FString UPerformanceProfiler::GetExportFilePath(const FString& Filename) const
+{
+	return FPaths::ProjectSavedDir() / ExportDirectory / Filename;
+}
+
+void UPerformanceProfiler::TrimFrameHistory()
+{
+	if (FrameHistory.Num() > MaxStoredFrames)
+	{
+		FrameHistory.RemoveAt(0, FrameHistory.Num() - MaxStoredFrames);
+	}
 }
 
 float UPerformanceProfiler::GetPlatformMemoryUsage() const
 {
-    FPlatformMemoryStats MemoryStats = FPlatformMemory::GetStats();
-    return MemoryStats.UsedPhysical / (1024.0f * 1024.0f); // Convert to MB
+	// Simplified memory reporting
+	return FPlatformMemory::GetStats().UsedPhysical / (1024.0f * 1024.0f); // Convert to MB
 }
 
 int32 UPerformanceProfiler::GetDrawCallCount() const
 {
-    // This would require RHI stats access
-    // Placeholder implementation
-    return 0;
+	// Placeholder for actual draw call count
+	return 0;
 }
 
 int32 UPerformanceProfiler::GetTriangleCount() const
 {
-    // This would require RHI stats access
-    // Placeholder implementation
-    return 0;
+	// Placeholder for actual triangle count
+	return 0;
 }
 
 float UPerformanceProfiler::GetGPUTime() const
 {
-    // This would require GPU profiling stats
-    // Placeholder implementation
-    return 0.0f;
+	// Placeholder for GPU time measurement
+	return 0.0f;
 }

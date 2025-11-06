@@ -7,7 +7,8 @@
 #include "GameFramework/PlayerController.h"
 #include "Components/ActorComponent.h"
 #include "AdvancedAIBehaviors.h"
-#include "EnhancedVFXSystem.h"
+// DISABLED: EnhancedVFXSystem temporarily disabled
+//#include "EnhancedVFXSystem.h"
 #include "AudioSystemManager.h"
 #include "TutorialOnboardingSystem.h"
 #include "MissionBoardComponent.h"
@@ -116,8 +117,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "System Coordinator")
     UAdvancedAIBehaviors* GetAISystem() const;
 
-    UFUNCTION(BlueprintPure, Category = "System Coordinator")
-    UEnhancedVFXSystem* GetVFXSystem() const;
+    // DISABLED: EnhancedVFXSystem temporarily disabled
+    //UFUNCTION(BlueprintPure, Category = "System Coordinator")
+    //UEnhancedVFXSystem* GetVFXSystem() const;
 
     UFUNCTION(BlueprintPure, Category = "System Coordinator")
     UAudioSystemManager* GetAudioSystem() const;
@@ -209,8 +211,9 @@ protected:
     UPROPERTY(BlueprintReadOnly, Category = "System Coordinator")
     UAdvancedAIBehaviors* AISystem;
 
-    UPROPERTY(BlueprintReadOnly, Category = "System Coordinator")
-    UEnhancedVFXSystem* VFXSystem;
+    // DISABLED: EnhancedVFXSystem temporarily disabled
+    //UPROPERTY(BlueprintReadOnly, Category = "System Coordinator")
+    //UEnhancedVFXSystem* VFXSystem;
 
     UPROPERTY(BlueprintReadOnly, Category = "System Coordinator")
     UAudioSystemManager* AudioSystem;
@@ -279,11 +282,12 @@ private:
     UFUNCTION()
     void HandleAIEmergencyTriggered(AActor* AIActor, const FString& EmergencyType);
 
-    UFUNCTION()
-    void HandleVFXEffectStarted(const FName& EffectName, EVFXEffectType EffectType);
+    // DISABLED: EnhancedVFXSystem temporarily disabled
+    //UFUNCTION()
+    //void HandleVFXEffectStarted(const FName& EffectName, EVFXEffectType EffectType);
 
-    UFUNCTION()
-    void HandleVFXEffectEnded(const FName& EffectName, float Duration);
+    //UFUNCTION()
+    //void HandleVFXEffectEnded(const FName& EffectName, float Duration);
 
     UFUNCTION()
     void HandleAudioEventTriggered(const FString& EventName, AActor* SourceActor);

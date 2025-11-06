@@ -10,7 +10,7 @@
 #include "GameFramework/PlayerController.h"
 
 // Typedef for compatibility with header
-typedef FMissionBoardObjective FMissionObjective;
+typedef FMissionBoardObjective FMissionBoardObjective;
 
 UMissionBoardComponent::UMissionBoardComponent()
 {
@@ -403,7 +403,7 @@ void UMissionBoardComponent::UpdateMissionProgress(APlayerState* Player, const F
         return;
     }
 
-    for (FMissionObjective& Objective : Mission->Objectives)
+    for (FMissionBoardObjective& Objective : Mission->Objectives)
     {
         if (Objective.ObjectiveID == ObjectiveID)
         {
@@ -428,7 +428,7 @@ void UMissionBoardComponent::CompleteMissionObjective(APlayerState* Player, cons
         return;
     }
 
-    for (FMissionObjective& Objective : Mission->Objectives)
+    for (FMissionBoardObjective& Objective : Mission->Objectives)
     {
         if (Objective.ObjectiveID == ObjectiveID)
         {
@@ -450,7 +450,7 @@ bool UMissionBoardComponent::IsMissionCompleted(const FName& MissionID)
         return false;
     }
 
-    for (const FMissionObjective& Objective : Mission->Objectives)
+    for (const FMissionBoardObjective& Objective : Mission->Objectives)
     {
         if (Objective.bIsRequired && !Objective.bIsCompleted)
         {
@@ -483,7 +483,7 @@ float UMissionBoardComponent::GetMissionProgress(const FName& MissionID)
     int32 TotalObjectives = 0;
     int32 CompletedObjectives = 0;
 
-    for (const FMissionObjective& Objective : Mission->Objectives)
+    for (const FMissionBoardObjective& Objective : Mission->Objectives)
     {
         TotalObjectives++;
         if (Objective.bIsCompleted)
@@ -495,14 +495,14 @@ float UMissionBoardComponent::GetMissionProgress(const FName& MissionID)
     return TotalObjectives > 0 ? static_cast<float>(CompletedObjectives) / static_cast<float>(TotalObjectives) : 0.0f;
 }
 
-TArray<FMissionObjective> UMissionBoardComponent::GetMissionObjectives(const FName& MissionID)
+TArray<FMissionBoardObjective> UMissionBoardComponent::GetMissionObjectives(const FName& MissionID)
 {
     FMissionData* Mission = GetMission(MissionID);
     if (Mission)
     {
         return Mission->Objectives;
     }
-    return TArray<FMissionObjective>();
+    return TArray<FMissionBoardObjective>();
 }
 
 bool UMissionBoardComponent::CompleteMission(APlayerState* Player, const FName& MissionID)
@@ -654,7 +654,7 @@ void UMissionBoardComponent::ResetMission(const FName& MissionID)
     Mission->AssignedPlayer = nullptr;
     Mission->TimeRemaining = Mission->TimeLimit;
 
-    for (FMissionObjective& Objective : Mission->Objectives)
+    for (FMissionBoardObjective& Objective : Mission->Objectives)
     {
         Objective.bIsCompleted = false;
         Objective.CurrentCount = 0;
@@ -1183,7 +1183,7 @@ FMissionData UMissionBoardComponent::GenerateMission(EMissionType Type, EMission
 void UMissionBoardComponent::GenerateMissionObjectives(FMissionData& Mission, EMissionType Type)
 {
     // Generate objectives based on mission type
-    FMissionObjective Objective;
+    FMissionBoardObjective Objective;
     Objective.ObjectiveID = FName(*FString::Printf(TEXT("OBJ_%d"), FMath::RandRange(1000, 9999)));
     Objective.Description = TEXT("Complete the mission objective");
     Objective.bIsCompleted = false;
@@ -1222,7 +1222,7 @@ bool UMissionBoardComponent::ValidateMission(const FMissionData& Mission)
     return Mission.MissionID != NAME_None && !Mission.Title.IsEmpty();
 }
 
-bool UMissionBoardComponent::ValidateMissionObjective(const FMissionObjective& Objective)
+bool UMissionBoardComponent::ValidateMissionObjective(const FMissionBoardObjective& Objective)
 {
     return Objective.ObjectiveID != NAME_None;
 }

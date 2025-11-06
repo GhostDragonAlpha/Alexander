@@ -523,6 +523,46 @@ bool AGameSystemsTest::TestAIVisionBackend()
 	return bBackendConfigValid;
 }
 
+bool AGameSystemsTest::RunSpecificTest(const FString& TestName)
+{
+	for (const FTestDefinition& Test : Tests)
+	{
+		if (Test.TestName == TestName)
+		{
+			if (Test.TestFunction)
+			{
+				bool bResult = Test.TestFunction();
+				UE_LOG(LogTemp, Log, TEXT("Test '%s': %s"), *TestName, bResult ? TEXT("PASSED") : TEXT("FAILED"));
+				return bResult;
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Test '%s' has no function!"), *TestName);
+				return false;
+			}
+		}
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Test '%s' not found"), *TestName);
+	return false;
+}
+
+FString AGameSystemsTest::GetTestResults() const
+{
+	int32 TotalTests = TestsPassed + TestsFailed;
+	float PassPercentage = TotalTests > 0 ? (static_cast<float>(TestsPassed) / TotalTests) * 100.0f : 0.0f;
+	
+	FString ResultsText = FString::Printf(
+		TEXT("=== TEST RESULTS ===\nTotal Tests: %d\nPassed: %d\nFailed: %d\nPass Rate: %.1f%%"),
+		TotalTests,
+		TestsPassed,
+		TestsFailed,
+		PassPercentage
+	);
+	
+	return ResultsText;
+}
+
 void AGameSystemsTest::UpdateTestProgress(float DeltaTime)
 {
 	// Update any ongoing test progress indicators

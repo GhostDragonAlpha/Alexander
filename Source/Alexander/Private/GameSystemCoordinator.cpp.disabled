@@ -34,7 +34,7 @@ void UGameSystemCoordinator::InitializeSystems()
 
     // Get system references from module
     AISystem = FAlexanderModule::GetAISystem();
-    VFXSystem = FAlexanderModule::GetVFXSystem();
+    //VFXSystem = FAlexanderModule::GetVFXSystem();
     AudioSystem = FAlexanderModule::GetAudioSystem();
     TutorialSystem = FAlexanderModule::GetTutorialSystem();
 
@@ -134,10 +134,13 @@ UAdvancedAIBehaviors* UGameSystemCoordinator::GetAISystem() const
     return AISystem;
 }
 
+// DISABLED: EnhancedVFXSystem temporarily disabled
+/*
 UEnhancedVFXSystem* UGameSystemCoordinator::GetVFXSystem() const
 {
     return VFXSystem;
 }
+*/
 
 UAudioSystemManager* UGameSystemCoordinator::GetAudioSystem() const
 {
@@ -642,12 +645,15 @@ void UGameSystemCoordinator::SetupSystemEventBindings()
         AISystem->OnAIEmergencyTriggered.AddDynamic(this, &UGameSystemCoordinator::HandleAIEmergencyTriggered);
     }
 
+    // DISABLED: EnhancedVFXSystem temporarily disabled
+    /*
     // Setup VFX system event bindings
     if (VFXSystem)
     {
         VFXSystem->OnVFXEffectStarted.AddDynamic(this, &UGameSystemCoordinator::HandleVFXEffectStarted);
         VFXSystem->OnVFXEffectEnded.AddDynamic(this, &UGameSystemCoordinator::HandleVFXEffectEnded);
     }
+    */
 
     // Setup Audio system event bindings
     if (AudioSystem)
@@ -777,7 +783,7 @@ void UGameSystemCoordinator::BroadcastSystemStatusChange(const FString& SystemNa
 void UGameSystemCoordinator::CleanupSystemReferences()
 {
     AISystem = nullptr;
-    VFXSystem = nullptr;
+    //VFXSystem = nullptr;
     AudioSystem = nullptr;
     TutorialSystem = nullptr;
 }
@@ -948,11 +954,13 @@ void UGameSystemCoordinator::HandleAIEmergencyTriggered(AActor* AIActor, const F
     }
 }
 
+// DISABLED: EnhancedVFXSystem temporarily disabled
+/*
 void UGameSystemCoordinator::HandleVFXEffectStarted(const FName& EffectName, EVFXEffectType EffectType)
 {
     if (bEnableDebugLogging)
     {
-        UE_LOG(LogTemp, Log, TEXT("VFX Effect Started: %s - Type: %d"), 
+        UE_LOG(LogTemp, Log, TEXT("VFX Effect Started: %s - Type: %d"),
             *EffectName.ToString(), (int32)EffectType);
     }
 }
@@ -961,10 +969,11 @@ void UGameSystemCoordinator::HandleVFXEffectEnded(const FName& EffectName, float
 {
     if (bEnableDebugLogging)
     {
-        UE_LOG(LogTemp, Log, TEXT("VFX Effect Ended: %s - Duration: %.2f"), 
+        UE_LOG(LogTemp, Log, TEXT("VFX Effect Ended: %s - Duration: %.2f"),
             *EffectName.ToString(), Duration);
     }
 }
+*/
 
 void UGameSystemCoordinator::HandleAudioEventTriggered(const FString& EventName, AActor* SourceActor)
 {
