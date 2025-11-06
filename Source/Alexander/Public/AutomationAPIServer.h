@@ -105,6 +105,9 @@ public:
 	// DELETE /destroy_ship/{ship_id} - Destroy a ship
 	FString HandleDestroyShip(const FString& ShipID);
 
+	// GET /get_player_pawn - Get the default player pawn
+	FString HandleGetPlayerPawn();
+
 	// ============================================================================
 	// SHIP TRACKING
 	// ============================================================================

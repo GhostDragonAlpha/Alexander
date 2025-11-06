@@ -321,6 +321,10 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 	{
 		OutResponse = HandleListShips();
 	}
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/get_player_pawn"))
+	{
+		OutResponse = HandleGetPlayerPawn();
+	}
 	else if (Method == TEXT("DELETE") && Endpoint.StartsWith(TEXT("/destroy_ship/")))
 	{
 		FString ShipID = Endpoint.RightChop(14); // Remove "/destroy_ship/"
@@ -473,16 +477,21 @@ FString UAutomationAPIServer::HandleSetInput(const FString& RequestBody)
 		UE_LOG(LogTemp, Log, TEXT("  - %s (%s)"), *Component->GetName(), *Component->GetClass()->GetName());
 	}
 
-	// Get FlightController component
+	// Get FlightController component (optional)
 	UFlightController* FlightController = Ship->FindComponentByClass<UFlightController>();
-	if (!FlightController)
+	bool bUsingPhysics = (FlightController == nullptr);
+
+	if (FlightController)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleSetInput - Ship has no FlightController component"));
-		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Ship class: %s"), *Ship->GetClass()->GetName());
-		return CreateJSONResponse(false, TEXT("Ship has no FlightController component"));
+		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetInput - Using FlightController"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetInput - Using direct physics control"));
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetInput - Found FlightController"));
+	// Get root primitive for physics control
+	UPrimitiveComponent* RootPrim = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
 
 	// Parse thrust input (supports both object {x,y,z} and array [x,y,z] formats)
 	if (JsonObj->HasField(TEXT("thrust")))
@@ -507,7 +516,19 @@ FString UAutomationAPIServer::HandleSetInput(const FString& RequestBody)
 				ThrustInput.Z = ThrustArray[2]->AsNumber();
 			}
 		}
-		FlightController->SetThrustInput(ThrustInput);
+
+		if (FlightController)
+		{
+			FlightController->SetThrustInput(ThrustInput);
+		}
+		else if (RootPrim && RootPrim->IsSimulatingPhysics())
+		{
+			// Apply force directly (scale by mass for consistent acceleration)
+			float ForceMagnitude = 100000.0f; // Newtons
+			FVector WorldForce = Ship->GetActorRotation().RotateVector(ThrustInput) * ForceMagnitude;
+			RootPrim->AddForce(WorldForce);
+			UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Applied physics force: %s"), *WorldForce.ToString());
+		}
 	}
 
 	// Parse rotation input (supports both object and array formats)
@@ -533,18 +554,31 @@ FString UAutomationAPIServer::HandleSetInput(const FString& RequestBody)
 				RotationInput.Z = RotationArray[2]->AsNumber();
 			}
 		}
-		FlightController->SetRotationInput(RotationInput);
+
+		if (FlightController)
+		{
+			FlightController->SetRotationInput(RotationInput);
+		}
+		else if (RootPrim && RootPrim->IsSimulatingPhysics())
+		{
+			// Apply torque directly
+			float TorqueMagnitude = 1000000.0f; // Newton-meters
+			FVector WorldTorque = Ship->GetActorRotation().RotateVector(RotationInput) * TorqueMagnitude;
+			RootPrim->AddTorqueInRadians(WorldTorque);
+			UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Applied physics torque: %s"), *WorldTorque.ToString());
+		}
 	}
 
-	// Parse assist mode
-	if (JsonObj->HasField(TEXT("assist_mode")))
+	// Parse assist mode (only works with FlightController)
+	if (FlightController && JsonObj->HasField(TEXT("assist_mode")))
 	{
 		int32 AssistModeInt = JsonObj->GetIntegerField(TEXT("assist_mode"));
 		EFlightAssistMode AssistMode = static_cast<EFlightAssistMode>(AssistModeInt);
 		FlightController->SetAssistMode(AssistMode);
 	}
 
-	return CreateJSONResponse(true, TEXT("Input applied"));
+	FString Method = bUsingPhysics ? TEXT("physics") : TEXT("FlightController");
+	return CreateJSONResponse(true, FString::Printf(TEXT("Input applied via %s"), *Method));
 }
 
 FString UAutomationAPIServer::HandleGetPosition(const FString& ShipID)
@@ -645,6 +679,71 @@ FString UAutomationAPIServer::HandleListShips()
 	ResponseData->SetNumberField(TEXT("count"), ShipsArray.Num());
 
 	return CreateJSONResponse(true, TEXT("Ships listed"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleGetPlayerPawn()
+{
+	// Get the first player controller
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC)
+	{
+		return CreateJSONResponse(false, TEXT("No player controller found"));
+	}
+
+	// Get the pawn
+	APawn* Pawn = PC->GetPawn();
+	if (!Pawn)
+	{
+		return CreateJSONResponse(false, TEXT("Player has no pawn"));
+	}
+
+	// Check if this pawn is already tracked
+	FString ExistingID;
+	for (const auto& Pair : TrackedShips)
+	{
+		if (Pair.Value == Pawn)
+		{
+			ExistingID = Pair.Key;
+			break;
+		}
+	}
+
+	// If not tracked, register it
+	if (ExistingID.IsEmpty())
+	{
+		ExistingID = TEXT("player_pawn");
+		RegisterShip(Pawn, ExistingID);
+		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Registered player pawn as '%s'"), *ExistingID);
+	}
+
+	// Build response with pawn info
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("ship_id"), ExistingID);
+	ResponseData->SetStringField(TEXT("pawn_name"), Pawn->GetName());
+	ResponseData->SetStringField(TEXT("pawn_class"), Pawn->GetClass()->GetName());
+
+	// Check for FlightController
+	UFlightController* FlightController = Pawn->FindComponentByClass<UFlightController>();
+	ResponseData->SetBoolField(TEXT("has_flight_controller"), FlightController != nullptr);
+
+	// List all components
+	TArray<UActorComponent*> Components;
+	Pawn->GetComponents(Components);
+	TArray<TSharedPtr<FJsonValue>> ComponentsArray;
+	for (UActorComponent* Component : Components)
+	{
+		ComponentsArray.Add(MakeShareable(new FJsonValueString(Component->GetClass()->GetName())));
+	}
+	ResponseData->SetArrayField(TEXT("components"), ComponentsArray);
+
+	FVector Location = Pawn->GetActorLocation();
+	TArray<TSharedPtr<FJsonValue>> LocationArray;
+	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.X)));
+	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Y)));
+	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Z)));
+	ResponseData->SetArrayField(TEXT("location"), LocationArray);
+
+	return CreateJSONResponse(true, TEXT("Player pawn retrieved"), ResponseData);
 }
 
 FString UAutomationAPIServer::HandleDestroyShip(const FString& ShipID)

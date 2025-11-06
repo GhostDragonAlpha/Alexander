@@ -387,3 +387,150 @@ python automation_http_client.py
 | "Default subobject already exists" | Constructor creating duplicate components | Remove duplicate, use parent's components |
 | "Failed to find object 'Class /Script/Alexander.AutomationGameMode'" | C++ not compiled OR wrong DLL loaded | Build AlexanderEditor target, verify DLL timestamp |
 | Remote execution quit doesn't work | Standalone mode doesn't support it | Use psutil.Process.kill() instead |
+
+---
+
+## AUTONOMOUS TESTING WORKFLOW (Complete Command Sequence)
+
+**Purpose**: AI agents read this documentation to execute the complete autonomous testing cycle.
+
+### Prerequisites Check
+
+```bash
+# Verify Python available
+python --version
+
+# Verify required modules
+python -c "import psutil, PIL; print('Dependencies OK')"
+
+# Verify project structure
+ls Alexander.uproject
+ls Source/Alexander/Private/AutomationGameMode.cpp
+```
+
+### Complete Testing Cycle
+
+#### PHASE 1: Build and Launch
+
+```bash
+# 1. Check for running game
+python -c "import psutil; [print(f'Game running: PID {p.pid}') for p in psutil.process_iter(['pid','name','cmdline']) if 'UnrealEditor' in p.info['name'] and 'Alexander.uproject' in ' '.join(p.info['cmdline'] or []) and '-game' in ' '.join(p.info['cmdline'] or [])]"
+
+# 2. If game running, close it
+python close_game_tracked.py
+
+# 3. Kill any crash reporters locking DLL
+python -c "import psutil; [p.kill() for p in psutil.process_iter(['name']) if 'CrashReport' in p.info['name']]"
+
+# 4. Build AlexanderEditor target (compiles C++ to DLL)
+"C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealBuildTool.dll" AlexanderEditor Win64 Development "Alexander.uproject" -waitmutex
+
+# 5. Verify DLL timestamp (must be newer than source files)
+ls -l Binaries/Win64/UnrealEditor-Alexander.dll
+ls -l Source/Alexander/Private/AutomationGameMode.cpp
+
+# 6. Launch game with PID tracking
+python launch_game_tracked.py
+```
+
+#### PHASE 2: Verify Game Loaded
+
+```bash
+# 7. Wait for game to load (15-20 seconds)
+python -c "import time; time.sleep(20)"
+
+# 8. Check if game is running
+python -c "import json, psutil; pid=json.load(open('running_game_pid.json'))['pid']; print('RUNNING' if psutil.pid_exists(pid) else 'CRASHED')"
+
+# 9. Verify AutomationGameMode loaded in logs
+grep "Game class is.*AutomationGameMode\|Automation server started on port 8080" Saved/Logs/Alexander.log
+
+# 10. Take screenshot for verification
+python -c "from PIL import ImageGrab; from pathlib import Path; import time; Path('Screenshots/Autonomous').mkdir(parents=True, exist_ok=True); ImageGrab.grab().save(f'Screenshots/Autonomous/verify_{time.strftime(\"%Y%m%d_%H%M%S\")}.png'); print('Screenshot saved')"
+```
+
+#### PHASE 3: Test Game Functionality (Future - HTTP Server Implementation)
+
+```bash
+# 11. Test HTTP automation server (when implemented)
+# python automation_http_client.py
+
+# For now, verify game responds to input by checking logs for activity
+tail -20 Saved/Logs/Alexander.log
+```
+
+#### PHASE 4: Screenshot Verification and Cleanup
+
+```bash
+# 12. Take final screenshot showing game state
+python -c "from PIL import ImageGrab; from pathlib import Path; import time; ImageGrab.grab().save(f'Screenshots/Autonomous/final_{time.strftime(\"%Y%m%d_%H%M%S\")}.png'); print('Final screenshot saved')"
+
+# 13. Close game cleanly
+python close_game_tracked.py
+
+# 14. Verify closure
+python -c "import json, psutil, pathlib; pid=json.load(open('running_game_pid.json'))['pid'] if pathlib.Path('running_game_pid.json').exists() else None; print('CLOSED' if pid is None or not psutil.pid_exists(pid) else 'STILL RUNNING')"
+```
+
+### One-Line Test Cycle (Copy-Paste)
+
+For AI agents to execute complete cycle in one command:
+
+```bash
+python close_game_tracked.py && python -c "import psutil; [p.kill() for p in psutil.process_iter(['name']) if 'CrashReport' in p.info['name']]" && "C:\Program Files\Epic Games\UE_5.6\Engine\Build\BatchFiles\Build.bat" AlexanderEditor Win64 Development "Alexander.uproject" -waitmutex && python launch_game_tracked.py && python -c "import time; time.sleep(20)" && python -c "from PIL import ImageGrab; from pathlib import Path; import time; Path('Screenshots/Autonomous').mkdir(parents=True, exist_ok=True); ImageGrab.grab().save(f'Screenshots/Autonomous/test_{time.strftime(\"%Y%m%d_%H%M%S\")}.png')" && grep "Game class is.*AutomationGameMode" Saved/Logs/Alexander.log && python close_game_tracked.py
+```
+
+### Expected Output at Each Step
+
+**Step 6 (Launch)**:
+```
+Game PID: <number>
+Track this PID for all remote commands
+```
+
+**Step 9 (Verify GameMode)**:
+```
+LogLoad: Game class is 'AutomationGameMode'
+LogTemp: AutomationGameMode: Automation server started on port 8080
+```
+
+**Step 10 (Screenshot)**:
+```
+Screenshot saved
+```
+
+**Step 13 (Close)**:
+```
+[OK] Process <PID> closed successfully
+```
+
+### Success Criteria
+
+- ✅ Game launches without crash
+- ✅ AutomationGameMode loads (verified in logs)
+- ✅ HTTP server starts on port 8080
+- ✅ Screenshots captured showing game window
+- ✅ Game closes cleanly
+
+### Failure Handling
+
+If any step fails, check:
+1. **Build errors**: Read error output, fix C++ issues, retry
+2. **Crash on launch**: Check `Saved/Logs/Alexander.log` for crash callstack
+3. **Wrong game mode**: Verify URL parameter in launch_game_tracked.py
+4. **DLL locked**: Kill CrashReportClient before building
+5. **Screenshot fails**: Install `pip install pillow`
+
+---
+
+## NEXT ITERATION: HTTP Server Socket Implementation
+
+**Current Status**: AutomationGameMode loads and logs "server started on port 8080", but no actual socket listener implemented.
+
+**Required**: Implement TCP socket listener in AutomationAPIServer.cpp using Unreal's networking modules (Sockets, Networking).
+
+**Files to Modify**:
+- `Source/Alexander/Private/AutomationAPIServer.cpp`: Add FTcpListener and socket handling
+- `Source/Alexander/Alexander.Build.cs`: Verify "Sockets" and "Networking" modules included
+
+This is tracked as the next iteration after autonomous workflow is validated.

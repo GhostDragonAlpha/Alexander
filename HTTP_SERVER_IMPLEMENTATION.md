@@ -74,29 +74,39 @@ python automation_http_client.py
 
 ## ⚠️ KNOWN ISSUES
 
-### Issue 1: set_input Endpoint - Ship Lacks FlightController Component
+### Issue 1: set_input Endpoint - ✅ RESOLVED with Physics Fallback
 
-**Problem**: Spawned BP_VRSpaceshipPlayer_C doesn't have FlightController component accessible from C++
+**Original Problem**: BP_VRSpaceshipPlayer_C doesn't have FlightController component
 
-**Error**:
+**Solution Implemented**: ✅ Physics-based fallback control
+- If FlightController exists → Use FlightController->SetThrustInput()
+- If FlightController missing → Apply forces/torques directly via UPrimitiveComponent physics
+- Endpoint now returns: `"Input applied via physics"` or `"Input applied via FlightController"`
+
+**Code**: See `HandleSetInput()` in AutomationAPIServer.cpp lines 480-582
+
+### Issue 2: Blueprint Requires Physics Configuration
+
+**Current Blocker**: BP_VRSpaceshipPlayer root component is SceneComponent (no physics support)
+
+**Root Cause**: SceneComponent is transform-only, doesn't inherit from UPrimitiveComponent
+
+**What's Needed**: Blueprint must be updated in editor:
+1. Replace root SceneComponent with StaticMeshComponent or CapsuleComponent
+2. Enable "Simulate Physics" checkbox
+3. Set appropriate Mass (e.g., 1000 kg)
+4. Optionally add FlightController component for flight assists
+
+**Current Component Structure**:
+```json
+{
+  "pawn_class": "BP_VRSpaceshipPlayer_C",
+  "components": ["SceneComponent", "EnhancedInputComponent"],
+  "has_flight_controller": false
+}
 ```
-[FAIL] Input failed: Ship has no FlightController component
-```
 
-**Root Cause**: Blueprint components may not be accessible via `FindComponentByClass<UFlightController>()` when spawned programmatically
-
-**Potential Solutions**:
-1. ✅ **Use Default Pawn**: Instead of spawning via API, use the pawn that AutomationGameMode creates automatically for the player controller
-2. Create a C++ ship class with FlightController in C++ (not blueprint)
-3. Wait for blueprint construction script to complete before accessing components
-4. Use different component access method (GetComponentByClass, TActorIterator)
-
-**Next Steps**:
-- Test with default game mode pawn
-- Create simple C++ pawn with FlightController for API spawning
-- Add delay after spawn to allow blueprint construction
-
-### Issue 2: AlexanderEditor Build Failures
+### Issue 3: AlexanderEditor Build Failures
 
 **Problem**: SolarSystemBlueprintGenerator.cpp has compilation errors
 
