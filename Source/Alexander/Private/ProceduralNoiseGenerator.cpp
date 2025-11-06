@@ -698,3 +698,288 @@ FVector2D UProceduralNoiseGenerator::CartesianToSpherical(FVector Position, floa
 	
 	return FVector2D(Lat, Lon);
 }
+
+float UProceduralNoiseGenerator::GenerateContinentalTerrain(float X, float Y, int32 Seed, float PlanetRadius)
+{
+	// Continental terrain generation using layered Perlin noise
+	float BaseNoise = PerlinNoise2D(X * 0.1f, Y * 0.1f, Seed);
+	BaseNoise = (BaseNoise + 1.0f) * 0.5f;
+	
+	// Add detail layers
+	float DetailNoise = PerlinNoise2D(X * 0.5f, Y * 0.5f, Seed + 1);
+	DetailNoise = (DetailNoise + 1.0f) * 0.5f;
+	
+	float FineNoise = PerlinNoise2D(X * 2.0f, Y * 2.0f, Seed + 2);
+	FineNoise = (FineNoise + 1.0f) * 0.5f;
+	
+	// Blend layers: large scale (50%) + medium (30%) + fine (20%)
+	float Result = BaseNoise * 0.5f + DetailNoise * 0.3f + FineNoise * 0.2f;
+	
+	return FMath::Clamp(Result, 0.0f, 1.0f);
+}
+
+float UProceduralNoiseGenerator::GenerateRiverNetwork(float X, float Y, int32 Seed, float TerrainHeight)
+{
+	// River networks based on terrain height gradients
+	// Create main river channels using low-frequency noise
+	float RiverNoise = PerlinNoise2D(X * 0.05f, Y * 0.05f, Seed + 100);
+	RiverNoise = (RiverNoise + 1.0f) * 0.5f;
+	
+	// Add tributaries with higher frequency
+	float TributaryNoise = PerlinNoise2D(X * 0.2f, Y * 0.2f, Seed + 101);
+	TributaryNoise = (TributaryNoise + 1.0f) * 0.5f;
+	
+	// Combine: main rivers follow low noise, tributaries branch from high noise
+	float Result = RiverNoise * 0.7f + TributaryNoise * 0.3f;
+	
+	// Modulate by terrain height (rivers flow downward from high terrain)
+	Result *= (1.0f - FMath::Clamp(TerrainHeight, 0.0f, 1.0f));
+	
+	return FMath::Clamp(Result, 0.0f, 1.0f);
+}
+
+float UProceduralNoiseGenerator::GenerateCaveSystem(float X, float Y, float Z, int32 Seed)
+{
+	// 3D cave system generation using Perlin noise
+	float CaveNoise = PerlinNoise3D(X * 0.1f, Y * 0.1f, Z * 0.1f, Seed + 200);
+	CaveNoise = (CaveNoise + 1.0f) * 0.5f;
+	
+	// Add larger cave chambers
+	float ChamberNoise = PerlinNoise3D(X * 0.05f, Y * 0.05f, Z * 0.05f, Seed + 201);
+	ChamberNoise = (ChamberNoise + 1.0f) * 0.5f;
+	
+	// Add fine detail (cave decorations)
+	float DetailNoise = PerlinNoise3D(X * 0.3f, Y * 0.3f, Z * 0.3f, Seed + 202);
+	DetailNoise = (DetailNoise + 1.0f) * 0.5f;
+	
+	// Combine layers
+	float Result = CaveNoise * 0.4f + ChamberNoise * 0.4f + DetailNoise * 0.2f;
+	
+	return FMath::Clamp(Result, 0.0f, 1.0f);
+}
+
+void UProceduralNoiseGenerator::ApplyThermalErosion(TArray<float>& HeightMap, int32 Width, int32 Height, int32 Iterations, float TalusAngle)
+{
+	// Thermal erosion: material falls from steep slopes
+	if (HeightMap.Num() == 0 || Width <= 0 || Height <= 0)
+	{
+		return;
+	}
+	
+	TArray<float> ErosionMap = HeightMap;
+	float TalusAngleRad = FMath::DegreesToRadians(TalusAngle);
+	float TalusSlope = FMath::Tan(TalusAngleRad);
+	
+	for (int32 Iteration = 0; Iteration < Iterations; ++Iteration)
+	{
+		for (int32 Y = 1; Y < Height - 1; ++Y)
+		{
+			for (int32 X = 1; X < Width - 1; ++X)
+			{
+				int32 CenterIdx = Y * Width + X;
+				float CenterHeight = HeightMap[CenterIdx];
+				
+				// Check 8 neighbors
+				for (int32 DY = -1; DY <= 1; ++DY)
+				{
+					for (int32 DX = -1; DX <= 1; ++DX)
+					{
+						if (DX == 0 && DY == 0) continue;
+						
+						int32 NeighborIdx = (Y + DY) * Width + (X + DX);
+						float NeighborHeight = HeightMap[NeighborIdx];
+						float HeightDiff = CenterHeight - NeighborHeight;
+						
+						// Distance accounting for diagonal neighbors
+						float Distance = (DX != 0 && DY != 0) ? 1.414f : 1.0f;
+						float Slope = HeightDiff / Distance;
+						
+						if (Slope > TalusSlope && HeightDiff > 0.0f)
+						{
+							// Material slides down
+							float Material = HeightDiff - TalusSlope * Distance;
+							ErosionMap[CenterIdx] -= Material * 0.5f;
+							ErosionMap[NeighborIdx] += Material * 0.5f;
+						}
+					}
+				}
+			}
+		}
+		HeightMap = ErosionMap;
+	}
+}
+
+void UProceduralNoiseGenerator::ApplyHydraulicErosion(TArray<float>& HeightMap, int32 Width, int32 Height, int32 Droplets, float Solubility, float EvaporationRate, float Friction, float Gravity, float CapacityFactor)
+{
+	// Hydraulic erosion: water droplets carve valleys
+	if (HeightMap.Num() == 0 || Width <= 0 || Height <= 0 || Droplets <= 0)
+	{
+		return;
+	}
+	
+	for (int32 DropletIdx = 0; DropletIdx < Droplets; ++DropletIdx)
+	{
+		// Random starting position
+		float PosX = FMath::Rand() % Width;
+		float PosY = FMath::Rand() % Height;
+		float Velocity = 0.0f;
+		float Water = 1.0f;
+		float Sediment = 0.0f;
+		
+		for (int32 Step = 0; Step < 50; ++Step)
+		{
+			int32 NodeX = FMath::FloorToInt(PosX);
+			int32 NodeY = FMath::FloorToInt(PosY);
+			
+			// Clamp to bounds
+			if (NodeX < 0 || NodeX >= Width - 1 || NodeY < 0 || NodeY >= Height - 1)
+				break;
+			
+			int32 NodeIdx = NodeY * Width + NodeX;
+			float CurrentHeight = HeightMap[NodeIdx];
+			
+			// Find lowest neighbor
+			float LowestHeight = CurrentHeight;
+			int32 LowestIdx = NodeIdx;
+			
+			for (int32 DY = -1; DY <= 1; ++DY)
+			{
+				for (int32 DX = -1; DX <= 1; ++DX)
+				{
+					if (DX == 0 && DY == 0) continue;
+					int32 NeighborIdx = (NodeY + DY) * Width + (NodeX + DX);
+					if (HeightMap[NeighborIdx] < LowestHeight)
+					{
+						LowestHeight = HeightMap[NeighborIdx];
+						LowestIdx = NeighborIdx;
+					}
+				}
+			}
+			
+			// Accelerate downhill
+			float HeightDiff = CurrentHeight - LowestHeight;
+			Velocity = FMath::Sqrt(Velocity * Velocity + HeightDiff * Gravity);
+			Velocity *= (1.0f - Friction);
+			
+			// Erosion based on velocity
+			float Capacity = CapacityFactor * Velocity * Water;
+			if (Sediment > Capacity)
+			{
+				// Deposit excess sediment
+				float Deposit = Solubility * (Sediment - Capacity);
+				HeightMap[NodeIdx] += Deposit;
+				Sediment -= Deposit;
+			}
+			else
+			{
+				// Erode
+				float Erosion = Solubility * (Capacity - Sediment);
+				Erosion = FMath::Min(Erosion, Capacity);
+				HeightMap[NodeIdx] -= Erosion;
+				Sediment += Erosion;
+			}
+			
+			// Evaporate water
+			Water *= (1.0f - EvaporationRate);
+			if (Water < 0.01f) break;
+			
+			// Move to lowest neighbor
+			PosX = LowestIdx % Width;
+			PosY = LowestIdx / Width;
+		}
+	}
+}
+
+float UProceduralNoiseGenerator::GenerateBiomeFeatures(float X, float Y, EBiomeType BiomeType, int32 Seed, float BaseHeight)
+{
+	// Generate biome-specific features
+	float BiomeFeature = 0.0f;
+	
+	switch (BiomeType)
+	{
+		case EBiomeType::Desert:
+		{
+			// Smooth dunes using low-frequency noise
+			float DuneNoise = PerlinNoise2D(X * 0.05f, Y * 0.05f, Seed + 300);
+			BiomeFeature = (DuneNoise + 1.0f) * 0.5f;
+			break;
+		}
+		case EBiomeType::Forest:
+		{
+			// Varied terrain for forest
+			float ForestNoise = PerlinNoise2D(X * 0.2f, Y * 0.2f, Seed + 301);
+			BiomeFeature = (ForestNoise + 1.0f) * 0.5f;
+			break;
+		}
+		case EBiomeType::Mountain:
+		{
+			// Rough, high-frequency terrain
+			float MountainNoise = PerlinNoise2D(X * 0.5f, Y * 0.5f, Seed + 302);
+			MountainNoise = (MountainNoise + 1.0f) * 0.5f;
+			
+			// Add sharp ridges
+			float RidgeNoise = PerlinNoise2D(X * 1.0f, Y * 1.0f, Seed + 303);
+			RidgeNoise = (RidgeNoise + 1.0f) * 0.5f;
+			RidgeNoise = FMath::Abs(RidgeNoise - 0.5f) * 2.0f; // Create ridges
+			
+			BiomeFeature = MountainNoise * 0.6f + RidgeNoise * 0.4f;
+			break;
+		}
+		case EBiomeType::Tundra:
+		{
+			// Flat with small variations
+			float TundraNoiseFloat = PerlinNoise2D(X * 0.15f, Y * 0.15f, Seed + 304);
+			BiomeFeature = (TundraNoiseFloat + 1.0f) * 0.5f * 0.5f; // Reduced variation
+			break;
+		}
+		default:
+		{
+			// Generic biome
+			float GenericNoise = PerlinNoise2D(X * 0.1f, Y * 0.1f, Seed + 305);
+			BiomeFeature = (GenericNoise + 1.0f) * 0.5f;
+			break;
+		}
+	}
+	
+	// Blend with base height
+	return BaseHeight * 0.7f + BiomeFeature * 0.3f;
+}
+
+float UProceduralNoiseGenerator::GenerateVolcanicTerrain(float X, float Y, int32 Seed, float BaseHeight)
+{
+	// Volcanic terrain with sharp peaks
+	float VulcanicNoise = PerlinNoise2D(X * 0.1f, Y * 0.1f, Seed + 400);
+	VulcanicNoise = (VulcanicNoise + 1.0f) * 0.5f;
+	
+	// Create volcanic cones
+	float DistFromCenter = FMath::Sqrt(X * X + Y * Y);
+	float ConeNoise = FMath::Max(0.0f, 1.0f - DistFromCenter * 0.01f);
+	
+	// Add lava flow patterns (sharp ridges)
+	float LavaNoise = PerlinNoise2D(X * 0.3f, Y * 0.3f, Seed + 401);
+	LavaNoise = FMath::Abs(LavaNoise); // Ridges
+	
+	float Result = BaseHeight + VulcanicNoise * 0.3f + ConeNoise * 0.5f + LavaNoise * 0.2f;
+	
+	return FMath::Clamp(Result, 0.0f, 1.0f);
+}
+
+float UProceduralNoiseGenerator::GenerateCraterField(float X, float Y, int32 Seed, float CraterDensity, float MaxCraterSize)
+{
+	// Generate impact craters
+	float CraterNoise = PerlinNoise2D(X * 0.1f, Y * 0.1f, Seed + 500);
+	CraterNoise = (CraterNoise + 1.0f) * 0.5f;
+	
+	// Dense crater pattern
+	float CraterPattern = PerlinNoise2D(X * CraterDensity, Y * CraterDensity, Seed + 501);
+	CraterPattern = (CraterPattern + 1.0f) * 0.5f;
+	
+	// Crater size varies
+	float CraterSize = PerlinNoise2D(X * 0.5f, Y * 0.5f, Seed + 502);
+	CraterSize = (CraterSize + 1.0f) * 0.5f * MaxCraterSize;
+	
+	// Create depression effect (negative height)
+	float Result = CraterNoise * 0.5f - CraterPattern * CraterSize * 0.5f;
+	
+	return FMath::Clamp(Result, 0.0f, 1.0f);
+}

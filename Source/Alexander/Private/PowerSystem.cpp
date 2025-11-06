@@ -273,32 +273,4 @@ void APowerNetworkNode::PropagateNetworkID(int32 NewNetworkID)
 // Interface Default Implementations
 // ============================================================================
 
-float IPowerConsumer::Execute_GetPowerRequirement(const UObject* O)
-{
-	return 0.0f;
-}
-
-void IPowerConsumer::Execute_SetPowered(UObject* O, bool bIsPowered)
-{
-	// Default implementation does nothing
-}
-
-bool IPowerConsumer::Execute_IsPowered(const UObject* O)
-{
-	return false;
-}
-
-float IPowerProvider::Execute_GetAvailablePower(const UObject* O)
-{
-	return 0.0f;
-}
-
-float IPowerProvider::Execute_GetMaxPowerCapacity(const UObject* O)
-{
-	return 0.0f;
-}
-
-EPowerSourceType IPowerProvider::Execute_GetPowerSourceType(const UObject* O)
-{
-	return EPowerSourceType::Grid;
-}
+// Interface Execute functions moved to inline definitions in PowerSystem.h to avoid ODR violations

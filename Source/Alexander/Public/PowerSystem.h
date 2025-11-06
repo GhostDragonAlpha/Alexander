@@ -55,6 +55,22 @@ public:
 	bool IsPowered() const;
 };
 
+// Inline implementations of interface Execute functions to avoid ODR violations
+FORCEINLINE float IPowerConsumer::Execute_GetPowerRequirement(const UObject* O)
+{
+	return 0.0f;
+}
+
+FORCEINLINE void IPowerConsumer::Execute_SetPowered(UObject* O, bool bIsPowered)
+{
+	// Default implementation does nothing
+}
+
+FORCEINLINE bool IPowerConsumer::Execute_IsPowered(const UObject* O)
+{
+	return false;
+}
+
 /**
  * Power provider interface
  */
@@ -87,6 +103,22 @@ public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Power")
 	EPowerSourceType GetPowerSourceType() const;
 };
+
+// Inline implementations of interface Execute functions
+FORCEINLINE float IPowerProvider::Execute_GetAvailablePower(const UObject* O)
+{
+	return 0.0f;
+}
+
+FORCEINLINE float IPowerProvider::Execute_GetMaxPowerCapacity(const UObject* O)
+{
+	return 0.0f;
+}
+
+FORCEINLINE EPowerSourceType IPowerProvider::Execute_GetPowerSourceType(const UObject* O)
+{
+	return EPowerSourceType::Grid;
+}
 
 /**
  * Power network node - connects power providers and consumers
