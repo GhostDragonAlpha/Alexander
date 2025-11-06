@@ -8,14 +8,14 @@ public class Alexander : ModuleRules
 	public Alexander(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
+
 		   PublicDependencyModuleNames.AddRange(new string[] {
 			   "Core", "CoreUObject", "Engine", "InputCore", "Niagara",
 			   "HTTP", "Json", "JsonUtilities", "RHI", "RenderCore",
 			   "Slate", "SlateCore", "UMG", "ToolMenus", "ProceduralMeshComponent",
 			   "GameplayTags", "GameplayTasks", "AIModule", "NavigationSystem",
 			   "AudioMixer", "DeveloperSettings", "EnhancedInput", "HeadMountedDisplay", "CinematicCamera", "XRBase",
-		   "PhysicsCore"
+		   "PhysicsCore", "Sockets", "Networking"
 		   });
 
 		// Add public include paths
@@ -28,11 +28,11 @@ public class Alexander : ModuleRules
 // Add editor-only modules when building for editor
 		if (Target.bBuildEditor)
 		{
-			PrivateDependencyModuleNames.AddRange(new string[] { 
+			PrivateDependencyModuleNames.AddRange(new string[] {
 				"UnrealEd", "EditorWidgets", "ToolMenus", "EditorStyle", "LevelEditor"
 			});
 		}
-		
+
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
 

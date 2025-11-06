@@ -11,6 +11,10 @@
 #include "GameFramework/Actor.h"
 #include "AutomationAPIServer.generated.h"
 
+// Forward declarations for socket types
+class FSocket;
+struct FIPv4Endpoint;
+
 /**
  * HTTP-based Automation API Server
  * Allows Python scripts to control the game for automated testing
@@ -139,6 +143,19 @@ protected:
 	// Performance metrics
 	int32 TotalRequestsProcessed = 0;
 	float TotalProcessingTime = 0.0f;
+
+	// ============================================================================
+	// TCP SOCKET LISTENER
+	// ============================================================================
+
+	// TCP listener for HTTP server
+	class FTcpListener* TcpListener = nullptr;
+
+	// Handle incoming connection
+	bool OnIncomingConnection(class FSocket* Socket, const FIPv4Endpoint& Endpoint);
+
+	// Process HTTP request from socket
+	void ProcessSocketRequest(class FSocket* Socket);
 
 	// ============================================================================
 	// HELPER FUNCTIONS

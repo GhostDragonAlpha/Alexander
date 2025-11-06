@@ -12,6 +12,11 @@
 #include "Serialization/JsonWriter.h"
 #include "HighResScreenshot.h"
 #include "FlightController.h"
+#include "Sockets.h"
+#include "SocketSubsystem.h"
+#include "IPAddress.h"
+#include "Networking.h"
+#include "Async/Async.h"
 
 UAutomationAPIServer::UAutomationAPIServer()
 {
@@ -75,13 +80,29 @@ bool UAutomationAPIServer::StartServer()
 		return false;
 	}
 
+	// Create TCP listener
+	ISocketSubsystem* SocketSubsystem = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM);
+	if (!SocketSubsystem)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AutomationAPI: Failed to get socket subsystem"));
+		return false;
+	}
+
+	// Create endpoint (listen on all interfaces, specified port)
+	FIPv4Address Address = FIPv4Address::Any;
+	FIPv4Endpoint Endpoint(Address, ListenPort);
+
+	// Create TCP listener
+	TcpListener = new FTcpListener(Endpoint);
+	TcpListener->OnConnectionAccepted().BindUObject(this, &UAutomationAPIServer::OnIncomingConnection);
+
 	bIsRunning = true;
 	NextShipID = 1;
 	TotalRequestsProcessed = 0;
 	TotalProcessingTime = 0.0f;
 
-	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Server started on port %d"), ListenPort);
-	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Console commands ready for automation"));
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: TCP server listening on port %d"), ListenPort);
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HTTP automation server ready"));
 
 	return true;
 }
@@ -91,10 +112,123 @@ void UAutomationAPIServer::StopServer()
 	if (!bIsRunning)
 		return;
 
+	// Stop and delete TCP listener
+	if (TcpListener)
+	{
+		TcpListener->Stop();
+		delete TcpListener;
+		TcpListener = nullptr;
+	}
+
 	bIsRunning = false;
 	TrackedShips.Empty();
 
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Server stopped"));
+}
+
+bool UAutomationAPIServer::OnIncomingConnection(FSocket* Socket, const FIPv4Endpoint& Endpoint)
+{
+	if (!Socket)
+		return false;
+
+	if (bVerboseLogging)
+	{
+		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Incoming connection from %s"), *Endpoint.ToString());
+	}
+
+	// Process request on async task to avoid blocking game thread
+	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Socket]()
+	{
+		ProcessSocketRequest(Socket);
+	});
+
+	return true;
+}
+
+void UAutomationAPIServer::ProcessSocketRequest(FSocket* Socket)
+{
+	if (!Socket)
+		return;
+
+	// Read HTTP request
+	TArray<uint8> ReceivedData;
+	uint8 Buffer[1024];
+	int32 BytesRead = 0;
+
+	// Read data from socket
+	while (Socket->Recv(Buffer, sizeof(Buffer) - 1, BytesRead))
+	{
+		if (BytesRead > 0)
+		{
+			ReceivedData.Append(Buffer, BytesRead);
+			// Simple check for end of HTTP headers
+			if (ReceivedData.Num() > 4)
+			{
+				bool bFoundEnd = false;
+				for (int32 i = ReceivedData.Num() - 4; i >= 0 && i >= ReceivedData.Num() - 100; i--)
+				{
+					if (ReceivedData[i] == '\r' && ReceivedData[i+1] == '\n' &&
+						ReceivedData[i+2] == '\r' && ReceivedData[i+3] == '\n')
+					{
+						bFoundEnd = true;
+						break;
+					}
+				}
+				if (bFoundEnd) break;
+			}
+		}
+		if (BytesRead == 0) break;
+	}
+
+	// Parse HTTP request
+	FString RequestString = FString(UTF8_TO_TCHAR((char*)ReceivedData.GetData()));
+	TArray<FString> Lines;
+	RequestString.ParseIntoArrayLines(Lines);
+
+	if (Lines.Num() == 0)
+	{
+		Socket->Close();
+		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
+		return;
+	}
+
+	// Parse request line (e.g., "GET /status HTTP/1.1")
+	TArray<FString> RequestParts;
+	Lines[0].ParseIntoArray(RequestParts, TEXT(" "), true);
+
+	if (RequestParts.Num() < 2)
+	{
+		Socket->Close();
+		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
+		return;
+	}
+
+	FString Method = RequestParts[0];
+	FString Endpoint = RequestParts[1];
+	FString Body = TEXT(""); // TODO: Parse body for POST requests
+
+	// Handle request on game thread
+	FString Response;
+	AsyncTask(ENamedThreads::GameThread, [this, Method, Endpoint, Body, &Response]()
+	{
+		HandleHTTPRequest(Endpoint, Method, Body, Response);
+	});
+
+	// Wait a moment for game thread to process
+	FPlatformProcess::Sleep(0.01f);
+
+	// Send HTTP response
+	FString HttpResponse = FString::Printf(TEXT("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %d\r\n\r\n%s"),
+		Response.Len(), *Response);
+
+	// Convert to UTF8 for socket transmission
+	FTCHARToUTF8 Converter(*HttpResponse);
+	int32 BytesSent = 0;
+	Socket->Send((uint8*)Converter.Get(), Converter.Length(), BytesSent);
+
+	// Close socket
+	Socket->Close();
+	ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
 }
 
 FString UAutomationAPIServer::GetServerStatus() const

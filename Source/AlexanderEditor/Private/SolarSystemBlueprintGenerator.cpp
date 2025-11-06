@@ -28,8 +28,8 @@
 #include "PackageTools.h"
 
 // Include celestial scaling components
-#include "CelestialScaling/Public/CelestialBodyComponent.h"
-#include "Public/VRSpaceshipPawn.h"
+#include "CelestialBodyComponent.h"
+#include "VRSpaceshipPawn.h"
 
 USolarSystemBlueprintGenerator::USolarSystemBlueprintGenerator()
 {
