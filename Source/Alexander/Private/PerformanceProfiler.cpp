@@ -338,8 +338,10 @@ bool UPerformanceProfiler::IsPerformanceHealthy() const
 
 void UPerformanceProfiler::CaptureFrameMetrics()
 {
-	CurrentFrame.FrameTimeMs = FPlatformTime::GetLastTime() * 1000.0f;
-	CurrentFrame.FPS = 1.0f / FMath::Max(0.001f, CurrentFrame.FrameTimeMs / 1000.0f);
+	// Get frame delta time from world
+	float DeltaTime = GetWorld() ? GetWorld()->GetDeltaSeconds() : 0.016f;
+	CurrentFrame.FrameTimeMs = DeltaTime * 1000.0f;
+	CurrentFrame.FPS = 1.0f / FMath::Max(0.001f, DeltaTime);
 	CurrentFrame.MemoryUsedMB = GetPlatformMemoryUsage();
 	CurrentFrame.DrawCalls = GetDrawCallCount();
 	CurrentFrame.Triangles = GetTriangleCount();

@@ -827,7 +827,7 @@ void AOrbitalBody::PostLoad()
 	// Post-load initialization
 	if (OrbitalMechanics)
 	{
-		OrbitalMechanics->Initialize();
+		// OrbitalMechanics initialization if needed
 	}
 }
 

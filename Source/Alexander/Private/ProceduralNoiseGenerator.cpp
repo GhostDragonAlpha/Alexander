@@ -631,11 +631,18 @@ float UProceduralNoiseGenerator::GenerateIceFormations(float X, float Y, float Z
 	// Temperature factor: colder = more ice
 	float TemperatureFactor = FMath::Max(0.0f, 1.0f - (Temperature / 100.0f));
 	
-	// Combine with fractal for complexity
-	float FractalIce = FractalPerlinNoise3D(X, Y, Z, Seed, 4, 1.0f, 2.0f, 0.5f);
+	// Combine with octaves for complexity (fractal-like)
+	float DetailNoise = PerlinNoise3D(X * 2.0f, Y * 2.0f, Z * 2.0f, Seed + 1);
+	DetailNoise = (DetailNoise + 1.0f) * 0.5f;
+	
+	float ComplexNoise = PerlinNoise3D(X * 4.0f, Y * 4.0f, Z * 4.0f, Seed + 2);
+	ComplexNoise = (ComplexNoise + 1.0f) * 0.5f;
+	
+	// Combine layers
+	float FractalIce = (IceNoise * 0.5f + DetailNoise * 0.3f + ComplexNoise * 0.2f) / 1.0f;
 	
 	// Weight by temperature
-	float Result = (IceNoise * 0.5f + FractalIce * 0.5f) * TemperatureFactor;
+	float Result = FractalIce * TemperatureFactor;
 	
 	return FMath::Clamp(Result, 0.0f, 1.0f);
 }

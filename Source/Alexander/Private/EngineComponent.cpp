@@ -10,8 +10,8 @@
 #include "Engine/World.h"
 
 UEngineComponent::UEngineComponent()
-	: PrimaryComponentTick.TickInterval(0.016f) // ~60 FPS
 {
+	PrimaryComponentTick.TickInterval = 0.016f; // ~60 FPS
 	PrimaryComponentTick.bCanEverTick = true;
 	bTickInEditor = false;
 	

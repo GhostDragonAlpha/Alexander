@@ -1393,9 +1393,9 @@ void UTutorialOnboardingSystem::DrawDebugTutorialInfo()
 void UTutorialOnboardingSystem::UnregisterTutorialEventHandler(const FString& EventName)
 {
     // Remove the event handler for the specified event
-    if (TutorialEventHandlers.Contains(EventName))
+    if (EventHandlers.Contains(EventName))
     {
-        TutorialEventHandlers.Remove(EventName);
+        EventHandlers.Remove(EventName);
         UE_LOG(LogTemp, Log, TEXT("Unregistered tutorial event handler: %s"), *EventName);
     }
     else
