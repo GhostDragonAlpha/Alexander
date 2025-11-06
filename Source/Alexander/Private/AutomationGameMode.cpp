@@ -36,6 +36,14 @@ void AAutomationGameMode::BeginPlay()
 
 	ServerStartTime = FPlatformTime::Seconds();
 
+	// Parse command line parameters
+	int32 PortOverride = 0;
+	if (FParse::Value(FCommandLine::Get(), TEXT("HTTPPort="), PortOverride))
+	{
+		AutomationPort = PortOverride;
+		UE_LOG(LogTemp, Log, TEXT("AutomationGameMode: HTTP port overridden to %d from command line"), AutomationPort);
+	}
+
 	// Setup automation server
 	if (bEnableAutomationServer)
 	{
