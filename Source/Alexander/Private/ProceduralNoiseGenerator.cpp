@@ -904,25 +904,18 @@ float UProceduralNoiseGenerator::GenerateBiomeFeatures(float X, float Y, EBiomeT
 			BiomeFeature = (DuneNoise + 1.0f) * 0.5f;
 			break;
 		}
+		case EBiomeType::Grassland:
+		{
+			// Rolling hills for grassland
+			float GrassNoise = PerlinNoise2D(X * 0.1f, Y * 0.1f, Seed + 301);
+			BiomeFeature = (GrassNoise + 1.0f) * 0.5f;
+			break;
+		}
 		case EBiomeType::Forest:
 		{
 			// Varied terrain for forest
-			float ForestNoise = PerlinNoise2D(X * 0.2f, Y * 0.2f, Seed + 301);
+			float ForestNoise = PerlinNoise2D(X * 0.2f, Y * 0.2f, Seed + 302);
 			BiomeFeature = (ForestNoise + 1.0f) * 0.5f;
-			break;
-		}
-		case EBiomeType::Mountain:
-		{
-			// Rough, high-frequency terrain
-			float MountainNoise = PerlinNoise2D(X * 0.5f, Y * 0.5f, Seed + 302);
-			MountainNoise = (MountainNoise + 1.0f) * 0.5f;
-			
-			// Add sharp ridges
-			float RidgeNoise = PerlinNoise2D(X * 1.0f, Y * 1.0f, Seed + 303);
-			RidgeNoise = (RidgeNoise + 1.0f) * 0.5f;
-			RidgeNoise = FMath::Abs(RidgeNoise - 0.5f) * 2.0f; // Create ridges
-			
-			BiomeFeature = MountainNoise * 0.6f + RidgeNoise * 0.4f;
 			break;
 		}
 		case EBiomeType::Tundra:
@@ -932,10 +925,66 @@ float UProceduralNoiseGenerator::GenerateBiomeFeatures(float X, float Y, EBiomeT
 			BiomeFeature = (TundraNoiseFloat + 1.0f) * 0.5f * 0.5f; // Reduced variation
 			break;
 		}
+		case EBiomeType::Volcanic:
+		{
+			// Rough, high-frequency volcanic terrain
+			float VolcanicNoise = PerlinNoise2D(X * 0.5f, Y * 0.5f, Seed + 303);
+			VolcanicNoise = (VolcanicNoise + 1.0f) * 0.5f;
+			
+			// Add sharp ridges
+			float RidgeNoise = PerlinNoise2D(X * 1.0f, Y * 1.0f, Seed + 3035);
+			RidgeNoise = (RidgeNoise + 1.0f) * 0.5f;
+			RidgeNoise = FMath::Abs(RidgeNoise - 0.5f) * 2.0f; // Create ridges
+			
+			BiomeFeature = VolcanicNoise * 0.6f + RidgeNoise * 0.4f;
+			break;
+		}
+		case EBiomeType::Alpine:
+		{
+			// Sharp, high-frequency mountain terrain
+			float MountainNoise = PerlinNoise2D(X * 0.5f, Y * 0.5f, Seed + 305);
+			MountainNoise = (MountainNoise + 1.0f) * 0.5f;
+			
+			// Add sharp ridges
+			float RidgeNoise = PerlinNoise2D(X * 1.0f, Y * 1.0f, Seed + 306);
+			RidgeNoise = (RidgeNoise + 1.0f) * 0.5f;
+			RidgeNoise = FMath::Abs(RidgeNoise - 0.5f) * 2.0f; // Create ridges
+			
+			BiomeFeature = MountainNoise * 0.6f + RidgeNoise * 0.4f;
+			break;
+		}
+		case EBiomeType::Ocean:
+		{
+			// Underwater terrain with smooth variations
+			float OceanNoise = PerlinNoise2D(X * 0.05f, Y * 0.05f, Seed + 307);
+			BiomeFeature = (OceanNoise + 1.0f) * 0.25f; // Lower variation for water
+			break;
+		}
+		case EBiomeType::Savanna:
+		{
+			// African savanna: moderate terrain variation
+			float SavannaNoiseFloat = PerlinNoise2D(X * 0.1f, Y * 0.1f, Seed + 308);
+			BiomeFeature = (SavannaNoiseFloat + 1.0f) * 0.4f;
+			break;
+		}
+		case EBiomeType::Rainforest:
+		{
+			// Dense rainforest with complex terrain
+			float RainforestNoise = PerlinNoise2D(X * 0.3f, Y * 0.3f, Seed + 309);
+			BiomeFeature = (RainforestNoise + 1.0f) * 0.5f;
+			break;
+		}
+		case EBiomeType::Swamp:
+		{
+			// Swamp: mostly flat with water
+			float SwampNoise = PerlinNoise2D(X * 0.08f, Y * 0.08f, Seed + 310);
+			BiomeFeature = (SwampNoise + 1.0f) * 0.2f; // Very small variations
+			break;
+		}
 		default:
 		{
 			// Generic biome
-			float GenericNoise = PerlinNoise2D(X * 0.1f, Y * 0.1f, Seed + 305);
+			float GenericNoise = PerlinNoise2D(X * 0.1f, Y * 0.1f, Seed + 311);
 			BiomeFeature = (GenericNoise + 1.0f) * 0.5f;
 			break;
 		}

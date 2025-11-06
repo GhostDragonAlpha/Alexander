@@ -272,5 +272,3 @@ void APowerNetworkNode::PropagateNetworkID(int32 NewNetworkID)
 // ============================================================================
 // Interface Default Implementations
 // ============================================================================
-
-// Interface Execute functions moved to inline definitions in PowerSystem.h to avoid ODR violations
