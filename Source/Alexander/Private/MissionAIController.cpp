@@ -6,6 +6,7 @@
 #include "Spaceship.h"
 #include "LandingGuidanceSystem.h"
 #include "ShipEntryComponent.h"
+#include "Planet.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Pawn.h"
 #include "Kismet/GameplayStatics.h"
@@ -280,7 +281,7 @@ void AMissionAIController::CompleteAction(bool bSuccess)
     
     // Wait before transitioning
     GetWorld()->GetTimerManager().SetTimer(
-        FTimerHandle(),
+        ActionTransitionTimerHandle,
         [this]() { TransitionToNextAction(); },
         StageDelayTime,
         false

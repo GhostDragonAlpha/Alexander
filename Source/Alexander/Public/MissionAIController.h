@@ -244,4 +244,7 @@ protected:
 	
 	/** Landing approach phase */
 	int32 LandingPhase;
+
+	/** Timer handle for delayed action transitions */
+	FTimerHandle ActionTransitionTimerHandle;
 };

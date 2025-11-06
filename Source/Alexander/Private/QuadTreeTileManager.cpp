@@ -521,7 +521,7 @@ void UQuadTreeTileManager::DrawDebugNodeRecursive(
 void UQuadTreeTileManager::CountNodesRecursive(
 	const TSharedPtr<FQuadTreeNode>& Node,
 	int32& TotalNodes,
-	int32& ActiveNodes,
+	int32& OutActiveNodes,
 	int32& SubdividedNodes) const
 {
 	if (!Node.IsValid())
@@ -537,11 +537,11 @@ void UQuadTreeTileManager::CountNodesRecursive(
 
 		for (const TSharedPtr<FQuadTreeNode>& Child : Node->Children)
 		{
-			CountNodesRecursive(Child, TotalNodes, ActiveNodes, SubdividedNodes);
+			CountNodesRecursive(Child, TotalNodes, OutActiveNodes, SubdividedNodes);
 		}
 	}
 	else
 	{
-		ActiveNodes++;
+		OutActiveNodes++;
 	}
 }

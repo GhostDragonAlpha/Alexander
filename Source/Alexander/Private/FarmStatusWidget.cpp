@@ -1020,7 +1020,7 @@ void UFarmStatusWidget::AddAlertRow(const FFarmAlert& Alert, int32 Row)
 		UImage* PriorityImage = NewObject<UImage>(this);
 		if (PriorityImage)
 		{
-			FLinearColor PriorityColor;
+			FLinearColor PriorityColor = FLinearColor::White; // Initialize to default
 			switch (Alert.Priority)
 			{
 			case EAlertPriority::Critical:
@@ -1034,6 +1034,10 @@ void UFarmStatusWidget::AddAlertRow(const FFarmAlert& Alert, int32 Row)
 				break;
 			case EAlertPriority::Low:
 				PriorityColor = FLinearColor(0.5f, 0.5f, 1.0f);
+				break;
+			default:
+				// Unknown priority - use white as fallback
+				PriorityColor = FLinearColor::White;
 				break;
 			}
 

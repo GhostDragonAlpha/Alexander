@@ -424,10 +424,11 @@ void UTerrainStreamingManager::ProcessTileRequest(FTileLoadRequest& Request)
 {
 	double StartTime = FPlatformTime::Seconds();
 
-	try
-	{
-		// Enhanced terrain generation with advanced features
-		Request.GeneratedTile = GenerateEnhancedTerrainTile(
+	// TODO: Enable try-catch when /EHsc compiler flag is enabled
+	// try
+	// {
+		// Use basic terrain generation from UTerrainTileGenerator
+		Request.GeneratedTile = UTerrainTileGenerator::GenerateTerrainTile(
 			Request.TilePosition,
 			Request.TileSize,
 			Request.Resolution,
@@ -437,22 +438,54 @@ void UTerrainStreamingManager::ProcessTileRequest(FTileLoadRequest& Request)
 
 		Request.bIsComplete = true;
 		Request.bHasError = false;
-	}
-	catch (...)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Error generating terrain tile at (%.1f, %.1f)"),
-			Request.TilePosition.X, Request.TilePosition.Y);
+	// }
+	// catch (...)
+	// {
+	// 	UE_LOG(LogTemp, Error, TEXT("Error generating terrain tile at (%.1f, %.1f)"),
+	// 		Request.TilePosition.X, Request.TilePosition.Y);
 
-		Request.bIsComplete = true;
-		Request.bHasError = true;
-	}
+	// 	Request.bIsComplete = true;
+	// 	Request.bHasError = true;
+	// }
 
 	double ElapsedMS = (FPlatformTime::Seconds() - StartTime) * 1000.0;
 
-	UE_LOG(LogTemp, Verbose, TEXT("Generated enhanced tile at (%.1f, %.1f) LOD %d in %.2f ms"),
+	UE_LOG(LogTemp, Verbose, TEXT("Generated tile at (%.1f, %.1f) LOD %d in %.2f ms"),
 		Request.TilePosition.X, Request.TilePosition.Y, Request.LODLevel, ElapsedMS);
 }
 
+// ============================================================================
+// COMMENTED OUT: Enhanced terrain generation methods
+// ============================================================================
+// These methods are not declared in TerrainStreamingManager.h and use
+// struct members (HeightMap, NormalMap, BiomeMap, CaveMap, MineralMap) that
+// don't exist in FTerrainTileData. They also reference non-existent config
+// members (PlanetRadius, TerrainScale, TalusAngle, bGenerateVolcanoes,
+// bGenerateCraters, CraterDensity, MaxCraterSize, bApplySmoothing, bEnableEdgeBlending).
+//
+// TODO: Either:
+// 1. Add these methods to the header if needed, OR
+// 2. Use the standard UTerrainTileGenerator::GenerateTerrainTile instead
+//
+// TODO: Update FTerrainTileData in TerrainTile.h to include additional data layers if needed:
+// - TArray<FVector4> NormalMap
+// - TArray<uint8> BiomeMap
+// - TArray<float> CaveMap
+// - TArray<float> MineralMap
+//
+// TODO: Update FTerrainGenerationConfig in TerrainTile.h to include:
+// - float TerrainScale
+// - float PlanetRadius
+// - float TalusAngle
+// - bool bGenerateVolcanoes
+// - bool bGenerateCraters
+// - float CraterDensity
+// - float MaxCraterSize
+// - bool bApplySmoothing
+// - bool bEnableEdgeBlending
+// ============================================================================
+
+/*
 FTerrainTileData UTerrainStreamingManager::GenerateEnhancedTerrainTile(
 	FVector2D TilePosition,
 	float TileSize,
@@ -477,7 +510,7 @@ FTerrainTileData UTerrainStreamingManager::GenerateEnhancedTerrainTile(
 		for (int32 X = 0; X < Resolution; ++X)
 		{
 			int32 Index = Y * Resolution + X;
-			
+
 			// Calculate world coordinates
 			float WorldX = TilePosition.X + (X / float(Resolution)) * TileSize;
 			float WorldY = TilePosition.Y + (Y / float(Resolution)) * TileSize;
@@ -604,7 +637,7 @@ void UTerrainStreamingManager::GenerateAdditionalDataLayers(
 	FTerrainTileData& TileData, const FTerrainGenerationConfig& Config)
 {
 	int32 Resolution = TileData.Resolution;
-	
+
 	// Generate cave system data
 	TileData.CaveMap.SetNumUninitialized(Resolution * Resolution);
 	for (int32 Y = 0; Y < Resolution; ++Y)
@@ -615,7 +648,7 @@ void UTerrainStreamingManager::GenerateAdditionalDataLayers(
 			float WorldX = TileData.WorldPosition.X + (X / float(Resolution)) * TileData.TileSize;
 			float WorldY = TileData.WorldPosition.Y + (Y / float(Resolution)) * TileData.TileSize;
 			float WorldZ = TileData.HeightMap[Index];
-			
+
 			TileData.CaveMap[Index] = UProceduralNoiseGenerator::GenerateCaveSystem(
 				WorldX, WorldY, WorldZ, Config.Seed + 5);
 		}
@@ -644,6 +677,7 @@ void UTerrainStreamingManager::ApplyPostProcessingEffects(
 	// Generate LOD-specific optimizations
 	ApplyLODOptimizations(TileData, Config);
 }
+*/
 
 void UTerrainStreamingManager::UpdateStats(float LoadTimeMS)
 {

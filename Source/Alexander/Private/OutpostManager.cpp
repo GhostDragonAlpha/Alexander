@@ -1919,7 +1919,7 @@ bool UOutpostManager::ValidateOutpost(const FOutpost& Outpost)
         return false;
     }
 
-    if (Outpost.Location.IsZero() || Outpost.MaxPopulation <= 0)
+    if (Outpost.Location.IsZero() || Outpost.Population.MaxPopulation <= 0)
     {
         return false;
     }

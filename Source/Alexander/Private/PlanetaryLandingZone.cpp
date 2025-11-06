@@ -56,8 +56,8 @@ void APlanetaryLandingZone::BeginPlay()
     if (GetWorld())
     {
         FTimerManager& TimerManager = GetWorldTimerManager();
-        TimerManager.SetTimer(ServiceUpdateTimer, this, &APlanetaryLandingZone::UpdateZoneServices, ServiceUpdateInterval, true);
-        TimerManager.SetTimer(EnvironmentUpdateTimer, this, &APlanetaryLandingZone::UpdateEnvironmentalConditions, EnvironmentUpdateInterval, true);
+        TimerManager.SetTimer(ServiceUpdateTimer, this, &APlanetaryLandingZone::UpdateServices, ServiceUpdateInterval, true);
+        TimerManager.SetTimer(EnvironmentUpdateTimer, FTimerDelegate::CreateLambda([this]() { UpdateEnvironmentalConditions(0.0f); }), EnvironmentUpdateInterval, true);
         TimerManager.SetTimer(EconomyUpdateTimer, this, &APlanetaryLandingZone::UpdateLocalEconomy, EconomyUpdateInterval, true);
     }
 
@@ -80,7 +80,7 @@ void APlanetaryLandingZone::Tick(float DeltaTime)
 void APlanetaryLandingZone::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
     // Clear timers
-    if (GetWorldTimerManager().IsValid())
+    if (GetWorld())
     {
         GetWorldTimerManager().ClearTimer(ServiceUpdateTimer);
         GetWorldTimerManager().ClearTimer(EnvironmentUpdateTimer);
@@ -920,11 +920,6 @@ void APlanetaryLandingZone::SetupZoneBounds()
     }
 }
 
-void APlanetaryLandingZone::UpdateZoneServices(float DeltaTime)
-{
-    UpdateServices();
-}
-
 void APlanetaryLandingZone::ProcessEnvironmentalEffects(float DeltaTime)
 {
     // Process ongoing environmental effects
@@ -1229,31 +1224,4 @@ void APlanetaryLandingZone::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>
     DOREPLIFETIME(APlanetaryLandingZone, LandingZoneData);
     DOREPLIFETIME(APlanetaryLandingZone, CurrentEnvironment);
     DOREPLIFETIME(APlanetaryLandingZone, LandingPadMap);
-}
-
-void APlanetaryLandingZone::OnZoneBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-    if (OtherActor && OtherActor != this)
-    {
-        // Handle actor entering the zone
-        ShipsInZone.Add(OtherActor);
-        
-        // Check if it's a ship that can land
-        if (CanShipLand(OtherActor))
-        {
-            // Broadcast zone entry event if needed
-        }
-    }
-}
-
-void APlanetaryLandingZone::OnZoneEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-    if (OtherActor && OtherActor != this)
-    {
-        // Handle actor leaving the zone
-        ShipsInZone.Remove(OtherActor);
-        ShipPadAssignments.Remove(OtherActor);
-        
-        // Broadcast zone exit event if needed
-    }
 }

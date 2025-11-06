@@ -428,11 +428,11 @@ protected:
     UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors")
     TMap<FString, FAIGroupBehavior> AIGroups;
 
-    UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors")
-    TMap<AActor*, FAIMemoryEntry> AIMemories;
+    // UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors") // Removed - UHT doesn't support nested containers in TMap
+    TMap<AActor*, TArray<FAIMemoryEntry>> AIMemories;
 
-    UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors")
-    TMap<AActor*, FAIRelationship> AIRelationships;
+    // UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors") // Removed - UHT doesn't support nested containers in TMap
+    TMap<AActor*, TMap<AActor*, FAIRelationship>> AIRelationships;
 
     UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors")
     TMap<AActor*, FAIEmergencyResponse> AIEmergencies;

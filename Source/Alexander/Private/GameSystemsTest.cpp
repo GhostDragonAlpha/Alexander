@@ -488,9 +488,9 @@ bool AGameSystemsTest::TestAdvancedTerrainFeatures()
 	bool bBiomeValid = FMath::IsFinite(BiomeHeight);
 	
 	// Test terrain blending
-	TArray<float> Layers = {100.0f, 50.0f, 25.0f};
+	TArray<float> TerrainLayers = {100.0f, 50.0f, 25.0f};
 	TArray<float> Weights = {0.5f, 0.3f, 0.2f};
-	float BlendedHeight = UProceduralNoiseGenerator::BlendTerrainLayers(Layers, Weights);
+	float BlendedHeight = UProceduralNoiseGenerator::BlendTerrainLayers(TerrainLayers, Weights);
 	bool bBlendedValid = FMath::IsFinite(BlendedHeight);
 	
 	return bRiverValid && bCaveValid && bVolcanicValid && bCraterValid && 

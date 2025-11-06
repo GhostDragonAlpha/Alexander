@@ -305,11 +305,12 @@ FName UAudioSystemManager::PlayAudioEvent(const FString& EventName, AActor* Sour
     // TODO: Implement CreateAttenuationSettings() helper function
     // AudioComponent->AttenuationSettings = CreateAttenuationSettings(AudioEvent);
 
-    // UE5.6: SetConcurrency() removed - use ConcurrencySettings property instead
-    if (AudioEvent.Concurrency)
-    {
-        AudioComponent->ConcurrencySettings = AudioEvent.Concurrency;
-    }
+    // UE5.6: ConcurrencySettings property also removed - concurrency now handled via USoundBase
+    // TODO: Implement new concurrency system
+    // if (AudioEvent.Concurrency)
+    // {
+    //     AudioComponent->ConcurrencySettings = AudioEvent.Concurrency;
+    // }
     
     // Apply audio effects
     ApplyAudioEffects(AudioComponent, AudioEvent.Effects);
@@ -365,7 +366,10 @@ void UAudioSystemManager::StopAudioEvent(const FName& InstanceName, bool bImmedi
         // Schedule stop after fade
         FTimerHandle TimerHandle;
         FTimerDelegate TimerDelegate;
-        TimerDelegate.BindUObject(this, &UAudioSystemManager::StopAudioEvent, InstanceName, true);
+        TimerDelegate.BindLambda([this, InstanceName]()
+        {
+            StopAudioEvent(InstanceName, true);
+        });
         GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.5f, false);
     }
 }
@@ -770,7 +774,8 @@ void UAudioSystemManager::SetAudioListenerPosition(FVector Position, FRotator Ro
 {
     if (GetWorld() && GetWorld()->GetFirstPlayerController())
     {
-        GetWorld()->GetFirstPlayerController()->SetAudioListenerOverride(Position, Rotation);
+        // UE5.6: SetAudioListenerOverride now requires 3 parameters (USceneComponent*, FVector, FRotator)
+        GetWorld()->GetFirstPlayerController()->SetAudioListenerOverride(nullptr, Position, Rotation);
     }
 }
 
@@ -785,11 +790,13 @@ void UAudioSystemManager::UpdateAudioAttenuation(const FName& InstanceName, floa
         USoundAttenuation* Attenuation = NewObject<USoundAttenuation>();
         if (Attenuation)
         {
-            Attenuation->Attenuation.DistanceAlgorithm = ESoundDistanceModel::Inverse;
-            Attenuation->Attenuation.AttenuationShape = ESoundAttenuationShape::Sphere;
-            Attenuation->Attenuation.RadiusMax = MaxDistance;
-            Attenuation->Attenuation.RadiusMin = MinDistance;
-            
+            // TODO: UE5.6 - Sound attenuation API changed. These properties are no longer accessible.
+            // Need to update to use new UE5.6 attenuation configuration system.
+            // Attenuation->Attenuation.DistanceAlgorithm = ESoundDistanceModel::Inverse;
+            // Attenuation->Attenuation.AttenuationShape = ESoundAttenuationShape::Sphere;
+            // Attenuation->Attenuation.RadiusMax = MaxDistance;
+            // Attenuation->Attenuation.RadiusMin = MinDistance;
+
             Instance.AudioComponent->AttenuationSettings = Attenuation;
         }
     }
@@ -987,7 +994,8 @@ void UAudioSystemManager::ApplyAudioSettings()
     // Apply master volume
     if (GEngine)
     {
-        GEngine->SetMasterSoundVolume(CurrentAudioSettings.MasterVolume);
+        // TODO: UE5.6 - SetMasterSoundVolume removed. Need to use new audio settings system.
+        // GEngine->SetMasterSoundVolume(CurrentAudioSettings.MasterVolume);
     }
     
     // Update music component
@@ -1009,8 +1017,9 @@ void UAudioSystemManager::ApplyAudioSettings()
 
         if (Instance.AudioComponent)
         {
-            float Volume = GetVolumeForEventByType(Instance.EventName);
-            Instance.AudioComponent->SetVolumeMultiplier(Volume);
+            // TODO: UE5.6 - GetVolumeForEventByType function not declared in header
+            // float Volume = GetVolumeForEventByType(Instance.EventName);
+            // Instance.AudioComponent->SetVolumeMultiplier(Volume);
         }
     }
 }
@@ -1045,6 +1054,10 @@ void UAudioSystemManager::ApplyAudioSettings()
 //     }
 // }
 
+// TODO: UE5.6 - GetVolumeForEventByType function not declared in header.
+// This function needs to be added to the header file or removed if not needed.
+// Commenting out for now to fix compilation.
+/*
 float UAudioSystemManager::GetVolumeForEventByType(const FString& EventName) const
 {
     if (EventName.Contains("Music"))
@@ -1072,6 +1085,7 @@ float UAudioSystemManager::GetVolumeForEventByType(const FString& EventName) con
         return CurrentAudioSettings.SFXVolume;
     }
 }
+*/
 
 // TODO: Implement CanPlayAudioEvent() helper function
 // bool UAudioSystemManager::CanPlayAudioEvent(const FAudioEvent& AudioEvent)

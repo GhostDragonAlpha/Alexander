@@ -9,16 +9,18 @@ public class Alexander : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		   PublicDependencyModuleNames.AddRange(new string[] { 
-			   "Core", "CoreUObject", "Engine", "InputCore", "Niagara", 
+		   PublicDependencyModuleNames.AddRange(new string[] {
+			   "Core", "CoreUObject", "Engine", "InputCore", "Niagara",
 			   "HTTP", "Json", "JsonUtilities", "RHI", "RenderCore",
 			   "Slate", "SlateCore", "UMG", "ToolMenus", "ProceduralMeshComponent",
-			   "GameplayTags", "GameplayTasks", "AIModule", "NavigationSystem", 
-			   "AudioMixer", "DeveloperSettings", "EnhancedInput", "HeadMountedDisplay", "CinematicCamera"
+			   "GameplayTags", "GameplayTasks", "AIModule", "NavigationSystem",
+			   "AudioMixer", "DeveloperSettings", "EnhancedInput", "HeadMountedDisplay", "CinematicCamera", "XRBase"
 		   });
 
 		// Add public include paths
 		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Planetary"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "CelestialScaling/Public"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public/Testing"));
 
 
 

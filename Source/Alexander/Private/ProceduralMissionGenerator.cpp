@@ -105,14 +105,14 @@ TArray<FMissionData> UProceduralMissionGenerator::GenerateMissionBatch(const FMi
 
 FMissionData UProceduralMissionGenerator::GenerateMissionFromTemplate(const FName& TemplateName, const FMissionGenerationContext& Context)
 {
-    FMissionTemplate* Template = GetMissionTemplate(TemplateName);
-    if (!Template)
+    FMissionTemplate Template = GetMissionTemplate(TemplateName);
+    if (Template.TemplateName.IsNone())
     {
         UE_LOG(LogTemp, Warning, TEXT("Mission template '%s' not found"), *TemplateName.ToString());
         return FMissionData();
     }
-    
-    return CreateMissionFromTemplate(*Template, Context);
+
+    return CreateMissionFromTemplate(Template, Context);
 }
 
 FMissionChain UProceduralMissionGenerator::GenerateMissionChain(const TArray<FName>& TemplateNames, const FMissionGenerationContext& Context)
@@ -181,14 +181,13 @@ void UProceduralMissionGenerator::UnregisterMissionTemplate(const FName& Templat
     UE_LOG(LogTemp, Log, TEXT("Unregistered mission template: %s"), *TemplateName.ToString());
 }
 
-FMissionTemplate* UProceduralMissionGenerator::GetMissionTemplate(const FName& TemplateName)
+FMissionTemplate UProceduralMissionGenerator::GetMissionTemplate(const FName& TemplateName)
 {
-    return TemplateMap.Find(TemplateName);
-}
-
-TArray<FMissionTemplate> UProceduralMissionGenerator::GetAllTemplates() const
-{
-    return MissionTemplates;
+    if (FMissionTemplate* Found = TemplateMap.Find(TemplateName))
+    {
+        return *Found;
+    }
+    return FMissionTemplate();
 }
 
 TArray<FMissionTemplate> UProceduralMissionGenerator::GetTemplatesByType(EMissionTemplateType Type) const
@@ -223,34 +222,34 @@ TArray<FMissionTemplate> UProceduralMissionGenerator::GetTemplatesByContext(EMis
 
 // ===== Objective Generation =====
 
-TArray<FMissionObjective> UProceduralMissionGenerator::GenerateObjectives(const FMissionTemplate& Template, const FMissionGenerationContext& Context)
+TArray<FMissionBoardObjective> UProceduralMissionGenerator::GenerateObjectives(const FMissionTemplate& Template, const FMissionGenerationContext& Context)
 {
-    TArray<FMissionObjective> Objectives;
-    
+    TArray<FMissionBoardObjective> Objectives;
+
     int32 ObjectiveCount = FMath::RandRange(Template.MinObjectives, Template.MaxObjectives);
-    
+
     for (int32 i = 0; i < ObjectiveCount; i++)
     {
         // Select objective type based on template
         FName ObjectiveType = TEXT("Primary"); // Default
-        
+
         if (i > 0)
         {
             ObjectiveType = TEXT("Secondary");
         }
-        
+
         // Get objective template
         TArray<FMissionObjectiveTemplate> AvailableObjectives = GetObjectiveTemplatesByType(ObjectiveType);
         if (AvailableObjectives.Num() > 0)
         {
             int32 RandomIndex = FMath::RandRange(0, AvailableObjectives.Num() - 1);
             FMissionObjectiveTemplate ObjectiveTemplate = AvailableObjectives[RandomIndex];
-            
-            FMissionObjective Objective = GenerateObjective(ObjectiveTemplate, Context);
+
+            FMissionBoardObjective Objective = GenerateObjective(ObjectiveTemplate, Context);
             Objectives.Add(Objective);
         }
     }
-    
+
     return Objectives;
 }
 

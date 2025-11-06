@@ -50,7 +50,7 @@ public:
 protected:
 	virtual void StartShakePatternImpl(const FCameraShakePatternStartParams& Params) override;
 	virtual void UpdateShakePatternImpl(const FCameraShakePatternUpdateParams& Params, FCameraShakePatternUpdateResult& OutResult) override;
-	virtual void StopShakePatternImpl(bool bImmediately) override;
+	virtual void StopShakePatternImpl(const FCameraShakePatternStopParams& Params) override;
 
 private:
 	// Current shake time

@@ -57,40 +57,45 @@ void AFirstMissionGameMode::InitializeMission()
     // Find or spawn systems
     TArray<AActor*> FoundActors;
     
-    // Find Tutorial System
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), UTutorialSystem::StaticClass(), FoundActors);
-    if (FoundActors.Num() > 0)
-    {
-        TutorialSystem = Cast<UTutorialSystem>(FoundActors[0]);
-    }
-    else
-    {
-        TutorialSystem = GetWorld()->SpawnActor<UTutorialSystem>();
-    }
+    // TODO: Fix - These are WorldSubsystems/Components, not Actors
+    // Cannot use GetAllActorsOfClass() for non-actor types
+    // Use GetWorld()->GetSubsystem<>() for subsystems
+    // Or find the actor that owns these components
 
-    // Find Quest System
-    FoundActors.Empty();
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), UQuestSystem::StaticClass(), FoundActors);
-    if (FoundActors.Num() > 0)
-    {
-        QuestSystem = Cast<UQuestSystem>(FoundActors[0]);
-    }
+    // // Find Tutorial System
+    // UGameplayStatics::GetAllActorsOfClass(GetWorld(), UTutorialSystem::StaticClass(), FoundActors);
+    // if (FoundActors.Num() > 0)
+    // {
+    //     TutorialSystem = Cast<UTutorialSystem>(FoundActors[0]);
+    // }
+    // else
+    // {
+    //     TutorialSystem = GetWorld()->SpawnActor<UTutorialSystem>();
+    // }
 
-    // Find Audio Manager
-    FoundActors.Empty();
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), UAudioManager::StaticClass(), FoundActors);
-    if (FoundActors.Num() > 0)
-    {
-        AudioManager = Cast<UAudioManager>(FoundActors[0]);
-    }
+    // // Find Quest System
+    // FoundActors.Empty();
+    // UGameplayStatics::GetAllActorsOfClass(GetWorld(), UQuestSystem::StaticClass(), FoundActors);
+    // if (FoundActors.Num() > 0)
+    // {
+    //     QuestSystem = Cast<UQuestSystem>(FoundActors[0]);
+    // }
 
-    // Find VFX Manager
-    FoundActors.Empty();
-    UGameplayStatics::GetAllActorsOfClass(GetWorld(), UVFXManager::StaticClass(), FoundActors);
-    if (FoundActors.Num() > 0)
-    {
-        VFXManager = Cast<UVFXManager>(FoundActors[0]);
-    }
+    // // Find Audio Manager
+    // FoundActors.Empty();
+    // UGameplayStatics::GetAllActorsOfClass(GetWorld(), UAudioManager::StaticClass(), FoundActors);
+    // if (FoundActors.Num() > 0)
+    // {
+    //     AudioManager = Cast<UAudioManager>(FoundActors[0]);
+    // }
+
+    // // Find VFX Manager
+    // FoundActors.Empty();
+    // UGameplayStatics::GetAllActorsOfClass(GetWorld(), UVFXManager::StaticClass(), FoundActors);
+    // if (FoundActors.Num() > 0)
+    // {
+    //     VFXManager = Cast<UVFXManager>(FoundActors[0]);
+    // }
 
     // Setup objectives
     SetupObjectives();

@@ -10,7 +10,7 @@
 #include "Components/CapsuleComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "Components/MotionControllerComponent.h"
+#include "MotionControllerComponent.h"
 #include "DrawDebugHelpers.h"
 
 UShipEntryComponent::UShipEntryComponent()
@@ -504,12 +504,12 @@ void UShipEntryComponent::UpdateTransition(float DeltaTime)
         if (CurrentState == EShipEntryState::Entering)
         {
             SetEntryState(EShipEntryState::InsideShip);
-            TransferPlayerControl(OriginalPlayerPawn, OwningShip);
+            TransferPlayerControl(OriginalPlayerPawn, Cast<APawn>(OwningShip));
         }
         else if (CurrentState == EShipEntryState::Exiting)
         {
             SetEntryState(EShipEntryState::ExitedShip);
-            TransferPlayerControl(OwningShip, OriginalPlayerPawn);
+            TransferPlayerControl(Cast<APawn>(OwningShip), OriginalPlayerPawn);
         }
     }
 }

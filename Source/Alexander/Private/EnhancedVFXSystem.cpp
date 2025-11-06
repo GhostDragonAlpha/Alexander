@@ -2,7 +2,7 @@
 #include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "Components/SceneComponent.h"
-#include "Components/ParticleSystemComponent.h"
+// #include "Components/ParticleSystemComponent.h" // Removed in UE5.6 - migrated to Niagara
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Materials/MaterialInterface.h"

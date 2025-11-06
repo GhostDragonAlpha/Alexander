@@ -64,16 +64,18 @@ void UTurbulenceCameraShake::UpdateShakePatternImpl(const FCameraShakePatternUpd
 	// Check if shake is complete
 	if (CurrentTime >= Duration)
 	{
-		StopShakePatternImpl(false);
+		FCameraShakePatternStopParams StopParams;
+		StopParams.bImmediately = false;
+		StopShakePatternImpl(StopParams);
 	}
 }
 
-void UTurbulenceCameraShake::StopShakePatternImpl(bool bImmediately)
+void UTurbulenceCameraShake::StopShakePatternImpl(const FCameraShakePatternStopParams& Params)
 {
 	bIsActive = false;
 	CurrentBlendWeight = 0.0f;
 
-	if (bImmediately)
+	if (Params.bImmediately)
 	{
 		CurrentTime = Duration;
 	}

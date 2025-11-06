@@ -65,7 +65,9 @@ enum class EBuildingType : uint8
     Mine,
     LaunchPad,
     Spaceport,
-    CommandCenter
+    CommandCenter,
+    MiningFacility,
+    ResearchLab
 };
 
 USTRUCT(BlueprintType)

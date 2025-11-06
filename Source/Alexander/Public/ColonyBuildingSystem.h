@@ -9,7 +9,6 @@
 #include "Materials/MaterialInterface.h"
 #include "OutpostManager.h"
 #include "PlanetaryLandingZone.h"
-#include "ColonyBuildingSystem.generated.h"
 // #include "../Planetary/PlanetaryResourcesComponent.h"  // TODO: Fix include path - file exists but compiler can't find it
 
 // Forward declarations
@@ -19,10 +18,14 @@ class USoundBase;
 class UParticleSystem;
 class UUserWidget;
 
-// Forward declarations for duplicate types defined in other headers
-enum class EBuildingType : uint8;
-enum class ETerrainType : uint8;
-struct FResourceAmount;
+// Forward declarations and includes for types from other headers
+struct FResourceAmount;  // Forward declare
+struct FGuid;  // Forward declare (it's a struct, not class)
+
+// Need full definition of FResourceAmount for UPROPERTY use
+#include "../Planetary/PlanetaryResourcesComponent.h"
+
+#include "ColonyBuildingSystem.generated.h"  // MUST BE LAST include before UENUM/USTRUCT/UCLASS
 
 // Enums
 UENUM(BlueprintType)
@@ -43,6 +46,10 @@ struct FBuildingEffect
 
 	UPROPERTY() FString EffectName;
 	UPROPERTY() float Value;
+
+	UPROPERTY() FString EffectType;
+	UPROPERTY() float Duration;
+	UPROPERTY() FGuid SourceBuildingID;
 };
 
 USTRUCT(BlueprintType)
@@ -53,6 +60,13 @@ struct FBuildingGridCell
 	UPROPERTY() int32 X;
 	UPROPERTY() int32 Y;
 	UPROPERTY() bool bOccupied;
+
+	UPROPERTY() FIntPoint GridPosition;
+	UPROPERTY() FVector WorldPosition;
+	UPROPERTY() bool bIsOccupied;
+	UPROPERTY() FGuid OccupyingBuildingID;  // ID of building occupying this cell (not pointer - UHT doesn't allow exposed USTRUCT*)
+	UPROPERTY() ETerrainType TerrainType;
+	UPROPERTY() bool bIsValidForBuilding;
 };
 
 USTRUCT(BlueprintType)
@@ -60,9 +74,31 @@ struct FBuildingData
 {
 	GENERATED_BODY()
 
-	UPROPERTY() FString BuildingID;
 	UPROPERTY() EBuildingType Type;
 	UPROPERTY() FVector Location;
+
+	UPROPERTY() EBuildingType BuildingType;
+	UPROPERTY() int32 BuildingLevel;
+	UPROPERTY() FRotator Rotation;
+	UPROPERTY() float Health;
+	UPROPERTY() float MaxHealth;
+	UPROPERTY() float PowerConsumption;
+	UPROPERTY() float PowerGeneration;
+	UPROPERTY() int32 PopulationCapacity;
+	UPROPERTY() int32 StorageCapacity;
+	UPROPERTY() float DefenseRating;
+	UPROPERTY() float ConstructionProgress;
+	UPROPERTY() bool bIsCompleted;
+	UPROPERTY() bool bIsOperational;
+	UPROPERTY() float ConstructionStartTime;
+	UPROPERTY() float LastUpgradeTime;
+	UPROPERTY() TArray<FBuildingEffect> Effects;
+	UPROPERTY() int32 AssignedWorkers;
+	UPROPERTY() int32 MaxWorkers;
+	UPROPERTY() float ProductionRate;
+	UPROPERTY() float MaintenanceCost;
+	UPROPERTY() FGuid BuildingID;
+	UPROPERTY() bool bIsUnderConstruction;
 };
 
 USTRUCT(BlueprintType)
@@ -72,6 +108,15 @@ struct FBuildingStatistics
 
 	UPROPERTY() int32 TotalBuildings;
 	UPROPERTY() int32 ActiveBuildings;
+
+	UPROPERTY() int32 OperationalBuildings;
+	UPROPERTY() int32 UnderConstruction;
+	UPROPERTY() float TotalPowerConsumption;
+	UPROPERTY() float TotalPowerGeneration;
+	UPROPERTY() int32 TotalPopulationCapacity;
+	UPROPERTY() int32 TotalStorageCapacity;
+	UPROPERTY() float TotalDefenseRating;
+	UPROPERTY() float AverageBuildingLevel;
 };
 
 // Delegates
@@ -420,6 +465,58 @@ struct FBuildingTemplate
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TArray<FName> RequiredTechnologies;
+
+    // Additional properties used in ColonyBuildingSystem.cpp
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EBuildingType BuildingType;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString BuildingName;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString Description;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 MaxLevel;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FResourceAmount BaseCost;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BasePowerConsumption;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 BasePopulationCapacity;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<EBuildingType> PrerequisiteBuildings;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UStaticMesh* BuildingMesh;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UMaterialInterface* ConstructionMaterial;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BasePowerGeneration;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 BaseStorageCapacity;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BaseDefenseRating;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BaseHealth;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 BaseMaxWorkers;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BaseProductionRate;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float BaseMaintenanceCost;
 };
 
 UCLASS()
@@ -704,7 +801,7 @@ protected:
     void DeductResources(const FResourceAmount& Cost);
     float CalculateTotalResourceValue(const FResourceAmount& Resources) const;
     bool MeetsPrerequisites(const FBuildingTemplate& BuildingTemplate) const;
-    bool HasTechnology(const FString& Technology) const;
+    bool HasTechnology(const FName& Technology) const;
     bool HasBuildingType(EBuildingType BuildingType) const;
     bool CanUpgradeBuilding(const FBuildingData& BuildingData) const;
     bool CanDemolishBuilding(const FBuildingData& BuildingData) const;

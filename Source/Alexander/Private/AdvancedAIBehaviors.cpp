@@ -283,8 +283,8 @@ void UAdvancedAIBehaviors::ProcessPersonalityDrivenBehavior(AActor* AIActor, flo
             AAIController* AIController = AIControllers[AIActor];
             if (AIController)
             {
-                FVector RandomLocation = AIActor->GetActorLocation() + 
-                    FVector(FMath::FRandRange(-500, 500), FMath::FRandRange(-500, 500), 0);
+                FVector RandomLocation = AIActor->GetActorLocation() +
+                    FVector(FMath::FRandRange(-500.f, 500.f), FMath::FRandRange(-500.f, 500.f), 0.f);
                 AIController->SetFocalPoint(RandomLocation);
             }
         }

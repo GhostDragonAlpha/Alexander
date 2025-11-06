@@ -36,7 +36,9 @@ enum class ETerrainType : uint8
     Ocean,
     Swamp,
     Crater,
-    Canyon
+    Canyon,
+    Mountain,
+    Water
 };
 
 UENUM(BlueprintType)
@@ -245,6 +247,7 @@ public:
     virtual void BeginPlay() override;
     virtual void Tick(float DeltaTime) override;
     virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+    virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
     // Landing Zone Management
     UFUNCTION(BlueprintCallable, Category = "Landing Zone")
@@ -462,7 +465,6 @@ private:
     // Internal Functions
     void InitializeLandingPads();
     void SetupZoneBounds();
-    void UpdateZoneServices(float DeltaTime);
     void ProcessEnvironmentalEffects(float DeltaTime);
     void UpdateLocalMarket(float DeltaTime);
     void HandleFactions(float DeltaTime);
@@ -488,11 +490,13 @@ private:
     void CalculatePopulationGrowth();
     void UpdateFactionDemographics();
     void ProcessMigration();
+    float CalculateZoneAttractiveness();
 
     // Economic Internal
     void CalculateSupplyDemand();
     void UpdatePriceModifiers();
     void ProcessTradeFlow();
+    void UpdateItemPrice(const FName& ItemID);
 
     // Hazards Internal
     void SpawnEnvironmentalHazard(const FName& HazardType);

@@ -277,7 +277,7 @@ void AColonyBuildingSystem::InitializeBuildingGrid()
                 0.0f
             );
             GridCell.bIsOccupied = false;
-            GridCell.OccupyingBuilding = nullptr;
+            GridCell.OccupyingBuildingID = FGuid();
             GridCell.TerrainType = ETerrainType::Flat;
             GridCell.bIsValidForBuilding = true;
             
@@ -860,9 +860,9 @@ void AColonyBuildingSystem::DamageBuilding(const FGuid& BuildingID, float Damage
     {
         // Play damage effects
         PlayDamageEffects();
-        
+
         // Notify clients
-        OnBuildingDamaged.Broadcast(*BuildingData);
+        OnBuildingDamaged.Broadcast(*BuildingData, DamageAmount);
     }
 }
 
@@ -973,14 +973,14 @@ float AColonyBuildingSystem::CalculateTotalResourceValue(const FResourceAmount& 
 bool AColonyBuildingSystem::MeetsPrerequisites(const FBuildingTemplate& BuildingTemplate) const
 {
     // Check technology prerequisites
-    for (const FString& Tech : BuildingTemplate.RequiredTechnologies)
+    for (const FName& Tech : BuildingTemplate.RequiredTechnologies)
     {
         if (!HasTechnology(Tech))
         {
             return false;
         }
     }
-    
+
     // Check building prerequisites
     for (EBuildingType PrerequisiteBuilding : BuildingTemplate.PrerequisiteBuildings)
     {
@@ -989,12 +989,12 @@ bool AColonyBuildingSystem::MeetsPrerequisites(const FBuildingTemplate& Building
             return false;
         }
     }
-    
+
     return true;
 }
 
 // Check if has technology
-bool AColonyBuildingSystem::HasTechnology(const FString& Technology) const
+bool AColonyBuildingSystem::HasTechnology(const FName& Technology) const
 {
     // This would typically check technology tree
     // For now, return true
@@ -1122,7 +1122,7 @@ void AColonyBuildingSystem::UpdateBuildingGrid(const FBuildingData& BuildingData
         if (GridCell.GridPosition == GridPosition)
         {
             GridCell.bIsOccupied = bOccupying;
-            GridCell.OccupyingBuilding = bOccupying ? const_cast<FBuildingData*>(&BuildingData) : nullptr;
+            GridCell.OccupyingBuildingID = bOccupying ? BuildingData.BuildingID : FGuid();
             break;
         }
     }
@@ -1192,7 +1192,7 @@ void AColonyBuildingSystem::UpdateNavigationMesh()
     UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetNavigationSystem(GetWorld());
     if (NavSystem)
     {
-        NavSystem->BuildNavigationSynchronously();
+        // NavSystem->BuildNavigationSynchronously();  // Deprecated in UE5.6 - navigation builds automatically
     }
 }
 

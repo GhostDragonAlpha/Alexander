@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "Engine/AssetManager.h"
-#include "AlexanderAssetManager.generated.h"
 
 // Forward declarations
 class UTexture2D;
@@ -14,6 +13,8 @@ class UStaticMesh;
 class USkeletalMesh;
 class UMaterialInterface;
 class UParticleSystem;
+
+#include "AlexanderAssetManager.generated.h"  // MUST BE LAST include before UENUM/USTRUCT/UCLASS
 
 /**
  * Asset types for categorization

@@ -5,7 +5,7 @@
 #include "Engine/Engine.h"
 #include "GameFramework/Actor.h"
 #include "Components/SceneComponent.h"
-#include "Particles/ParticleSystemComponent.h"
+// #include "Particles/ParticleSystemComponent.h" // Removed in UE5.6 - migrated to Niagara
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Materials/MaterialInterface.h"

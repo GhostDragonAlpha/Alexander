@@ -333,5 +333,5 @@ private:
 	void DrawDebugNodeRecursive(const TSharedPtr<FQuadTreeNode>& Node, UWorld* World, float Duration) const;
 
 	// Helper: Recursively count nodes
-	void CountNodesRecursive(const TSharedPtr<FQuadTreeNode>& Node, int32& TotalNodes, int32& ActiveNodes, int32& SubdividedNodes) const;
+	void CountNodesRecursive(const TSharedPtr<FQuadTreeNode>& Node, int32& TotalNodes, int32& OutActiveNodes, int32& SubdividedNodes) const;
 };

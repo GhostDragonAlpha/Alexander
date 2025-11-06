@@ -117,7 +117,7 @@ void UTickOptimizationManager::HandleOptimizationComplete(const FTickOptimizatio
 {
     // Handle optimization completion
     UE_LOG(LogTemp, Log, TEXT("Tick Optimization completed: %d components optimized, %.2fms saved"),
-        Report.OptimizedComponents.Num(), Report.EstimatedPerformanceGainMs);
+        Report.ComponentsOptimized, Report.EstimatedPerformanceGain);
     
     // Broadcast to our own delegate
     OnOptimizationComplete.Broadcast(Report);
