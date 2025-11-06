@@ -1,19 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python run_comprehensive_test_level.py:*)",
-      "Bash(find . -type f ( -name \"run_comprehensive_test_level.py\" -o -path \"./.kiro/specs/comprehensive-test-level/DEVELOPER_GUIDE.md\" -o -path \"./.kiro/specs/comprehensive-test-level/QA_GUIDE.md\" -o -path \"./.kiro/specs/comprehensive-test-level/CI_CD_INTEGRATION.md\" -o -path \"./.kiro/specs/comprehensive-test-level/README.md\" ) -exec ls -lh {} ;)",
-      "Bash(ls:*)",
-      "Bash(pip:*)",
+      "Bash(\"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe\" \"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -ExecutePythonScript=\"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\open_flight_test.py\" -stdout -unattended -nopause -nosplash)",
+      "Bash(timeout /t 2)",
       "Bash(python:*)",
-      "Bash(\"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Build\\BatchFiles\\Build.bat\" Alexander Win64 Development \"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -WaitMutex)",
-      "Bash(find:*)",
-      "Bash(GenerateProjectFiles.bat)",
-      "Bash(tee:*)",
-      "Bash(test:*)",
-      "Bash(Build.bat)",
-      "Bash(git add:*)",
-      "Bash('C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Build\\BatchFiles\\Build.bat' Alexander Win64 Development C:UsersallenDesktopAlexanderAlexanderAlexander.uproject -WaitMutex)"
+      "Bash(tasklist /FI 'IMAGENAME eq UnrealEditor.exe' 2)",
+      "Bash(nul)",
+      "Bash(timeout /t 5)",
+      "Bash(taskkill:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

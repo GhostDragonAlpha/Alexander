@@ -145,14 +145,16 @@ void UEnhancedVFXSystem::UpdateEffectInstances(float DeltaTime)
         if (Instance.ParticleComponent)
         {
             Instance.ParticleComponent->SetFloatParameter("Intensity", Instance.CurrentIntensity);
-            Instance.ParticleComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+            // UE5.6: FLinearColor no longer has ToFVector(), use FVector3f constructor instead
+            Instance.ParticleComponent->SetVectorParameter("Color", FVector3f(EnvironmentColor) * FVector3f(GlobalColorTint));
         }
-        
+
         // Update niagara system if exists
         if (Instance.NiagaraComponent)
         {
             Instance.NiagaraComponent->SetFloatParameter("Intensity", Instance.CurrentIntensity);
-            Instance.NiagaraComponent->SetVectorParameter("Color", EnvironmentColor.ToFVector() * GlobalColorTint.ToFVector());
+            // UE5.6: FLinearColor no longer has ToFVector(), use FVector3f constructor instead
+            Instance.NiagaraComponent->SetVectorParameter("Color", FVector3f(EnvironmentColor) * FVector3f(GlobalColorTint));
         }
     }
 }
@@ -587,17 +589,19 @@ void UEnhancedVFXSystem::SetEffectColor(const FName& EffectName, FLinearColor Co
     if (!ActiveEffects.Contains(EffectName)) return;
 
     FVFXInstance& Instance = ActiveEffects[EffectName];
-    
+
     // Update particle system
     if (Instance.ParticleComponent)
     {
-        Instance.ParticleComponent->SetVectorParameter("Color", Color.ToFVector());
+        // UE5.6: FLinearColor no longer has ToFVector(), use FVector3f constructor instead
+        Instance.ParticleComponent->SetVectorParameter("Color", FVector3f(Color));
     }
-    
+
     // Update niagara system
     if (Instance.NiagaraComponent)
     {
-        Instance.NiagaraComponent->SetVectorParameter("Color", Color.ToFVector());
+        // UE5.6: FLinearColor no longer has ToFVector(), use FVector3f constructor instead
+        Instance.NiagaraComponent->SetVectorParameter("Color", FVector3f(Color));
     }
     
     // Update dynamic material

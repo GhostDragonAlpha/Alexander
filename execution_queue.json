@@ -1,0 +1,89 @@
+{
+  "queue_metadata": {
+    "created": "2025-11-06T01:43:00Z",
+    "iteration": 1,
+    "total_tasks": 6,
+    "tasks_completed": 2,
+    "tasks_pending": 4,
+    "tasks_failed": 0
+  },
+  "active_queue": [
+    {
+      "queue_position": 3,
+      "task_id": "T003",
+      "priority": "medium",
+      "status": "pending",
+      "category": "gameplay_verification",
+      "description": "Test player spawning and flight mechanics",
+      "estimated_duration_seconds": 60,
+      "dependencies": ["T002"],
+      "retry_count": 0,
+      "max_retries": 3
+    },
+    {
+      "queue_position": 4,
+      "task_id": "T004",
+      "priority": "medium",
+      "status": "pending",
+      "category": "performance_check",
+      "description": "Monitor editor performance metrics",
+      "estimated_duration_seconds": 20,
+      "dependencies": [],
+      "retry_count": 0,
+      "max_retries": 3
+    },
+    {
+      "queue_position": 5,
+      "task_id": "T005",
+      "priority": "low",
+      "status": "pending",
+      "category": "asset_verification",
+      "description": "Verify material and mesh rendering quality",
+      "estimated_duration_seconds": 40,
+      "dependencies": [],
+      "retry_count": 0,
+      "max_retries": 3
+    },
+    {
+      "queue_position": 6,
+      "task_id": "T006",
+      "priority": "low",
+      "status": "pending",
+      "category": "documentation",
+      "description": "Generate iteration report",
+      "estimated_duration_seconds": 15,
+      "dependencies": ["T001", "T002", "T003", "T004", "T005"],
+      "retry_count": 0,
+      "max_retries": 1
+    }
+  ],
+  "completed_tasks": [
+    {
+      "task_id": "T001",
+      "priority": "high",
+      "category": "visual_verification",
+      "description": "Capture viewport in multiple visualization modes",
+      "completed_at": "2025-11-06T01:49:10Z",
+      "duration_seconds": 35,
+      "screenshots_captured": [
+        "auto_loop_iter001_unlit_20251106_014847.png",
+        "auto_loop_iter001_wireframe_20251106_014857.png",
+        "auto_loop_iter001_collision_20251106_014909.png"
+      ]
+    },
+    {
+      "task_id": "T002",
+      "priority": "high",
+      "category": "camera_exploration",
+      "description": "Test different camera angles and perspectives",
+      "completed_at": "2025-11-06T01:50:10Z",
+      "duration_seconds": 42,
+      "screenshots_captured": [
+        "auto_loop_iter001_topdown_20251106_014950.png",
+        "auto_loop_iter001_sideview_20251106_015004.png",
+        "auto_loop_iter001_groundview_20251106_015006.png"
+      ]
+    }
+  ],
+  "failed_tasks": []
+}

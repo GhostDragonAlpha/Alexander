@@ -1,0 +1,47 @@
+Using bundled DotNet SDK version: 8.0.300 win-x64
+Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" Alexander Win64 Development C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject -WaitMutex
+Log file: C:\Users\allen\AppData\Local\UnrealBuildTool\Log.txt
+Using 'git status' to determine working set for adaptive non-unity build (C:\Users\allen\Desktop\Alexander\Alexander).
+Invalidating makefile for Alexander (source file added)
+Available x64 toolchains (2):
+ * C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35219, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+ * C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\VC\Tools\MSVC\14.44.35207
+    (Family=14.44.35207, FamilyRank=1, Version=14.44.35217, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)
+Visual Studio 2022 compiler version 14.44.35219 is not a preferred version. Please use the latest preferred version 14.38.33130
+C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject does not list plugin 'XRBase' as a dependency, but module 'Alexander' depends on 'XRBase'.
+Parsing headers for Alexander
+  Running Internal UnrealHeaderTool C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject C:\Users\allen\Desktop\Alexander\Alexander\Intermediate\Build\Win64\Alexander\Development\Alexander.uhtmanifest -WarningsAsErrors -installed
+Total of 3 written
+Reflection code generated for Alexander in 0.7825765 seconds
+Building Alexander...
+Using Visual Studio 2022 14.44.35219 toolchain (C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207) and Windows 10.0.26100.0 SDK (C:\Program Files (x86)\Windows Kits\10).
+Warning: Visual Studio 2022 compiler is not a preferred version
+[Upgrade]
+[Upgrade] Using backward-compatible include order. The latest version of UE has changed the order of includes, which may require code changes. The current setting is:
+[Upgrade]     IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_3
+[Upgrade] Suppress this message by setting 'IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;' in Alexander.Target.cs.
+[Upgrade] Alternatively you can set this to 'EngineIncludeOrderVersion.Latest' to always use the latest include order. This will potentially cause compile errors when integrating new versions of the engine.
+[Upgrade]
+[Adaptive Build] Excluded from Alexander unity file: Alexander.cpp, FirstLandingTutorial.cpp, GameplayScenario.cpp, PlayerProgression.cpp
+Determining max actions to execute in parallel (24 physical cores, 32 logical cores)
+  Executing up to 24 processes, one per physical core
+Using Unreal Build Accelerator local executor to run 9 action(s)
+  Storage capacity 40Gb
+---- Starting trace: 251105_235807 ----
+UbaSessionServer - Disable remote execution (remote sessions will finish current processes)
+------ Building 9 action(s) started ------
+[1/9] Compile [x64] PlayerProgression.cpp
+[2/9] Compile [x64] Module.Alexander.27.cpp
+[3/9] Compile [x64] Module.Alexander.29.cpp
+[4/9] Compile [x64] Module.Alexander.30.cpp
+[5/9] Compile [x64] Module.Alexander.31.cpp
+[6/9] Compile [x64] Module.Alexander.28.cpp
+[7/9] Compile [x64] Module.Alexander.3.cpp
+[8/9] Link [x64] Alexander.exe
+[9/9] WriteMetadata Alexander.target (UBA disabled)
+Trace written to file C:/Users/allen/AppData/Local/UnrealBuildTool/Log.uba with size 4.9kb
+Total time in Unreal Build Accelerator local executor: 7.61 seconds
+
+Result: Succeeded
+Total execution time: 10.41 seconds

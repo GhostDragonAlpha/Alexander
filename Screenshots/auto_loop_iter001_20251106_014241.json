@@ -1,0 +1,26 @@
+{
+  "screenshot": "auto_loop_iter001_20251106_014241.png",
+  "timestamp": "2025-11-06T01:42:41Z",
+  "iteration": 1,
+  "level": "FlightTest",
+  "camera": {
+    "position": "Viewport Default",
+    "rotation": "Default",
+    "fov": 90
+  },
+  "scene_state": {
+    "actors_present": true,
+    "lighting": "Default",
+    "rendering_mode": "Lit"
+  },
+  "performance": {
+    "capture_success": true,
+    "file_size_mb": 1.6,
+    "viewport_resolution": "1920x1080"
+  },
+  "automation_cycle": {
+    "steps_completed": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 15, 24],
+    "connection_method": "UDP Multicast 239.0.0.1:6766",
+    "unreal_pid": 28192
+  }
+}
