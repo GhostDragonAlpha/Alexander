@@ -435,18 +435,18 @@ TArray<FString> UPerformanceProfiler::GetPerformanceWarnings() const
 {
 	TArray<FString> Warnings;
 	
-	if (ProfileData.FrameMetrics.Num() == 0)
+	if (FrameHistory.Num() == 0)
 	{
 		return Warnings;
 	}
 	
 	// Check frame time threshold
 	float AverageFrameTime = 0.0f;
-	for (const FAlexanderFrameMetrics& Metric : ProfileData.FrameMetrics)
+	for (const FAlexanderFrameMetrics& Metric : FrameHistory)
 	{
-		AverageFrameTime += Metric.FrameTime;
+		AverageFrameTime += Metric.FrameTimeMs;
 	}
-	AverageFrameTime /= ProfileData.FrameMetrics.Num();
+	AverageFrameTime /= FrameHistory.Num();
 	
 	// Target frame time for 60 FPS is ~16.67ms
 	if (AverageFrameTime > 20.0f)
@@ -456,24 +456,24 @@ TArray<FString> UPerformanceProfiler::GetPerformanceWarnings() const
 	
 	// Check memory usage
 	float AverageMemory = 0.0f;
-	for (const FAlexanderFrameMetrics& Metric : ProfileData.FrameMetrics)
+	for (const FAlexanderFrameMetrics& Metric : FrameHistory)
 	{
-		AverageMemory += Metric.MemoryUsage;
+		AverageMemory += Metric.MemoryUsedMB;
 	}
-	AverageMemory /= ProfileData.FrameMetrics.Num();
+	AverageMemory /= FrameHistory.Num();
 	
-	if (AverageMemory > 2000.0f) // Warn if over 2GB
+	if (AverageMemory > 2048.0f) // Warn if over 2GB
 	{
-		Warnings.Add(FString::Printf(TEXT("High memory usage: %.2f MB"), AverageMemory / 1024.0f));
+		Warnings.Add(FString::Printf(TEXT("High memory usage: %.2f MB"), AverageMemory));
 	}
 	
 	// Check for frame time variance (stuttering)
-	float MaxFrameTime = ProfileData.FrameMetrics[0].FrameTime;
-	float MinFrameTime = ProfileData.FrameMetrics[0].FrameTime;
-	for (const FAlexanderFrameMetrics& Metric : ProfileData.FrameMetrics)
+	float MaxFrameTime = FrameHistory[0].FrameTimeMs;
+	float MinFrameTime = FrameHistory[0].FrameTimeMs;
+	for (const FAlexanderFrameMetrics& Metric : FrameHistory)
 	{
-		MaxFrameTime = FMath::Max(MaxFrameTime, Metric.FrameTime);
-		MinFrameTime = FMath::Min(MinFrameTime, Metric.FrameTime);
+		MaxFrameTime = FMath::Max(MaxFrameTime, Metric.FrameTimeMs);
+		MinFrameTime = FMath::Min(MinFrameTime, Metric.FrameTimeMs);
 	}
 	
 	float FrameTimeVariance = MaxFrameTime - MinFrameTime;
