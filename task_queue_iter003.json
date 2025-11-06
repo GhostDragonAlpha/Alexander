@@ -1,0 +1,89 @@
+{
+  "iteration": 3,
+  "timestamp": "2025-11-06T02:25:00Z",
+  "parent_iteration": 2,
+  "analysis_summary": "Scene validated across 2 iterations. Focus on advanced features and stress testing.",
+  "generated_tasks": [
+    {
+      "id": "T301",
+      "priority": "high",
+      "category": "advanced_visualization",
+      "task": "Test advanced viewport modes and buffers",
+      "subtasks": [
+        "Capture buffer visualization (GBuffer)",
+        "Capture lighting complexity view",
+        "Capture shader complexity view",
+        "Test level-of-detail (LOD) visualization"
+      ],
+      "execution_method": "udp_multicast_python"
+    },
+    {
+      "id": "T302",
+      "priority": "high",
+      "category": "camera_cinematic",
+      "task": "Advanced camera movement and composition tests",
+      "subtasks": [
+        "Test camera focus tracking",
+        "Test depth-of-field variations",
+        "Capture isometric projection views",
+        "Test camera shake simulation"
+      ],
+      "execution_method": "udp_multicast_python"
+    },
+    {
+      "id": "T303",
+      "priority": "medium",
+      "category": "actor_stress_test",
+      "task": "Spawn multiple actors for stress testing",
+      "subtasks": [
+        "Spawn 10 test actors",
+        "Measure performance impact",
+        "Test actor destruction",
+        "Verify memory cleanup"
+      ],
+      "execution_method": "udp_multicast_python"
+    },
+    {
+      "id": "T304",
+      "priority": "medium",
+      "category": "navigation_test",
+      "task": "Test navigation mesh and pathfinding",
+      "subtasks": [
+        "Verify navmesh generation",
+        "Test pathfinding queries",
+        "Capture navmesh visualization",
+        "Check navigation bounds"
+      ],
+      "execution_method": "udp_multicast_python"
+    },
+    {
+      "id": "T305",
+      "priority": "low",
+      "category": "statistics_gathering",
+      "task": "Gather comprehensive scene statistics",
+      "subtasks": [
+        "Count all asset types",
+        "Measure total polygon count",
+        "Check texture memory usage",
+        "Generate scene complexity report"
+      ],
+      "execution_method": "udp_multicast_python"
+    },
+    {
+      "id": "T306",
+      "priority": "low",
+      "category": "documentation",
+      "task": "Generate iteration 003 comprehensive report",
+      "subtasks": [
+        "Compile all screenshots",
+        "Document all completed tasks",
+        "Compare metrics across iterations",
+        "Prepare recommendations for iteration 004"
+      ],
+      "execution_method": "local_python"
+    }
+  ],
+  "execution_order": ["T301", "T302", "T303", "T304", "T305", "T306"],
+  "total_tasks": 6,
+  "estimated_duration_minutes": 10
+}
