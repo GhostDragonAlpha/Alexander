@@ -25,7 +25,7 @@ def spawn_ship(ship_class_path="/Game/SpaceShip/Blueprints/BP_VRSpaceshipPlayer.
         result = response.json()
 
         if response.status_code == 200 and result.get("success"):
-            ship_id = result.get("ship_id")
+            ship_id = result.get("data", {}).get("ship_id")
             print(f"[OK] Ship spawned: {ship_id}")
             return ship_id
         else:

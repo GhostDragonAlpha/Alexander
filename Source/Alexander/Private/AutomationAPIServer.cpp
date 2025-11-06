@@ -136,11 +136,17 @@ bool UAutomationAPIServer::OnIncomingConnection(FSocket* Socket, const FIPv4Endp
 		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Incoming connection from %s"), *Endpoint.ToString());
 	}
 
-	// Process request on async task to avoid blocking game thread
-	AsyncTask(ENamedThreads::AnyBackgroundThreadNormalTask, [this, Socket]()
-	{
-		ProcessSocketRequest(Socket);
-	});
+	// Process request on game thread
+	// NOTE: This keeps it simple and avoids threading issues
+	FFunctionGraphTask::CreateAndDispatchWhenReady(
+		[this, Socket]()
+		{
+			ProcessSocketRequest(Socket);
+		},
+		TStatId(),
+		nullptr,
+		ENamedThreads::GameThread
+	);
 
 	return true;
 }
@@ -205,17 +211,43 @@ void UAutomationAPIServer::ProcessSocketRequest(FSocket* Socket)
 
 	FString Method = RequestParts[0];
 	FString Endpoint = RequestParts[1];
-	FString Body = TEXT(""); // TODO: Parse body for POST requests
 
-	// Handle request on game thread
-	FString Response;
-	AsyncTask(ENamedThreads::GameThread, [this, Method, Endpoint, Body, &Response]()
+	// Extract body for POST requests (comes after \r\n\r\n separator)
+	FString Body = TEXT("");
+	int32 HeaderEndIndex = RequestString.Find(TEXT("\r\n\r\n"));
+	if (HeaderEndIndex != INDEX_NONE)
 	{
-		HandleHTTPRequest(Endpoint, Method, Body, Response);
-	});
+		// Parse Content-Length header to know how many bytes to read
+		int32 ContentLength = 0;
+		FString ContentLengthHeader = TEXT("Content-Length:");
+		int32 ContentLengthIndex = RequestString.Find(ContentLengthHeader);
+		if (ContentLengthIndex != INDEX_NONE)
+		{
+			int32 LineEndIndex = RequestString.Find(TEXT("\r\n"), ESearchCase::IgnoreCase, ESearchDir::FromStart, ContentLengthIndex);
+			if (LineEndIndex != INDEX_NONE)
+			{
+				FString LengthValue = RequestString.Mid(ContentLengthIndex + ContentLengthHeader.Len(), LineEndIndex - ContentLengthIndex - ContentLengthHeader.Len());
+				LengthValue.TrimStartAndEndInline();
+				ContentLength = FCString::Atoi(*LengthValue);
+			}
+		}
 
-	// Wait a moment for game thread to process
-	FPlatformProcess::Sleep(0.01f);
+		// Extract body (limit to Content-Length if specified)
+		FString FullBody = RequestString.Mid(HeaderEndIndex + 4);
+		if (ContentLength > 0 && ContentLength < FullBody.Len())
+		{
+			Body = FullBody.Left(ContentLength);
+		}
+		else
+		{
+			Body = FullBody;
+		}
+		Body.TrimStartAndEndInline();
+	}
+
+	// Handle request on game thread (we're already on game thread, so call directly)
+	FString Response;
+	HandleHTTPRequest(Endpoint, Method, Body, Response);
 
 	// Send HTTP response
 	FString HttpResponse = FString::Printf(TEXT("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %d\r\n\r\n%s"),
@@ -308,32 +340,62 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 
 FString UAutomationAPIServer::HandleSpawnShip(const FString& RequestBody)
 {
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSpawnShip RequestBody: '%s'"), *RequestBody);
+
 	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
 	if (!JsonObj.IsValid())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Failed to parse JSON from body: '%s'"), *RequestBody);
 		return CreateJSONResponse(false, TEXT("Invalid JSON"));
 	}
 
-	// Parse location
-	TArray<TSharedPtr<FJsonValue>> LocationArray = JsonObj->GetArrayField(TEXT("location"));
+	// Parse location (supports both object {x,y,z} and array [x,y,z] formats)
 	FVector SpawnLocation = FVector::ZeroVector;
-	if (LocationArray.Num() >= 3)
+	if (JsonObj->HasField(TEXT("location")))
 	{
-		SpawnLocation.X = LocationArray[0]->AsNumber();
-		SpawnLocation.Y = LocationArray[1]->AsNumber();
-		SpawnLocation.Z = LocationArray[2]->AsNumber();
+		const TSharedPtr<FJsonObject>* LocationObj;
+		if (JsonObj->TryGetObjectField(TEXT("location"), LocationObj))
+		{
+			// Object format: {"x": 0, "y": 0, "z": 500}
+			SpawnLocation.X = (*LocationObj)->GetNumberField(TEXT("x"));
+			SpawnLocation.Y = (*LocationObj)->GetNumberField(TEXT("y"));
+			SpawnLocation.Z = (*LocationObj)->GetNumberField(TEXT("z"));
+		}
+		else
+		{
+			// Array format: [x, y, z]
+			TArray<TSharedPtr<FJsonValue>> LocationArray = JsonObj->GetArrayField(TEXT("location"));
+			if (LocationArray.Num() >= 3)
+			{
+				SpawnLocation.X = LocationArray[0]->AsNumber();
+				SpawnLocation.Y = LocationArray[1]->AsNumber();
+				SpawnLocation.Z = LocationArray[2]->AsNumber();
+			}
+		}
 	}
 
-	// Parse rotation (optional)
+	// Parse rotation (optional, supports both object and array formats)
 	FRotator SpawnRotation = FRotator::ZeroRotator;
 	if (JsonObj->HasField(TEXT("rotation")))
 	{
-		TArray<TSharedPtr<FJsonValue>> RotationArray = JsonObj->GetArrayField(TEXT("rotation"));
-		if (RotationArray.Num() >= 3)
+		const TSharedPtr<FJsonObject>* RotationObj;
+		if (JsonObj->TryGetObjectField(TEXT("rotation"), RotationObj))
 		{
-			SpawnRotation.Pitch = RotationArray[0]->AsNumber();
-			SpawnRotation.Yaw = RotationArray[1]->AsNumber();
-			SpawnRotation.Roll = RotationArray[2]->AsNumber();
+			// Object format: {"pitch": 0, "yaw": 0, "roll": 0}
+			SpawnRotation.Pitch = (*RotationObj)->GetNumberField(TEXT("pitch"));
+			SpawnRotation.Yaw = (*RotationObj)->GetNumberField(TEXT("yaw"));
+			SpawnRotation.Roll = (*RotationObj)->GetNumberField(TEXT("roll"));
+		}
+		else
+		{
+			// Array format: [pitch, yaw, roll]
+			TArray<TSharedPtr<FJsonValue>> RotationArray = JsonObj->GetArrayField(TEXT("rotation"));
+			if (RotationArray.Num() >= 3)
+			{
+				SpawnRotation.Pitch = RotationArray[0]->AsNumber();
+				SpawnRotation.Yaw = RotationArray[1]->AsNumber();
+				SpawnRotation.Roll = RotationArray[2]->AsNumber();
+			}
 		}
 	}
 
@@ -401,34 +463,56 @@ FString UAutomationAPIServer::HandleSetInput(const FString& RequestBody)
 		return CreateJSONResponse(false, TEXT("Ship has no FlightController component"));
 	}
 
-	// Parse thrust input
+	// Parse thrust input (supports both object {x,y,z} and array [x,y,z] formats)
 	if (JsonObj->HasField(TEXT("thrust")))
 	{
-		TArray<TSharedPtr<FJsonValue>> ThrustArray = JsonObj->GetArrayField(TEXT("thrust"));
-		if (ThrustArray.Num() >= 3)
+		FVector ThrustInput = FVector::ZeroVector;
+		const TSharedPtr<FJsonObject>* ThrustObj;
+		if (JsonObj->TryGetObjectField(TEXT("thrust"), ThrustObj))
 		{
-			FVector ThrustInput(
-				ThrustArray[0]->AsNumber(),
-				ThrustArray[1]->AsNumber(),
-				ThrustArray[2]->AsNumber()
-			);
-			FlightController->SetThrustInput(ThrustInput);
+			// Object format: {"x": 1.0, "y": 0.0, "z": 0.0}
+			ThrustInput.X = (*ThrustObj)->GetNumberField(TEXT("x"));
+			ThrustInput.Y = (*ThrustObj)->GetNumberField(TEXT("y"));
+			ThrustInput.Z = (*ThrustObj)->GetNumberField(TEXT("z"));
 		}
+		else
+		{
+			// Array format: [x, y, z]
+			TArray<TSharedPtr<FJsonValue>> ThrustArray = JsonObj->GetArrayField(TEXT("thrust"));
+			if (ThrustArray.Num() >= 3)
+			{
+				ThrustInput.X = ThrustArray[0]->AsNumber();
+				ThrustInput.Y = ThrustArray[1]->AsNumber();
+				ThrustInput.Z = ThrustArray[2]->AsNumber();
+			}
+		}
+		FlightController->SetThrustInput(ThrustInput);
 	}
 
-	// Parse rotation input
+	// Parse rotation input (supports both object and array formats)
 	if (JsonObj->HasField(TEXT("rotation")))
 	{
-		TArray<TSharedPtr<FJsonValue>> RotationArray = JsonObj->GetArrayField(TEXT("rotation"));
-		if (RotationArray.Num() >= 3)
+		FVector RotationInput = FVector::ZeroVector;
+		const TSharedPtr<FJsonObject>* RotationObj;
+		if (JsonObj->TryGetObjectField(TEXT("rotation"), RotationObj))
 		{
-			FVector RotationInput(
-				RotationArray[0]->AsNumber(),
-				RotationArray[1]->AsNumber(),
-				RotationArray[2]->AsNumber()
-			);
-			FlightController->SetRotationInput(RotationInput);
+			// Object format: {"pitch": 0.0, "yaw": 0.0, "roll": 0.0}
+			RotationInput.X = (*RotationObj)->GetNumberField(TEXT("pitch"));
+			RotationInput.Y = (*RotationObj)->GetNumberField(TEXT("yaw"));
+			RotationInput.Z = (*RotationObj)->GetNumberField(TEXT("roll"));
 		}
+		else
+		{
+			// Array format: [pitch, yaw, roll]
+			TArray<TSharedPtr<FJsonValue>> RotationArray = JsonObj->GetArrayField(TEXT("rotation"));
+			if (RotationArray.Num() >= 3)
+			{
+				RotationInput.X = RotationArray[0]->AsNumber();
+				RotationInput.Y = RotationArray[1]->AsNumber();
+				RotationInput.Z = RotationArray[2]->AsNumber();
+			}
+		}
+		FlightController->SetRotationInput(RotationInput);
 	}
 
 	// Parse assist mode
