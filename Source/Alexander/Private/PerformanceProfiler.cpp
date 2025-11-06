@@ -430,3 +430,59 @@ float UPerformanceProfiler::GetGPUTime() const
 	// Placeholder for GPU time measurement
 	return 0.0f;
 }
+
+TArray<FString> UPerformanceProfiler::GetPerformanceWarnings() const
+{
+	TArray<FString> Warnings;
+	
+	if (ProfileData.FrameMetrics.Num() == 0)
+	{
+		return Warnings;
+	}
+	
+	// Check frame time threshold
+	float AverageFrameTime = 0.0f;
+	for (const FAlexanderFrameMetrics& Metric : ProfileData.FrameMetrics)
+	{
+		AverageFrameTime += Metric.FrameTime;
+	}
+	AverageFrameTime /= ProfileData.FrameMetrics.Num();
+	
+	// Target frame time for 60 FPS is ~16.67ms
+	if (AverageFrameTime > 20.0f)
+	{
+		Warnings.Add(FString::Printf(TEXT("High frame time detected: %.2f ms (target: 16.67 ms)"), AverageFrameTime));
+	}
+	
+	// Check memory usage
+	float AverageMemory = 0.0f;
+	for (const FAlexanderFrameMetrics& Metric : ProfileData.FrameMetrics)
+	{
+		AverageMemory += Metric.MemoryUsage;
+	}
+	AverageMemory /= ProfileData.FrameMetrics.Num();
+	
+	if (AverageMemory > 2000.0f) // Warn if over 2GB
+	{
+		Warnings.Add(FString::Printf(TEXT("High memory usage: %.2f MB"), AverageMemory / 1024.0f));
+	}
+	
+	// Check for frame time variance (stuttering)
+	float MaxFrameTime = ProfileData.FrameMetrics[0].FrameTime;
+	float MinFrameTime = ProfileData.FrameMetrics[0].FrameTime;
+	for (const FAlexanderFrameMetrics& Metric : ProfileData.FrameMetrics)
+	{
+		MaxFrameTime = FMath::Max(MaxFrameTime, Metric.FrameTime);
+		MinFrameTime = FMath::Min(MinFrameTime, Metric.FrameTime);
+	}
+	
+	float FrameTimeVariance = MaxFrameTime - MinFrameTime;
+	if (FrameTimeVariance > 10.0f) // Large variance indicates stuttering
+	{
+		Warnings.Add(FString::Printf(TEXT("Frame time variance detected: %.2f ms (min: %.2f, max: %.2f)"), 
+			FrameTimeVariance, MinFrameTime, MaxFrameTime));
+	}
+	
+	return Warnings;
+}
+
