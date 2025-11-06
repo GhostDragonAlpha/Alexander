@@ -19,7 +19,7 @@ class FAlexanderEditorModule : public IModuleInterface
 public:
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
-	virtual void Shutdown Module() override;
+	virtual void ShutdownModule() override;
 
 private:
 	/** Register menu extensions */

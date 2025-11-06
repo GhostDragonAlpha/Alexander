@@ -14,7 +14,8 @@ public class Alexander : ModuleRules
 			   "HTTP", "Json", "JsonUtilities", "RHI", "RenderCore",
 			   "Slate", "SlateCore", "UMG", "ToolMenus", "ProceduralMeshComponent",
 			   "GameplayTags", "GameplayTasks", "AIModule", "NavigationSystem",
-			   "AudioMixer", "DeveloperSettings", "EnhancedInput", "HeadMountedDisplay", "CinematicCamera", "XRBase"
+			   "AudioMixer", "DeveloperSettings", "EnhancedInput", "HeadMountedDisplay", "CinematicCamera", "XRBase",
+		   "PhysicsCore"
 		   });
 
 		// Add public include paths

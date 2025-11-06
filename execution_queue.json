@@ -1,24 +1,46 @@
 {
   "queue_metadata": {
     "created": "2025-11-06T01:43:00Z",
-    "iteration": 1,
-    "total_tasks": 6,
-    "tasks_completed": 2,
-    "tasks_pending": 4,
-    "tasks_failed": 0
+    "iteration": 3,
+    "total_tasks": 7,
+    "tasks_completed": 3,
+    "tasks_pending": 3,
+    "tasks_failed": 1
   },
   "active_queue": [
     {
       "queue_position": 3,
       "task_id": "T003",
       "priority": "medium",
-      "status": "pending",
+      "status": "failed_retrying",
       "category": "gameplay_verification",
       "description": "Test player spawning and flight mechanics",
       "estimated_duration_seconds": 60,
       "dependencies": ["T002"],
+      "retry_count": 1,
+      "max_retries": 3,
+      "last_error": "Python script failed to load - syntax or import error",
+      "findings": "VRTemplateMap loads by default, not FlightTest. Need simpler test approach."
+    },
+    {
+      "queue_position": 3.5,
+      "task_id": "T003B",
+      "priority": "critical",
+      "status": "completed",
+      "category": "gameplay_verification",
+      "description": "Check VRTemplateMap for playable pawn and flight setup",
+      "estimated_duration_seconds": 30,
+      "dependencies": [],
       "retry_count": 0,
-      "max_retries": 3
+      "max_retries": 2,
+      "completed_at": "2025-11-06T15:53:00Z",
+      "findings": {
+        "flight_controller_exists": true,
+        "flight_controller_features": ["6DOF input handling", "Input smoothing", "5 flight assist modes", "Collision avoidance", "Orbital mechanics"],
+        "blueprint_assets_found": ["BP_VRSpaceshipPlayer", "BP_FlightStick", "BP_FlightPhysicsController"],
+        "cpp_implementation": "FlightController.h/cpp - Full 6DOF with thrust (X/Y/Z) and rotation (pitch/yaw/roll)",
+        "manual_setup_required": "Set GameMode default pawn to BP_VRSpaceshipPlayer in World Settings"
+      }
     },
     {
       "queue_position": 4,

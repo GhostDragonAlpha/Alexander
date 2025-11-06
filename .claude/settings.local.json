@@ -1,16 +1,17 @@
 {
   "permissions": {
     "allow": [
-      "Bash(\"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Binaries\\Win64\\UnrealEditor-Cmd.exe\" \"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -ExecutePythonScript=\"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\open_flight_test.py\" -stdout -unattended -nopause -nosplash)",
-      "Bash(timeout /t 2)",
-      "Bash(python:*)",
-      "Bash(tasklist /FI 'IMAGENAME eq UnrealEditor.exe' 2)",
-      "Bash(nul)",
-      "Bash(timeout /t 5)",
-      "Bash(taskkill:*)",
-      "Bash(git add:*)",
-      "Bash(git push:*)",
-      "Bash(git commit:*)"
+      "Bash(cmd /c \"taskkill /F /PID 28192\")",
+      "Bash(cmd /c \"taskkill /F /PID 28192 && echo SUCCESS || echo FAILED\")",
+      "Bash(start \"\" \"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Binaries\\Win64\\UnrealEditor.exe\" \"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\")",
+      "Bash(cmd /c \"dir Binaries\\Win64\\*Alexander*.dll /s /b 2>nul | find /i \"\"Alexander\"\"\")",
+      "Bash(cmd /c \"dir Binaries\\Win64\\*.dll\")",
+      "Bash(cmd /c \"dir /s /b Binaries\\*.dll 2>nul | findstr /i alexander\")",
+      "Bash(cmd /c \"if exist Binaries (echo Binaries exists) else (echo Binaries NOT FOUND)\")",
+      "Bash(cmd /c \"if exist Binaries\\Win64 (dir Binaries\\Win64) else (echo Win64 folder not found)\")",
+      "Bash(cmd /c \"echo Checking Binaries folder && dir Binaries 2>nul\")",
+      "Bash(timeout:*)",
+      "Bash(\"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Build\\BatchFiles\\Build.bat\" AlexanderEditor Win64 Development \"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -waitmutex)"
     ],
     "deny": [],
     "ask": []

@@ -24,6 +24,7 @@ public class AlexanderEditor : ModuleRules
 			"AssetTools",
 			"ContentBrowser",
 			"EditorScriptingUtilities",
+			"Blutility",
 			"Kismet",
 			"KismetCompiler",
 			"BlueprintGraph",

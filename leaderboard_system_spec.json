@@ -1,0 +1,414 @@
+{
+  "leaderboard_system": {
+    "system_name": "Time Trial Leaderboard System",
+    "version": "1.0",
+    "leaderboard_types": [
+      {
+        "type": "LOCAL",
+        "description": "Single-player local best times",
+        "scope": "Per-course, player's own records",
+        "persistence": "Local save file",
+        "features": [
+          "Best times",
+          "Time medals",
+          "Replay history"
+        ]
+      },
+      {
+        "type": "FRIEND",
+        "description": "Compare times with friends (future)",
+        "scope": "Per-course, friends list",
+        "persistence": "Online service",
+        "features": [
+          "Friend rankings",
+          "Ghost replays",
+          "Challenges"
+        ]
+      },
+      {
+        "type": "GLOBAL",
+        "description": "Worldwide rankings (future)",
+        "scope": "Per-course, all players",
+        "persistence": "Online service",
+        "features": [
+          "Top 100",
+          "Regional rankings",
+          "Leaderboard seasons"
+        ]
+      }
+    ],
+    "initial_implementation": "LOCAL",
+    "future_expansion": [
+      "FRIEND",
+      "GLOBAL"
+    ]
+  },
+  "entry_structure": {
+    "struct_name": "FLeaderboardEntry",
+    "description": "Single leaderboard entry with time and metadata",
+    "fields": [
+      {
+        "name": "PlayerName",
+        "type": "FString",
+        "description": "Player's display name"
+      },
+      {
+        "name": "CompletionTime",
+        "type": "float",
+        "description": "Time in seconds"
+      },
+      {
+        "name": "Rank",
+        "type": "int32",
+        "description": "Position in leaderboard (1 = best)"
+      },
+      {
+        "name": "Medal",
+        "type": "EMedalType",
+        "description": "Gold/Silver/Bronze/None"
+      },
+      {
+        "name": "ShipName",
+        "type": "FString",
+        "description": "Ship used for run"
+      },
+      {
+        "name": "AssistMode",
+        "type": "EFlightAssistMode",
+        "description": "Assist mode used"
+      },
+      {
+        "name": "DateAchieved",
+        "type": "FDateTime",
+        "description": "When time was set"
+      },
+      {
+        "name": "bIsPersonalBest",
+        "type": "bool",
+        "description": "Is this the player's best?"
+      },
+      {
+        "name": "ReplayData",
+        "type": "FString",
+        "description": "Path to replay file (optional)"
+      }
+    ]
+  },
+  "local_manager": {
+    "class_name": "ULocalLeaderboardManager",
+    "parent_class": "UGameInstanceSubsystem",
+    "description": "Manages local leaderboards and personal best times",
+    "variables": [
+      {
+        "name": "CourseLeaderboards",
+        "type": "TMap<FString, TArray<FLeaderboardEntry>>",
+        "description": "Leaderboards indexed by course name"
+      },
+      {
+        "name": "MaxEntriesPerCourse",
+        "type": "int32",
+        "default": 10,
+        "description": "Keep top 10 times per course"
+      }
+    ],
+    "functions": [
+      {
+        "name": "SubmitTime",
+        "description": "Submit new time to leaderboard",
+        "inputs": [
+          {
+            "name": "CourseName",
+            "type": "FString"
+          },
+          {
+            "name": "CompletionTime",
+            "type": "float"
+          },
+          {
+            "name": "ShipName",
+            "type": "FString"
+          },
+          {
+            "name": "AssistMode",
+            "type": "EFlightAssistMode"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "Rank",
+            "type": "int32",
+            "description": "Rank achieved (1-10 or 0 if not in top 10)"
+          },
+          {
+            "name": "bNewPersonalBest",
+            "type": "bool",
+            "description": "Is this a new PB?"
+          }
+        ],
+        "implementation": "\nvoid ULocalLeaderboardManager::SubmitTime(FString CourseName, float CompletionTime, FString ShipName, EFlightAssistMode AssistMode, int32& OutRank, bool& bNewPersonalBest)\n{\n    // Get or create leaderboard for this course\n    TArray<FLeaderboardEntry>& Leaderboard = CourseLeaderboards.FindOrAdd(CourseName);\n\n    // Create new entry\n    FLeaderboardEntry NewEntry;\n    NewEntry.PlayerName = GetPlayerName();\n    NewEntry.CompletionTime = CompletionTime;\n    NewEntry.ShipName = ShipName;\n    NewEntry.AssistMode = AssistMode;\n    NewEntry.DateAchieved = FDateTime::Now();\n\n    // Calculate medal\n    NewEntry.Medal = CalculateMedal(CourseName, CompletionTime);\n\n    // Check if this is a personal best\n    float CurrentPB = GetPersonalBest(CourseName);\n    bNewPersonalBest = (CurrentPB == 0 || CompletionTime < CurrentPB);\n    NewEntry.bIsPersonalBest = bNewPersonalBest;\n\n    // Add to leaderboard\n    Leaderboard.Add(NewEntry);\n\n    // Sort by time (ascending)\n    Leaderboard.Sort([](const FLeaderboardEntry& A, const FLeaderboardEntry& B) {\n        return A.CompletionTime < B.CompletionTime;\n    });\n\n    // Keep only top N entries\n    if (Leaderboard.Num() > MaxEntriesPerCourse)\n    {\n        Leaderboard.SetNum(MaxEntriesPerCourse);\n    }\n\n    // Update ranks\n    for (int32 i = 0; i < Leaderboard.Num(); i++)\n    {\n        Leaderboard[i].Rank = i + 1;\n    }\n\n    // Find rank of new entry (may not be in top 10)\n    int32 NewRank = Leaderboard.IndexOfByPredicate([&](const FLeaderboardEntry& Entry) {\n        return Entry.DateAchieved == NewEntry.DateAchieved;\n    });\n\n    OutRank = (NewRank != INDEX_NONE) ? NewRank + 1 : 0;\n\n    // Save leaderboards\n    SaveLeaderboards();\n}\n"
+      },
+      {
+        "name": "GetLeaderboard",
+        "description": "Get top times for a course",
+        "inputs": [
+          {
+            "name": "CourseName",
+            "type": "FString"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "ReturnValue",
+            "type": "TArray<FLeaderboardEntry>"
+          }
+        ],
+        "implementation": "\nTArray<FLeaderboardEntry> ULocalLeaderboardManager::GetLeaderboard(FString CourseName)\n{\n    if (CourseLeaderboards.Contains(CourseName))\n    {\n        return CourseLeaderboards[CourseName];\n    }\n    return TArray<FLeaderboardEntry>();\n}\n"
+      },
+      {
+        "name": "GetPersonalBest",
+        "description": "Get player's best time for a course",
+        "inputs": [
+          {
+            "name": "CourseName",
+            "type": "FString"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "ReturnValue",
+            "type": "float"
+          }
+        ],
+        "implementation": "\nfloat ULocalLeaderboardManager::GetPersonalBest(FString CourseName)\n{\n    TArray<FLeaderboardEntry> Leaderboard = GetLeaderboard(CourseName);\n\n    for (const FLeaderboardEntry& Entry : Leaderboard)\n    {\n        if (Entry.bIsPersonalBest)\n        {\n            return Entry.CompletionTime;\n        }\n    }\n\n    return 0.0f;  // No time recorded\n}\n"
+      },
+      {
+        "name": "GetRankForTime",
+        "description": "Calculate what rank a given time would achieve",
+        "inputs": [
+          {
+            "name": "CourseName",
+            "type": "FString"
+          },
+          {
+            "name": "Time",
+            "type": "float"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "ReturnValue",
+            "type": "int32"
+          }
+        ],
+        "implementation": "\nint32 ULocalLeaderboardManager::GetRankForTime(FString CourseName, float Time)\n{\n    TArray<FLeaderboardEntry> Leaderboard = GetLeaderboard(CourseName);\n\n    int32 Rank = 1;\n    for (const FLeaderboardEntry& Entry : Leaderboard)\n    {\n        if (Time >= Entry.CompletionTime)\n            Rank++;\n        else\n            break;\n    }\n\n    return Rank;\n}\n"
+      }
+    ]
+  },
+  "leaderboard_widget": {
+    "widget_name": "WBP_LeaderboardDisplay",
+    "parent_class": "UserWidget",
+    "description": "Displays leaderboard entries for a course",
+    "size": [
+      800,
+      600
+    ],
+    "hierarchy": {
+      "root": "Canvas Panel",
+      "children": [
+        {
+          "name": "HeaderSection",
+          "type": "Vertical Box",
+          "children": [
+            {
+              "name": "CourseTitle",
+              "type": "Text Block",
+              "font_size": 32
+            },
+            {
+              "name": "ParTimeDisplay",
+              "type": "Text Block",
+              "font_size": 20
+            }
+          ]
+        },
+        {
+          "name": "LeaderboardScroll",
+          "type": "Scroll Box",
+          "children": [
+            {
+              "name": "LeaderboardList",
+              "type": "Vertical Box",
+              "dynamic": true
+            }
+          ]
+        },
+        {
+          "name": "PersonalBestSection",
+          "type": "Border",
+          "children": [
+            {
+              "name": "PBText",
+              "type": "Text Block"
+            },
+            {
+              "name": "PBTime",
+              "type": "Text Block"
+            }
+          ]
+        }
+      ]
+    },
+    "entry_widget": {
+      "widget_name": "WBP_LeaderboardEntry",
+      "description": "Single leaderboard entry row",
+      "hierarchy": {
+        "root": "Border",
+        "children": [
+          {
+            "name": "RankText",
+            "width": 50,
+            "align": "center"
+          },
+          {
+            "name": "PlayerNameText",
+            "width": 200,
+            "align": "left"
+          },
+          {
+            "name": "TimeText",
+            "width": 100,
+            "align": "center"
+          },
+          {
+            "name": "MedalIcon",
+            "width": 40,
+            "align": "center"
+          },
+          {
+            "name": "ShipNameText",
+            "width": 150,
+            "align": "left"
+          },
+          {
+            "name": "DateText",
+            "width": 120,
+            "align": "right"
+          }
+        ]
+      }
+    }
+  },
+  "results_screen": {
+    "widget_name": "WBP_CourseResults",
+    "parent_class": "UserWidget",
+    "description": "Post-course results with time, rank, and medals",
+    "display_trigger": "On course completion",
+    "layout": {
+      "sections": [
+        {
+          "section": "Course Info",
+          "elements": [
+            "Course Name",
+            "Difficulty Badge",
+            "Completion Checkmark"
+          ]
+        },
+        {
+          "section": "Time Stats",
+          "elements": [
+            "Completion Time (large, center)",
+            "Par Time comparison",
+            "Personal Best comparison",
+            "Time Medal (Gold/Silver/Bronze)"
+          ]
+        },
+        {
+          "section": "Leaderboard Preview",
+          "elements": [
+            "Your Rank (e.g., 'Rank 3 of 10')",
+            "Top 3 times display",
+            "View Full Leaderboard button"
+          ]
+        },
+        {
+          "section": "Rewards",
+          "elements": [
+            "XP Earned (+300 XP)",
+            "Credits Earned (+100 Credits)",
+            "Time Bonus (if applicable)",
+            "Unlocks (if any)"
+          ]
+        },
+        {
+          "section": "Actions",
+          "elements": [
+            "Retry Course button",
+            "Next Course button (if available)",
+            "Return to Menu button"
+          ]
+        }
+      ]
+    },
+    "animations": {
+      "entrance": "Fade in + scale from 0.9 to 1.0 (0.5s)",
+      "time_reveal": "Count up to final time (1.0s)",
+      "medal_reveal": "Medal flies in with sound (0.8s)",
+      "rank_reveal": "Rank text pops in (0.5s)",
+      "reward_reveal": "Rewards appear sequentially (0.3s each)"
+    }
+  },
+  "statistics": {
+    "struct_name": "FCourseStatistics",
+    "description": "Detailed statistics for a course",
+    "fields": [
+      {
+        "name": "TotalAttempts",
+        "type": "int32",
+        "description": "Number of attempts"
+      },
+      {
+        "name": "TotalCompletions",
+        "type": "int32",
+        "description": "Successful completions"
+      },
+      {
+        "name": "AverageTime",
+        "type": "float",
+        "description": "Average completion time"
+      },
+      {
+        "name": "FastestTime",
+        "type": "float",
+        "description": "Best time ever"
+      },
+      {
+        "name": "SlowestTime",
+        "type": "float",
+        "description": "Worst time"
+      },
+      {
+        "name": "TotalCollisions",
+        "type": "int32",
+        "description": "Total collisions"
+      },
+      {
+        "name": "PerfectRuns",
+        "type": "int32",
+        "description": "Runs with 0 collisions"
+      },
+      {
+        "name": "TotalPlayTime",
+        "type": "float",
+        "description": "Total time spent (seconds)"
+      },
+      {
+        "name": "FirstAttemptDate",
+        "type": "FDateTime"
+      },
+      {
+        "name": "LastAttemptDate",
+        "type": "FDateTime"
+      }
+    ]
+  }
+}

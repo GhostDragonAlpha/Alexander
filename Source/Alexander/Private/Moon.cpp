@@ -18,9 +18,7 @@ AMoon::AMoon()
 	OrbitSpeed = 20.0f; // Faster orbital speed than planets
 	OrbitInclination = 5.0f; // Slight inclination (realistic for moons)
 
-	// Create root scene component
-	USceneComponent* RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	RootComponent = RootComp;
+	// RootComponent already created by parent class AOrbitalBody
 
 	// Create mesh component
 	MoonMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MoonMesh"));

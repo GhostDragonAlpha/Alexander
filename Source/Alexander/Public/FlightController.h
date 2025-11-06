@@ -56,6 +56,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 public:
 	// ============================================================================
@@ -83,7 +84,7 @@ public:
 	// ============================================================================
 
 	// Current flight assist mode
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Flight Assist")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Flight Assist")
 	EFlightAssistMode AssistMode = EFlightAssistMode::Stability;
 
 	// Enable automatic collision avoidance
@@ -103,17 +104,17 @@ public:
 	// ============================================================================
 
 	// Raw input values (-1 to 1)
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input State")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Input State")
 	FVector RawThrustInput = FVector::ZeroVector;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input State")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Input State")
 	FVector RawRotationInput = FVector::ZeroVector;
 
 	// Smoothed input values
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input State")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Input State")
 	FVector SmoothedThrustInput = FVector::ZeroVector;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Input State")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated, Category = "Input State")
 	FVector SmoothedRotationInput = FVector::ZeroVector;
 
 	// ============================================================================

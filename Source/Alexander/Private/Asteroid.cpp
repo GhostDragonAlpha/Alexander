@@ -20,9 +20,7 @@ AAsteroid::AAsteroid()
 	OrbitInclination = 15.0f; // Often highly inclined
 	Velocity = FVector::ZeroVector; // Start stationary, will be affected by gravity
 
-	// Create root scene component
-	USceneComponent* RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	RootComponent = RootComp;
+	// RootComponent already created by parent class AOrbitalBody
 
 	// Create mesh component
 	AsteroidMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("AsteroidMesh"));

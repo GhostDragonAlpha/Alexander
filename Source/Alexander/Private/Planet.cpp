@@ -32,9 +32,7 @@ APlanet::APlanet()
 	OrbitSpeed = 10.0f; // Default orbital speed (degrees per second)
 	OrbitInclination = 0.0f; // Default to same plane as Sun
 
-	// Create root scene component
-	USceneComponent* RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	RootComponent = RootComp;
+	// RootComponent already created by parent class AOrbitalBody
 
 	// Create mesh component
 	PlanetMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PlanetMesh"));

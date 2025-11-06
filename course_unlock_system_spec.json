@@ -1,0 +1,375 @@
+{
+  "unlock_system": {
+    "system_name": "Progressive Course Unlocking",
+    "version": "1.0",
+    "unlock_tiers": [
+      {
+        "tier": 1,
+        "difficulty": "TUTORIAL",
+        "courses": [
+          "Flight Training Academy"
+        ],
+        "unlock_requirement": "None - Always available",
+        "unlocks_on_completion": "All Easy courses"
+      },
+      {
+        "tier": 2,
+        "difficulty": "EASY",
+        "courses": [
+          "Beginner's Canyon",
+          "Morning Run",
+          "Peaceful Valley"
+        ],
+        "unlock_requirement": "Complete Tutorial",
+        "unlocks_on_completion": "All Medium courses"
+      },
+      {
+        "tier": 3,
+        "difficulty": "MEDIUM",
+        "courses": [
+          "Industrial Nexus",
+          "Debris Field Navigation",
+          "Station Weave"
+        ],
+        "unlock_requirement": "Complete any Easy course",
+        "unlocks_on_completion": "All Hard courses"
+      },
+      {
+        "tier": 4,
+        "difficulty": "HARD",
+        "courses": [
+          "Asteroid Gauntlet",
+          "The Crucible",
+          "Expert Challenge"
+        ],
+        "unlock_requirement": "Complete any Medium course",
+        "unlocks_on_completion": "Expert tier (future)"
+      }
+    ],
+    "special_unlocks": {
+      "secret_courses": {
+        "unlock_all_easy_with_gold": {
+          "requirement": "Get gold time on all Easy courses",
+          "unlocks": [
+            "Secret Easy Course: Hidden Canyon"
+          ]
+        },
+        "unlock_all_medium_with_gold": {
+          "requirement": "Get gold time on all Medium courses",
+          "unlocks": [
+            "Secret Medium Course: The Labyrinth"
+          ]
+        },
+        "unlock_all_hard_with_gold": {
+          "requirement": "Get gold time on all Hard courses",
+          "unlocks": [
+            "Secret Hard Course: Death Run"
+          ]
+        }
+      },
+      "achievement_unlocks": {
+        "perfect_tutorial": {
+          "requirement": "Complete tutorial without collision",
+          "unlocks": [
+            "Title: Academy Graduate",
+            "Ship Skin: Training Stripes"
+          ]
+        },
+        "speed_demon": {
+          "requirement": "Beat par time on 10 courses",
+          "unlocks": [
+            "Title: Speed Demon",
+            "Ship Skin: Racing Flames"
+          ]
+        },
+        "completionist": {
+          "requirement": "Complete all courses",
+          "unlocks": [
+            "Title: Master Pilot",
+            "Ship Skin: Chrome Finish"
+          ]
+        }
+      }
+    }
+  },
+  "progression_data": {
+    "struct_name": "FPlayerCourseProgress",
+    "description": "Stores player's progress for a single course",
+    "fields": [
+      {
+        "name": "CourseName",
+        "type": "FString",
+        "description": "Unique course identifier"
+      },
+      {
+        "name": "bCompleted",
+        "type": "bool",
+        "default": false,
+        "description": "Has player completed"
+      },
+      {
+        "name": "BestTime",
+        "type": "float",
+        "default": 0.0,
+        "description": "Best completion time in seconds"
+      },
+      {
+        "name": "TimesCompleted",
+        "type": "int32",
+        "default": 0,
+        "description": "Number of completions"
+      },
+      {
+        "name": "TotalXPEarned",
+        "type": "int32",
+        "default": 0,
+        "description": "Total XP from this course"
+      },
+      {
+        "name": "TotalCreditsEarned",
+        "type": "int32",
+        "default": 0,
+        "description": "Total Credits from this course"
+      },
+      {
+        "name": "bGoldTime",
+        "type": "bool",
+        "default": false,
+        "description": "Achieved gold time (90% of par)"
+      },
+      {
+        "name": "bSilverTime",
+        "type": "bool",
+        "default": false,
+        "description": "Achieved silver time (par time)"
+      },
+      {
+        "name": "bBronzeTime",
+        "type": "bool",
+        "default": false,
+        "description": "Achieved bronze time (110% of par)"
+      },
+      {
+        "name": "FirstCompletionDate",
+        "type": "FDateTime",
+        "description": "When first completed"
+      },
+      {
+        "name": "LastCompletionDate",
+        "type": "FDateTime",
+        "description": "Most recent completion"
+      }
+    ]
+  },
+  "global_progression": {
+    "struct_name": "FPlayerGlobalProgress",
+    "description": "Overall player progression across all courses",
+    "fields": [
+      {
+        "name": "bTutorialCompleted",
+        "type": "bool",
+        "default": false
+      },
+      {
+        "name": "TotalXP",
+        "type": "int32",
+        "default": 0
+      },
+      {
+        "name": "TotalCredits",
+        "type": "int32",
+        "default": 0
+      },
+      {
+        "name": "PlayerLevel",
+        "type": "int32",
+        "default": 1
+      },
+      {
+        "name": "UnlockedDifficulties",
+        "type": "TArray<EDifficultyLevel>",
+        "default": "[Tutorial]"
+      },
+      {
+        "name": "CourseProgress",
+        "type": "TMap<FString, FPlayerCourseProgress>",
+        "description": "Progress per course"
+      },
+      {
+        "name": "UnlockedTitles",
+        "type": "TArray<FString>"
+      },
+      {
+        "name": "UnlockedSkins",
+        "type": "TArray<FString>"
+      },
+      {
+        "name": "TotalCoursesCompleted",
+        "type": "int32",
+        "default": 0
+      },
+      {
+        "name": "TotalPlayTime",
+        "type": "float",
+        "default": 0.0,
+        "description": "Seconds"
+      },
+      {
+        "name": "AchievementsUnlocked",
+        "type": "TArray<FString>"
+      }
+    ]
+  },
+  "unlock_logic": {
+    "class_name": "UUnlockSystem",
+    "parent_class": "UGameInstanceSubsystem",
+    "description": "Manages course unlocking logic and progression",
+    "functions": [
+      {
+        "name": "IsCourseUnlocked",
+        "description": "Check if a specific course is unlocked for the player",
+        "inputs": [
+          {
+            "name": "CourseName",
+            "type": "FString"
+          },
+          {
+            "name": "PlayerProgress",
+            "type": "FPlayerGlobalProgress*"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "ReturnValue",
+            "type": "bool"
+          }
+        ],
+        "implementation": "\nbool UUnlockSystem::IsCourseUnlocked(FString CourseName, FPlayerGlobalProgress* Progress)\n{\n    // Tutorial always unlocked\n    if (CourseName == \"Flight Training Academy\")\n        return true;\n\n    // Get course difficulty\n    UFlightCourseData* CourseData = GetCourseData(CourseName);\n    if (!CourseData)\n        return false;\n\n    EDifficultyLevel CourseDifficulty = CourseData->Difficulty;\n\n    // Check if difficulty tier is unlocked\n    switch (CourseDifficulty)\n    {\n        case EDifficultyLevel::Tutorial:\n            return true;\n\n        case EDifficultyLevel::Easy:\n            return Progress->bTutorialCompleted;\n\n        case EDifficultyLevel::Medium:\n            return HasCompletedAnyDifficulty(Progress, EDifficultyLevel::Easy);\n\n        case EDifficultyLevel::Hard:\n            return HasCompletedAnyDifficulty(Progress, EDifficultyLevel::Medium);\n\n        case EDifficultyLevel::Expert:\n            return HasCompletedAnyDifficulty(Progress, EDifficultyLevel::Hard);\n\n        default:\n            return false;\n    }\n}\n"
+      },
+      {
+        "name": "HasCompletedAnyDifficulty",
+        "description": "Check if player has completed at least one course of given difficulty",
+        "inputs": [
+          {
+            "name": "Progress",
+            "type": "FPlayerGlobalProgress*"
+          },
+          {
+            "name": "Difficulty",
+            "type": "EDifficultyLevel"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "ReturnValue",
+            "type": "bool"
+          }
+        ],
+        "implementation": "\nbool UUnlockSystem::HasCompletedAnyDifficulty(FPlayerGlobalProgress* Progress, EDifficultyLevel Difficulty)\n{\n    // Iterate through all course progress\n    for (const auto& Entry : Progress->CourseProgress)\n    {\n        FString CourseName = Entry.Key;\n        FPlayerCourseProgress CourseProgress = Entry.Value;\n\n        if (CourseProgress.bCompleted)\n        {\n            UFlightCourseData* CourseData = GetCourseData(CourseName);\n            if (CourseData && CourseData->Difficulty == Difficulty)\n            {\n                return true;\n            }\n        }\n    }\n\n    return false;\n}\n"
+      },
+      {
+        "name": "OnCourseCompleted",
+        "description": "Called when player completes a course - checks unlocks",
+        "inputs": [
+          {
+            "name": "CompletedCourse",
+            "type": "FString"
+          },
+          {
+            "name": "CompletionTime",
+            "type": "float"
+          },
+          {
+            "name": "XPEarned",
+            "type": "int32"
+          },
+          {
+            "name": "CreditsEarned",
+            "type": "int32"
+          }
+        ],
+        "implementation": "\nvoid UUnlockSystem::OnCourseCompleted(FString CompletedCourse, float CompletionTime, int32 XPEarned, int32 CreditsEarned)\n{\n    FPlayerGlobalProgress* Progress = GetPlayerProgress();\n\n    // Update course-specific progress\n    FPlayerCourseProgress& CourseProgress = Progress->CourseProgress.FindOrAdd(CompletedCourse);\n\n    bool bFirstCompletion = !CourseProgress.bCompleted;\n\n    CourseProgress.bCompleted = true;\n    CourseProgress.TimesCompleted++;\n    CourseProgress.TotalXPEarned += XPEarned;\n    CourseProgress.TotalCreditsEarned += CreditsEarned;\n    CourseProgress.LastCompletionDate = FDateTime::Now();\n\n    if (bFirstCompletion)\n    {\n        CourseProgress.FirstCompletionDate = FDateTime::Now();\n        Progress->TotalCoursesCompleted++;\n    }\n\n    // Update best time\n    if (CompletionTime < CourseProgress.BestTime || CourseProgress.BestTime == 0)\n    {\n        CourseProgress.BestTime = CompletionTime;\n    }\n\n    // Check time medals\n    UFlightCourseData* CourseData = GetCourseData(CompletedCourse);\n    if (CourseData && CourseData->ParTime > 0)\n    {\n        float GoldTime = CourseData->ParTime * 0.9f;\n        float SilverTime = CourseData->ParTime;\n        float BronzeTime = CourseData->ParTime * 1.1f;\n\n        if (CompletionTime <= GoldTime)\n            CourseProgress.bGoldTime = true;\n        if (CompletionTime <= SilverTime)\n            CourseProgress.bSilverTime = true;\n        if (CompletionTime <= BronzeTime)\n            CourseProgress.bBronzeTime = true;\n    }\n\n    // Update global progress\n    Progress->TotalXP += XPEarned;\n    Progress->TotalCredits += CreditsEarned;\n\n    // Check for difficulty tier unlocks\n    CheckDifficultyUnlocks(Progress, CompletedCourse);\n\n    // Check for special unlocks\n    CheckSpecialUnlocks(Progress);\n\n    // Save progress\n    SavePlayerProgress(Progress);\n\n    // Broadcast unlock notifications\n    BroadcastUnlockNotifications();\n}\n"
+      },
+      {
+        "name": "CheckDifficultyUnlocks",
+        "description": "Check if completing this course unlocks new difficulty tier",
+        "implementation": "\nvoid UUnlockSystem::CheckDifficultyUnlocks(FPlayerGlobalProgress* Progress, FString CompletedCourse)\n{\n    UFlightCourseData* CourseData = GetCourseData(CompletedCourse);\n    if (!CourseData)\n        return;\n\n    TArray<FUnlockNotification> NewUnlocks;\n\n    // Tutorial completion unlocks Easy\n    if (CompletedCourse == \"Flight Training Academy\" && !Progress->bTutorialCompleted)\n    {\n        Progress->bTutorialCompleted = true;\n        Progress->UnlockedDifficulties.AddUnique(EDifficultyLevel::Easy);\n\n        NewUnlocks.Add(FUnlockNotification{\n            Type: \"DifficultyTier\",\n            Title: \"Easy Courses Unlocked!\",\n            Description: \"You can now access all Easy difficulty courses\",\n            Icon: \"Icon_Unlock_Easy\"\n        });\n    }\n\n    // Easy completion unlocks Medium\n    if (CourseData->Difficulty == EDifficultyLevel::Easy)\n    {\n        if (!Progress->UnlockedDifficulties.Contains(EDifficultyLevel::Medium))\n        {\n            Progress->UnlockedDifficulties.AddUnique(EDifficultyLevel::Medium);\n\n            NewUnlocks.Add(FUnlockNotification{\n                Type: \"DifficultyTier\",\n                Title: \"Medium Courses Unlocked!\",\n                Description: \"You can now access all Medium difficulty courses\",\n                Icon: \"Icon_Unlock_Medium\"\n            });\n        }\n    }\n\n    // Medium completion unlocks Hard\n    if (CourseData->Difficulty == EDifficultyLevel::Medium)\n    {\n        if (!Progress->UnlockedDifficulties.Contains(EDifficultyLevel::Hard))\n        {\n            Progress->UnlockedDifficulties.AddUnique(EDifficultyLevel::Hard);\n\n            NewUnlocks.Add(FUnlockNotification{\n                Type: \"DifficultyTier\",\n                Title: \"Hard Courses Unlocked!\",\n                Description: \"You can now access all Hard difficulty courses\",\n                Icon: \"Icon_Unlock_Hard\"\n            });\n        }\n    }\n\n    // Store notifications to display\n    PendingUnlockNotifications.Append(NewUnlocks);\n}\n"
+      },
+      {
+        "name": "CheckSpecialUnlocks",
+        "description": "Check for secret courses and achievement unlocks",
+        "implementation": "\nvoid UUnlockSystem::CheckSpecialUnlocks(FPlayerGlobalProgress* Progress)\n{\n    // Check: All Easy courses with Gold time\n    if (HasAllGoldTimes(Progress, EDifficultyLevel::Easy))\n    {\n        if (!Progress->CourseProgress.Contains(\"Hidden Canyon\"))\n        {\n            UnlockSecretCourse(\"Hidden Canyon\");\n            PendingUnlockNotifications.Add(FUnlockNotification{\n                Type: \"SecretCourse\",\n                Title: \"Secret Course Unlocked!\",\n                Description: \"Hidden Canyon - Master Easy pilot reward\",\n                Icon: \"Icon_Secret_Course\"\n            });\n        }\n    }\n\n    // Check: All Medium courses with Gold time\n    if (HasAllGoldTimes(Progress, EDifficultyLevel::Medium))\n    {\n        if (!Progress->CourseProgress.Contains(\"The Labyrinth\"))\n        {\n            UnlockSecretCourse(\"The Labyrinth\");\n            PendingUnlockNotifications.Add(FUnlockNotification{\n                Type: \"SecretCourse\",\n                Title: \"Secret Course Unlocked!\",\n                Description: \"The Labyrinth - Master Medium pilot reward\",\n                Icon: \"Icon_Secret_Course\"\n            });\n        }\n    }\n\n    // Check: All Hard courses with Gold time\n    if (HasAllGoldTimes(Progress, EDifficultyLevel::Hard))\n    {\n        if (!Progress->CourseProgress.Contains(\"Death Run\"))\n        {\n            UnlockSecretCourse(\"Death Run\");\n            PendingUnlockNotifications.Add(FUnlockNotification{\n                Type: \"SecretCourse\",\n                Title: \"Secret Course Unlocked!\",\n                Description: \"Death Run - Master Hard pilot reward\",\n                Icon: \"Icon_Secret_Course\"\n            });\n        }\n    }\n\n    // Check: Completionist (all courses)\n    int32 TotalCourses = GetTotalCoursesCount();\n    if (Progress->TotalCoursesCompleted >= TotalCourses)\n    {\n        if (!Progress->AchievementsUnlocked.Contains(\"Completionist\"))\n        {\n            Progress->AchievementsUnlocked.Add(\"Completionist\");\n            Progress->UnlockedTitles.Add(\"Master Pilot\");\n            Progress->UnlockedSkins.Add(\"Chrome Finish\");\n\n            PendingUnlockNotifications.Add(FUnlockNotification{\n                Type: \"Achievement\",\n                Title: \"Achievement: Completionist!\",\n                Description: \"Unlocked Master Pilot title and Chrome Finish skin\",\n                Icon: \"Icon_Achievement_Complete\"\n            });\n        }\n    }\n\n    // Check: Speed Demon (beat par on 10+ courses)\n    int32 ParBeatenCount = CountCoursesWithParTime(Progress);\n    if (ParBeatenCount >= 10)\n    {\n        if (!Progress->AchievementsUnlocked.Contains(\"Speed Demon\"))\n        {\n            Progress->AchievementsUnlocked.Add(\"Speed Demon\");\n            Progress->UnlockedTitles.Add(\"Speed Demon\");\n            Progress->UnlockedSkins.Add(\"Racing Flames\");\n\n            PendingUnlockNotifications.Add(FUnlockNotification{\n                Type: \"Achievement\",\n                Title: \"Achievement: Speed Demon!\",\n                Description: \"Unlocked Speed Demon title and Racing Flames skin\",\n                Icon: \"Icon_Achievement_Speed\"\n            });\n        }\n    }\n}\n"
+      },
+      {
+        "name": "GetUnlockRequirementText",
+        "description": "Get human-readable unlock requirement for a course",
+        "inputs": [
+          {
+            "name": "CourseName",
+            "type": "FString"
+          }
+        ],
+        "outputs": [
+          {
+            "name": "ReturnValue",
+            "type": "FString"
+          }
+        ],
+        "implementation": "\nFString UUnlockSystem::GetUnlockRequirementText(FString CourseName)\n{\n    UFlightCourseData* CourseData = GetCourseData(CourseName);\n    if (!CourseData)\n        return \"Unknown requirement\";\n\n    switch (CourseData->Difficulty)\n    {\n        case EDifficultyLevel::Tutorial:\n            return \"Always available\";\n\n        case EDifficultyLevel::Easy:\n            return \"Complete Flight Training Academy\";\n\n        case EDifficultyLevel::Medium:\n            return \"Complete any Easy course\";\n\n        case EDifficultyLevel::Hard:\n            return \"Complete any Medium course\";\n\n        case EDifficultyLevel::Expert:\n            return \"Complete any Hard course\";\n\n        default:\n            return \"Unknown requirement\";\n    }\n}\n"
+      }
+    ]
+  },
+  "notification_system": {
+    "widget_name": "WBP_UnlockNotification",
+    "description": "Popup notification for course/achievement unlocks",
+    "display_location": "top_right",
+    "display_duration": 5.0,
+    "animation": {
+      "enter": "Slide in from right + fade in (0.3s)",
+      "exit": "Slide out to right + fade out (0.3s)",
+      "idle": "Gentle pulse glow"
+    },
+    "layout": {
+      "width": 400,
+      "height": 120,
+      "background": "Semi-transparent dark (0.1, 0.1, 0.1, 0.9)",
+      "border": "Glowing accent color",
+      "contents": [
+        {
+          "element": "Icon",
+          "size": "64x64",
+          "position": "left"
+        },
+        {
+          "element": "Title Text",
+          "font_size": 24,
+          "color": "Gold"
+        },
+        {
+          "element": "Description Text",
+          "font_size": 16,
+          "color": "White"
+        }
+      ]
+    },
+    "sound": "UI_Unlock_Fanfare_Cue",
+    "stack_behavior": "Queue multiple notifications, display one at a time"
+  },
+  "save_system": {
+    "save_file_name": "PlayerProgress.sav",
+    "save_slot": "Slot_PlayerProgress",
+    "save_frequency": "On course completion and menu exit",
+    "data_saved": [
+      "FPlayerGlobalProgress structure",
+      "All course progress maps",
+      "Unlock states",
+      "Achievements",
+      "Titles and skins"
+    ],
+    "backup_system": {
+      "create_backup": "Before each save",
+      "backup_file": "PlayerProgress_Backup.sav",
+      "max_backups": 3
+    }
+  }
+}

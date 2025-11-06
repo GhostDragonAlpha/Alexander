@@ -1,0 +1,369 @@
+{
+  "system_name": "Course Selection Menu",
+  "version": "1.0",
+  "components": {
+    "main_menu_widget": {
+      "widget_name": "WBP_CourseSelectionMenu",
+      "parent_class": "UserWidget",
+      "description": "Main menu for selecting and starting flight courses",
+      "canvas_size": [
+        1920,
+        1080
+      ],
+      "hierarchy": {
+        "root": "Canvas Panel",
+        "children": [
+          {
+            "name": "BackgroundOverlay",
+            "type": "Overlay",
+            "children": [
+              {
+                "name": "BG_Image",
+                "type": "Image",
+                "fill": "screen"
+              },
+              {
+                "name": "BG_Blur",
+                "type": "BackgroundBlur",
+                "blur_strength": 10
+              }
+            ]
+          },
+          {
+            "name": "MainContainer",
+            "type": "Vertical Box",
+            "alignment": "center",
+            "padding": {
+              "top": 100,
+              "bottom": 100,
+              "left": 200,
+              "right": 200
+            },
+            "children": [
+              {
+                "name": "TitleSection",
+                "type": "Horizontal Box"
+              },
+              {
+                "name": "CourseListSection",
+                "type": "Scroll Box"
+              },
+              {
+                "name": "DetailsSection",
+                "type": "Horizontal Box"
+              },
+              {
+                "name": "ButtonSection",
+                "type": "Horizontal Box"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "course_card_widget": {
+      "widget_name": "WBP_CourseCard",
+      "parent_class": "UserWidget",
+      "description": "Individual course selection card",
+      "size": [
+        500,
+        300
+      ],
+      "components": [
+        {
+          "name": "CardBackground",
+          "type": "Border",
+          "brush_color": "(0.05, 0.05, 0.05, 0.95)",
+          "padding": 20
+        },
+        {
+          "name": "CourseInfo",
+          "type": "Vertical Box",
+          "children": [
+            {
+              "name": "CourseTitle",
+              "type": "Text Block",
+              "font_size": 32,
+              "color": "(1, 1, 1, 1)",
+              "binding": "CourseName"
+            },
+            {
+              "name": "DifficultyBadge",
+              "type": "Text Block",
+              "font_size": 20,
+              "binding": "DifficultyText",
+              "color_binding": "DifficultyColor"
+            },
+            {
+              "name": "CourseDescription",
+              "type": "Text Block",
+              "font_size": 16,
+              "color": "(0.7, 0.7, 0.7, 1)",
+              "wrap_text": true,
+              "binding": "Description"
+            },
+            {
+              "name": "CourseStats",
+              "type": "Horizontal Box",
+              "children": [
+                {
+                  "name": "StatDistance",
+                  "type": "Text Block",
+                  "text_binding": "DistanceText"
+                },
+                {
+                  "name": "StatTime",
+                  "type": "Text Block",
+                  "text_binding": "ParTimeText"
+                },
+                {
+                  "name": "StatReward",
+                  "type": "Text Block",
+                  "text_binding": "RewardText"
+                }
+              ]
+            },
+            {
+              "name": "BestTimeDisplay",
+              "type": "Text Block",
+              "font_size": 18,
+              "color": "(1, 0.8, 0, 1)",
+              "text_binding": "BestTimeText"
+            },
+            {
+              "name": "LockOverlay",
+              "type": "Overlay",
+              "visibility_binding": "IsLocked",
+              "children": [
+                {
+                  "name": "LockIcon",
+                  "type": "Image"
+                },
+                {
+                  "name": "UnlockRequirement",
+                  "type": "Text Block"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "SelectButton",
+          "type": "Button",
+          "style": "hover_highlight",
+          "on_clicked": "OnCourseSelected"
+        }
+      ]
+    },
+    "details_panel_widget": {
+      "widget_name": "WBP_CourseDetails",
+      "parent_class": "UserWidget",
+      "description": "Detailed course information panel",
+      "components": [
+        {
+          "name": "PreviewImage",
+          "type": "Image",
+          "size": [
+            600,
+            400
+          ],
+          "binding": "CoursePreviewImage"
+        },
+        {
+          "name": "DetailsList",
+          "type": "Vertical Box",
+          "children": [
+            {
+              "name": "CourseName",
+              "type": "Text Block",
+              "font_size": 36
+            },
+            {
+              "name": "DifficultyLabel",
+              "type": "Text Block",
+              "font_size": 24
+            },
+            {
+              "name": "DescriptionText",
+              "type": "Rich Text Block"
+            },
+            {
+              "name": "ObjectivesSection",
+              "type": "Vertical Box"
+            },
+            {
+              "name": "StatisticsGrid",
+              "type": "Uniform Grid Panel"
+            },
+            {
+              "name": "LeaderboardPreview",
+              "type": "Vertical Box"
+            }
+          ]
+        }
+      ]
+    },
+    "controller_blueprint": {
+      "blueprint_name": "BP_CourseSelectionController",
+      "parent_class": "Actor",
+      "description": "Manages course selection menu logic and data",
+      "components": [],
+      "variables": [
+        {
+          "name": "AvailableCourses",
+          "type": "Array<UFlightCourseData*>",
+          "category": "Course Data",
+          "description": "List of all course data assets"
+        },
+        {
+          "name": "SelectedCourseIndex",
+          "type": "int32",
+          "default": 0,
+          "category": "Selection",
+          "description": "Currently selected course"
+        },
+        {
+          "name": "PlayerProgressData",
+          "type": "UPlayerProgressionComponent*",
+          "category": "Progression",
+          "description": "Reference to player progression"
+        },
+        {
+          "name": "MenuWidget",
+          "type": "UUserWidget*",
+          "category": "UI",
+          "description": "Reference to spawned menu widget"
+        }
+      ],
+      "functions": [
+        {
+          "name": "InitializeMenu",
+          "description": "Load course data and create menu widget",
+          "inputs": [],
+          "outputs": [],
+          "implementation": "\n// BeginPlay\nvoid InitializeMenu()\n{\n    // Load all course data assets\n    LoadCourseData();\n\n    // Get player progression component\n    PlayerProgressData = GetPlayerProgressionComponent();\n\n    // Create menu widget\n    if (MenuWidgetClass)\n    {\n        MenuWidget = CreateWidget<UUserWidget>(GetWorld(), MenuWidgetClass);\n        MenuWidget->AddToViewport();\n    }\n\n    // Populate course list\n    PopulateCourseList();\n\n    // Set input mode to UI\n    SetInputModeUIOnly();\n}\n"
+        },
+        {
+          "name": "LoadCourseData",
+          "description": "Load all course data assets from content directory",
+          "implementation": "\nvoid LoadCourseData()\n{\n    // Load course data assets\n    AvailableCourses.Add(LoadObject<UFlightCourseData>(nullptr,\n        TEXT(\"/Game/FlightCourses/DA_BeginnerCanyon\")));\n    AvailableCourses.Add(LoadObject<UFlightCourseData>(nullptr,\n        TEXT(\"/Game/FlightCourses/DA_IndustrialNexus\")));\n    AvailableCourses.Add(LoadObject<UFlightCourseData>(nullptr,\n        TEXT(\"/Game/FlightCourses/DA_AsteroidGauntlet\")));\n\n    // Sort by difficulty\n    AvailableCourses.Sort([](const UFlightCourseData& A, const UFlightCourseData& B) {\n        return A.Difficulty < B.Difficulty;\n    });\n}\n"
+        },
+        {
+          "name": "PopulateCourseList",
+          "description": "Create course card widgets for each course",
+          "implementation": "\nvoid PopulateCourseList()\n{\n    for (int32 i = 0; i < AvailableCourses.Num(); i++)\n    {\n        UFlightCourseData* CourseData = AvailableCourses[i];\n\n        // Create course card widget\n        UWBPCourseCard* CardWidget = CreateWidget<UWBPCourseCard>(\n            GetWorld(), CourseCardWidgetClass);\n\n        // Set card data\n        CardWidget->SetCourseData(CourseData);\n        CardWidget->SetCourseIndex(i);\n\n        // Check if unlocked\n        bool bIsUnlocked = IsCourseUnlocked(CourseData);\n        CardWidget->SetLockedState(!bIsUnlocked);\n\n        // Get best time if completed\n        if (bIsUnlocked)\n        {\n            float BestTime = PlayerProgressData->GetCourseBestTime(CourseData->CourseName);\n            CardWidget->SetBestTime(BestTime);\n        }\n\n        // Bind selection event\n        CardWidget->OnCardSelected.AddDynamic(this, &ABPCourseSelectionController::OnCourseSelected);\n\n        // Add to scroll box\n        MenuWidget->CourseListScrollBox->AddChild(CardWidget);\n    }\n}\n"
+        },
+        {
+          "name": "IsCourseUnlocked",
+          "description": "Check if course is unlocked based on progression",
+          "inputs": [
+            {
+              "name": "CourseData",
+              "type": "UFlightCourseData*"
+            }
+          ],
+          "outputs": [
+            {
+              "name": "ReturnValue",
+              "type": "bool"
+            }
+          ],
+          "implementation": "\nbool IsCourseUnlocked(UFlightCourseData* CourseData)\n{\n    // First course always unlocked\n    if (CourseData->Difficulty == EDifficultyLevel::Easy)\n        return true;\n\n    // Medium unlocked after completing any Easy course\n    if (CourseData->Difficulty == EDifficultyLevel::Medium)\n    {\n        return PlayerProgressData->HasCompletedAnyDifficulty(EDifficultyLevel::Easy);\n    }\n\n    // Hard unlocked after completing any Medium course\n    if (CourseData->Difficulty == EDifficultyLevel::Hard)\n    {\n        return PlayerProgressData->HasCompletedAnyDifficulty(EDifficultyLevel::Medium);\n    }\n\n    return false;\n}\n"
+        },
+        {
+          "name": "OnCourseSelected",
+          "description": "Handle course selection event",
+          "inputs": [
+            {
+              "name": "CourseIndex",
+              "type": "int32"
+            }
+          ],
+          "outputs": [],
+          "implementation": "\nvoid OnCourseSelected(int32 CourseIndex)\n{\n    if (!AvailableCourses.IsValidIndex(CourseIndex))\n        return;\n\n    UFlightCourseData* SelectedCourse = AvailableCourses[CourseIndex];\n\n    // Check if locked\n    if (!IsCourseUnlocked(SelectedCourse))\n    {\n        // Play error sound\n        PlaySound(LockedSound);\n        // Show unlock requirement popup\n        ShowUnlockRequirementPopup(SelectedCourse);\n        return;\n    }\n\n    // Update selected index\n    SelectedCourseIndex = CourseIndex;\n\n    // Update details panel\n    UpdateDetailsPanel(SelectedCourse);\n\n    // Highlight selected card\n    HighlightCourseCard(CourseIndex);\n\n    // Enable start button\n    MenuWidget->StartButton->SetIsEnabled(true);\n}\n"
+        },
+        {
+          "name": "UpdateDetailsPanel",
+          "description": "Update course details display",
+          "inputs": [
+            {
+              "name": "CourseData",
+              "type": "UFlightCourseData*"
+            }
+          ],
+          "implementation": "\nvoid UpdateDetailsPanel(UFlightCourseData* CourseData)\n{\n    // Update course name\n    MenuWidget->DetailsPanel->CourseName->SetText(\n        FText::FromString(CourseData->CourseName));\n\n    // Update difficulty\n    FLinearColor DiffColor = GetDifficultyColor(CourseData->Difficulty);\n    MenuWidget->DetailsPanel->DifficultyLabel->SetColorAndOpacity(DiffColor);\n    MenuWidget->DetailsPanel->DifficultyLabel->SetText(\n        GetDifficultyText(CourseData->Difficulty));\n\n    // Update description\n    MenuWidget->DetailsPanel->DescriptionText->SetText(\n        FText::FromString(CourseData->Description));\n\n    // Update statistics\n    UpdateStatisticsGrid(CourseData);\n\n    // Load preview image\n    MenuWidget->DetailsPanel->PreviewImage->SetBrushFromTexture(\n        CourseData->PreviewImage);\n\n    // Update leaderboard preview\n    UpdateLeaderboardPreview(CourseData);\n}\n"
+        },
+        {
+          "name": "StartSelectedCourse",
+          "description": "Load and start the selected course",
+          "implementation": "\nvoid StartSelectedCourse()\n{\n    if (!AvailableCourses.IsValidIndex(SelectedCourseIndex))\n        return;\n\n    UFlightCourseData* CourseToStart = AvailableCourses[SelectedCourseIndex];\n\n    // Save selected course to game instance\n    UAlexanderGameInstance* GameInstance = Cast<UAlexanderGameInstance>(\n        GetGameInstance());\n    if (GameInstance)\n    {\n        GameInstance->SetActiveCourse(CourseToStart);\n    }\n\n    // Play transition sound\n    PlaySound(CourseStartSound);\n\n    // Fade out menu\n    MenuWidget->PlayAnimation(FadeOutAnimation);\n\n    // Load course level\n    FLatentActionInfo LatentInfo;\n    LatentInfo.CallbackTarget = this;\n    LatentInfo.ExecutionFunction = TEXT(\"OnCourseLevelLoaded\");\n    LatentInfo.Linkage = 0;\n    LatentInfo.UUID = GetUniqueID();\n\n    UGameplayStatics::LoadStreamLevel(this, CourseToStart->CourseLevelName,\n        true, false, LatentInfo);\n}\n"
+        },
+        {
+          "name": "OnCourseLevelLoaded",
+          "description": "Called when course level finishes loading",
+          "implementation": "\nvoid OnCourseLevelLoaded()\n{\n    // Remove menu widget\n    if (MenuWidget)\n    {\n        MenuWidget->RemoveFromParent();\n    }\n\n    // Set input mode to game\n    SetInputModeGameOnly();\n\n    // Start course\n    // (Course manager in level will handle initialization)\n}\n"
+        },
+        {
+          "name": "ReturnToMainMenu",
+          "description": "Close course selection and return to main menu",
+          "implementation": "\nvoid ReturnToMainMenu()\n{\n    // Play back sound\n    PlaySound(BackSound);\n\n    // Fade out and destroy\n    MenuWidget->PlayAnimation(FadeOutAnimation);\n\n    FTimerHandle TimerHandle;\n    GetWorldTimerManager().SetTimer(TimerHandle, [this]()\n    {\n        if (MenuWidget)\n        {\n            MenuWidget->RemoveFromParent();\n        }\n        Destroy();\n    }, 0.5f, false);\n}\n"
+        }
+      ],
+      "events": [
+        {
+          "name": "OnStartButtonClicked",
+          "description": "Start button pressed",
+          "action": "Call StartSelectedCourse()"
+        },
+        {
+          "name": "OnBackButtonClicked",
+          "description": "Back button pressed",
+          "action": "Call ReturnToMainMenu()"
+        }
+      ]
+    }
+  },
+  "styling": {
+    "color_scheme": {
+      "primary": "(0.1, 0.3, 0.6, 1.0)",
+      "secondary": "(0.2, 0.2, 0.2, 1.0)",
+      "accent": "(0.0, 0.8, 1.0, 1.0)",
+      "text_primary": "(1.0, 1.0, 1.0, 1.0)",
+      "text_secondary": "(0.7, 0.7, 0.7, 1.0)",
+      "difficulty_easy": "(0.0, 1.0, 0.0, 1.0)",
+      "difficulty_medium": "(1.0, 0.8, 0.0, 1.0)",
+      "difficulty_hard": "(1.0, 0.0, 0.0, 1.0)"
+    },
+    "fonts": {
+      "title": "Roboto Bold 36pt",
+      "heading": "Roboto Bold 24pt",
+      "body": "Roboto Regular 16pt",
+      "caption": "Roboto Regular 12pt"
+    },
+    "animations": {
+      "fade_in": {
+        "duration": 0.3,
+        "ease": "ease_out"
+      },
+      "fade_out": {
+        "duration": 0.3,
+        "ease": "ease_in"
+      },
+      "card_hover": {
+        "scale": 1.05,
+        "duration": 0.2
+      },
+      "button_press": {
+        "scale": 0.95,
+        "duration": 0.1
+      }
+    }
+  },
+  "sounds": {
+    "course_select": "UI_CourseSelect_Cue",
+    "course_locked": "UI_Locked_Cue",
+    "start_course": "UI_CourseStart_Cue",
+    "back": "UI_Back_Cue",
+    "hover": "UI_Hover_Cue"
+  }
+}

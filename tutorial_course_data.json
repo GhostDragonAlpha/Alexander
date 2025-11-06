@@ -1,0 +1,567 @@
+{
+  "tutorial_course": {
+    "name": "Flight Training Academy",
+    "difficulty": "TUTORIAL",
+    "description": "Learn the basics of spaceship flight with guided instructions",
+    "recommended_time": 120,
+    "par_time": null,
+    "is_tutorial": true,
+    "segments": [
+      {
+        "segment_id": 1,
+        "name": "Basic Movement",
+        "location": [
+          0,
+          0,
+          300
+        ],
+        "instructions": [
+          "Welcome to Flight Training Academy!",
+          "Use W/S to control forward/backward thrust",
+          "Try moving forward to the green waypoint"
+        ],
+        "objectives": [
+          {
+            "type": "reach_waypoint",
+            "target": "WP_Movement",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player reaches waypoint using thrust controls",
+        "ui_hints": [
+          "Press W to accelerate forward",
+          "Press S to decelerate or reverse"
+        ]
+      },
+      {
+        "segment_id": 2,
+        "name": "Lateral Movement",
+        "location": [
+          800,
+          0,
+          300
+        ],
+        "instructions": [
+          "Great! Now let's learn lateral movement",
+          "Use A/D to strafe left/right",
+          "Use Q/E to move up/down",
+          "Navigate to the waypoint using lateral thrusters"
+        ],
+        "objectives": [
+          {
+            "type": "reach_waypoint",
+            "target": "WP_Lateral",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player uses lateral controls to reach waypoint",
+        "ui_hints": [
+          "A/D: Strafe Left/Right",
+          "Q/E: Move Down/Up"
+        ]
+      },
+      {
+        "segment_id": 3,
+        "name": "Rotation Controls",
+        "location": [
+          1600,
+          0,
+          300
+        ],
+        "instructions": [
+          "Excellent! Now let's practice rotation",
+          "Move your mouse to control pitch and yaw",
+          "Rotate your ship to face the next waypoint",
+          "The ship HUD will show your target direction"
+        ],
+        "objectives": [
+          {
+            "type": "face_direction",
+            "target": "WP_Rotation",
+            "tolerance": 15,
+            "required": true
+          },
+          {
+            "type": "reach_waypoint",
+            "target": "WP_Rotation",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player uses mouse to orient and navigate",
+        "ui_hints": [
+          "Move mouse to rotate ship",
+          "Green arrow shows target direction"
+        ]
+      },
+      {
+        "segment_id": 4,
+        "name": "First Ring",
+        "location": [
+          2400,
+          0,
+          300
+        ],
+        "instructions": [
+          "Time to try your first ring!",
+          "Rings are checkpoints in flight courses",
+          "Align with the ring and fly through it",
+          "The ring will turn green when you pass through"
+        ],
+        "objectives": [
+          {
+            "type": "pass_through_ring",
+            "target": "R_Tutorial_1",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player successfully passes through ring",
+        "ui_hints": [
+          "Line up with the ring center",
+          "Adjust speed for precise control"
+        ]
+      },
+      {
+        "segment_id": 5,
+        "name": "Speed Control",
+        "location": [
+          3200,
+          0,
+          300
+        ],
+        "instructions": [
+          "Perfect! Let's practice speed control",
+          "Hold W to accelerate to maximum speed",
+          "Watch your velocity indicator on the HUD",
+          "Reach the next waypoint at high speed"
+        ],
+        "objectives": [
+          {
+            "type": "reach_speed",
+            "target_speed": 500,
+            "duration": 2.0,
+            "required": true
+          },
+          {
+            "type": "reach_waypoint",
+            "target": "WP_Speed",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player maintains high speed for 2 seconds",
+        "ui_hints": [
+          "Current speed shown on HUD",
+          "Target: 500+ units/sec"
+        ]
+      },
+      {
+        "segment_id": 6,
+        "name": "Precise Maneuvering",
+        "location": [
+          4000,
+          0,
+          300
+        ],
+        "instructions": [
+          "Great speed control! Now let's practice precision",
+          "Hold Shift to enable precision mode (reduced thrust)",
+          "Navigate through the narrow ring carefully"
+        ],
+        "objectives": [
+          {
+            "type": "pass_through_ring",
+            "target": "R_Tutorial_2_Narrow",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player uses precision mode to pass narrow ring",
+        "ui_hints": [
+          "Hold Shift for precision mode",
+          "Take your time, no rush!"
+        ],
+        "ring_diameter": 400
+      },
+      {
+        "segment_id": 7,
+        "name": "Vertical Navigation",
+        "location": [
+          4600,
+          0,
+          300
+        ],
+        "instructions": [
+          "Excellent control! Time for vertical movement",
+          "The next waypoint is high above you",
+          "Use Q/E and mouse pitch to climb",
+          "Maintain forward velocity while ascending"
+        ],
+        "objectives": [
+          {
+            "type": "reach_waypoint",
+            "target": "WP_Vertical",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player climbs to elevated waypoint",
+        "ui_hints": [
+          "Press E to ascend",
+          "Mouse up to pitch nose up"
+        ],
+        "waypoint_height": 800
+      },
+      {
+        "segment_id": 8,
+        "name": "Descending Turn",
+        "location": [
+          5400,
+          0,
+          800
+        ],
+        "instructions": [
+          "Nice climb! Now let's practice descending",
+          "The waypoint is below and to the side",
+          "Combine rotation, descent, and lateral movement",
+          "This is a 3D maneuver - use all controls together"
+        ],
+        "objectives": [
+          {
+            "type": "reach_waypoint",
+            "target": "WP_DescendTurn",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player performs complex 3D maneuver",
+        "ui_hints": [
+          "Q: Descend | A/D: Turn | W: Thrust",
+          "Combine all controls smoothly"
+        ]
+      },
+      {
+        "segment_id": 9,
+        "name": "Flight Assist Modes",
+        "location": [
+          6000,
+          -400,
+          500
+        ],
+        "instructions": [
+          "Well done! Let's learn about Flight Assist",
+          "Press F to cycle through assist modes:",
+          "- AutoLevel: Ship auto-corrects orientation",
+          "- Stability: Damping reduces drift",
+          "- None: Full manual control",
+          "Try each mode and see the difference"
+        ],
+        "objectives": [
+          {
+            "type": "cycle_assist_modes",
+            "required_cycles": 3,
+            "required": true
+          },
+          {
+            "type": "reach_waypoint",
+            "target": "WP_AssistDemo",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player tries all 3 assist modes",
+        "ui_hints": [
+          "Press F to change assist mode",
+          "Current mode shown on HUD"
+        ]
+      },
+      {
+        "segment_id": 10,
+        "name": "Ring Sequence",
+        "location": [
+          6600,
+          -400,
+          500
+        ],
+        "instructions": [
+          "Now let's combine everything you've learned",
+          "Navigate through 3 rings in sequence",
+          "Use the skills you've practiced",
+          "Take your time - this is your final test!"
+        ],
+        "objectives": [
+          {
+            "type": "pass_through_ring",
+            "target": "R_Final_1",
+            "required": true
+          },
+          {
+            "type": "pass_through_ring",
+            "target": "R_Final_2",
+            "required": true
+          },
+          {
+            "type": "pass_through_ring",
+            "target": "R_Final_3",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player passes through all 3 final rings",
+        "ui_hints": [
+          "Ring 1 of 3",
+          "Remember: precision over speed!"
+        ],
+        "rings": [
+          {
+            "pos": [
+              7000,
+              -200,
+              550
+            ],
+            "diameter": 600,
+            "rotation": [
+              0,
+              0,
+              -10
+            ]
+          },
+          {
+            "pos": [
+              7400,
+              200,
+              650
+            ],
+            "diameter": 600,
+            "rotation": [
+              10,
+              0,
+              10
+            ]
+          },
+          {
+            "pos": [
+              7800,
+              -100,
+              550
+            ],
+            "diameter": 600,
+            "rotation": [
+              0,
+              0,
+              -15
+            ]
+          }
+        ]
+      },
+      {
+        "segment_id": 11,
+        "name": "Graduation",
+        "location": [
+          8200,
+          0,
+          500
+        ],
+        "instructions": [
+          "Congratulations! You've completed flight training!",
+          "You've learned:",
+          "- Forward/backward thrust (W/S)",
+          "- Lateral movement (A/D, Q/E)",
+          "- Rotation controls (Mouse)",
+          "- Ring navigation",
+          "- Speed control",
+          "- Precision maneuvering",
+          "- Flight assist modes",
+          "",
+          "You're now ready to tackle real flight courses!",
+          "Fly to the finish line to complete training"
+        ],
+        "objectives": [
+          {
+            "type": "reach_waypoint",
+            "target": "WP_Finish",
+            "required": true
+          }
+        ],
+        "success_criteria": "Player reaches graduation waypoint",
+        "ui_hints": [],
+        "completion_reward": {
+          "xp": 500,
+          "credits": 150,
+          "unlock": "All Easy courses unlocked"
+        }
+      }
+    ],
+    "total_waypoints": 12,
+    "total_rings": 7,
+    "estimated_duration": "10-15 minutes",
+    "skip_option": true,
+    "environment": {
+      "theme": "training_facility",
+      "lighting": "bright_clean",
+      "skybox": "indoor_hangar",
+      "props": [
+        "training_markers",
+        "safety_barriers",
+        "holographic_displays"
+      ]
+    },
+    "physics_config": {
+      "MaxSafeVelocity": 600.0,
+      "ThrottleSmoothing": 0.15,
+      "RotationSmoothing": 0.2,
+      "DefaultAssistMode": "AutoLevel",
+      "CollisionAvoidance": true,
+      "ThrustLimiting": true
+    },
+    "rewards": {
+      "completion_xp": 500,
+      "completion_credits": 150,
+      "unlocks": [
+        "All Easy difficulty courses"
+      ]
+    }
+  },
+  "instruction_system": {
+    "widget_name": "WBP_TutorialInstructions",
+    "display_location": "top_center",
+    "display_style": "popup_box",
+    "features": [
+      "Sequential instruction display",
+      "Progress indicator (Segment X of 11)",
+      "Current objective highlighting",
+      "Completion checkmarks",
+      "Skip tutorial button (for experienced players)",
+      "Pause tutorial button"
+    ],
+    "behavior": {
+      "auto_advance": "Advances to next segment when objectives complete",
+      "repeat_instructions": "Press H to repeat current instructions",
+      "pause_game": "Tutorial pauses game when showing instructions",
+      "resume_on_dismiss": "Game resumes when player dismisses instruction"
+    }
+  },
+  "tutorial_manager": {
+    "blueprint_name": "BP_TutorialManager",
+    "parent_class": "Actor",
+    "description": "Manages tutorial progression, instruction display, and objective tracking",
+    "components": [],
+    "variables": [
+      {
+        "name": "TutorialData",
+        "type": "FTutorialCourseData",
+        "description": "Tutorial course data with all segments"
+      },
+      {
+        "name": "CurrentSegmentIndex",
+        "type": "int32",
+        "default": 0,
+        "description": "Current tutorial segment"
+      },
+      {
+        "name": "InstructionWidget",
+        "type": "UWBPTutorialInstructions*",
+        "description": "Reference to instruction display widget"
+      },
+      {
+        "name": "ObjectiveTracker",
+        "type": "TArray<FObjectiveStatus>",
+        "description": "Track completion status of current objectives"
+      },
+      {
+        "name": "bTutorialPaused",
+        "type": "bool",
+        "default": false,
+        "description": "Is tutorial currently paused"
+      }
+    ],
+    "functions": [
+      {
+        "name": "StartTutorial",
+        "description": "Initialize tutorial and show first segment",
+        "implementation": "Create instruction widget, load first segment, pause game, show instructions"
+      },
+      {
+        "name": "ShowSegmentInstructions",
+        "description": "Display instructions for current segment",
+        "implementation": "Update instruction widget text, show objectives, pause game temporarily"
+      },
+      {
+        "name": "CheckObjectiveCompletion",
+        "description": "Monitor player actions and check objective completion",
+        "implementation": "Called every tick, checks objective criteria, updates UI, advances when complete"
+      },
+      {
+        "name": "AdvanceToNextSegment",
+        "description": "Move to next tutorial segment",
+        "implementation": "Increment segment index, show new instructions, reset objectives"
+      },
+      {
+        "name": "CompleteTutorial",
+        "description": "Award rewards and unlock courses",
+        "implementation": "Give XP/Credits, unlock Easy courses, show completion screen, return to menu"
+      },
+      {
+        "name": "SkipTutorial",
+        "description": "Allow experienced players to skip tutorial",
+        "implementation": "Confirm skip dialog, unlock Easy courses, return to menu"
+      }
+    ]
+  },
+  "waypoint_positions": [
+    [
+      0,
+      0,
+      300
+    ],
+    [
+      800,
+      0,
+      300
+    ],
+    [
+      1600,
+      0,
+      300
+    ],
+    [
+      2400,
+      0,
+      300
+    ],
+    [
+      3200,
+      0,
+      300
+    ],
+    [
+      4000,
+      0,
+      300
+    ],
+    [
+      4600,
+      0,
+      300
+    ],
+    [
+      4600,
+      0,
+      800
+    ],
+    [
+      5400,
+      0,
+      800
+    ],
+    [
+      6000,
+      -400,
+      500
+    ],
+    [
+      6600,
+      -400,
+      500
+    ],
+    [
+      8200,
+      0,
+      500
+    ]
+  ],
+  "total_distance": 8930.3
+}

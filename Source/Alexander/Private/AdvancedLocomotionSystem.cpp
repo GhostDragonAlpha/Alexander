@@ -94,12 +94,12 @@ AAdvancedLocomotionSystem::AAdvancedLocomotionSystem()
 	LastVelocity = FVector::ZeroVector;
 	LastMovementTime = 0.0f;
 
-	// Configure character movement
+	// Configure character movement (GetWorld() called in BeginPlay - not available in constructor)
 	if (GetCharacterMovement())
 	{
 		GetCharacterMovement()->bOrientRotationToMovement = true;
 		GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-		GetCharacterMovement()->JumpZVelocity = FMath::Sqrt(2.0f * GetWorld()->GetGravityZ() * JumpHeight);
+		// JumpZVelocity set in BeginPlay (requires GetWorld())
 		GetCharacterMovement()->AirControl = AirControl;
 		GetCharacterMovement()->GroundFriction = GroundFriction;
 		GetCharacterMovement()->GravityScale = GravityScale;
@@ -125,6 +125,12 @@ AAdvancedLocomotionSystem::AAdvancedLocomotionSystem()
 void AAdvancedLocomotionSystem::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Set JumpZVelocity now that GetWorld() is available
+	if (GetCharacterMovement() && GetWorld())
+	{
+		GetCharacterMovement()->JumpZVelocity = FMath::Sqrt(2.0f * FMath::Abs(GetWorld()->GetGravityZ()) * JumpHeight);
+	}
 
 	// Setup timeline callbacks
 	if (MantleTimeline)

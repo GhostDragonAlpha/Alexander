@@ -19,9 +19,7 @@ ASun::ASun()
 	OrbitTarget = nullptr;
 	Mass = 1.989e30f; // Mass of our Sun in kg (will be overridden by config if set)
 
-	// Create root scene component
-	USceneComponent* RootComp = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	RootComponent = RootComp;
+	// RootComponent already created by parent class AOrbitalBody
 
 	// Create and setup visual mesh component
 	SunMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SunMesh"));

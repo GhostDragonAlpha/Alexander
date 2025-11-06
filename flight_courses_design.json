@@ -1,0 +1,691 @@
+{
+  "courses": [
+    {
+      "name": "Beginner's Canyon",
+      "difficulty": "EASY",
+      "description": "Wide open canyon run perfect for learning flight controls",
+      "recommended_time": 75,
+      "par_time": 60,
+      "waypoints": [
+        {
+          "id": "WP1",
+          "pos": [
+            0,
+            0,
+            300
+          ],
+          "type": "start"
+        },
+        {
+          "id": "WP2",
+          "pos": [
+            1200,
+            500,
+            400
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP3",
+          "pos": [
+            2200,
+            0,
+            500
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP4",
+          "pos": [
+            3000,
+            -600,
+            400
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP5",
+          "pos": [
+            4000,
+            0,
+            300
+          ],
+          "type": "finish"
+        }
+      ],
+      "rings": [
+        {
+          "id": "R1",
+          "pos": [
+            600,
+            250,
+            350
+          ],
+          "diameter": 800,
+          "rotation": [
+            0,
+            0,
+            -15
+          ]
+        },
+        {
+          "id": "R2",
+          "pos": [
+            1700,
+            250,
+            450
+          ],
+          "diameter": 800,
+          "rotation": [
+            0,
+            0,
+            10
+          ]
+        },
+        {
+          "id": "R3",
+          "pos": [
+            2600,
+            -300,
+            450
+          ],
+          "diameter": 800,
+          "rotation": [
+            0,
+            0,
+            -10
+          ]
+        },
+        {
+          "id": "R4",
+          "pos": [
+            3500,
+            -300,
+            350
+          ],
+          "diameter": 800,
+          "rotation": [
+            0,
+            0,
+            5
+          ]
+        }
+      ],
+      "obstacles": [
+        {
+          "type": "canyon_wall",
+          "pos": [
+            2000,
+            1500,
+            400
+          ],
+          "scale": [
+            50,
+            20,
+            15
+          ]
+        },
+        {
+          "type": "canyon_wall",
+          "pos": [
+            2000,
+            -1500,
+            400
+          ],
+          "scale": [
+            50,
+            20,
+            15
+          ]
+        }
+      ],
+      "environment": {
+        "theme": "desert_canyon",
+        "lighting": "sunset",
+        "fog_density": 0.02,
+        "ambient_particles": "dust"
+      },
+      "physics_config": {
+        "MaxSafeVelocity": 700.0,
+        "ThrottleSmoothing": 0.15,
+        "RotationSmoothing": 0.2,
+        "DefaultAssistMode": "AutoLevel",
+        "CollisionAvoidance": true,
+        "ThrustLimiting": true
+      },
+      "rewards": {
+        "completion_xp": 150,
+        "completion_credits": 50,
+        "time_bonus_multiplier": 1.0,
+        "first_completion_bonus": 100
+      }
+    },
+    {
+      "name": "Industrial Nexus",
+      "difficulty": "MEDIUM",
+      "description": "Navigate through abandoned space station superstructure",
+      "recommended_time": 55,
+      "par_time": 45,
+      "waypoints": [
+        {
+          "id": "WP1",
+          "pos": [
+            0,
+            0,
+            500
+          ],
+          "type": "start"
+        },
+        {
+          "id": "WP2",
+          "pos": [
+            1500,
+            800,
+            700
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP3",
+          "pos": [
+            2500,
+            -600,
+            1100
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP4",
+          "pos": [
+            3800,
+            400,
+            800
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP5",
+          "pos": [
+            5000,
+            -800,
+            600
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP6",
+          "pos": [
+            6200,
+            0,
+            500
+          ],
+          "type": "finish"
+        }
+      ],
+      "rings": [
+        {
+          "id": "R1",
+          "pos": [
+            750,
+            400,
+            600
+          ],
+          "diameter": 600,
+          "rotation": [
+            0,
+            0,
+            -20
+          ]
+        },
+        {
+          "id": "R2",
+          "pos": [
+            2000,
+            100,
+            900
+          ],
+          "diameter": 550,
+          "rotation": [
+            15,
+            0,
+            -10
+          ]
+        },
+        {
+          "id": "R3",
+          "pos": [
+            3150,
+            -100,
+            950
+          ],
+          "diameter": 600,
+          "rotation": [
+            -10,
+            0,
+            15
+          ]
+        },
+        {
+          "id": "R4",
+          "pos": [
+            4400,
+            -200,
+            700
+          ],
+          "diameter": 550,
+          "rotation": [
+            0,
+            0,
+            -25
+          ]
+        },
+        {
+          "id": "R5",
+          "pos": [
+            5600,
+            -400,
+            550
+          ],
+          "diameter": 600,
+          "rotation": [
+            10,
+            0,
+            10
+          ]
+        }
+      ],
+      "obstacles": [
+        {
+          "type": "station_beam",
+          "pos": [
+            1500,
+            0,
+            900
+          ],
+          "scale": [
+            5,
+            5,
+            40
+          ],
+          "rotation": [
+            0,
+            45,
+            0
+          ]
+        },
+        {
+          "type": "station_beam",
+          "pos": [
+            2500,
+            500,
+            800
+          ],
+          "scale": [
+            5,
+            5,
+            35
+          ],
+          "rotation": [
+            0,
+            -30,
+            0
+          ]
+        },
+        {
+          "type": "station_beam",
+          "pos": [
+            3500,
+            -500,
+            700
+          ],
+          "scale": [
+            5,
+            5,
+            30
+          ],
+          "rotation": [
+            0,
+            60,
+            0
+          ]
+        },
+        {
+          "type": "debris_field",
+          "pos": [
+            4200,
+            200,
+            650
+          ],
+          "count": 8,
+          "spread": 300
+        },
+        {
+          "type": "station_platform",
+          "pos": [
+            5000,
+            -400,
+            400
+          ],
+          "scale": [
+            30,
+            30,
+            2
+          ]
+        }
+      ],
+      "environment": {
+        "theme": "industrial_space",
+        "lighting": "harsh_white",
+        "fog_density": 0.01,
+        "ambient_particles": "sparks",
+        "hazards": [
+          "electric_arcs",
+          "steam_vents"
+        ]
+      },
+      "physics_config": {
+        "MaxSafeVelocity": 1000.0,
+        "ThrottleSmoothing": 0.1,
+        "RotationSmoothing": 0.15,
+        "DefaultAssistMode": "Stability",
+        "CollisionAvoidance": true,
+        "ThrustLimiting": true
+      },
+      "rewards": {
+        "completion_xp": 300,
+        "completion_credits": 100,
+        "time_bonus_multiplier": 1.5,
+        "first_completion_bonus": 200
+      }
+    },
+    {
+      "name": "Asteroid Gauntlet",
+      "difficulty": "HARD",
+      "description": "High-speed run through dense asteroid field - expert pilots only",
+      "recommended_time": 40,
+      "par_time": 30,
+      "waypoints": [
+        {
+          "id": "WP1",
+          "pos": [
+            0,
+            0,
+            800
+          ],
+          "type": "start"
+        },
+        {
+          "id": "WP2",
+          "pos": [
+            1800,
+            1200,
+            1200
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP3",
+          "pos": [
+            3200,
+            -800,
+            1600
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP4",
+          "pos": [
+            4800,
+            600,
+            1100
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP5",
+          "pos": [
+            6000,
+            -1000,
+            1400
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP6",
+          "pos": [
+            7500,
+            400,
+            900
+          ],
+          "type": "checkpoint"
+        },
+        {
+          "id": "WP7",
+          "pos": [
+            8800,
+            0,
+            800
+          ],
+          "type": "finish"
+        }
+      ],
+      "rings": [
+        {
+          "id": "R1",
+          "pos": [
+            900,
+            600,
+            1000
+          ],
+          "diameter": 450,
+          "rotation": [
+            0,
+            0,
+            -30
+          ]
+        },
+        {
+          "id": "R2",
+          "pos": [
+            2500,
+            200,
+            1400
+          ],
+          "diameter": 400,
+          "rotation": [
+            20,
+            0,
+            -15
+          ]
+        },
+        {
+          "id": "R3",
+          "pos": [
+            4000,
+            -100,
+            1350
+          ],
+          "diameter": 420,
+          "rotation": [
+            -15,
+            0,
+            25
+          ]
+        },
+        {
+          "id": "R4",
+          "pos": [
+            5400,
+            -200,
+            1250
+          ],
+          "diameter": 400,
+          "rotation": [
+            10,
+            0,
+            -20
+          ]
+        },
+        {
+          "id": "R5",
+          "pos": [
+            6750,
+            -300,
+            1150
+          ],
+          "diameter": 450,
+          "rotation": [
+            -20,
+            0,
+            15
+          ]
+        },
+        {
+          "id": "R6",
+          "pos": [
+            8150,
+            200,
+            850
+          ],
+          "diameter": 420,
+          "rotation": [
+            0,
+            0,
+            -25
+          ]
+        }
+      ],
+      "obstacles": [
+        {
+          "type": "asteroid_large",
+          "pos": [
+            1500,
+            800,
+            1100
+          ],
+          "diameter": 300,
+          "rotation_speed": 0.5
+        },
+        {
+          "type": "asteroid_large",
+          "pos": [
+            2800,
+            -400,
+            1500
+          ],
+          "diameter": 350,
+          "rotation_speed": 0.3
+        },
+        {
+          "type": "asteroid_cluster",
+          "pos": [
+            4000,
+            200,
+            1200
+          ],
+          "count": 12,
+          "spread": 400
+        },
+        {
+          "type": "asteroid_large",
+          "pos": [
+            5200,
+            -600,
+            1300
+          ],
+          "diameter": 320,
+          "rotation_speed": 0.6
+        },
+        {
+          "type": "asteroid_cluster",
+          "pos": [
+            6500,
+            100,
+            1000
+          ],
+          "count": 15,
+          "spread": 450
+        },
+        {
+          "type": "asteroid_large",
+          "pos": [
+            7800,
+            -200,
+            900
+          ],
+          "diameter": 340,
+          "rotation_speed": 0.4
+        },
+        {
+          "type": "asteroid_field",
+          "pos": [
+            4500,
+            0,
+            1300
+          ],
+          "count": 25,
+          "spread": 800,
+          "density": "high"
+        }
+      ],
+      "environment": {
+        "theme": "asteroid_field",
+        "lighting": "harsh_starlight",
+        "fog_density": 0.005,
+        "ambient_particles": "rock_dust",
+        "hazards": [
+          "rotating_asteroids",
+          "debris_clouds"
+        ]
+      },
+      "physics_config": {
+        "MaxSafeVelocity": 1500.0,
+        "ThrottleSmoothing": 0.06,
+        "RotationSmoothing": 0.1,
+        "DefaultAssistMode": "None",
+        "CollisionAvoidance": false,
+        "ThrustLimiting": false
+      },
+      "rewards": {
+        "completion_xp": 500,
+        "completion_credits": 200,
+        "time_bonus_multiplier": 2.0,
+        "first_completion_bonus": 500,
+        "difficulty_bonus": 300
+      }
+    }
+  ],
+  "metadata": {
+    "total_courses": 3,
+    "difficulty_progression": [
+      "EASY",
+      "MEDIUM",
+      "HARD"
+    ],
+    "total_waypoints": 18,
+    "total_rings": 15,
+    "metrics": {
+      "easy": {
+        "total_distance": 4601.8,
+        "max_turn_angle": 67.5,
+        "altitude_range": 200,
+        "ring_count": 4,
+        "obstacle_count": 2
+      },
+      "medium": {
+        "total_distance": 8299.9,
+        "max_turn_angle": 94.3,
+        "altitude_range": 600,
+        "ring_count": 5,
+        "obstacle_count": 5
+      },
+      "hard": {
+        "total_distance": 12356.0,
+        "max_turn_angle": 98.1,
+        "altitude_range": 800,
+        "ring_count": 6,
+        "obstacle_count": 7
+      }
+    }
+  }
+}

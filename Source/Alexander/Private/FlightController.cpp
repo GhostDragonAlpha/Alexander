@@ -12,6 +12,7 @@
 #include "Math/UnrealMathUtility.h"
 #include "Math/Vector.h"
 #include "Math/Rotator.h"
+#include "Net/UnrealNetwork.h"
 
 UFlightController::UFlightController()
 {
@@ -41,12 +42,26 @@ UFlightController::UFlightController()
 	AverageInputRate = 0.0f;
 }
 
+void UFlightController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	// Replicate input state
+	DOREPLIFETIME(UFlightController, RawThrustInput);
+	DOREPLIFETIME(UFlightController, RawRotationInput);
+	DOREPLIFETIME(UFlightController, SmoothedThrustInput);
+	DOREPLIFETIME(UFlightController, SmoothedRotationInput);
+
+	// Replicate flight assist mode
+	DOREPLIFETIME(UFlightController, AssistMode);
+}
+
 void UFlightController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	bIsControllerActive = true;
-	UE_LOG(LogTemp, Log, TEXT("FlightController initialized with assist mode: %s"), 
+	UE_LOG(LogTemp, Log, TEXT("FlightController initialized with assist mode: %s"),
 		*UEnum::GetValueAsString(AssistMode));
 }
 

@@ -1,0 +1,437 @@
+{
+  "cinematic_system": {
+    "system_name": "Course Completion Cinematics",
+    "version": "1.0",
+    "trigger": "On course completion (final waypoint reached)",
+    "duration_range": "5-8 seconds",
+    "cinematic_types": [
+      {
+        "type": "FLYBY_CAMERA",
+        "description": "Dynamic camera follows ship through finish",
+        "duration": 5,
+        "camera_behavior": "Smooth follow with dramatic angle"
+      },
+      {
+        "type": "SLOWMO_FINISH",
+        "description": "Slow motion as player crosses finish line",
+        "duration": 3,
+        "time_dilation": 0.3
+      },
+      {
+        "type": "VICTORY_SPIN",
+        "description": "Camera orbits ship after finish",
+        "duration": 6,
+        "camera_behavior": "360 degree orbit around ship"
+      },
+      {
+        "type": "COURSE_OVERVIEW",
+        "description": "Aerial view of entire course with flight path",
+        "duration": 8,
+        "camera_behavior": "High altitude overview with path visualization"
+      }
+    ],
+    "medal_specific_variants": {
+      "gold": {
+        "extra_vfx": "Gold particle burst",
+        "extra_sfx": "Triumphant fanfare",
+        "camera_shake": "Victory shake"
+      },
+      "silver": {
+        "extra_vfx": "Silver shimmer",
+        "extra_sfx": "Success fanfare",
+        "camera_shake": "Subtle shake"
+      },
+      "bronze": {
+        "extra_vfx": "Bronze glow",
+        "extra_sfx": "Completion fanfare",
+        "camera_shake": "Minimal shake"
+      }
+    },
+    "features": [
+      "Automatic camera sequencing",
+      "Medal-specific visual effects",
+      "Audio stingers based on performance",
+      "UI overlay with time/rank",
+      "Skippable (press any button)",
+      "Smooth transition to results screen"
+    ]
+  },
+  "camera_sequences": {
+    "class_name": "ACinematicCameraSequence",
+    "parent_class": "AActor",
+    "description": "Manages camera sequences for course completion",
+    "components": [
+      {
+        "name": "CameraComponent",
+        "type": "UCameraComponent"
+      },
+      {
+        "name": "SpringArm",
+        "type": "USpringArmComponent"
+      }
+    ],
+    "sequences": [
+      {
+        "name": "Flyby Finish",
+        "duration": 5.0,
+        "keyframes": [
+          {
+            "time": 0.0,
+            "camera_position": "Behind ship, close (500 units)",
+            "camera_rotation": "Follow ship orientation",
+            "fov": 90,
+            "speed": "Normal"
+          },
+          {
+            "time": 1.0,
+            "camera_position": "Side angle (1000 units lateral)",
+            "camera_rotation": "Track ship",
+            "fov": 85,
+            "speed": "Smooth lerp"
+          },
+          {
+            "time": 3.0,
+            "camera_position": "Front angle (ahead of ship)",
+            "camera_rotation": "Face ship",
+            "fov": 80,
+            "speed": "Smooth lerp"
+          },
+          {
+            "time": 5.0,
+            "camera_position": "High angle (2000 units above)",
+            "camera_rotation": "Look down at ship",
+            "fov": 75,
+            "speed": "Smooth lerp"
+          }
+        ]
+      },
+      {
+        "name": "Slowmo Finish",
+        "duration": 3.0,
+        "time_dilation": 0.3,
+        "keyframes": [
+          {
+            "time": 0.0,
+            "camera_position": "Behind ship (800 units)",
+            "camera_rotation": "Follow ship",
+            "fov": 85
+          },
+          {
+            "time": 3.0,
+            "camera_position": "Behind ship (800 units)",
+            "camera_rotation": "Follow ship",
+            "fov": 85,
+            "note": "Camera stays stable, time dilation creates drama"
+          }
+        ]
+      },
+      {
+        "name": "Victory Spin",
+        "duration": 6.0,
+        "keyframes": [
+          {
+            "time": 0.0,
+            "camera_position": "Front of ship (1200 units)",
+            "camera_rotation": "Face ship",
+            "fov": 80,
+            "orbit_angle": 0
+          },
+          {
+            "time": 6.0,
+            "camera_position": "Orbiting ship (1200 units radius)",
+            "camera_rotation": "Always face ship center",
+            "fov": 80,
+            "orbit_angle": 360,
+            "note": "Full 360 degree rotation"
+          }
+        ]
+      },
+      {
+        "name": "Course Overview",
+        "duration": 8.0,
+        "keyframes": [
+          {
+            "time": 0.0,
+            "camera_position": "High altitude (5000 units above course center)",
+            "camera_rotation": "Look down at course",
+            "fov": 70
+          },
+          {
+            "time": 8.0,
+            "camera_position": "Rotating high altitude",
+            "camera_rotation": "Slow pan across course",
+            "fov": 70,
+            "note": "Shows entire course layout with flight path drawn"
+          }
+        ]
+      }
+    ]
+  },
+  "vfx_system": {
+    "system_name": "Completion Visual Effects",
+    "vfx_elements": [
+      {
+        "name": "Finish Line Effect",
+        "type": "Particle System",
+        "trigger": "Player crosses finish waypoint",
+        "location": "Finish waypoint position",
+        "effect": "Burst of colored particles (gold/silver/bronze based on medal)",
+        "duration": 2.0,
+        "scale": 500
+      },
+      {
+        "name": "Ship Trail Glow",
+        "type": "Material Effect",
+        "trigger": "Cinematic starts",
+        "location": "Player ship",
+        "effect": "Ship emissive glow intensifies",
+        "duration": "Full cinematic",
+        "color": "Match medal color"
+      },
+      {
+        "name": "Medal Particle Burst",
+        "type": "Particle System",
+        "trigger": "Medal reveal (1s into cinematic)",
+        "location": "Around ship",
+        "effect": "Expanding particle ring with medal color",
+        "duration": 1.5,
+        "scale": 800
+      },
+      {
+        "name": "Victory Fireworks",
+        "type": "Particle System",
+        "trigger": "Gold medal only",
+        "location": "Scattered around finish area",
+        "effect": "Multiple firework bursts",
+        "duration": 4.0,
+        "count": 5
+      },
+      {
+        "name": "Flight Path Visualization",
+        "type": "Spline Mesh",
+        "trigger": "Course Overview cinematic",
+        "location": "Player's actual flight path",
+        "effect": "Glowing line tracing completed path",
+        "duration": "Full course overview",
+        "material": "Animated flowing texture"
+      }
+    ]
+  },
+  "audio_system": {
+    "system_name": "Completion Audio",
+    "audio_elements": [
+      {
+        "name": "Slowmo Whoosh",
+        "type": "Sound Effect",
+        "trigger": "Slowmo cinematic starts",
+        "file": "SFX_Slowmo_Whoosh",
+        "volume": 0.8,
+        "pitch_shift": -0.3
+      },
+      {
+        "name": "Medal Stinger - Gold",
+        "type": "Music Stinger",
+        "trigger": "Gold medal achieved",
+        "file": "Music_Victory_Gold",
+        "volume": 1.0,
+        "duration": 3.0
+      },
+      {
+        "name": "Medal Stinger - Silver",
+        "type": "Music Stinger",
+        "trigger": "Silver medal achieved",
+        "file": "Music_Victory_Silver",
+        "volume": 0.9,
+        "duration": 2.5
+      },
+      {
+        "name": "Medal Stinger - Bronze",
+        "type": "Music Stinger",
+        "trigger": "Bronze medal achieved",
+        "file": "Music_Victory_Bronze",
+        "volume": 0.8,
+        "duration": 2.0
+      },
+      {
+        "name": "Completion Fanfare",
+        "type": "Music Stinger",
+        "trigger": "No medal (>110% par time)",
+        "file": "Music_Completion_Generic",
+        "volume": 0.7,
+        "duration": 1.5
+      },
+      {
+        "name": "Crowd Cheer",
+        "type": "Sound Effect",
+        "trigger": "New personal best",
+        "file": "SFX_Crowd_Cheer",
+        "volume": 0.6,
+        "delay": 1.0
+      },
+      {
+        "name": "Firework Explosions",
+        "type": "Sound Effect",
+        "trigger": "Gold medal (with fireworks VFX)",
+        "file": "SFX_Firework_Burst",
+        "volume": 0.5,
+        "count": 5,
+        "delay_range": "0.5 - 3.0s"
+      }
+    ]
+  },
+  "ui_overlay": {
+    "widget_name": "WBP_CinematicOverlay",
+    "parent_class": "UserWidget",
+    "description": "UI overlay during cinematic with time/rank info",
+    "position": "Top center",
+    "elements": [
+      {
+        "element": "Course Name Banner",
+        "position": "Top center",
+        "animation": "Slide down from top (0.5s)",
+        "font_size": 28,
+        "duration": "Full cinematic"
+      },
+      {
+        "element": "Completion Time",
+        "position": "Top center (below banner)",
+        "animation": "Fade in (0.3s)",
+        "font_size": 48,
+        "color": "Gold/Silver/Bronze based on medal",
+        "duration": "Full cinematic"
+      },
+      {
+        "element": "Medal Icon",
+        "position": "Top center (below time)",
+        "animation": "Scale pop-in (0.5s) at 1s mark",
+        "size": "128x128",
+        "duration": "After 1s, stays until end"
+      },
+      {
+        "element": "Personal Best Badge",
+        "position": "Top right",
+        "animation": "Fly in from right (0.4s)",
+        "condition": "Only show if new PB",
+        "duration": "Full cinematic"
+      },
+      {
+        "element": "Skip Prompt",
+        "position": "Bottom center",
+        "text": "Press any button to skip",
+        "animation": "Fade in after 1s",
+        "font_size": 16,
+        "opacity": 0.6
+      }
+    ]
+  },
+  "cinematic_manager": {
+    "blueprint_name": "BP_CompletionCinematicManager",
+    "parent_class": "AActor",
+    "description": "Manages course completion cinematics",
+    "components": [],
+    "variables": [
+      {
+        "name": "CinematicSequenceAsset",
+        "type": "ULevelSequence*",
+        "description": "Level Sequence asset for cinematic"
+      },
+      {
+        "name": "SequencePlayer",
+        "type": "ULevelSequencePlayer*",
+        "description": "Runtime sequence player"
+      },
+      {
+        "name": "PlayerShipRef",
+        "type": "AActor*",
+        "description": "Reference to player's ship"
+      },
+      {
+        "name": "MedalType",
+        "type": "EMedalType",
+        "description": "Medal achieved"
+      },
+      {
+        "name": "bCanSkip",
+        "type": "bool",
+        "default": true,
+        "description": "Allow skipping cinematic"
+      },
+      {
+        "name": "bCinematicPlaying",
+        "type": "bool",
+        "default": false
+      }
+    ],
+    "functions": [
+      {
+        "name": "PlayCompletionCinematic",
+        "description": "Start course completion cinematic",
+        "inputs": [
+          {
+            "name": "CompletionTime",
+            "type": "float"
+          },
+          {
+            "name": "Medal",
+            "type": "EMedalType"
+          },
+          {
+            "name": "bNewPersonalBest",
+            "type": "bool"
+          }
+        ],
+        "implementation": "\nvoid ABPCompletionCinematicManager::PlayCompletionCinematic(float CompletionTime, EMedalType Medal, bool bNewPersonalBest)\n{\n    bCinematicPlaying = true;\n    MedalType = Medal;\n\n    // Choose cinematic based on medal\n    ULevelSequence* SequenceToPlay = SelectCinematicSequence(Medal);\n\n    // Create sequence player\n    ALevelSequenceActor* SequenceActor;\n    SequencePlayer = ULevelSequencePlayer::CreateLevelSequencePlayer(\n        GetWorld(), SequenceToPlay, FMovieSceneSequencePlaybackSettings(), SequenceActor);\n\n    // Bind player ship to cinematic\n    BindActorToSequence(PlayerShipRef);\n\n    // Spawn VFX based on medal\n    SpawnCompletionVFX(Medal);\n\n    // Play audio stinger\n    PlayAudioStinger(Medal, bNewPersonalBest);\n\n    // Show UI overlay\n    ShowCinematicOverlay(CompletionTime, Medal, bNewPersonalBest);\n\n    // Set input mode to cinematic\n    SetInputModeCinematic();\n\n    // Bind skip input\n    BindSkipInput();\n\n    // Play sequence\n    SequencePlayer->Play();\n\n    // On sequence finished, transition to results\n    SequencePlayer->OnFinished.AddDynamic(this, &ABPCompletionCinematicManager::OnCinematicFinished);\n}\n"
+      },
+      {
+        "name": "SelectCinematicSequence",
+        "description": "Choose cinematic based on medal/performance",
+        "implementation": "\nULevelSequence* ABPCompletionCinematicManager::SelectCinematicSequence(EMedalType Medal)\n{\n    switch (Medal)\n    {\n        case EMedalType::Gold:\n            return GoldMedalSequence;  // Most dramatic (Victory Spin)\n\n        case EMedalType::Silver:\n            return SilverMedalSequence;  // Medium drama (Flyby Finish)\n\n        case EMedalType::Bronze:\n            return BronzeMedalSequence;  // Light drama (Slowmo Finish)\n\n        default:\n            return DefaultCompletionSequence;  // Basic (Flyby Finish short)\n    }\n}\n"
+      },
+      {
+        "name": "SpawnCompletionVFX",
+        "description": "Spawn visual effects for completion",
+        "implementation": "\nvoid ABPCompletionCinematicManager::SpawnCompletionVFX(EMedalType Medal)\n{\n    // Finish line burst\n    FVector FinishLocation = GetFinishWaypointLocation();\n    UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FinishLineBurstVFX, FinishLocation);\n\n    // Medal-specific VFX\n    FLinearColor MedalColor = GetMedalColor(Medal);\n\n    // Ship trail glow\n    if (PlayerShipRef)\n    {\n        UMaterialInstanceDynamic* ShipMaterial = GetShipMaterial(PlayerShipRef);\n        ShipMaterial->SetVectorParameterValue(TEXT(\"EmissiveColor\"), MedalColor);\n        ShipMaterial->SetScalarParameterValue(TEXT(\"EmissiveIntensity\"), 5.0f);\n    }\n\n    // Medal particle burst (delayed 1s)\n    FTimerHandle TimerHandle;\n    GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, MedalColor]()\n    {\n        UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), MedalBurstVFX,\n            PlayerShipRef->GetActorLocation());\n    }, 1.0f, false);\n\n    // Gold medal: Add fireworks\n    if (Medal == EMedalType::Gold)\n    {\n        SpawnFireworks();\n    }\n}\n"
+      },
+      {
+        "name": "SpawnFireworks",
+        "description": "Spawn fireworks for gold medal",
+        "implementation": "\nvoid ABPCompletionCinematicManager::SpawnFireworks()\n{\n    FVector FinishLocation = GetFinishWaypointLocation();\n\n    // Spawn 5 fireworks at random positions around finish\n    for (int32 i = 0; i < 5; i++)\n    {\n        FVector Offset = FVector(\n            FMath::RandRange(-1000, 1000),\n            FMath::RandRange(-1000, 1000),\n            FMath::RandRange(500, 1500)\n        );\n\n        FVector SpawnLocation = FinishLocation + Offset;\n\n        // Delayed spawn for variety\n        float Delay = FMath::RandRange(0.5f, 3.0f);\n\n        FTimerHandle TimerHandle;\n        GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this, SpawnLocation]()\n        {\n            UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FireworkVFX, SpawnLocation);\n            UGameplayStatics::PlaySoundAtLocation(GetWorld(), FireworkSound, SpawnLocation);\n        }, Delay, false);\n    }\n}\n"
+      },
+      {
+        "name": "PlayAudioStinger",
+        "description": "Play medal-specific audio",
+        "implementation": "\nvoid ABPCompletionCinematicManager::PlayAudioStinger(EMedalType Medal, bool bNewPersonalBest)\n{\n    USoundBase* Stinger = nullptr;\n\n    switch (Medal)\n    {\n        case EMedalType::Gold:\n            Stinger = GoldMedalStinger;\n            break;\n        case EMedalType::Silver:\n            Stinger = SilverMedalStinger;\n            break;\n        case EMedalType::Bronze:\n            Stinger = BronzeMedalStinger;\n            break;\n        default:\n            Stinger = CompletionFanfare;\n            break;\n    }\n\n    if (Stinger)\n    {\n        UGameplayStatics::PlaySound2D(GetWorld(), Stinger);\n    }\n\n    // Play crowd cheer for new PB\n    if (bNewPersonalBest)\n    {\n        FTimerHandle TimerHandle;\n        GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()\n        {\n            UGameplayStatics::PlaySound2D(GetWorld(), CrowdCheerSound);\n        }, 1.0f, false);\n    }\n}\n"
+      },
+      {
+        "name": "ShowCinematicOverlay",
+        "description": "Create and show UI overlay",
+        "implementation": "\nvoid ABPCompletionCinematicManager::ShowCinematicOverlay(float CompletionTime, EMedalType Medal, bool bNewPB)\n{\n    UWBPCinematicOverlay* Overlay = CreateWidget<UWBPCinematicOverlay>(\n        GetWorld(), CinematicOverlayClass);\n\n    Overlay->SetCompletionInfo(CompletionTime, Medal, bNewPB);\n    Overlay->AddToViewport(100);  // High Z-order\n    Overlay->PlayEntranceAnimation();\n}\n"
+      },
+      {
+        "name": "BindSkipInput",
+        "description": "Allow player to skip cinematic",
+        "implementation": "\nvoid ABPCompletionCinematicManager::BindSkipInput()\n{\n    // Bind to any key press\n    APlayerController* PC = GetWorld()->GetFirstPlayerController();\n    if (PC)\n    {\n        PC->InputComponent->BindAction(\"AnyKey\", IE_Pressed, this,\n            &ABPCompletionCinematicManager::OnSkipCinematic);\n    }\n}\n"
+      },
+      {
+        "name": "OnSkipCinematic",
+        "description": "Skip cinematic and go to results",
+        "implementation": "\nvoid ABPCompletionCinematicManager::OnSkipCinematic()\n{\n    if (!bCanSkip || !bCinematicPlaying)\n        return;\n\n    // Stop sequence\n    if (SequencePlayer)\n    {\n        SequencePlayer->Stop();\n    }\n\n    // Clean up\n    CleanupCinematic();\n\n    // Go to results immediately\n    TransitionToResults();\n}\n"
+      },
+      {
+        "name": "OnCinematicFinished",
+        "description": "Called when cinematic completes naturally",
+        "implementation": "\nvoid ABPCompletionCinematicManager::OnCinematicFinished()\n{\n    CleanupCinematic();\n    TransitionToResults();\n}\n"
+      },
+      {
+        "name": "CleanupCinematic",
+        "description": "Clean up cinematic resources",
+        "implementation": "\nvoid ABPCompletionCinematicManager::CleanupCinematic()\n{\n    bCinematicPlaying = false;\n\n    // Remove overlay\n    // Stop VFX\n    // Restore player control mode\n}\n"
+      },
+      {
+        "name": "TransitionToResults",
+        "description": "Fade to results screen",
+        "implementation": "\nvoid ABPCompletionCinematicManager::TransitionToResults()\n{\n    // Fade out\n    APlayerController* PC = GetWorld()->GetFirstPlayerController();\n    if (PC && PC->PlayerCameraManager)\n    {\n        PC->PlayerCameraManager->StartCameraFade(0, 1, 0.5f, FLinearColor::Black);\n    }\n\n    // Show results screen after fade\n    FTimerHandle TimerHandle;\n    GetWorld()->GetTimerManager().SetTimer(TimerHandle, [this]()\n    {\n        // Show WBP_CourseResults\n        GetCourseManager()->ShowResultsScreen();\n    }, 0.6f, false);\n}\n"
+      }
+    ]
+  }
+}
