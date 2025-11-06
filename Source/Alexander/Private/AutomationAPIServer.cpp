@@ -33,6 +33,19 @@ void UAutomationAPIServer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// Check for command line port override: -HTTPPort=8081
+	FString CommandLine = FCommandLine::Get();
+	FString PortStr;
+	if (FParse::Value(*CommandLine, TEXT("HTTPPort="), PortStr))
+	{
+		int32 OverridePort = FCString::Atoi(*PortStr);
+		if (OverridePort > 0 && OverridePort < 65536)
+		{
+			ListenPort = OverridePort;
+			UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Using command line port override: %d"), ListenPort);
+		}
+	}
+
 	if (bServerEnabled)
 	{
 		StartServer();

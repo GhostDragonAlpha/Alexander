@@ -71,7 +71,7 @@ class ConsensusTestClient:
 
         print(f"[Client {self.id}] Process started (PID: {self.process.pid})")
 
-    def wait_for_ready(self, timeout=60):
+    def wait_for_ready(self, timeout=180):
         """Wait for HTTP API to be ready"""
         print(f"[Client {self.id}] Waiting for HTTP API on port {self.port}...")
 
@@ -80,13 +80,17 @@ class ConsensusTestClient:
             try:
                 response = requests.get(f"{self.api_url}/status", timeout=2)
                 if response.status_code == 200:
-                    print(f"[Client {self.id}] HTTP API ready!")
+                    elapsed = int(time.time() - start_time)
+                    print(f"[Client {self.id}] HTTP API ready! (took {elapsed}s)")
                     return True
             except requests.exceptions.RequestException:
                 pass
-            time.sleep(2)
 
-        print(f"[Client {self.id}] Timeout waiting for HTTP API")
+            elapsed = int(time.time() - start_time)
+            print(f"[Client {self.id}] Waiting... {elapsed}s elapsed", end="\r", flush=True)
+            time.sleep(3)
+
+        print(f"\n[Client {self.id}] Timeout waiting for HTTP API after {timeout}s")
         return False
 
     def spawn_ship(self):
@@ -306,7 +310,7 @@ class ConsensusTestOrchestrator:
 def main():
     """Main entry point"""
     orchestrator = ConsensusTestOrchestrator()
-    orchestrator.run_all_clients()
+    orchestrator.run_all_tests()
 
 
 if __name__ == "__main__":
