@@ -443,25 +443,46 @@ FString UAutomationAPIServer::HandleSpawnShip(const FString& RequestBody)
 
 FString UAutomationAPIServer::HandleSetInput(const FString& RequestBody)
 {
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetInput RequestBody: '%s'"), *RequestBody);
+
 	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
 	if (!JsonObj.IsValid())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleSetInput - Invalid JSON"));
 		return CreateJSONResponse(false, TEXT("Invalid JSON"));
 	}
 
 	FString ShipID = JsonObj->GetStringField(TEXT("ship_id"));
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetInput - Looking for ship: %s"), *ShipID);
+
 	AActor* Ship = GetShipByID(ShipID);
 	if (!Ship)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleSetInput - Ship not found: %s"), *ShipID);
 		return CreateJSONResponse(false, FString::Printf(TEXT("Ship not found: %s"), *ShipID));
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetInput - Found ship: %s"), *Ship->GetName());
+
+	// List all components on the ship for debugging
+	TArray<UActorComponent*> Components;
+	Ship->GetComponents(Components);
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Ship has %d components:"), Components.Num());
+	for (UActorComponent* Component : Components)
+	{
+		UE_LOG(LogTemp, Log, TEXT("  - %s (%s)"), *Component->GetName(), *Component->GetClass()->GetName());
 	}
 
 	// Get FlightController component
 	UFlightController* FlightController = Ship->FindComponentByClass<UFlightController>();
 	if (!FlightController)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleSetInput - Ship has no FlightController component"));
+		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Ship class: %s"), *Ship->GetClass()->GetName());
 		return CreateJSONResponse(false, TEXT("Ship has no FlightController component"));
 	}
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetInput - Found FlightController"));
 
 	// Parse thrust input (supports both object {x,y,z} and array [x,y,z] formats)
 	if (JsonObj->HasField(TEXT("thrust")))
