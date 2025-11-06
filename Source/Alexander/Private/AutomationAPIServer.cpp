@@ -410,8 +410,14 @@ FString UAutomationAPIServer::HandleSpawnShip(const FString& RequestBody)
 		ShipClassPath = TEXT("/Game/SpaceShip/Blueprints/BP_VRSpaceshipPlayer.BP_VRSpaceshipPlayer_C");
 	}
 
-	// Load ship class
-	UClass* ShipClass = LoadObject<UClass>(nullptr, *ShipClassPath);
+	// Load ship class using StaticLoadClass (works for both C++ and Blueprint classes)
+	UClass* ShipClass = StaticLoadClass(AActor::StaticClass(), nullptr, *ShipClassPath);
+	if (!ShipClass)
+	{
+		// Try alternative loading method for C++ classes
+		ShipClass = FindObject<UClass>(ANY_PACKAGE, *ShipClassPath);
+	}
+
 	if (!ShipClass || !ValidateShipClass(ShipClass))
 	{
 		return CreateJSONResponse(false, FString::Printf(TEXT("Failed to load ship class: %s"), *ShipClassPath));
