@@ -312,9 +312,29 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 	{
 		OutResponse = HandleSetInput(Body);
 	}
-	else if (Method == TEXT("GET") && Endpoint.StartsWith(TEXT("/get_position/")))
+	else if (Method == TEXT("GET") && (Endpoint.StartsWith(TEXT("/get_position/")) || Endpoint.StartsWith(TEXT("/get_position?"))))
 	{
-		FString ShipID = Endpoint.RightChop(14); // Remove "/get_position/"
+		FString ShipID;
+		if (Endpoint.StartsWith(TEXT("/get_position/")))
+		{
+			// Path parameter style: /get_position/ship_3
+			ShipID = Endpoint.RightChop(14); // Remove "/get_position/"
+		}
+		else
+		{
+			// Query parameter style: /get_position?ship_id=ship_3
+			int32 QueryStart = Endpoint.Find(TEXT("ship_id="));
+			if (QueryStart != INDEX_NONE)
+			{
+				ShipID = Endpoint.RightChop(QueryStart + 8); // Remove everything up to and including "ship_id="
+				// Remove any trailing parameters (e.g., &other=value)
+				int32 AmpersandPos = ShipID.Find(TEXT("&"));
+				if (AmpersandPos != INDEX_NONE)
+				{
+					ShipID = ShipID.Left(AmpersandPos);
+				}
+			}
+		}
 		OutResponse = HandleGetPosition(ShipID);
 	}
 	else if (Method == TEXT("GET") && Endpoint.StartsWith(TEXT("/get_velocity/")))
