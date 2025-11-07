@@ -94,6 +94,9 @@ Total execution time: ~20 seconds
 
 ## Multi-Client Testing
 
+**CRITICAL: VR Mode Limitation**
+VR mode can only support ONE active window at a time due to headset limitations. For multi-client testing, you MUST use desktop mode with the `-nohmd` flag.
+
 ### HTTPPort Parameter Support
 **File:** `Source/Alexander/Private/AutomationGameMode.cpp` (lines 39-45)
 
@@ -106,23 +109,25 @@ if (FParse::Value(FCommandLine::Get(), TEXT("HTTPPort="), PortOverride)) {
 }
 ```
 
-### Launch 3 Clients
+### Launch 3 Clients (Desktop Mode)
 ```batch
 # Terminal 1
 "C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor.exe" ^
   "Alexander.uproject" VRTemplateMap ^
-  -game -windowed -ResX=800 -ResY=600 -HTTPPort=8080 -log
+  -game -windowed -ResX=800 -ResY=600 -HTTPPort=8080 -nohmd -log
 
 # Terminal 2
 "C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor.exe" ^
   "Alexander.uproject" VRTemplateMap ^
-  -game -windowed -ResX=800 -ResY=600 -HTTPPort=8081 -log
+  -game -windowed -ResX=800 -ResY=600 -HTTPPort=8081 -nohmd -log
 
 # Terminal 3
 "C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor.exe" ^
   "Alexander.uproject" VRTemplateMap ^
-  -game -windowed -ResX=800 -ResY=600 -HTTPPort=8082 -log
+  -game -windowed -ResX=800 -ResY=600 -HTTPPort=8082 -nohmd -log
 ```
+
+**Note:** The `-nohmd` flag disables VR headset, allowing multiple simultaneous clients in desktop mode.
 
 ### HTTP API Endpoints
 
