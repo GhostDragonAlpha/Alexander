@@ -14,7 +14,9 @@ public class AlexanderEditor : ModuleRules
 			"CoreUObject",
 			"Engine",
 			"InputCore",
-			"Alexander"  // Main game module
+			"Alexander",  // Main game module
+			"UMG",
+			"UMGEditor"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
@@ -39,6 +41,8 @@ public class AlexanderEditor : ModuleRules
 			// Level editor
 			"LevelEditor",
 			"PlacementMode",
+
+			// UI (moved to PublicDependencyModuleNames)
 
 			// Utility
 			"Slate",
