@@ -9,6 +9,7 @@
 #include "Interfaces/IHttpResponse.h"
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
+#include "TriangulationValidator.h"
 #include "AutomationAPIServer.generated.h"
 
 // Forward declarations for socket types
@@ -111,6 +112,12 @@ public:
 	// POST /apply_thrust - Apply thrust forces to a ship
 	FString HandleApplyThrust(const FString& RequestBody);
 
+	// POST /submit_observation - Submit sphere-based observation (direction, distance, scale_factor)
+	FString HandleSubmitObservation(const FString& RequestBody);
+
+	// POST /validate_position - Validate position using multi-sphere triangulation
+	FString HandleValidatePosition(const FString& RequestBody);
+
 	// ============================================================================
 	// SHIP TRACKING
 	// ============================================================================
@@ -149,6 +156,12 @@ protected:
 	// Performance metrics
 	int32 TotalRequestsProcessed = 0;
 	float TotalProcessingTime = 0.0f;
+
+	// Observation tracking (target_id -> array of observations)
+	TMap<int32, TArray<FObserverMeasurement>> StoredObservations;
+
+	// Next observation ID counter
+	int32 NextObservationID = 1;
 
 	// ============================================================================
 	// TCP SOCKET LISTENER

@@ -5,8 +5,8 @@
 ## Quick Reference
 
 ### Kill All Unreal Processes
-```batch
-kill_unreal.bat
+```powershell
+powershell -ExecutionPolicy Bypass -File kill_unreal.ps1
 ```
 
 ### Build C++ Changes
@@ -46,16 +46,15 @@ bEnabled=False
 
 ### Step 1: Kill Existing Processes
 **ALWAYS** run this before building:
-```batch
-kill_unreal.bat
+```powershell
+powershell -ExecutionPolicy Bypass -File kill_unreal.ps1
 ```
 
-This kills:
-- `UnrealEditor.exe`
-- `UnrealEditor-Cmd.exe`
-- `CrashReportClient.exe`
-- Any `Unreal*` processes
-- Clears Live Coding lock files
+This script:
+- Scans for all Unreal processes and displays PIDs
+- Kills each process individually with detailed logging
+- Removes Live Coding lock files from `Intermediate/` folder
+- Reports summary of processes killed and files cleaned
 
 ### Step 2: Build Runtime First
 ```batch
@@ -245,8 +244,8 @@ if (FParse::Value(FCommandLine::Get(), TEXT("HTTPPort="), PortOverride)) {
 ## Testing Workflow
 
 ### 1. Build Changes
-```batch
-kill_unreal.bat
+```powershell
+powershell -ExecutionPolicy Bypass -File kill_unreal.ps1
 "C:\Program Files\Epic Games\UE_5.6\Engine\Build\BatchFiles\Build.bat" Alexander Win64 Development "Alexander.uproject" -waitmutex
 ```
 
@@ -282,16 +281,16 @@ python test_triangulation.py
 
 ### Issue: "Unable to build while Live Coding is active"
 **Solution:**
-1. Run `kill_unreal.bat`
+1. Run `powershell -ExecutionPolicy Bypass -File kill_unreal.ps1`
 2. Verify Live Coding disabled in `Config/DefaultEditor.ini`
-3. Delete `Intermediate/*.lock*` files if needed
+3. Lock files auto-removed by kill script
 4. Build runtime instead of editor: `Build.bat Alexander` (not `AlexanderEditor`)
 
 ### Issue: "Port already in use"
 **Solution:**
-1. Run `kill_unreal.bat`
-2. Check for orphaned processes: `tasklist | findstr Unreal`
-3. Kill specific PID: `taskkill /F /PID <pid>`
+1. Run `powershell -ExecutionPolicy Bypass -File kill_unreal.ps1`
+2. Script automatically finds and kills all processes with PID display
+3. If issues persist, check for orphaned processes: `tasklist | findstr Unreal`
 
 ### Issue: "Module not found after adding new C++ file"
 **Solution:**
@@ -310,12 +309,15 @@ python test_triangulation.py
 ## Files Reference
 
 ### Build & Workflow
-- `kill_unreal.bat` - Kill all Unreal processes
-- `Config/DefaultEditor.ini` - Live Coding disabled (lines 62-66)
+- `kill_unreal.ps1` - PowerShell script to kill all Unreal processes with detailed PID logging
+- `Config/DefaultEditor.ini` - Live Coding disabled (lines 61-65)
 
 ### Multi-Client Support
 - `Source/Alexander/Private/AutomationGameMode.cpp:39-45` - HTTPPort parsing
 - `Source/Alexander/Private/AutomationAPIServer.cpp` - HTTP API endpoints
+  - Lines 370-377: `/submit_observation` and `/validate_position` routing
+  - Lines 861-917: `HandleSubmitObservation` implementation
+  - Lines 919-1001: `HandleValidatePosition` implementation
 
 ### Triangulation & Consensus
 - `Source/Alexander/Public/TriangulationValidator.h` - Geometric validation

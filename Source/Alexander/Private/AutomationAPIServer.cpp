@@ -367,6 +367,14 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 		FString ShipID = Endpoint.RightChop(14); // Remove "/destroy_ship/"
 		OutResponse = HandleDestroyShip(ShipID);
 	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/submit_observation"))
+	{
+		OutResponse = HandleSubmitObservation(Body);
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/validate_position"))
+	{
+		OutResponse = HandleValidatePosition(Body);
+	}
 	else
 	{
 		OutResponse = CreateJSONResponse(false, FString::Printf(TEXT("Unknown endpoint: %s %s"), *Method, *Endpoint));
@@ -856,6 +864,148 @@ FString UAutomationAPIServer::HandleDestroyShip(const FString& ShipID)
 	UnregisterShip(ShipID);
 
 	return CreateJSONResponse(true, FString::Printf(TEXT("Ship destroyed: %s"), *ShipID));
+}
+
+FString UAutomationAPIServer::HandleSubmitObservation(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSubmitObservation RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Parse observation data
+	int32 ObserverID = JsonObj->GetIntegerField(TEXT("observer_id"));
+	int32 TargetID = JsonObj->GetIntegerField(TEXT("target_id"));
+
+	// Parse direction vector [x, y, z]
+	TArray<TSharedPtr<FJsonValue>> DirectionArray = JsonObj->GetArrayField(TEXT("direction"));
+	FVector Direction = FVector::ZeroVector;
+	if (DirectionArray.Num() >= 3)
+	{
+		Direction.X = DirectionArray[0]->AsNumber();
+		Direction.Y = DirectionArray[1]->AsNumber();
+		Direction.Z = DirectionArray[2]->AsNumber();
+	}
+
+	float Distance = JsonObj->GetNumberField(TEXT("distance"));
+	float ScaleFactor = JsonObj->GetNumberField(TEXT("scale_factor"));
+	float Timestamp = JsonObj->HasField(TEXT("timestamp")) ? JsonObj->GetNumberField(TEXT("timestamp")) : GetWorld()->GetTimeSeconds();
+
+	// Create observation measurement
+	FObserverMeasurement Measurement;
+	Measurement.ObserverID = ObserverID;
+	Measurement.TargetID = TargetID;
+	Measurement.ObserverPosition = FVector::ZeroVector; // Observer at their own origin
+	Measurement.Direction = Direction.GetSafeNormal();
+	Measurement.Distance = Distance;
+	Measurement.ScaleFactor = ScaleFactor;
+	Measurement.Timestamp = Timestamp;
+
+	// Store observation
+	TArray<FObserverMeasurement>& Observations = StoredObservations.FindOrAdd(TargetID);
+	Observations.Add(Measurement);
+
+	// Generate observation ID
+	int32 ObservationID = NextObservationID++;
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Stored observation %d for target %d from observer %d"),
+		ObservationID, TargetID, ObserverID);
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetNumberField(TEXT("observation_id"), ObservationID);
+	ResponseData->SetNumberField(TEXT("target_id"), TargetID);
+	ResponseData->SetNumberField(TEXT("observer_id"), ObserverID);
+	ResponseData->SetNumberField(TEXT("total_observations"), Observations.Num());
+
+	return CreateJSONResponse(true, TEXT("Observation recorded"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleValidatePosition(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleValidatePosition RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	int32 TargetID = JsonObj->GetIntegerField(TEXT("target_id"));
+
+	// Parse observations array
+	TArray<TSharedPtr<FJsonValue>> ObservationsArray = JsonObj->GetArrayField(TEXT("observations"));
+	TArray<FObserverMeasurement> Measurements;
+
+	for (const TSharedPtr<FJsonValue>& ObsValue : ObservationsArray)
+	{
+		const TSharedPtr<FJsonObject>* ObsObj;
+		if (ObsValue->TryGetObject(ObsObj))
+		{
+			FObserverMeasurement Measurement;
+			Measurement.ObserverID = (*ObsObj)->GetIntegerField(TEXT("observer_id"));
+			Measurement.TargetID = TargetID;
+
+			// Parse direction
+			TArray<TSharedPtr<FJsonValue>> DirArray = (*ObsObj)->GetArrayField(TEXT("direction"));
+			if (DirArray.Num() >= 3)
+			{
+				Measurement.Direction.X = DirArray[0]->AsNumber();
+				Measurement.Direction.Y = DirArray[1]->AsNumber();
+				Measurement.Direction.Z = DirArray[2]->AsNumber();
+				Measurement.Direction.Normalize();
+			}
+
+			Measurement.Distance = (*ObsObj)->GetNumberField(TEXT("distance"));
+			Measurement.ScaleFactor = (*ObsObj)->GetNumberField(TEXT("scale_factor"));
+			Measurement.ObserverPosition = FVector::ZeroVector; // Each at own origin
+
+			Measurements.Add(Measurement);
+		}
+	}
+
+	if (Measurements.Num() < 2)
+	{
+		return CreateJSONResponse(false, TEXT("Need at least 2 observations for validation"));
+	}
+
+	// Create TriangulationValidator
+	UTriangulationValidator* Validator = NewObject<UTriangulationValidator>();
+	if (!Validator)
+	{
+		return CreateJSONResponse(false, TEXT("Failed to create TriangulationValidator"));
+	}
+
+	// Validate position
+	FGeometricValidationResult ValidationResult = Validator->ValidatePosition(Measurements);
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Validation result - Valid: %s, Confidence: %.2f, Error: %.2f, Method: %s"),
+		ValidationResult.bIsValid ? TEXT("TRUE") : TEXT("FALSE"),
+		ValidationResult.Confidence,
+		ValidationResult.GeometricError,
+		*ValidationResult.ValidationMethod);
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetBoolField(TEXT("valid"), ValidationResult.bIsValid);
+	ResponseData->SetNumberField(TEXT("confidence"), ValidationResult.Confidence);
+	ResponseData->SetNumberField(TEXT("observer_count"), ValidationResult.ObserverCount);
+	ResponseData->SetNumberField(TEXT("geometric_error"), ValidationResult.GeometricError);
+	ResponseData->SetStringField(TEXT("validation_method"), ValidationResult.ValidationMethod);
+
+	// Triangulated position
+	TArray<TSharedPtr<FJsonValue>> PositionArray;
+	PositionArray.Add(MakeShareable(new FJsonValueNumber(ValidationResult.TriangulatedPosition.X)));
+	PositionArray.Add(MakeShareable(new FJsonValueNumber(ValidationResult.TriangulatedPosition.Y)));
+	PositionArray.Add(MakeShareable(new FJsonValueNumber(ValidationResult.TriangulatedPosition.Z)));
+	ResponseData->SetArrayField(TEXT("triangulated_position"), PositionArray);
+
+	return CreateJSONResponse(ValidationResult.bIsValid,
+		ValidationResult.bIsValid ? TEXT("Position validated") : TEXT("Position validation failed"),
+		ResponseData);
 }
 
 void UAutomationAPIServer::RegisterShip(AActor* Ship, const FString& ShipID)
