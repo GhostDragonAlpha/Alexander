@@ -904,22 +904,25 @@ FString UAutomationAPIServer::HandleSubmitObservation(const FString& RequestBody
 	Measurement.ScaleFactor = ScaleFactor;
 	Measurement.Timestamp = Timestamp;
 
-	// Store observation
-	TArray<FObserverMeasurement>& Observations = StoredObservations.FindOrAdd(TargetID);
-	Observations.Add(Measurement);
+	// Store observation using atomic operations to avoid any reference invalidation
+	// Each FindOrAdd call is atomic and safe
+	StoredObservations.FindOrAdd(TargetID).Add(Measurement);
 
 	// Generate observation ID
 	int32 ObservationID = NextObservationID++;
 
-	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Stored observation %d for target %d from observer %d"),
-		ObservationID, TargetID, ObserverID);
+	// Get count using atomic access
+	int32 TotalObservations = StoredObservations.FindOrAdd(TargetID).Num();
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Stored observation %d for target %d from observer %d (total: %d)"),
+		ObservationID, TargetID, ObserverID, TotalObservations);
 
 	// Build response
 	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
 	ResponseData->SetNumberField(TEXT("observation_id"), ObservationID);
 	ResponseData->SetNumberField(TEXT("target_id"), TargetID);
 	ResponseData->SetNumberField(TEXT("observer_id"), ObserverID);
-	ResponseData->SetNumberField(TEXT("total_observations"), Observations.Num());
+	ResponseData->SetNumberField(TEXT("total_observations"), TotalObservations);
 
 	return CreateJSONResponse(true, TEXT("Observation recorded"), ResponseData);
 }

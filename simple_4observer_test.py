@@ -7,6 +7,7 @@ Uses simulated observations (no actual game clients needed)
 import requests
 import json
 import math
+import time
 
 # Test against port 8080 (we know it's running)
 BASE_URL = "http://localhost:8080"
@@ -113,9 +114,12 @@ def main():
         )
 
         if result.get("success"):
-            print(f"✓ Observer {obs['observer_id']}: Observation recorded")
+            print(f"[OK] Observer {obs['observer_id']}: Observation recorded")
         else:
-            print(f"✗ Observer {obs['observer_id']}: {result.get('message')}")
+            print(f"[FAIL] Observer {obs['observer_id']}: {result.get('message')}")
+
+        # Small delay to avoid rapid successive requests
+        time.sleep(0.1)
 
     # Validate position
     print("\n" + "="*60)
@@ -128,7 +132,7 @@ def main():
         data = validation_result.get("data", {})
         triangulated = data.get("triangulated_position", [0, 0, 0])
 
-        print(f"\n✓ Validation: {data.get('valid')}")
+        print(f"\n[VALID] {data.get('valid')}")
         print(f"  Confidence: {data.get('confidence', 0):.2%}")
         print(f"  Observer Count: {data.get('observer_count')}")
         print(f"  Geometric Error: {data.get('geometric_error', 0):.4f}")
@@ -151,21 +155,21 @@ def main():
 
         if data.get('valid') and tri_error < 100.0:
             print("\n" + "="*60)
-            print("✓ TEST PASSED!")
+            print("TEST PASSED!")
             print("="*60)
             print("4-observer tetrahedron validation successful!")
             print("Position validated using geometric triangulation")
             print("Anti-fragile confidence scaling verified")
         else:
             print("\n" + "="*60)
-            print("✗ TEST FAILED")
+            print("TEST FAILED")
             print("="*60)
             if not data.get('valid'):
                 print("Position validation rejected")
             else:
                 print(f"Position error too high: {tri_error:.2f} units")
     else:
-        print(f"\n✗ Validation error: {validation_result.get('message')}")
+        print(f"\n[ERROR] Validation error: {validation_result.get('message')}")
         return False
 
     return True
@@ -175,7 +179,7 @@ if __name__ == "__main__":
         success = main()
         exit(0 if success else 1)
     except Exception as e:
-        print(f"\n✗ ERROR: {e}")
+        print(f"\n[ERROR] {e}")
         import traceback
         traceback.print_exc()
         exit(1)
