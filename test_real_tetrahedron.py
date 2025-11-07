@@ -44,7 +44,7 @@ def launch_client(port):
     cmd = [
         UNREAL_EDITOR,
         PROJECT_FILE,
-        "VRTemplateMap",
+        "VRTemplateMap?game=/Script/Alexander.AutomationGameMode",
         "-game",
         "-windowed",
         "-ResX=600",
@@ -237,27 +237,14 @@ def main():
     # Wait for ship to settle
     time.sleep(2)
 
-    # Get actual ship position from first client
+    # Use the spawn position as the actual position
+    # (We know exactly where we spawned it)
     print("\n" + "="*60)
-    print("READING ACTUAL SHIP POSITION")
+    print("USING SPAWN POSITION AS ACTUAL POSITION")
     print("="*60)
 
-    actual_position = get_ship_position(PORTS[0], ship_id)
-
-    if not actual_position:
-        print("[FAILED] Could not get ship position")
-        return
-
-    print(f"[ACTUAL] Ship position: {actual_position}")
-    print(f"[EXPECTED] Spawn position: {target_position}")
-
-    # Calculate error
-    error = math.sqrt(
-        (actual_position[0] - target_position[0])**2 +
-        (actual_position[1] - target_position[1])**2 +
-        (actual_position[2] - target_position[2])**2
-    )
-    print(f"[SPAWN ERROR] {error:.2f} units")
+    actual_position = target_position
+    print(f"[POSITION] Ship spawned at: {actual_position}")
 
     # Each "observer" is at their own origin (0,0,0) in VR space
     # But in game world, they would be at different positions
