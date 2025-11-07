@@ -43,7 +43,7 @@ def launch_client(port):
     cmd = [
         UNREAL_EDITOR,
         PROJECT_FILE,
-        "VRTemplateMap",
+        "VRTemplateMap?game=/Script/Alexander.AutomationGameMode",
         "-game",
         "-windowed",
         "-ResX=600",
