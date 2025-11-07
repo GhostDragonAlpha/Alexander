@@ -149,6 +149,172 @@ python take_editor_screenshot.py
 
 ---
 
+## Controlling PIE (Play In Editor) from Python
+
+### The PIE Workflow - NEVER Kill Processes!
+
+**IMPORTANT:** Do NOT kill UnrealEditor processes when testing. Control PIE from within the running editor using Python commands.
+
+### CRITICAL: Check for Compilation Errors FIRST
+
+**Before attempting to start PIE, ALWAYS check the editor's Output Log for compilation errors.**
+
+When the editor starts or when C++ code changes:
+1. The editor attempts to compile the project modules
+2. If compilation fails, the editor shows errors in the Output Log
+3. **PIE will not work properly with compilation errors** - it may show the PIE window but game logic won't run
+4. You MUST fix compilation errors before PIE will function
+
+**How to check for compilation errors:**
+```bash
+# Check the editor logs for compilation failures
+# Look for lines like:
+#   "error LNK2019: unresolved external symbol"
+#   "fatal error LNK1120: X unresolved externals"
+#   "Incompatible or missing module: Alexander"
+```
+
+**Common compilation errors:**
+- Missing module dependencies in Build.cs files (e.g., UMG, UnrealEd)
+- Unresolved external symbols from missing #include or module links
+- Blueprint-generated code referencing missing C++ symbols
+
+**Fix workflow:**
+1. Check logs for compilation errors
+2. If errors exist, fix them (update Build.cs, add includes, etc.)
+3. Let editor automatically recompile, or close and reopen editor
+4. Verify "Module loaded successfully" in logs
+5. ONLY THEN attempt to start PIE
+
+### Start PIE Session
+
+```python
+import unreal
+
+# Start Play In Editor
+unreal.EditorLevelLibrary.editor_play_simulate()
+```
+
+**Or via remote:**
+```bash
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.editor_play_simulate()"
+```
+
+### Stop PIE Session
+
+```python
+import unreal
+
+# Stop Play In Editor
+unreal.EditorLevelLibrary.stop_play_session()
+```
+
+**Or via remote:**
+```bash
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.stop_play_session()"
+```
+
+### Check PIE State
+
+```python
+import unreal
+
+# Check if PIE is currently running
+is_playing = unreal.EditorLevelLibrary.is_playing()
+print(f"PIE Running: {is_playing}")
+```
+
+### Complete PIE Testing Workflow
+
+```bash
+# 1. Editor is already running (launched once)
+
+# 2. Start PIE to test AutomationGameMode
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.editor_play_simulate()"
+
+# 3. Wait for PIE to fully start (5-10 seconds)
+# Watch the editor Output Log for:
+#   "AutomationGameMode: Server started"
+#   "AutomationAPI: TCP server listening on port 8080"
+
+# 4. Test the automation server endpoints
+python test_automation_server.py
+
+# 5. Stop PIE when done
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.stop_play_session()"
+
+# 6. Make changes if needed, then repeat steps 2-5
+```
+
+### Iteration Example: Test → Fix → Test
+
+```bash
+# Test current state
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.editor_play_simulate()"
+# (wait for start)
+python test_automation_server.py
+# (test fails)
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.stop_play_session()"
+
+# Fix the code in your editor/IDE
+# (make changes to C++ or Python files)
+
+# Recompile if C++ changed
+python remote_client.py --file "recompile_module.py"
+
+# Test again
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.editor_play_simulate()"
+# (wait for start)
+python test_automation_server.py
+# (test passes!)
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.stop_play_session()"
+
+# Editor NEVER closed during this entire process!
+```
+
+### Key Rules for PIE Testing
+
+1. **NEVER** use `taskkill` or `Stop-Process` on UnrealEditor
+2. **ALWAYS** use Python commands to start/stop PIE
+3. **ALWAYS** wait 5-10 seconds after starting PIE before testing
+4. **ALWAYS** check the Output Log to verify game mode and server started
+5. **Editor stays RUNNING** through all PIE sessions
+
+### Common PIE Mistakes (DON'T DO THESE)
+
+```bash
+# ❌ WRONG - Killing editor process
+taskkill /IM UnrealEditor.exe /F
+
+# ❌ WRONG - Launching standalone game
+UnrealEditor-Cmd.exe ... -game
+
+# ❌ WRONG - Closing and relaunching editor
+# (Editor should stay open!)
+
+# ✓ CORRECT - Using PIE commands
+python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.editor_play_simulate()"
+```
+
+### Troubleshooting PIE
+
+**PIE won't start?**
+- Check Output Log for errors
+- Verify GameMode is set correctly in DefaultEngine.ini
+- Check that level is loaded in editor
+
+**Automation server returns 404?**
+- Don't use `-HTTPPort` flag (causes port conflicts)
+- Verify AutomationGameMode is set as default in Config/DefaultEngine.ini
+- Check Output Log shows "AutomationAPI: TCP server listening on port 8080"
+
+**PIE seems stuck?**
+- Stop PIE: `python remote_client.py --command "import unreal; unreal.EditorLevelLibrary.stop_play_session()"`
+- Wait 5 seconds
+- Start PIE again
+
+---
+
 ## Task Queue Processing
 
 ### Follow execution_queue.json automatically:
