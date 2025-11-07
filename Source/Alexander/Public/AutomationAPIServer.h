@@ -108,6 +108,9 @@ public:
 	// GET /get_player_pawn - Get the default player pawn
 	FString HandleGetPlayerPawn();
 
+	// POST /apply_thrust - Apply thrust forces to a ship
+	FString HandleApplyThrust(const FString& RequestBody);
+
 	// ============================================================================
 	// SHIP TRACKING
 	// ============================================================================

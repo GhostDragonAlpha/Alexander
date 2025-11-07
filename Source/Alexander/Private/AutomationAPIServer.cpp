@@ -312,6 +312,10 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 	{
 		OutResponse = HandleSetInput(Body);
 	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/apply_thrust"))
+	{
+		OutResponse = HandleApplyThrust(Body);
+	}
 	else if (Method == TEXT("GET") && (Endpoint.StartsWith(TEXT("/get_position/")) || Endpoint.StartsWith(TEXT("/get_position?"))))
 	{
 		FString ShipID;
@@ -783,6 +787,61 @@ FString UAutomationAPIServer::HandleGetPlayerPawn()
 	ResponseData->SetArrayField(TEXT("location"), LocationArray);
 
 	return CreateJSONResponse(true, TEXT("Player pawn retrieved"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleApplyThrust(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleApplyThrust RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Get ship ID
+	FString ShipID = JsonObj->GetStringField(TEXT("ship_id"));
+	AActor* Ship = GetShipByID(ShipID);
+	if (!Ship)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Ship not found: %s"), *ShipID));
+	}
+
+	// Get thrust values
+	float ThrustX = JsonObj->HasField(TEXT("thrust_x")) ? JsonObj->GetNumberField(TEXT("thrust_x")) : 0.0f;
+	float ThrustY = JsonObj->HasField(TEXT("thrust_y")) ? JsonObj->GetNumberField(TEXT("thrust_y")) : 0.0f;
+	float ThrustZ = JsonObj->HasField(TEXT("thrust_z")) ? JsonObj->GetNumberField(TEXT("thrust_z")) : 0.0f;
+
+	// Get primitive component (for physics)
+	UPrimitiveComponent* RootPrimitive = Cast<UPrimitiveComponent>(Ship->GetRootComponent());
+	if (!RootPrimitive)
+	{
+		return CreateJSONResponse(false, TEXT("Ship has no physics component"));
+	}
+
+	if (!RootPrimitive->IsSimulatingPhysics())
+	{
+		return CreateJSONResponse(false, TEXT("Ship is not simulating physics"));
+	}
+
+	// Apply force (AddForce expects force in Newtons, not acceleration)
+	FVector Force(ThrustX, ThrustY, ThrustZ);
+	RootPrimitive->AddForce(Force, NAME_None, true);
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Applied thrust [%f, %f, %f] to ship '%s'"),
+		ThrustX, ThrustY, ThrustZ, *ShipID);
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("ship_id"), ShipID);
+
+	TArray<TSharedPtr<FJsonValue>> ThrustArray;
+	ThrustArray.Add(MakeShareable(new FJsonValueNumber(ThrustX)));
+	ThrustArray.Add(MakeShareable(new FJsonValueNumber(ThrustY)));
+	ThrustArray.Add(MakeShareable(new FJsonValueNumber(ThrustZ)));
+	ResponseData->SetArrayField(TEXT("thrust_applied"), ThrustArray);
+
+	return CreateJSONResponse(true, TEXT("Thrust applied successfully"), ResponseData);
 }
 
 FString UAutomationAPIServer::HandleDestroyShip(const FString& ShipID)
