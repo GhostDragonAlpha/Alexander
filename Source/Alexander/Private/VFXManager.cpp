@@ -411,7 +411,7 @@ FVFXStats UVFXManager::GetVFXStatistics() const
     int32 PooledCount = 0;
     for (const auto& PoolPair : VFXPools)
     {
-        PooledCount += PoolPair.Value.Num();
+        PooledCount += PoolPair.Value.Components.Num();
     }
     Stats.PooledInstances = PooledCount;
 
@@ -454,7 +454,7 @@ void UVFXManager::PreloadVFXPool(const FString& TemplateName, int32 PoolSize)
         return;
     }
 
-    TArray<UNiagaraComponent*>& Pool = VFXPools.FindOrAdd(TemplateName);
+    FNiagaraComponentArray& Pool = VFXPools.FindOrAdd(TemplateName);
 
     for (int32 i = 0; i < PoolSize; ++i)
     {
@@ -472,7 +472,7 @@ void UVFXManager::PreloadVFXPool(const FString& TemplateName, int32 PoolSize)
         if (Component)
         {
             Component->Deactivate();
-            Pool.Add(Component);
+            Pool.Components.Add(Component);
         }
     }
 }
@@ -481,9 +481,9 @@ void UVFXManager::ClearVFXPool(const FString& TemplateName)
 {
     if (VFXPools.Contains(TemplateName))
     {
-        TArray<UNiagaraComponent*>& Pool = VFXPools[TemplateName];
+        FNiagaraComponentArray& Pool = VFXPools[TemplateName];
 
-        for (UNiagaraComponent* Component : Pool)
+        for (UNiagaraComponent* Component : Pool.Components)
         {
             if (Component)
             {
@@ -499,7 +499,7 @@ void UVFXManager::ClearAllPools()
 {
     for (auto& PoolPair : VFXPools)
     {
-        for (UNiagaraComponent* Component : PoolPair.Value)
+        for (UNiagaraComponent* Component : PoolPair.Value.Components)
         {
             if (Component)
             {
@@ -601,14 +601,14 @@ UNiagaraComponent* UVFXManager::GetPooledVFX(const FString& TemplateName)
         return nullptr;
     }
 
-    TArray<UNiagaraComponent*>& Pool = VFXPools[TemplateName];
+    FNiagaraComponentArray& Pool = VFXPools[TemplateName];
 
-    for (int32 i = Pool.Num() - 1; i >= 0; --i)
+    for (int32 i = Pool.Components.Num() - 1; i >= 0; --i)
     {
-        if (Pool[i] && !Pool[i]->IsActive())
+        if (Pool.Components[i] && !Pool.Components[i]->IsActive())
         {
-            UNiagaraComponent* Component = Pool[i];
-            Pool.RemoveAt(i);
+            UNiagaraComponent* Component = Pool.Components[i];
+            Pool.Components.RemoveAt(i);
             return Component;
         }
     }
@@ -634,8 +634,8 @@ void UVFXManager::ReturnToPool(const FString& InstanceID)
         {
             if (TemplatePair.Value.NiagaraSystem == Instance.NiagaraComponent->GetAsset())
             {
-                TArray<UNiagaraComponent*>& Pool = VFXPools.FindOrAdd(TemplatePair.Key);
-                Pool.Add(Instance.NiagaraComponent);
+                FNiagaraComponentArray& Pool = VFXPools.FindOrAdd(TemplatePair.Key);
+                Pool.Components.Add(Instance.NiagaraComponent);
                 break;
             }
         }

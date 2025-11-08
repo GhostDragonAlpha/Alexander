@@ -1,0 +1,162 @@
+name: AI-Driven Validation
+
+on:
+  push:
+    branches: [ master, develop, feature/* ]
+  pull_request:
+    branches: [ master, develop ]
+  schedule:
+    # Run daily maintenance at 2 AM UTC
+    - cron: '0 2 * * *'
+
+jobs:
+  pre-commit-validation:
+    name: Pre-Commit Validation
+    runs-on: windows-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+        
+    - name: Run AI Pre-Commit Validation
+      run: python build_and_test.py ai precommit
+      timeout-minutes: 10
+      
+    - name: Upload validation report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: precommit-validation-report
+        path: Saved/AI_Reports/
+        retention-days: 7
+
+  daily-maintenance:
+    name: Daily Maintenance
+    runs-on: windows-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+        
+    - name: Run Daily Maintenance Workflow
+      run: python build_and_test.py ai daily
+      timeout-minutes: 30
+      
+    - name: Upload maintenance report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: daily-maintenance-report
+        path: Saved/AI_Reports/
+        retention-days: 30
+        
+    - name: Create issue if failed
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '🤖 Daily Maintenance Workflow Failed',
+            body: 'The automated daily maintenance workflow has failed. Please review the logs.',
+            labels: ['automation', 'maintenance', 'bug']
+          })
+
+  content-validation:
+    name: Content Validation
+    runs-on: windows-latest
+    if: github.event_name == 'push' || github.event_name == 'pull_request'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+        
+    - name: Validate Content
+      run: |
+        python -c "from ai_unreal_controller import AIUnrealController; from ai_agents import AIContentAgent; controller = AIUnrealController('C:/Program Files/Epic Games/UE_5.6', 'Alexander.uproject'); agent = AIContentAgent(controller); result = agent.validate_all_content(); print(f'Errors: {result[\"error_count\"]}, Warnings: {result[\"warning_count\"]}'); exit(1 if result['error_count'] > 0 else 0)"
+      timeout-minutes: 15
+      
+    - name: Upload content validation report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: content-validation-report
+        path: Saved/AI_Reports/
+        retention-days: 7
+
+  weekly-optimization:
+    name: Weekly Performance Optimization
+    runs-on: windows-latest
+    # Run every Sunday at 3 AM UTC
+    if: github.event.schedule == '0 3 * * 0'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+        
+    - name: Run Performance Optimization
+      run: python build_and_test.py ai optimize
+      timeout-minutes: 60
+      
+    - name: Upload optimization report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-optimization-report
+        path: Saved/AI_Reports/
+        retention-days: 90
+        
+    - name: Create summary comment
+      if: success()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          const reportPath = 'Saved/AI_Reports/performance_optimization_*.json';
+          const report = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+          
+          const improvements = report.improvements || {};
+          const body = `
+          ## 🚀 Weekly Performance Optimization Complete
+          
+          **Duration:** ${report.duration_seconds}s
+          **Status:** ${report.overall_success ? '✅ Success' : '❌ Failed'}
+          
+          **Improvements:**
+          - FPS Change: ${improvements.fps_change || 'N/A'}
+          - Memory Saved: ${improvements.memory_change_mb || 'N/A'} MB
+          
+          **Steps Completed:**
+          ${report.steps.map(s => `- ${s.success ? '✅' : '❌'} ${s.name}`).join('\n')}
+          `;
+          
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: '📊 Weekly Performance Optimization Report',
+            body: body,
+            labels: ['automation', 'performance', 'report']
+          })

@@ -1,8 +1,0 @@
-Using bundled DotNet SDK version: 8.0.300 win-x64
-Running UnrealBuildTool: dotnet "..\..\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.dll" Alexander Win64 Development C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject -WaitMutex
-Log file: C:\Users\allen\AppData\Local\UnrealBuildTool\Log.txt
-Using 'git status' to determine working set for adaptive non-unity build (C:\Users\allen\Desktop\Alexander\Alexander).
-Target is up to date
-
-Result: Succeeded
-Total execution time: 0.62 seconds

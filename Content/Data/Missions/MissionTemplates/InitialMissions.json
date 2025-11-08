@@ -1,0 +1,367 @@
+{
+    "missions": [
+        {
+            "mission_id": "supply_run_001",
+            "title": "Supply Run",
+            "description": "Deliver critical medical supplies to the research outpost on Mars. Time is of the essence as their supplies are running low.",
+            "type": "Trading",
+            "difficulty": "Easy",
+            "objectives": [
+                {
+                    "description": "Pick up medical supplies from Earth Station",
+                    "type": "Item",
+                    "target": "medical_supplies_crate",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Deliver supplies to Mars Research Outpost",
+                    "type": "Deliver",
+                    "target": "mars_research_outpost",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                }
+            ],
+            "rewards": {
+                "credits": 2500,
+                "experience": 300,
+                "reputation": 25,
+                "items": [
+                    "basic_medkit"
+                ],
+                "time_bonus": 500
+            },
+            "prerequisites": [],
+            "time_limit": 3600,
+            "location": "earth_station_alpha",
+            "level_range": [
+                1.0,
+                15.0
+            ],
+            "risk_multiplier": 0.8,
+            "repeatable": true,
+            "cooldown_period": 7200,
+            "offering_faction": "corporations"
+        },
+        {
+            "mission_id": "asteroid_survey_001",
+            "title": "Asteroid Survey",
+            "description": "Survey the newly discovered asteroid field in the Kepler system. Your data will help establish future mining operations.",
+            "type": "Exploration",
+            "difficulty": "Normal",
+            "objectives": [
+                {
+                    "description": "Travel to Kepler-438b asteroid field",
+                    "type": "Location",
+                    "target": "kepler_438b_asteroid_field",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Survey 10 asteroid locations",
+                    "type": "Survey",
+                    "target": "asteroid_survey_point",
+                    "required_quantity": 10,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Return survey data to Earth Station",
+                    "type": "Deliver",
+                    "target": "earth_station_alpha",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                }
+            ],
+            "rewards": {
+                "credits": 4000,
+                "experience": 500,
+                "reputation": 40,
+                "items": [
+                    "survey_scanner_upgrade"
+                ],
+                "time_bonus": 800
+            },
+            "prerequisites": [],
+            "time_limit": 7200,
+            "location": "earth_station_alpha",
+            "level_range": [
+                5.0,
+                25.0
+            ],
+            "risk_multiplier": 1.2,
+            "repeatable": false,
+            "cooldown_period": 0,
+            "offering_faction": "scientists"
+        },
+        {
+            "mission_id": "pirate_defense_001",
+            "title": "Pirate Defense",
+            "description": "Pirates are attacking a civilian convoy. Protect the transport ships until they can reach safety.",
+            "type": "Combat",
+            "difficulty": "Hard",
+            "objectives": [
+                {
+                    "description": "Reach the civilian convoy location",
+                    "type": "Location",
+                    "target": "civilian_convoy_location",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Defend convoy from pirate attacks",
+                    "type": "Escort",
+                    "target": "civilian_transport",
+                    "required_quantity": 3,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Eliminate pirate leader",
+                    "type": "Destroy",
+                    "target": "pirate_leader_ship",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                }
+            ],
+            "rewards": {
+                "credits": 6000,
+                "experience": 800,
+                "reputation": 60,
+                "items": [
+                    "combat_energy_cell",
+                    "reputation_badge_military"
+                ],
+                "time_bonus": 1200
+            },
+            "prerequisites": [
+                "supply_run_001"
+            ],
+            "time_limit": 5400,
+            "location": "asteroid_belt_sector_7",
+            "level_range": [
+                15.0,
+                35.0
+            ],
+            "risk_multiplier": 1.5,
+            "repeatable": false,
+            "cooldown_period": 0,
+            "offering_faction": "military"
+        },
+        {
+            "mission_id": "research_assistant_001",
+            "title": "Research Assistant",
+            "description": "Assist Dr. Sarah Chen with her research on alien artifacts. Collect samples from the anomaly zone for analysis.",
+            "type": "Research",
+            "difficulty": "Normal",
+            "objectives": [
+                {
+                    "description": "Meet Dr. Chen at the research facility",
+                    "type": "Interaction",
+                    "target": "dr_sarah_chen",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Collect 5 alien artifact samples",
+                    "type": "Item",
+                    "target": "alien_artifact_sample",
+                    "required_quantity": 5,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Analyze samples at research station",
+                    "type": "Interaction",
+                    "target": "research_analyzer",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Deliver research report to Dr. Chen",
+                    "type": "Deliver",
+                    "target": "dr_sarah_chen",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                }
+            ],
+            "rewards": {
+                "credits": 3500,
+                "experience": 600,
+                "reputation": 45,
+                "items": [
+                    "research_data_chip",
+                    "science_uniform"
+                ],
+                "time_bonus": 700
+            },
+            "prerequisites": [
+                "asteroid_survey_001"
+            ],
+            "time_limit": 9000,
+            "location": "luna_research_facility",
+            "level_range": [
+                10.0,
+                30.0
+            ],
+            "risk_multiplier": 1.0,
+            "repeatable": false,
+            "cooldown_period": 0,
+            "offering_faction": "scientists"
+        },
+        {
+            "mission_id": "mining_operation_001",
+            "title": "Mining Operation",
+            "description": "Set up a mining operation in the resource-rich asteroid. Extract valuable minerals for the corporation.",
+            "type": "Mining",
+            "difficulty": "Medium",
+            "objectives": [
+                {
+                    "description": "Travel to resource asteroid X-7",
+                    "type": "Location",
+                    "target": "resource_asteroid_x7",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Deploy mining equipment",
+                    "type": "Interaction",
+                    "target": "mining_equipment_deploy",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Extract 20 units of rare minerals",
+                    "type": "Mine",
+                    "target": "rare_minerals",
+                    "required_quantity": 20,
+                    "current_quantity": 0,
+                    "is_completed": false
+                },
+                {
+                    "description": "Return minerals to corporate station",
+                    "type": "Deliver",
+                    "target": "corporate_station_beta",
+                    "required_quantity": 1,
+                    "current_quantity": 0,
+                    "is_completed": false
+                }
+            ],
+            "rewards": {
+                "credits": 5000,
+                "experience": 650,
+                "reputation": 50,
+                "items": [
+                    "mining_laser_upgrade",
+                    "corporate_shares"
+                ],
+                "time_bonus": 1000
+            },
+            "prerequisites": [],
+            "time_limit": 10800,
+            "location": "corporate_station_beta",
+            "level_range": [
+                8.0,
+                28.0
+            ],
+            "risk_multiplier": 1.3,
+            "repeatable": true,
+            "cooldown_period": 14400,
+            "offering_faction": "corporations"
+        }
+    ],
+    "mission_chains": [
+        {
+            "chain_id": "corporate_introduction",
+            "chain_name": "Corporate Introduction",
+            "chain_description": "Introduction to the mega-corporations that control much of the solar system's commerce.",
+            "mission_ids": [
+                "supply_run_001",
+                "mining_operation_001"
+            ],
+            "sequential_unlock": false,
+            "has_branching": false
+        },
+        {
+            "chain_id": "scientific_discovery",
+            "chain_name": "Scientific Discovery",
+            "chain_description": "Help the research community uncover the secrets of alien technology and anomalous phenomena.",
+            "mission_ids": [
+                "asteroid_survey_001",
+                "research_assistant_001"
+            ],
+            "sequential_unlock": true,
+            "has_branching": false
+        },
+        {
+            "chain_id": "military_career",
+            "chain_name": "Military Career Path",
+            "chain_description": "Prove your worth to the military forces and help maintain order in the solar system.",
+            "mission_ids": [
+                "supply_run_001",
+                "pirate_defense_001"
+            ],
+            "sequential_unlock": true,
+            "has_branching": true
+        }
+    ],
+    "reward_scaling": {
+        "base_credits": {
+            "VeryEasy": 500,
+            "Easy": 1500,
+            "Normal": 3000,
+            "Hard": 6000,
+            "VeryHard": 10000,
+            "Extreme": 15000
+        },
+        "base_experience": {
+            "VeryEasy": 100,
+            "Easy": 300,
+            "Normal": 600,
+            "Hard": 1000,
+            "VeryHard": 1800,
+            "Extreme": 3000
+        },
+        "base_reputation": {
+            "VeryEasy": 10,
+            "Easy": 25,
+            "Normal": 40,
+            "Hard": 60,
+            "VeryHard": 85,
+            "Extreme": 120
+        },
+        "difficulty_multipliers": {
+            "VeryEasy": 0.5,
+            "Easy": 0.8,
+            "Normal": 1.0,
+            "Hard": 1.5,
+            "VeryHard": 2.0,
+            "Extreme": 2.5
+        },
+        "time_bonus_thresholds": [
+            {
+                "percentage": 90,
+                "bonus": 0.5
+            },
+            {
+                "percentage": 75,
+                "bonus": 0.3
+            },
+            {
+                "percentage": 50,
+                "bonus": 0.1
+            }
+        ]
+    }
+}

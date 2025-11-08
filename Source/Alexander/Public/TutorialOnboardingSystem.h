@@ -49,7 +49,7 @@ enum class ETutorialCompletionState : uint8
 
 // Tutorial Difficulty Levels
 UENUM(BlueprintType)
-enum class ETutorialDifficulty : uint8
+enum class ETutorialDifficultyOnboarding : uint8
 {
     Beginner,
     Intermediate,
@@ -87,7 +87,7 @@ struct FTutorialOnboardingStep
     ETutorialStepType StepType = ETutorialStepType::Information;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    ETutorialDifficulty Difficulty = ETutorialDifficulty::Beginner;
+    ETutorialDifficultyOnboarding Difficulty = ETutorialDifficultyOnboarding::Beginner;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     ETutorialPlatform Platform = ETutorialPlatform::All;
@@ -185,7 +185,7 @@ struct FTutorialDefinition
     FString Description;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    ETutorialDifficulty Difficulty = ETutorialDifficulty::Beginner;
+    ETutorialDifficultyOnboarding Difficulty = ETutorialDifficultyOnboarding::Beginner;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     ETutorialPlatform Platform = ETutorialPlatform::All;
@@ -384,6 +384,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Tutorial System")
     TArray<FTutorialOnboardingStep> GetTutorialSteps(const FString& TutorialID) const;
 
+    UFUNCTION(BlueprintPure, Category = "Tutorial System")
+    bool IsTutorialStepCompleted(const FString& StepID) const;
+
     // Tutorial Display
     UFUNCTION(BlueprintCallable, Category = "Tutorial System")
     void ShowTutorialUI(const FString& TutorialID);
@@ -476,10 +479,10 @@ public:
     bool IsAdaptiveDifficultyEnabled() const;
 
     UFUNCTION(BlueprintCallable, Category = "Tutorial System")
-    void AdjustTutorialDifficulty(const FString& TutorialID, ETutorialDifficulty NewDifficulty);
+    void AdjustTutorialDifficulty(const FString& TutorialID, ETutorialDifficultyOnboarding NewDifficulty);
 
     UFUNCTION(BlueprintCallable, Category = "Tutorial System")
-    ETutorialDifficulty GetRecommendedDifficulty(const FString& TutorialID) const;
+    ETutorialDifficultyOnboarding GetRecommendedDifficulty(const FString& TutorialID) const;
 
     // Utility Functions
     UFUNCTION(BlueprintPure, Category = "Tutorial System")
@@ -614,7 +617,7 @@ private:
     void LoadTutorialProgress();
 
     void AdjustDifficultyBasedOnPerformance(const FString& TutorialID);
-    ETutorialDifficulty CalculateOptimalDifficulty(const FString& TutorialID) const;
+    ETutorialDifficultyOnboarding CalculateOptimalDifficulty(const FString& TutorialID) const;
 
     void CreateTutorialUI();
     void DestroyTutorialUI();

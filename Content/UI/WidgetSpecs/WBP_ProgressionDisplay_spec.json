@@ -1,0 +1,425 @@
+{
+  "widgetName": "WBP_ProgressionDisplay",
+  "description": "HUD element showing player level, XP progress, and credits balance",
+  "location": "Content/UI/Widgets/Customization/Components/",
+  "usage": "Can be used in customization menu or as persistent HUD element",
+  "layout": {
+    "rootType": "Overlay",
+    "size": {
+      "desktop": { "width": "Auto", "height": "Auto" },
+      "vr": { "width": "Auto", "height": "Auto" }
+    }
+  },
+  "components": [
+    {
+      "name": "Border_Background",
+      "type": "Border",
+      "backgroundColor": "#1A1A1A",
+      "opacity": 0.8,
+      "borderColor": "#00BCD4",
+      "borderWidth": 1,
+      "cornerRadius": 8,
+      "padding": [12, 12, 12, 12]
+    },
+    {
+      "name": "Image_LevelBackground",
+      "type": "Image",
+      "material": "M_CircleGradient",
+      "size": {
+        "desktop": [64, 64],
+        "vr": [128, 128]
+      },
+      "tint": "#00BCD4"
+    },
+    {
+      "name": "CircularProgressBar_LevelProgress",
+      "type": "CircularProgressBar",
+      "size": {
+        "desktop": [64, 64],
+        "vr": [128, 128]
+      },
+      "fillColor": "#4CAF50",
+      "backgroundColor": "#424242",
+      "thickness": 4,
+      "description": "Shows XP progress to next level"
+    },
+    {
+      "name": "Text_Level",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 24,
+          "vr": 48
+        }
+      },
+      "color": "#FFFFFF",
+      "alignment": "Center/Center",
+      "description": "Displays current player level number"
+    },
+    {
+      "name": "Text_XPLabel",
+      "type": "Text",
+      "text": "XP:",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 14,
+          "vr": 28
+        }
+      },
+      "color": "#9E9E9E"
+    },
+    {
+      "name": "Text_XPValue",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Regular",
+        "size": {
+          "desktop": 14,
+          "vr": 28
+        }
+      },
+      "color": "#FFFFFF",
+      "format": "{Current}/{NextLevel}"
+    },
+    {
+      "name": "ProgressBar_XP",
+      "type": "ProgressBar",
+      "size": {
+        "desktop": [200, 8],
+        "vr": [400, 16]
+      },
+      "fillColor": "#00BCD4",
+      "backgroundColor": "#424242",
+      "cornerRadius": 4
+    },
+    {
+      "name": "Image_CreditIcon",
+      "type": "Image",
+      "texture": "T_Icon_Credits",
+      "size": {
+        "desktop": [20, 20],
+        "vr": [40, 40]
+      }
+    },
+    {
+      "name": "Text_CreditsLabel",
+      "type": "Text",
+      "text": "Credits:",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 14,
+          "vr": 28
+        }
+      },
+      "color": "#9E9E9E"
+    },
+    {
+      "name": "Text_CreditsValue",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#FFC107",
+      "format": "{0:N0}",
+      "description": "Displays credits with thousands separator"
+    }
+  ],
+  "variables": [
+    {
+      "name": "PlayerLevel",
+      "type": "int32",
+      "default": 1,
+      "description": "Current player level"
+    },
+    {
+      "name": "CurrentXP",
+      "type": "int32",
+      "default": 0,
+      "description": "Current XP amount"
+    },
+    {
+      "name": "NextLevelXP",
+      "type": "int32",
+      "default": 1000,
+      "description": "XP required for next level"
+    },
+    {
+      "name": "Credits",
+      "type": "int32",
+      "default": 0,
+      "description": "Current credits balance"
+    },
+    {
+      "name": "PreviousCredits",
+      "type": "int32",
+      "description": "For animation interpolation"
+    },
+    {
+      "name": "PreviousXP",
+      "type": "int32",
+      "description": "For animation interpolation"
+    }
+  ],
+  "functions": [
+    {
+      "name": "UpdateProgression",
+      "inputs": [
+        {
+          "name": "Level",
+          "type": "int32"
+        },
+        {
+          "name": "XP",
+          "type": "int32"
+        },
+        {
+          "name": "NextLevelXP",
+          "type": "int32"
+        }
+      ],
+      "description": "Updates the progression display",
+      "logic": [
+        "If Level > PlayerLevel:",
+        "  Call PlayLevelUpAnimation()",
+        "Set PlayerLevel = Level",
+        "Set PreviousXP = CurrentXP",
+        "Set CurrentXP = XP",
+        "Set NextLevelXP = NextLevelXP",
+        "Update text displays",
+        "Update progress bars",
+        "If XP > PreviousXP:",
+        "  Play Anim_XPGained"
+      ]
+    },
+    {
+      "name": "UpdateCredits",
+      "inputs": [
+        {
+          "name": "NewCredits",
+          "type": "int32"
+        }
+      ],
+      "description": "Updates credits display",
+      "logic": [
+        "Set PreviousCredits = Credits",
+        "Set Credits = NewCredits",
+        "Calculate difference = NewCredits - PreviousCredits",
+        "If difference > 0:",
+        "  Call PlayCreditsGainedAnimation(difference)",
+        "Else if difference < 0:",
+        "  Call PlayCreditsSpentAnimation(abs(difference))",
+        "Update text display"
+      ]
+    },
+    {
+      "name": "PlayLevelUpAnimation",
+      "description": "Plays level up celebration animation"
+    },
+    {
+      "name": "PlayCreditsGainedAnimation",
+      "inputs": [
+        {
+          "name": "AmountGained",
+          "type": "int32"
+        }
+      ],
+      "description": "Plays animation for gaining credits"
+    },
+    {
+      "name": "PlayCreditsSpentAnimation",
+      "inputs": [
+        {
+          "name": "AmountSpent",
+          "type": "int32"
+        }
+      ],
+      "description": "Plays animation for spending credits"
+    }
+  ],
+  "animations": [
+    {
+      "name": "Anim_LevelUp",
+      "duration": 1.0,
+      "tracks": [
+        {
+          "target": "Image_LevelBackground",
+          "property": "RenderTransform.Scale",
+          "keyframes": [
+            { "time": 0.0, "value": [1.0, 1.0] },
+            { "time": 0.3, "value": [1.3, 1.3] },
+            { "time": 1.0, "value": [1.0, 1.0] }
+          ],
+          "easing": "EaseOutElastic"
+        },
+        {
+          "target": "Image_LevelBackground",
+          "property": "Glow effect",
+          "description": "Expand and fade glow ring"
+        },
+        {
+          "target": "ProgressBar_XP",
+          "property": "Percent",
+          "keyframes": [
+            { "time": 0.0, "value": 1.0, "description": "Fill to 100%" },
+            { "time": 0.3, "value": 0.0, "description": "Reset to 0%" },
+            { "time": 1.0, "value": "NewValue", "description": "Fill to new XP" }
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "type": "ParticleEffect",
+          "particle": "P_LevelUp_Confetti",
+          "location": "Center of level circle"
+        },
+        {
+          "type": "Sound",
+          "sound": "SFX_LevelUp"
+        }
+      ]
+    },
+    {
+      "name": "Anim_XPGained",
+      "duration": 0.5,
+      "tracks": [
+        {
+          "target": "ProgressBar_XP",
+          "property": "Percent",
+          "interpolation": "Smooth lerp from old to new value"
+        },
+        {
+          "target": "ProgressBar_XP",
+          "property": "FillColor",
+          "keyframes": [
+            { "time": 0.0, "value": "#00BCD4" },
+            { "time": 0.2, "value": "#4CAF50" },
+            { "time": 0.5, "value": "#00BCD4" }
+          ],
+          "description": "Flash green"
+        }
+      ]
+    },
+    {
+      "name": "Anim_CreditsGained",
+      "duration": 0.6,
+      "tracks": [
+        {
+          "target": "Text_CreditsValue",
+          "property": "Text (number)",
+          "interpolation": "Interpolate from old to new",
+          "description": "Counter animation"
+        },
+        {
+          "target": "Text_CreditsValue",
+          "property": "ColorAndOpacity",
+          "keyframes": [
+            { "time": 0.0, "value": "#FFC107" },
+            { "time": 0.2, "value": "#4CAF50" },
+            { "time": 0.6, "value": "#FFC107" }
+          ],
+          "description": "Flash green"
+        },
+        {
+          "target": "FloatingText",
+          "property": "Position.Y and Opacity",
+          "description": "+{amount} floats up and fades out",
+          "startPosition": "Above credits value",
+          "endPosition": "+50 units up",
+          "opacity": [1.0, 0.0]
+        }
+      ]
+    },
+    {
+      "name": "Anim_CreditsSpent",
+      "duration": 0.4,
+      "tracks": [
+        {
+          "target": "Text_CreditsValue",
+          "property": "Text (number)",
+          "interpolation": "Interpolate from old to new"
+        },
+        {
+          "target": "Text_CreditsValue",
+          "property": "ColorAndOpacity",
+          "keyframes": [
+            { "time": 0.0, "value": "#FFC107" },
+            { "time": 0.15, "value": "#F44336" },
+            { "time": 0.4, "value": "#FFC107" }
+          ],
+          "description": "Flash red briefly"
+        },
+        {
+          "target": "FloatingText",
+          "property": "Position.Y and Opacity",
+          "description": "-{amount} floats up and fades out",
+          "color": "#F44336"
+        }
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "property": "Text_Level.Text",
+      "source": "PlayerLevel"
+    },
+    {
+      "property": "CircularProgressBar_LevelProgress.Percent",
+      "source": "CurrentXP / NextLevelXP",
+      "type": "float (0-1)"
+    },
+    {
+      "property": "Text_XPValue.Text",
+      "source": "FString::Printf(TEXT(\"%d/%d\"), CurrentXP, NextLevelXP)"
+    },
+    {
+      "property": "ProgressBar_XP.Percent",
+      "source": "CurrentXP / NextLevelXP",
+      "type": "float (0-1)"
+    },
+    {
+      "property": "Text_CreditsValue.Text",
+      "source": "FText::AsNumber(Credits, FNumberFormattingOptions::DefaultWithGrouping())"
+    }
+  ],
+  "vrAdaptations": {
+    "placement": {
+      "option1": "Attached to wrist (watch-style)",
+      "option2": "Follows player gaze when in menu"
+    },
+    "scaling": {
+      "icons": "Larger for visibility",
+      "text": "2x size"
+    },
+    "effects": {
+      "glow": "More prominent for visibility"
+    }
+  },
+  "hudIntegration": {
+    "persistentDisplay": true,
+    "location": "Top-right corner of screen",
+    "zOrder": 50,
+    "fadeOut": {
+      "inCombat": false,
+      "afterDelay": 5.0
+    }
+  },
+  "testingChecklist": [
+    "Level displays correctly",
+    "XP progress bar fills correctly",
+    "XP text shows current/next level",
+    "Credits display with thousands separator",
+    "Level up animation plays on level increase",
+    "XP gained animation smooth",
+    "Credits gained shows +amount floating text",
+    "Credits spent shows -amount floating text",
+    "Circular progress bar matches linear bar",
+    "All animations smooth at 60fps"
+  ]
+}

@@ -1,0 +1,521 @@
+{
+  "exploration_missions": [
+    {
+      "mission_id": "exploration_survey_001",
+      "mission_type": "Exploration",
+      "title_template": "Survey {location_type}",
+      "description_template": "Conduct a comprehensive survey of {location_name}. Scan {scan_count} locations and collect data on {survey_focus}. Submit findings to research division.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "ScanLocation",
+          "description": "Scan designated locations",
+          "quantity": 5,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "CollectData",
+          "description": "Gather survey data",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 1200,
+        "experience": 120,
+        "items": ["SurveyData_Basic"],
+        "faction_rep": {"Scientific": 15}
+      },
+      "requirements": {
+        "min_level": 2,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["ScannerModule"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 15000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "location_type": ["asteroid field", "nebula region", "moon cluster", "debris field"],
+        "location_name": ["Sector 7-G", "Nova Quadrant", "Outer Rim", "Deep Space Zone"],
+        "scan_count": ["five", "six", "seven"],
+        "survey_focus": ["mineral composition", "gravitational anomalies", "radiation levels", "stellar phenomena"]
+      }
+    },
+    {
+      "mission_id": "exploration_discovery_001",
+      "mission_type": "Exploration",
+      "title_template": "Locate {discovery_target}",
+      "description_template": "Intelligence suggests the existence of {discovery_target} in the {location_area}. Search the region and confirm its location. {discovery_importance}.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "DiscoverLocation",
+          "description": "Find {discovery_target}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "ScanLocation",
+          "description": "Scan and verify discovery",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 2500,
+        "experience": 200,
+        "items": ["DiscoveryBeacon"],
+        "faction_rep": {"Explorers": 25}
+      },
+      "requirements": {
+        "min_level": 3,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["LongRangeScanner"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 25000,
+        "location_type": "Unknown"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "discovery_target": ["ancient wreckage", "derelict station", "hidden outpost", "mysterious structure", "uncharted moon"],
+        "location_area": ["unexplored sector", "uncharted region", "dark zone", "frontier space"],
+        "discovery_importance": ["Could be historically significant", "May contain valuable resources", "Potential alien technology", "Strategic value unknown"]
+      }
+    },
+    {
+      "mission_id": "exploration_salvage_001",
+      "mission_type": "Exploration",
+      "title_template": "Salvage Operation: {wreck_type}",
+      "description_template": "Locate and salvage materials from {wreck_type} at {location_name}. Recover {salvage_target} and return to base. Watch for {hazard_type}.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "LocateWreck",
+          "description": "Find wreckage site",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "SalvageItem",
+          "description": "Recover salvageable materials",
+          "quantity": 3,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 1800,
+        "experience": 150,
+        "items": ["SalvagedParts"],
+        "faction_rep": {"Salvagers": 18}
+      },
+      "requirements": {
+        "min_level": 3,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["SalvagingTools"],
+        "cargo_capacity": 20
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 18000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "wreck_type": ["destroyed freighter", "crashed warship", "abandoned mining rig", "derelict research vessel"],
+        "location_name": ["Battle Site Alpha", "Collision Zone", "Scrapyard Sector", "Dead Ship Graveyard"],
+        "salvage_target": ["working components", "intact modules", "rare alloys", "functional systems"],
+        "hazard_type": ["unstable debris", "radiation leaks", "hostile scavengers", "structural instability"]
+      }
+    },
+    {
+      "mission_id": "exploration_archaeological_001",
+      "mission_type": "Exploration",
+      "title_template": "Archaeological Survey: {site_name}",
+      "description_template": "Investigate {site_type} at {site_name}. Evidence suggests {discovery_hint}. Document findings and retrieve {artifact_count} artifacts for analysis.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "LocateSite",
+          "description": "Find archaeological site",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "ScanLocation",
+          "description": "Document site features",
+          "quantity": 5,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "CollectItem",
+          "description": "Recover artifacts",
+          "quantity": 3,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 4000,
+        "experience": 300,
+        "items": ["AlienArtifact", "ResearchGrant"],
+        "faction_rep": {"Archaeological": 35}
+      },
+      "requirements": {
+        "min_level": 5,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["AdvancedScanner", "ExcavationTools"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 30000,
+        "location_type": "Planet"
+      },
+      "time_limit": null,
+      "repeatable": false,
+      "variables": {
+        "site_type": ["ancient ruins", "alien structure", "precursor installation", "lost civilization site"],
+        "site_name": ["Epsilon Prime", "The Monoliths", "Forgotten Complex", "Crystal Tombs"],
+        "discovery_hint": ["possible precursor technology", "signs of advanced civilization", "unknown energy signatures", "cultural artifacts"],
+        "artifact_count": ["three", "four", "five"]
+      }
+    },
+    {
+      "mission_id": "exploration_mapping_001",
+      "mission_type": "Exploration",
+      "title_template": "Chart {region_name}",
+      "description_template": "Create detailed navigation maps of {region_name}. Plot safe routes, identify hazards, and mark points of interest. This region is currently {region_status}.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "VisitWaypoint",
+          "description": "Visit navigation waypoints",
+          "quantity": 8,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "IdentifyHazard",
+          "description": "Mark navigational hazards",
+          "quantity": 3,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "MarkPOI",
+          "description": "Identify points of interest",
+          "quantity": 2,
+          "optional": true,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 2200,
+        "experience": 180,
+        "items": ["NavigationData"],
+        "faction_rep": {"Cartographers": 20}
+      },
+      "requirements": {
+        "min_level": 4,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["NavigationComputer"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 35000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "region_name": ["The Frontier", "Outer Territories", "Wild Space", "Uncharted Zone"],
+        "region_status": ["completely unmapped", "poorly documented", "sparsely charted", "recently discovered"]
+      }
+    },
+    {
+      "mission_id": "exploration_anomaly_001",
+      "mission_type": "Exploration",
+      "title_template": "Investigate {anomaly_type}",
+      "description_template": "Sensors have detected {anomaly_type} in {location_name}. Investigation required to determine {investigation_goal}. Approach with caution - {warning}.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "LocateAnomaly",
+          "description": "Find anomaly source",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "ScanAnomaly",
+          "description": "Analyze anomaly",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "CollectSample",
+          "description": "Gather samples if safe",
+          "quantity": 1,
+          "optional": true,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 3500,
+        "experience": 280,
+        "items": ["AnomalyData", "ScientificSample"],
+        "faction_rep": {"Scientific": 30}
+      },
+      "requirements": {
+        "min_level": 6,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["AnomalyScanner", "ShieldGenerator"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 28000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "anomaly_type": ["spatial distortion", "energy spike", "gravitational anomaly", "temporal fluctuation", "quantum variance"],
+        "location_name": ["deep space", "near the nebula", "by the black hole", "in the void"],
+        "investigation_goal": ["its nature and origin", "potential risks", "scientific value", "exploitable properties"],
+        "warning": ["readings are unstable", "previous ships reported malfunctions", "nature is unknown", "could be dangerous"]
+      }
+    },
+    {
+      "mission_id": "exploration_planetside_001",
+      "mission_type": "Exploration",
+      "title_template": "Planetary Survey: {planet_name}",
+      "description_template": "Land on {planet_name} and conduct surface exploration. Map {biome_type} biome, collect {sample_count} samples, and assess colonization potential.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "LandOnPlanet",
+          "description": "Land on planetary surface",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "ExploreSurface",
+          "description": "Survey surface area",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "CollectSample",
+          "description": "Gather planetary samples",
+          "quantity": 5,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 2800,
+        "experience": 220,
+        "items": ["PlanetaryData", "BioSamples"],
+        "faction_rep": {"Colonial": 22}
+      },
+      "requirements": {
+        "min_level": 4,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["LandingGear", "EnvironmentSuit"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 20000,
+        "location_type": "Planet"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "planet_name": ["Kepler-442", "New Terra", "Proxima b", "Haven Prime", "Gaia IV"],
+        "biome_type": ["temperate", "desert", "arctic", "jungle", "volcanic"],
+        "sample_count": ["five", "six", "seven"]
+      }
+    },
+    {
+      "mission_id": "exploration_derelict_001",
+      "mission_type": "Exploration",
+      "title_template": "Board Derelict: {vessel_name}",
+      "description_template": "The {vessel_type} '{vessel_name}' has been found drifting in {location}. Board the vessel, investigate what happened, and recover the {recovery_target}.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "DockWithDerelict",
+          "description": "Board derelict vessel",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "InvestigateInterior",
+          "description": "Search vessel interior",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "RecoverItem",
+          "description": "Recover {recovery_target}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 3800,
+        "experience": 320,
+        "items": ["FlightRecorder", "SalvagedTech"],
+        "faction_rep": {"Explorers": 28}
+      },
+      "requirements": {
+        "min_level": 6,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["DockingClamp", "BreachingTool"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 22000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "vessel_name": ["Horizon's Edge", "Star Wanderer", "Prometheus", "Discovery One", "Endeavour"],
+        "vessel_type": ["cargo ship", "research vessel", "passenger liner", "mining frigate"],
+        "location": ["deep space", "asteroid field", "abandoned sector", "dark zone"],
+        "recovery_target": ["flight recorder", "cargo manifest", "valuable cargo", "crew logs", "ship computer"]
+      }
+    },
+    {
+      "mission_id": "exploration_signal_001",
+      "mission_type": "Exploration",
+      "title_template": "Trace Signal: {signal_type}",
+      "description_template": "A {signal_type} has been detected from {signal_location}. Track the signal to its source and investigate. Origin and purpose are {signal_status}.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "TrackSignal",
+          "description": "Follow signal to source",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "InvestigateSource",
+          "description": "Investigate signal origin",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 2000,
+        "experience": 170,
+        "items": ["SignalData"],
+        "faction_rep": {"Explorers": 15}
+      },
+      "requirements": {
+        "min_level": 3,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "required_equipment": ["SignalTracker"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 16000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "signal_type": ["distress beacon", "unknown transmission", "encrypted signal", "automated broadcast", "strange frequency"],
+        "signal_location": ["outer system", "asteroid belt", "near gas giant", "deep space"],
+        "signal_status": ["unknown", "unidentified", "mysterious", "unexplained"]
+      }
+    },
+    {
+      "mission_id": "exploration_reconnaissance_001",
+      "mission_type": "Exploration",
+      "title_template": "Recon Mission: {target_location}",
+      "description_template": "Perform reconnaissance of {target_location}. Gather intelligence on {intel_target} without being detected. {mission_importance}.",
+      "difficulty": "VeryHard",
+      "objectives": [
+        {
+          "type": "ReachLocation",
+          "description": "Infiltrate target area",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "GatherIntel",
+          "description": "Collect intelligence",
+          "quantity": 3,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "AvoidDetection",
+          "description": "Remain undetected",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 5500,
+        "experience": 400,
+        "items": ["IntelligenceData", "StealthDevice"],
+        "faction_rep": {"Military": 40}
+      },
+      "requirements": {
+        "min_level": 8,
+        "required_faction": "Military",
+        "prerequisite_missions": [],
+        "required_equipment": ["StealthSystem", "SensorJammer"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 32000,
+        "location_type": "Hostile"
+      },
+      "time_limit": 1800,
+      "repeatable": false,
+      "variables": {
+        "target_location": ["enemy stronghold", "pirate base", "hostile territory", "restricted zone"],
+        "intel_target": ["fleet movements", "defensive positions", "facility layouts", "communication patterns"],
+        "mission_importance": ["Critical for upcoming operations", "High priority intelligence", "Strategic value confirmed"]
+      }
+    }
+  ]
+}

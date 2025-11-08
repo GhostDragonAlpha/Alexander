@@ -151,6 +151,40 @@ struct FMaintenanceRequirement
 };
 
 /**
+ * Wrapper for TArray<FMaintenanceRequirement> to support TMap usage
+ * Required for UE5.6+ compatibility with nested containers
+ */
+USTRUCT(BlueprintType)
+struct FMaintenanceRequirementArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Maintenance")
+	TArray<FMaintenanceRequirement> Requirements;
+
+	FMaintenanceRequirementArray()
+	{
+	}
+};
+
+/**
+ * Wrapper for TArray<FAutomationUpgrade> to support TMap usage
+ * Required for UE5.6+ compatibility with nested containers
+ */
+USTRUCT(BlueprintType)
+struct FAutomationUpgradeArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Upgrades")
+	TArray<FAutomationUpgrade> Upgrades;
+
+	FAutomationUpgradeArray()
+	{
+	}
+};
+
+/**
  * Automation efficiency system
  * Tracks automation device performance, maintenance, and upgrades
  * Implements 80% manual labor reduction through automation
@@ -234,8 +268,8 @@ public:
 	// ============================================================================
 
 	/** Maintenance requirements by device type */
-// Maintenance requirements (C++ only due to TArray in TMap limitation)
-	TMap<EAutomationDeviceType, TArray<FMaintenanceRequirement>> MaintenanceRequirements;
+	UPROPERTY(BlueprintReadOnly, Category = "Maintenance")
+	TMap<EAutomationDeviceType, FMaintenanceRequirementArray> MaintenanceRequirements;
 
 	/** Hours between maintenance */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Maintenance")
@@ -270,12 +304,12 @@ public:
 	// ============================================================================
 
 	/** Available upgrades by device type */
-// Available upgrades (C++ only due to TArray in TMap limitation)
-	TMap<EAutomationDeviceType, TArray<FAutomationUpgrade>> AvailableUpgrades;
+	UPROPERTY(BlueprintReadOnly, Category = "Upgrades")
+	TMap<EAutomationDeviceType, FAutomationUpgradeArray> AvailableUpgrades;
 
 	/** Applied upgrades per device */
-	// Applied upgrades (C++ only due to TArray in TMap limitation)
-	TMap<AActor*, TArray<FAutomationUpgrade>> AppliedUpgrades;
+	UPROPERTY(BlueprintReadOnly, Category = "Upgrades")
+	TMap<AActor*, FAutomationUpgradeArray> AppliedUpgrades;
 
 	/**
 	 * Get available upgrades for device

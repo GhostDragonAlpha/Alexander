@@ -1,0 +1,921 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "UI Theme Data Asset Specification",
+  "description": "Complete specification for DA_UITheme data asset used throughout the ship customization system",
+  "version": "1.0",
+  "type": "object",
+  "properties": {
+    "ThemeMetadata": {
+      "type": "object",
+      "description": "Theme identification and metadata",
+      "properties": {
+        "ThemeName": {
+          "type": "string",
+          "default": "Ship Customization Default Theme",
+          "description": "Human-readable theme name"
+        },
+        "ThemeVersion": {
+          "type": "string",
+          "default": "1.0",
+          "description": "Theme version for compatibility tracking"
+        },
+        "Author": {
+          "type": "string",
+          "default": "Ship Customization System",
+          "description": "Theme creator"
+        },
+        "Description": {
+          "type": "string",
+          "default": "Default theme for VR ship customization UI with dark mode and vibrant accents",
+          "description": "Theme description"
+        }
+      },
+      "required": ["ThemeName", "ThemeVersion"]
+    },
+    "Colors": {
+      "type": "object",
+      "description": "All color definitions in hex format with opacity",
+      "properties": {
+        "Primary": {
+          "type": "object",
+          "description": "Primary brand colors",
+          "properties": {
+            "Main": {
+              "type": "string",
+              "default": "#1E88E5FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Primary blue - main brand color (RGBA hex)"
+            },
+            "Light": {
+              "type": "string",
+              "default": "#2196F3FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Lighter blue for hover states"
+            },
+            "Dark": {
+              "type": "string",
+              "default": "#1565C0FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Darker blue for pressed states"
+            }
+          },
+          "required": ["Main", "Light", "Dark"]
+        },
+        "Secondary": {
+          "type": "object",
+          "description": "Secondary accent colors",
+          "properties": {
+            "Main": {
+              "type": "string",
+              "default": "#43A047FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Green for success and confirmations"
+            },
+            "Light": {
+              "type": "string",
+              "default": "#66BB6AFF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Light green for success states"
+            },
+            "Dark": {
+              "type": "string",
+              "default": "#2E7D32FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Dark green for active success"
+            }
+          },
+          "required": ["Main", "Light", "Dark"]
+        },
+        "Accent": {
+          "type": "object",
+          "description": "Tertiary accent colors",
+          "properties": {
+            "Cyan": {
+              "type": "string",
+              "default": "#00BCD4FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Cyan for highlights and interactive elements"
+            },
+            "Purple": {
+              "type": "string",
+              "default": "#9C27B0FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Purple for epic rarity"
+            }
+          },
+          "required": ["Cyan"]
+        },
+        "Neutral": {
+          "type": "object",
+          "description": "Neutral grays and backgrounds",
+          "properties": {
+            "BackgroundDark": {
+              "type": "string",
+              "default": "#212121FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Main dark background color"
+            },
+            "Surface": {
+              "type": "string",
+              "default": "#424242FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Elevated surface color (cards, panels)"
+            },
+            "SurfaceLight": {
+              "type": "string",
+              "default": "#616161FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Lighter surface for hover states"
+            },
+            "Border": {
+              "type": "string",
+              "default": "#757575FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Standard border color"
+            },
+            "Divider": {
+              "type": "string",
+              "default": "#616161FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Divider line color"
+            }
+          },
+          "required": ["BackgroundDark", "Surface", "SurfaceLight", "Border"]
+        },
+        "Text": {
+          "type": "object",
+          "description": "Text colors with opacity levels",
+          "properties": {
+            "Primary": {
+              "type": "string",
+              "default": "#FFFFFFFF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Primary text (100% white)"
+            },
+            "Secondary": {
+              "type": "string",
+              "default": "#E0E0E0E6",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Secondary text (90% opacity)"
+            },
+            "Disabled": {
+              "type": "string",
+              "default": "#9E9E9E99",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Disabled text (60% opacity)"
+            },
+            "Hint": {
+              "type": "string",
+              "default": "#BDBDBDB3",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Hint/placeholder text (70% opacity)"
+            }
+          },
+          "required": ["Primary", "Secondary", "Disabled", "Hint"]
+        },
+        "Semantic": {
+          "type": "object",
+          "description": "Semantic colors for states and messages",
+          "properties": {
+            "Error": {
+              "type": "string",
+              "default": "#E53935FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Red for errors and critical actions"
+            },
+            "Warning": {
+              "type": "string",
+              "default": "#FDD835FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Yellow for warnings and cautions"
+            },
+            "Info": {
+              "type": "string",
+              "default": "#29B6F6FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Light blue for information"
+            },
+            "Success": {
+              "type": "string",
+              "default": "#66BB6AFF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Green for success confirmations"
+            }
+          },
+          "required": ["Error", "Warning", "Info", "Success"]
+        },
+        "Rarity": {
+          "type": "object",
+          "description": "Rarity tier colors for ship parts",
+          "properties": {
+            "Common": {
+              "type": "string",
+              "default": "#9E9E9EFF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Gray for common items"
+            },
+            "Uncommon": {
+              "type": "string",
+              "default": "#4CAF50FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Green for uncommon items"
+            },
+            "Rare": {
+              "type": "string",
+              "default": "#2196F3FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Blue for rare items"
+            },
+            "Epic": {
+              "type": "string",
+              "default": "#9C27B0FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Purple for epic items"
+            },
+            "Legendary": {
+              "type": "string",
+              "default": "#FF9800FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Orange for legendary items"
+            },
+            "Mythic": {
+              "type": "string",
+              "default": "#FFD700FF",
+              "pattern": "^#[0-9A-Fa-f]{8}$",
+              "description": "Gold for mythic items (future use)"
+            }
+          },
+          "required": ["Common", "Uncommon", "Rare", "Epic", "Legendary"]
+        },
+        "Special": {
+          "type": "object",
+          "description": "Special effect colors",
+          "properties": {
+            "XPGainPrimary": {
+              "type": "string",
+              "default": "#43A047FF",
+              "description": "Green for XP gain effects"
+            },
+            "XPGainSecondary": {
+              "type": "string",
+              "default": "#66BB6AFF",
+              "description": "Light green for XP gradient"
+            },
+            "CreditsPrimary": {
+              "type": "string",
+              "default": "#FDD835FF",
+              "description": "Gold/yellow for currency"
+            },
+            "CreditsSecondary": {
+              "type": "string",
+              "default": "#FFB300FF",
+              "description": "Darker gold for currency gradient"
+            }
+          },
+          "required": ["XPGainPrimary", "CreditsPrimary"]
+        }
+      },
+      "required": ["Primary", "Secondary", "Neutral", "Text", "Semantic", "Rarity"]
+    },
+    "Typography": {
+      "type": "object",
+      "description": "Font definitions and text styles",
+      "properties": {
+        "FontFamily": {
+          "type": "object",
+          "properties": {
+            "Primary": {
+              "type": "string",
+              "default": "Roboto",
+              "description": "Primary font family for UI"
+            },
+            "Monospace": {
+              "type": "string",
+              "default": "RobotoMono",
+              "description": "Monospace font for numbers and stats"
+            },
+            "FallbackChain": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": ["Roboto", "Segoe UI", "Helvetica Neue", "Arial", "sans-serif"],
+              "description": "Font fallback chain"
+            }
+          },
+          "required": ["Primary"]
+        },
+        "Desktop": {
+          "type": "object",
+          "description": "Desktop/standard font sizes (in points)",
+          "properties": {
+            "DisplayLarge": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 48,
+                "lineHeight": 56,
+                "letterSpacing": -0.5,
+                "fontWeight": "Bold"
+              }
+            },
+            "Display": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 36,
+                "lineHeight": 44,
+                "letterSpacing": 0.0,
+                "fontWeight": "Bold"
+              }
+            },
+            "Heading1": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 24,
+                "lineHeight": 32,
+                "letterSpacing": 0.0,
+                "fontWeight": "Bold"
+              }
+            },
+            "Heading2": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 20,
+                "lineHeight": 28,
+                "letterSpacing": 0.15,
+                "fontWeight": "Bold"
+              }
+            },
+            "Heading3": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 16,
+                "lineHeight": 24,
+                "letterSpacing": 0.15,
+                "fontWeight": "Medium"
+              }
+            },
+            "BodyLarge": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 16,
+                "lineHeight": 24,
+                "letterSpacing": 0.5,
+                "fontWeight": "Regular"
+              }
+            },
+            "Body": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 14,
+                "lineHeight": 20,
+                "letterSpacing": 0.25,
+                "fontWeight": "Regular"
+              }
+            },
+            "BodySmall": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 12,
+                "lineHeight": 16,
+                "letterSpacing": 0.4,
+                "fontWeight": "Regular"
+              }
+            },
+            "Label": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 14,
+                "lineHeight": 20,
+                "letterSpacing": 0.1,
+                "fontWeight": "Medium"
+              }
+            },
+            "Button": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 16,
+                "lineHeight": 24,
+                "letterSpacing": 1.25,
+                "fontWeight": "Bold",
+                "textTransform": "uppercase"
+              }
+            },
+            "Caption": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 10,
+                "lineHeight": 14,
+                "letterSpacing": 0.4,
+                "fontWeight": "Regular"
+              }
+            }
+          }
+        },
+        "VR": {
+          "type": "object",
+          "description": "VR font sizes (desktop + 4pt)",
+          "properties": {
+            "Heading1": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 28,
+                "lineHeight": 36,
+                "letterSpacing": 0.0,
+                "fontWeight": "Bold"
+              }
+            },
+            "Body": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 18,
+                "lineHeight": 24,
+                "letterSpacing": 0.45,
+                "fontWeight": "Regular"
+              }
+            },
+            "Button": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 20,
+                "lineHeight": 28,
+                "letterSpacing": 1.45,
+                "fontWeight": "Bold",
+                "textTransform": "uppercase"
+              }
+            },
+            "Caption": {
+              "$ref": "#/$defs/TextStyle",
+              "default": {
+                "fontSize": 14,
+                "lineHeight": 18,
+                "letterSpacing": 0.6,
+                "fontWeight": "Regular"
+              }
+            }
+          }
+        },
+        "DropShadow": {
+          "type": "object",
+          "description": "Text drop shadow settings",
+          "properties": {
+            "Default": {
+              "type": "object",
+              "properties": {
+                "offsetX": {"type": "number", "default": 2},
+                "offsetY": {"type": "number", "default": 2},
+                "blurRadius": {"type": "number", "default": 4},
+                "color": {"type": "string", "default": "#00000080"},
+                "opacity": {"type": "number", "default": 0.5}
+              }
+            },
+            "VR": {
+              "type": "object",
+              "properties": {
+                "offsetX": {"type": "number", "default": 3},
+                "offsetY": {"type": "number", "default": 3},
+                "blurRadius": {"type": "number", "default": 6},
+                "color": {"type": "string", "default": "#000000B3"},
+                "opacity": {"type": "number", "default": 0.7}
+              }
+            }
+          }
+        }
+      },
+      "required": ["FontFamily", "Desktop"]
+    },
+    "Spacing": {
+      "type": "object",
+      "description": "Spacing and layout values (in pixels)",
+      "properties": {
+        "BaseUnit": {
+          "type": "number",
+          "default": 8,
+          "description": "Base spacing unit (8px grid system)"
+        },
+        "Scale": {
+          "type": "object",
+          "properties": {
+            "Tight": {"type": "number", "default": 4, "description": "0.5 units"},
+            "Normal": {"type": "number", "default": 8, "description": "1 unit"},
+            "Medium": {"type": "number", "default": 16, "description": "2 units"},
+            "Large": {"type": "number", "default": 24, "description": "3 units"},
+            "XLarge": {"type": "number", "default": 32, "description": "4 units"},
+            "Section": {"type": "number", "default": 48, "description": "6 units"},
+            "Page": {"type": "number", "default": 64, "description": "8 units"}
+          }
+        },
+        "Container": {
+          "type": "object",
+          "description": "Container padding values",
+          "properties": {
+            "Small": {"type": "number", "default": 16},
+            "Medium": {"type": "number", "default": 24},
+            "Large": {"type": "number", "default": 32},
+            "FullPage": {"type": "number", "default": 48}
+          }
+        },
+        "Grid": {
+          "type": "object",
+          "description": "Grid gap values",
+          "properties": {
+            "Tight": {"type": "number", "default": 8},
+            "Normal": {"type": "number", "default": 16},
+            "Loose": {"type": "number", "default": 24},
+            "Section": {"type": "number", "default": 32}
+          }
+        },
+        "Component": {
+          "type": "object",
+          "description": "Component-specific spacing",
+          "properties": {
+            "ButtonPaddingH": {"type": "number", "default": 24},
+            "ButtonPaddingV": {"type": "number", "default": 12},
+            "InputPaddingH": {"type": "number", "default": 16},
+            "InputPaddingV": {"type": "number", "default": 12},
+            "CardPadding": {"type": "number", "default": 24},
+            "DialogPadding": {"type": "number", "default": 32}
+          }
+        }
+      },
+      "required": ["BaseUnit", "Scale"]
+    },
+    "BorderRadius": {
+      "type": "object",
+      "description": "Border radius values (in pixels)",
+      "properties": {
+        "None": {"type": "number", "default": 0},
+        "XS": {"type": "number", "default": 2},
+        "SM": {"type": "number", "default": 4},
+        "MD": {"type": "number", "default": 8},
+        "LG": {"type": "number", "default": 12},
+        "XL": {"type": "number", "default": 16},
+        "Full": {"type": "number", "default": 9999}
+      },
+      "required": ["None", "SM", "MD", "LG"]
+    },
+    "Shadows": {
+      "type": "object",
+      "description": "Box shadow definitions",
+      "properties": {
+        "Level0": {
+          "type": "string",
+          "default": "none",
+          "description": "No shadow"
+        },
+        "Level1": {
+          "type": "string",
+          "default": "0px 1px 3px rgba(0,0,0,0.12), 0px 1px 2px rgba(0,0,0,0.24)",
+          "description": "Subtle shadow for buttons"
+        },
+        "Level2": {
+          "type": "string",
+          "default": "0px 2px 8px rgba(0,0,0,0.2), 0px 2px 4px rgba(0,0,0,0.3)",
+          "description": "Default shadow for cards"
+        },
+        "Level3": {
+          "type": "string",
+          "default": "0px 4px 16px rgba(0,0,0,0.3), 0px 4px 8px rgba(0,0,0,0.4)",
+          "description": "Elevated shadow for modals"
+        },
+        "Level4": {
+          "type": "string",
+          "default": "0px 8px 32px rgba(0,0,0,0.4), 0px 8px 16px rgba(0,0,0,0.5)",
+          "description": "Floating shadow for tooltips"
+        },
+        "Level5": {
+          "type": "string",
+          "default": "0px 16px 48px rgba(0,0,0,0.5), 0px 16px 24px rgba(0,0,0,0.6)",
+          "description": "Maximum shadow for overlays"
+        }
+      },
+      "required": ["Level0", "Level1", "Level2", "Level3"]
+    },
+    "Animations": {
+      "type": "object",
+      "description": "Animation timing and easing specifications",
+      "properties": {
+        "Duration": {
+          "type": "object",
+          "description": "Standard animation durations (in milliseconds)",
+          "properties": {
+            "Instant": {"type": "number", "default": 50},
+            "Fast": {"type": "number", "default": 150},
+            "Normal": {"type": "number", "default": 300},
+            "Slow": {"type": "number", "default": 500},
+            "Dramatic": {"type": "number", "default": 1000}
+          }
+        },
+        "Easing": {
+          "type": "object",
+          "description": "Easing function names (UE5 curve assets)",
+          "properties": {
+            "Linear": {"type": "string", "default": "EaseLinear"},
+            "EaseIn": {"type": "string", "default": "EaseInQuad"},
+            "EaseOut": {"type": "string", "default": "EaseOutQuad"},
+            "EaseInOut": {"type": "string", "default": "EaseInOutQuad"},
+            "EaseOutBack": {"type": "string", "default": "EaseOutBack"},
+            "EaseOutBounce": {"type": "string", "default": "EaseOutBounce"},
+            "EaseOutElastic": {"type": "string", "default": "EaseOutElastic"}
+          }
+        },
+        "Defaults": {
+          "type": "object",
+          "description": "Default animation settings for common transitions",
+          "properties": {
+            "MenuOpen": {
+              "type": "object",
+              "properties": {
+                "duration": {"type": "number", "default": 300},
+                "easing": {"type": "string", "default": "EaseOutBack"}
+              }
+            },
+            "MenuClose": {
+              "type": "object",
+              "properties": {
+                "duration": {"type": "number", "default": 200},
+                "easing": {"type": "string", "default": "EaseInCubic"}
+              }
+            },
+            "ButtonPress": {
+              "type": "object",
+              "properties": {
+                "duration": {"type": "number", "default": 50},
+                "easing": {"type": "string", "default": "EaseInQuad"}
+              }
+            },
+            "XPBarFill": {
+              "type": "object",
+              "properties": {
+                "duration": {"type": "number", "default": 1000},
+                "easing": {"type": "string", "default": "EaseOutCubic"}
+              }
+            },
+            "LevelUp": {
+              "type": "object",
+              "properties": {
+                "duration": {"type": "number", "default": 2000},
+                "easing": {"type": "string", "default": "EaseOutElastic"}
+              }
+            }
+          }
+        }
+      },
+      "required": ["Duration", "Easing"]
+    },
+    "Audio": {
+      "type": "object",
+      "description": "Sound effect references",
+      "properties": {
+        "UI": {
+          "type": "object",
+          "description": "UI interaction sounds",
+          "properties": {
+            "ButtonClick": {
+              "type": "string",
+              "default": "/Game/Audio/UI/button_click.button_click",
+              "description": "Standard button click sound"
+            },
+            "ButtonHover": {
+              "type": "string",
+              "default": "/Game/Audio/UI/button_hover.button_hover",
+              "description": "Button hover sound"
+            },
+            "TabSwitch": {
+              "type": "string",
+              "default": "/Game/Audio/UI/tab_switch.tab_switch",
+              "description": "Tab switching sound"
+            },
+            "MenuOpen": {
+              "type": "string",
+              "default": "/Game/Audio/UI/menu_open.menu_open",
+              "description": "Menu open sound"
+            },
+            "MenuClose": {
+              "type": "string",
+              "default": "/Game/Audio/UI/menu_close.menu_close",
+              "description": "Menu close sound"
+            }
+          }
+        },
+        "Feedback": {
+          "type": "object",
+          "description": "Feedback and notification sounds",
+          "properties": {
+            "UnlockSuccess": {
+              "type": "string",
+              "default": "/Game/Audio/Feedback/unlock_success.unlock_success",
+              "description": "Part unlocked successfully"
+            },
+            "LevelUp": {
+              "type": "string",
+              "default": "/Game/Audio/Feedback/level_up_chime.level_up_chime",
+              "description": "Player leveled up"
+            },
+            "CreditDeduction": {
+              "type": "string",
+              "default": "/Game/Audio/Feedback/credit_deduction.credit_deduction",
+              "description": "Credits spent"
+            },
+            "CreditGain": {
+              "type": "string",
+              "default": "/Game/Audio/Feedback/credit_gain.credit_gain",
+              "description": "Credits earned"
+            },
+            "ErrorBeep": {
+              "type": "string",
+              "default": "/Game/Audio/Feedback/error_beep.error_beep",
+              "description": "Error or invalid action"
+            },
+            "PartEquip": {
+              "type": "string",
+              "default": "/Game/Audio/Feedback/part_equip.part_equip",
+              "description": "Part equipped to ship"
+            },
+            "NotificationPop": {
+              "type": "string",
+              "default": "/Game/Audio/Feedback/notification_pop.notification_pop",
+              "description": "Toast notification appears"
+            }
+          }
+        }
+      },
+      "required": ["UI", "Feedback"]
+    },
+    "Materials": {
+      "type": "object",
+      "description": "Material asset references",
+      "properties": {
+        "UI": {
+          "type": "object",
+          "properties": {
+            "BaseMaterial": {
+              "type": "string",
+              "default": "/Game/Materials/UI/M_UI_Base.M_UI_Base",
+              "description": "Base UI material (translucent, unlit)"
+            },
+            "GlowMaterial": {
+              "type": "string",
+              "default": "/Game/Materials/UI/M_UI_Glow.M_UI_Glow",
+              "description": "Glow/emissive UI material"
+            },
+            "ProgressBarMaterial": {
+              "type": "string",
+              "default": "/Game/Materials/UI/M_ProgressBar.M_ProgressBar",
+              "description": "Animated progress bar material"
+            },
+            "GradientMaterial": {
+              "type": "string",
+              "default": "/Game/Materials/UI/M_UI_Gradient.M_UI_Gradient",
+              "description": "Gradient background material"
+            }
+          }
+        },
+        "Particles": {
+          "type": "object",
+          "properties": {
+            "SparkleMaterial": {
+              "type": "string",
+              "default": "/Game/Materials/Particles/M_SparkleParticle.M_SparkleParticle",
+              "description": "Particle material for unlock effects"
+            },
+            "StarMaterial": {
+              "type": "string",
+              "default": "/Game/Materials/Particles/M_StarParticle.M_StarParticle",
+              "description": "Star particle for legendary items"
+            }
+          }
+        }
+      },
+      "required": ["UI"]
+    },
+    "Icons": {
+      "type": "object",
+      "description": "Icon size specifications",
+      "properties": {
+        "Sizes": {
+          "type": "object",
+          "properties": {
+            "XS": {"type": "number", "default": 16},
+            "SM": {"type": "number", "default": 20},
+            "MD": {"type": "number", "default": 24},
+            "LG": {"type": "number", "default": 32},
+            "XL": {"type": "number", "default": 48},
+            "XXL": {"type": "number", "default": 64},
+            "XXXL": {"type": "number", "default": 128}
+          }
+        },
+        "Atlas": {
+          "type": "string",
+          "default": "/Game/Textures/UI/T_IconAtlas.T_IconAtlas",
+          "description": "Icon texture atlas (2048x2048)"
+        }
+      }
+    },
+    "VR": {
+      "type": "object",
+      "description": "VR-specific adjustments",
+      "properties": {
+        "ScaleMultiplier": {
+          "type": "number",
+          "default": 1.2,
+          "description": "Scale multiplier for VR UI elements"
+        },
+        "DistanceScaling": {
+          "type": "object",
+          "description": "Scale based on distance from player",
+          "properties": {
+            "1.0m": {"type": "number", "default": 1.0},
+            "1.5m": {"type": "number", "default": 1.2},
+            "2.0m": {"type": "number", "default": 1.5},
+            "3.0m": {"type": "number", "default": 2.0}
+          }
+        },
+        "ColorAdjustments": {
+          "type": "object",
+          "properties": {
+            "BrightnessIncrease": {"type": "number", "default": 0.1, "description": "10% brighter"},
+            "ContrastIncrease": {"type": "number", "default": 0.15, "description": "15% more contrast"},
+            "SaturationIncrease": {"type": "number", "default": 0.05, "description": "5% more saturated"}
+          }
+        },
+        "TouchTargetMinSize": {
+          "type": "number",
+          "default": 60,
+          "description": "Minimum size for VR interactive elements (pixels)"
+        },
+        "GlowReduction": {
+          "type": "object",
+          "properties": {
+            "MaxBlur": {"type": "number", "default": 8, "description": "Max 8px blur (vs 16px)"},
+            "MaxOpacity": {"type": "number", "default": 0.6, "description": "Max 60% opacity (vs 80%)"}
+          }
+        }
+      }
+    },
+    "Accessibility": {
+      "type": "object",
+      "description": "Accessibility features",
+      "properties": {
+        "HighContrast": {
+          "type": "object",
+          "description": "High contrast mode colors",
+          "properties": {
+            "Background": {"type": "string", "default": "#000000FF"},
+            "Text": {"type": "string", "default": "#FFFFFFFF"},
+            "BorderWidth": {"type": "number", "default": 4}
+          }
+        },
+        "ColorBlindPatterns": {
+          "type": "object",
+          "description": "Pattern overlays for rarity (color blind support)",
+          "properties": {
+            "Common": {"type": "string", "default": "solid"},
+            "Uncommon": {"type": "string", "default": "horizontal_lines"},
+            "Rare": {"type": "string", "default": "dots"},
+            "Epic": {"type": "string", "default": "diagonal_stripes"},
+            "Legendary": {"type": "string", "default": "stars"}
+          }
+        },
+        "MinimumTouchTarget": {
+          "type": "object",
+          "properties": {
+            "Desktop": {"type": "number", "default": 32},
+            "Mobile": {"type": "number", "default": 44},
+            "VR": {"type": "number", "default": 60}
+          }
+        }
+      }
+    }
+  },
+  "required": ["ThemeMetadata", "Colors", "Typography", "Spacing", "Animations"],
+  "$defs": {
+    "TextStyle": {
+      "type": "object",
+      "properties": {
+        "fontSize": {
+          "type": "number",
+          "description": "Font size in points"
+        },
+        "lineHeight": {
+          "type": "number",
+          "description": "Line height in points"
+        },
+        "letterSpacing": {
+          "type": "number",
+          "description": "Letter spacing in points"
+        },
+        "fontWeight": {
+          "type": "string",
+          "enum": ["Regular", "Medium", "Bold"],
+          "description": "Font weight variant"
+        },
+        "textTransform": {
+          "type": "string",
+          "enum": ["none", "uppercase", "lowercase", "capitalize"],
+          "description": "Text transformation"
+        }
+      },
+      "required": ["fontSize", "lineHeight", "fontWeight"]
+    }
+  }
+}

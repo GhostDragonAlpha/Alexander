@@ -4,9 +4,13 @@
 /.github
 /.kiro
 /.vscode
-/Alexander
+/agent_examples
+/automation
 /Content
 /DerivedDataCache
+/examples
 /Intermediate
 /Saved
+/Screenshots
+/__pycache__
 /Plugins/AIVisionSystem/Intermediate

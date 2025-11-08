@@ -176,6 +176,26 @@ struct FAIRelationship
     float LastInteractionTime = 0.0f;
 };
 
+// Wrapper struct for TArray<FAIMemoryEntry> to allow use in TMap with UPROPERTY
+USTRUCT(BlueprintType)
+struct FAIMemoryArray
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<FAIMemoryEntry> Memories;
+};
+
+// Wrapper struct for TMap<AActor*, FAIRelationship> to allow nested TMap with UPROPERTY
+USTRUCT(BlueprintType)
+struct FAIRelationshipMap
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TMap<AActor*, FAIRelationship> Relationships;
+};
+
 // AI Emergency Response
 USTRUCT(BlueprintType)
 struct FAIEmergencyResponse
@@ -428,11 +448,11 @@ protected:
     UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors")
     TMap<FString, FAIGroupBehavior> AIGroups;
 
-    // UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors") // Removed - UHT doesn't support nested containers in TMap
-    TMap<AActor*, TArray<FAIMemoryEntry>> AIMemories;
+    UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors")
+    TMap<AActor*, FAIMemoryArray> AIMemories;
 
-    // UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors") // Removed - UHT doesn't support nested containers in TMap
-    TMap<AActor*, TMap<AActor*, FAIRelationship>> AIRelationships;
+    UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors")
+    TMap<AActor*, FAIRelationshipMap> AIRelationships;
 
     UPROPERTY(BlueprintReadOnly, Category = "AI Behaviors")
     TMap<AActor*, FAIEmergencyResponse> AIEmergencies;

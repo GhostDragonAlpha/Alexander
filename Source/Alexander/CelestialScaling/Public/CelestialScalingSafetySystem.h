@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "CelestialScalingSafetySystem.generated.h"
 
 // Forward declarations
@@ -71,7 +71,7 @@ struct FSafetyEventLog
 /**
  * Celestial Scaling Safety System (Agent 4)
  *
- * Game instance subsystem for monitoring and enforcing safety limits
+ * World subsystem for monitoring and enforcing safety limits
  * across the celestial scaling system
  *
  * This system:
@@ -86,7 +86,7 @@ struct FSafetyEventLog
  * all values remain within physically and computationally reasonable bounds
  */
 UCLASS()
-class ALEXANDER_API UCelestialScalingSafetySystem : public UGameInstanceSubsystem
+class ALEXANDER_API UCelestialScalingSafetySystem : public UWorldSubsystem
 {
 	GENERATED_BODY()
 

@@ -3,7 +3,7 @@
 #include "FirstMissionGameMode.h"
 #include "Spaceship.h"
 #include "Planet.h"
-#include "TutorialSystem.h"
+#include "TutorialOnboardingSystem.h"
 #include "QuestSystem.h"
 #include "AudioManager.h"
 #include "VFXManager.h"
@@ -396,8 +396,8 @@ void AFirstMissionGameMode::ShowTutorialStep(const FString& StepID)
 {
     if (TutorialSystem)
     {
-        // TutorialSystem->StartTutorialStep(StepID); // TODO: Implement StartTutorialStep in UTutorialSystem
-        UE_LOG(LogTemp, Log, TEXT("FirstMissionGameMode: Tutorial step requested: %s (not implemented)"), *StepID);
+        TutorialSystem->StartTutorialStep(StepID);
+        UE_LOG(LogTemp, Log, TEXT("FirstMissionGameMode: Started tutorial step: %s"), *StepID);
     }
 }
 
@@ -405,8 +405,8 @@ void AFirstMissionGameMode::CompleteTutorialStep(const FString& StepID)
 {
     if (TutorialSystem)
     {
-        // TutorialSystem->CompleteTutorialStep(StepID); // TODO: Implement CompleteTutorialStep in UTutorialSystem
-        UE_LOG(LogTemp, Log, TEXT("FirstMissionGameMode: Tutorial step completion requested: %s (not implemented)"), *StepID);
+        TutorialSystem->CompleteTutorialStep(StepID);
+        UE_LOG(LogTemp, Log, TEXT("FirstMissionGameMode: Completed tutorial step: %s"), *StepID);
     }
 }
 
@@ -476,11 +476,10 @@ void AFirstMissionGameMode::ProcessStageTransitions()
     {
         case EMissionStage::ShipTutorial:
             // Transition to launch after tutorial complete
-            // TODO: Implement IsTutorialStepCompleted in UTutorialSystem
-            // if (TutorialSystem && TutorialSystem->IsTutorialStepCompleted("ship_controls"))
-            // {
-            //     SetMissionStage(EMissionStage::Launch);
-            // }
+            if (TutorialSystem && TutorialSystem->IsTutorialStepCompleted("ship_controls"))
+            {
+                SetMissionStage(EMissionStage::Launch);
+            }
             break;
 
         case EMissionStage::MoonApproach:

@@ -1,0 +1,551 @@
+{
+  "mission_templates": [
+    {
+      "mission_id": "salvage_wreck_recovery_001",
+      "type": "salvage",
+      "title": "Wreck Salvage - ${ship_name}",
+      "description": "The ${ship_type} ${ship_name} was destroyed in ${location} ${time_ago}. Salvage valuable ${target_component} before competitors arrive. The wreck is unstable - work fast but carefully. Salvage rights expire in ${time_limit_hours} hours.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "locate_wreck",
+          "description": "Navigate to wreck site in ${location}",
+          "success_criteria": "wreck_located"
+        },
+        {
+          "type": "extract_components",
+          "description": "Salvage ${target_component} from unstable wreck",
+          "success_criteria": "components_extracted"
+        },
+        {
+          "type": "secure_salvage",
+          "description": "Return salvage to collection point",
+          "success_criteria": "salvage_delivered"
+        }
+      ],
+      "rewards": {
+        "credits": 8000,
+        "reputation": 5,
+        "bonus_conditions": [
+          {
+            "condition": "pristine_condition",
+            "credits": 3000,
+            "description": "Undamaged salvage bonus"
+          },
+          {
+            "condition": "additional_finds",
+            "credits": 2000,
+            "description": "Extra components bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "salvage_equipment": "basic",
+        "cargo_capacity": 5,
+        "repair_tools": true
+      },
+      "location": {
+        "spawn_type": "wreck_site",
+        "difficulty": "low_hazard"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "ship_name": ["Intrepid", "Fortune's Fall", "Stellar Dawn", "Prometheus", "Enterprise"],
+        "ship_type": ["freighter", "transport", "military vessel", "mining ship", "passenger liner"],
+        "location": ["asteroid field", "debris field", "outer system", "abandoned orbit", "graveyard sector"],
+        "time_ago": ["days ago", "last week", "recently", "a month ago"],
+        "target_component": ["engine cores", "navigation systems", "valuable cargo", "computer cores", "power cells"],
+        "time_limit_hours": ["3", "4", "6"]
+      },
+      "ai_config": {
+        "enemy_waves": 1,
+        "enemies_per_wave": "0-2",
+        "enemy_types": ["rival_salvagers", "scavengers"],
+        "wreck_instability": "low",
+        "environmental_hazards": ["debris", "radiation"]
+      },
+      "repeatable": true,
+      "faction_affected": ["Salvagers Guild", "Scrap Merchants"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "salvage_debris_field_001",
+      "type": "salvage",
+      "title": "Debris Field Sweep - ${battle_name}",
+      "description": "The ${battle_name} left ${debris_count} wrecks scattered across ${field_size}. Sweep the field and collect ${target_materials}. Competition is fierce - ${rival_count} other salvagers are working the field. Get what you can before it's picked clean.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "field_navigation",
+          "description": "Navigate hazardous debris field safely",
+          "success_criteria": "field_entered"
+        },
+        {
+          "type": "competitive_salvage",
+          "description": "Collect ${quota} units of ${target_materials}",
+          "success_criteria": "quota_met"
+        },
+        {
+          "type": "safe_extraction",
+          "description": "Exit debris field with salvage intact",
+          "success_criteria": "extracted_safely"
+        }
+      ],
+      "rewards": {
+        "credits": 12000,
+        "reputation": 10,
+        "bonus_conditions": [
+          {
+            "condition": "exceeded_quota",
+            "credits": 4000,
+            "description": "Overachiever bonus"
+          },
+          {
+            "condition": "zero_hull_damage",
+            "credits": 3000,
+            "description": "Perfect navigation bonus"
+          },
+          {
+            "condition": "rival_outperformed",
+            "credits": 5000,
+            "description": "Top salvager bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "salvage_equipment": "advanced",
+        "cargo_capacity": 15,
+        "shield_rating": "basic"
+      },
+      "location": {
+        "spawn_type": "active_debris_field",
+        "difficulty": "moderate_hazard"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "battle_name": ["Battle of Sigma Station", "Talon Fleet Engagement", "Corporate Wars Conflict", "Pirate Ambush"],
+        "debris_count": ["dozens of", "hundreds of", "countless"],
+        "field_size": ["10 cubic kilometers", "massive area", "extensive region"],
+        "target_materials": ["rare alloys", "military-grade components", "valuable metals", "ship parts", "intact weapons"],
+        "rival_count": ["3", "5", "8"],
+        "quota": ["10", "15", "20"]
+      },
+      "ai_config": {
+        "enemy_waves": 3,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["rival_salvagers", "claim_jumpers"],
+        "competition_intensity": "high",
+        "environmental_hazards": ["debris collisions", "radiation", "unstable wrecks"]
+      },
+      "repeatable": true,
+      "faction_affected": ["Salvagers Guild", "Scrap Dealers"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "salvage_derelict_station_001",
+      "type": "salvage",
+      "title": "Derelict Station - ${station_name}",
+      "description": "${station_name} was abandoned ${abandonment_reason}. The station contains ${valuable_items} worth a fortune. Board the derelict, navigate to ${target_location}, and extract the goods. Warning: ${hazard_warning}.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "dock_derelict",
+          "description": "Dock with abandoned ${station_name}",
+          "success_criteria": "docking_successful"
+        },
+        {
+          "type": "interior_salvage",
+          "description": "Navigate to ${target_location} and secure ${valuable_items}",
+          "success_criteria": "items_secured"
+        },
+        {
+          "type": "emergency_extraction",
+          "description": "Return to ship before ${threat} overwhelms you",
+          "success_criteria": "escaped_safely"
+        }
+      ],
+      "rewards": {
+        "credits": 20000,
+        "reputation": 20,
+        "bonus_conditions": [
+          {
+            "condition": "all_cargo_recovered",
+            "credits": 7000,
+            "description": "Complete recovery bonus"
+          },
+          {
+            "condition": "station_data_recovered",
+            "credits": 5000,
+            "description": "Black box data bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "eva_suit": true,
+        "cutting_tools": true,
+        "combat_rating": "experienced"
+      },
+      "location": {
+        "spawn_type": "derelict_station",
+        "difficulty": "high_hazard"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "station_name": ["Omega Station", "Haven's Rest", "Prosperity Point", "Sentinel Outpost", "Guardian's Watch"],
+        "abandonment_reason": ["during the plague", "after the attack", "when the company collapsed", "mysteriously"],
+        "valuable_items": ["research data", "prototype technology", "luxury goods", "rare minerals", "classified documents"],
+        "target_location": ["command center", "cargo bay", "research lab", "vault", "secure storage"],
+        "hazard_warning": ["life support is failing", "hostile entities detected", "structural collapse imminent", "radiation levels rising"],
+        "threat": ["station collapse", "oxygen depletion", "hostile creatures", "security systems"]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "3-6",
+        "enemy_types": ["security_drones", "automated_defenses", "hostile_fauna"],
+        "station_hazards": ["depressurization", "fires", "structural_collapse"],
+        "time_pressure": "extreme"
+      },
+      "repeatable": true,
+      "faction_affected": ["Salvagers Guild", "Technology Brokers"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "salvage_military_wreck_001",
+      "type": "salvage",
+      "title": "Military Salvage - ${warship_name}",
+      "description": "The ${warship_class} ${warship_name} was destroyed in ${battle_location}. Military salvage is highly restricted, but ${contractor} has legal clearance. Extract ${military_tech} before ${authority} patrols arrive. This is technically legal - barely.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "secure_access",
+          "description": "Breach military-grade hull of ${warship_name}",
+          "success_criteria": "hull_breached"
+        },
+        {
+          "type": "extract_technology",
+          "description": "Recover ${military_tech} from secure areas",
+          "success_criteria": "tech_recovered"
+        },
+        {
+          "type": "rapid_departure",
+          "description": "Escape before ${authority} arrives",
+          "success_criteria": "escaped_undetected"
+        }
+      ],
+      "rewards": {
+        "credits": 25000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "classified_data_found",
+            "credits": 8000,
+            "description": "Intelligence bonus"
+          },
+          {
+            "condition": "avoided_detection",
+            "credits": 6000,
+            "description": "Ghost salvager bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "military_clearance": "contractor",
+        "heavy_cutting_tools": true,
+        "fast_ship": true
+      },
+      "location": {
+        "spawn_type": "military_wreck",
+        "difficulty": "time_critical"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "warship_name": ["Valiant", "Defiant", "Retribution", "Vengeance", "Justice"],
+        "warship_class": ["destroyer", "cruiser", "battleship", "carrier", "dreadnought"],
+        "battle_location": ["the front lines", "enemy territory", "contested space", "border engagement"],
+        "contractor": ["military intelligence", "defense contractor", "salvage corporation", "government agency"],
+        "military_tech": ["weapons systems", "shield generators", "computer cores", "encrypted data", "prototype systems"],
+        "authority": ["military patrol", "security forces", "investigation team"]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["patrol_ships", "investigation_teams"],
+        "security_systems": "military_grade",
+        "patrol_timer": "strict"
+      },
+      "repeatable": true,
+      "faction_affected": ["Military Contractors", "Defense Industry"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "salvage_artifact_recovery_001",
+      "type": "salvage",
+      "title": "Ancient Artifact - ${artifact_name}",
+      "description": "${artifact_name} was discovered in ${wreck_location}. The ${artifact_type} is ${age_description} and worth ${value} to collectors. Recover it from the wreck before ${rival_faction} gets there. This isn't just salvage - it's archaeology.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "archaeological_survey",
+          "description": "Carefully survey ancient wreck site",
+          "success_criteria": "artifact_located"
+        },
+        {
+          "type": "delicate_extraction",
+          "description": "Extract ${artifact_name} without damage",
+          "success_criteria": "artifact_secured_intact"
+        },
+        {
+          "type": "contested_escape",
+          "description": "Escape with artifact despite ${rival_faction} interference",
+          "success_criteria": "artifact_delivered"
+        }
+      ],
+      "rewards": {
+        "credits": 18000,
+        "reputation": 25,
+        "bonus_conditions": [
+          {
+            "condition": "pristine_recovery",
+            "credits": 7000,
+            "description": "Perfect preservation bonus"
+          },
+          {
+            "condition": "additional_artifacts",
+            "credits": 5000,
+            "description": "Archaeological discovery bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "archaeological_tools": true,
+        "preservation_equipment": true,
+        "research_permit": "recommended"
+      },
+      "location": {
+        "spawn_type": "ancient_site",
+        "difficulty": "delicate_operation"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "artifact_name": ["Precursor Device", "Ancient Codex", "Xenotech Relic", "Lost Technology", "Alien Artifact"],
+        "artifact_type": ["ancient technology", "cultural treasure", "religious artifact", "scientific marvel"],
+        "age_description": ["millennia old", "from a lost civilization", "of unknown origin", "incredibly ancient"],
+        "value": ["millions", "a fortune", "incalculable worth", "priceless value"],
+        "wreck_location": ["ancient derelict", "archaeological site", "forgotten graveyard", "xenotech ruins"],
+        "rival_faction": ["corporate raiders", "artifact thieves", "rival archaeologists", "black market dealers"]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "2-3",
+        "enemy_types": ["rival_salvagers", "artifact_thieves"],
+        "artifact_fragility": "high",
+        "competition_arrival": "mid_mission"
+      },
+      "repeatable": true,
+      "faction_affected": ["Archaeological Society", "Artifact Collectors"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "salvage_hazmat_recovery_001",
+      "type": "salvage",
+      "title": "Hazmat Salvage - ${chemical_name}",
+      "description": "Transport ship carrying ${chemical_name} crashed in ${location}. ${chemical_type} is leaking from damaged containers. Salvage intact containers before environmental contamination spreads. Extreme hazard - specialized equipment required.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "hazmat_approach",
+          "description": "Enter contaminated zone with proper protection",
+          "success_criteria": "contamination_zone_entered"
+        },
+        {
+          "type": "container_recovery",
+          "description": "Secure ${container_count} intact containers of ${chemical_name}",
+          "success_criteria": "containers_secured"
+        },
+        {
+          "type": "decontamination",
+          "description": "Exit zone and undergo decontamination",
+          "success_criteria": "safely_decontaminated"
+        }
+      ],
+      "rewards": {
+        "credits": 30000,
+        "reputation": 20,
+        "bonus_conditions": [
+          {
+            "condition": "zero_contamination",
+            "credits": 10000,
+            "description": "Perfect hazmat handling bonus"
+          },
+          {
+            "condition": "all_containers_recovered",
+            "credits": 8000,
+            "description": "Complete recovery bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "hazmat_suit": "required",
+        "decontamination_unit": true,
+        "hazmat_certification": "required"
+      },
+      "location": {
+        "spawn_type": "contamination_zone",
+        "difficulty": "extreme_hazard"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "chemical_name": ["Xenon-7", "Plutonium isotopes", "biological agents", "toxic compounds", "radioactive materials"],
+        "chemical_type": ["deadly toxin", "radiation", "corrosive agent", "biohazard"],
+        "location": ["asteroid impact", "planetary surface", "orbital decay", "emergency jettison site"],
+        "container_count": ["8", "12", "15"]
+      },
+      "ai_config": {
+        "enemy_waves": 1,
+        "enemies_per_wave": "0-1",
+        "enemy_types": ["automated_cleanup"],
+        "contamination_spread": "continuous",
+        "health_hazard": "extreme",
+        "time_pressure": "severe"
+      },
+      "repeatable": true,
+      "faction_affected": ["Hazmat Contractors", "Environmental Services"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "salvage_contested_claim_001",
+      "type": "salvage",
+      "title": "Claim Dispute - ${disputed_wreck}",
+      "description": "${disputed_wreck} is claimed by both ${faction_a} and ${faction_b}. You have ${employer}'s contract to secure ${valuable_salvage} before the dispute is resolved. ${rival_salvagers} are already there. This will get ugly.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "race_to_wreck",
+          "description": "Reach ${disputed_wreck} before competitors",
+          "success_criteria": "arrival_first"
+        },
+        {
+          "type": "combat_salvage",
+          "description": "Defend salvage rights while extracting ${valuable_salvage}",
+          "success_criteria": "salvage_extracted_defended"
+        },
+        {
+          "type": "contested_escape",
+          "description": "Escape with salvage through hostile salvagers",
+          "success_criteria": "escaped_with_salvage"
+        }
+      ],
+      "rewards": {
+        "credits": 22000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "competitors_driven_off",
+            "credits": 6000,
+            "description": "Dominance established bonus"
+          },
+          {
+            "condition": "premium_salvage_found",
+            "credits": 5000,
+            "description": "Jackpot discovery bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "veteran",
+        "salvage_equipment": "advanced",
+        "legal_authorization": "disputed"
+      },
+      "location": {
+        "spawn_type": "contested_wreck",
+        "difficulty": "combat_expected"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "disputed_wreck": ["Fortune's Legacy", "Star Voyager", "Golden Promise", "Eclipse Trader"],
+        "faction_a": ["MegaCorp", "Stellar Industries", "Colonial Government"],
+        "faction_b": ["Salvagers Union", "Independent Operators", "Rival Corporation"],
+        "employer": ["highest bidder", "legal claimant", "insurance company"],
+        "valuable_salvage": ["cargo hold contents", "ship systems", "luxury goods", "rare materials"],
+        "rival_salvagers": ["3 crews", "multiple teams", "organized opposition"]
+      },
+      "ai_config": {
+        "enemy_waves": 4,
+        "enemies_per_wave": "3-5",
+        "enemy_types": ["rival_salvagers", "claim_jumpers", "mercenary_escorts"],
+        "combat_intensity": "high",
+        "reinforcement_chance": 0.6
+      },
+      "repeatable": true,
+      "faction_affected": ["Salvagers Guild", "Competing Factions"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "salvage_data_recovery_001",
+      "type": "salvage",
+      "title": "Data Recovery - ${ship_name}",
+      "description": "${client} needs the ${data_type} from ${ship_name}'s computer core. The ship was destroyed in ${incident}, but the armored data core survived. Locate the wreck, extract the core, and deliver it intact. ${urgency_note}.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "wreck_analysis",
+          "description": "Locate armored data core in ${ship_name} wreckage",
+          "success_criteria": "core_located"
+        },
+        {
+          "type": "careful_extraction",
+          "description": "Extract data core without corruption",
+          "success_criteria": "core_extracted_intact"
+        },
+        {
+          "type": "secure_delivery",
+          "description": "Deliver to ${client} before deadline",
+          "success_criteria": "data_delivered"
+        }
+      ],
+      "rewards": {
+        "credits": 15000,
+        "reputation": 20,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_data_integrity",
+            "credits": 5000,
+            "description": "Zero data loss bonus"
+          },
+          {
+            "condition": "rapid_recovery",
+            "credits": 4000,
+            "description": "Emergency timeline bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "data_recovery_tools": true,
+        "technical_expertise": "advanced",
+        "clean_room_equipment": "recommended"
+      },
+      "location": {
+        "spawn_type": "wreck_site",
+        "difficulty": "technical_challenge"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "ship_name": ["Data Hawk", "Information Courier", "Nexus Runner", "Archive Keeper"],
+        "data_type": ["financial records", "research data", "classified information", "business secrets", "personal archives"],
+        "client": ["corporation", "legal firm", "government agency", "private investigator", "insurance company"],
+        "incident": ["combat", "accident", "sabotage", "natural disaster"],
+        "urgency_note": ["Time is critical", "Deadline is tight", "Client is desperate", "Competition expected"]
+      },
+      "ai_config": {
+        "enemy_waves": 1,
+        "enemies_per_wave": "0-2",
+        "enemy_types": ["rival_salvagers", "data_thieves"],
+        "data_fragility": "high",
+        "technical_difficulty": "moderate"
+      },
+      "repeatable": true,
+      "faction_affected": ["Data Recovery Services", "Information Brokers"],
+      "moral_alignment": "neutral"
+    }
+  ]
+}

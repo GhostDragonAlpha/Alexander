@@ -1,0 +1,952 @@
+{
+  "combat_missions": [
+    {
+      "mission_id": "combat_bounty_001",
+      "mission_type": "Combat",
+      "title_template": "Bounty: Eliminate {target_name}",
+      "description_template": "A wanted {target_type} known as {target_name} has been spotted in the {location_name}. Local authorities are offering a bounty for their elimination. Target is considered {danger_level}.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "KillTarget",
+          "description": "Eliminate {target_name}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 2500,
+        "experience": 150,
+        "items": [],
+        "faction_rep": {"LocalAuthority": 15}
+      },
+      "requirements": {
+        "min_level": 3,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 15000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "target_name": ["Red Wolf", "Shadow Strike", "Iron Fist", "Dark Phoenix", "Thunder Hawk"],
+        "target_type": ["pirate captain", "smuggler lord", "raider boss", "mercenary", "outlaw"],
+        "location_name": ["Asteroid Belt", "Outer Rim", "Dead Zone", "Nebula Sector", "Mining Corridor"],
+        "danger_level": ["highly dangerous", "extremely hostile", "armed and dangerous", "ruthless"]
+      }
+    },
+    {
+      "mission_id": "combat_defense_001",
+      "mission_type": "Combat",
+      "title_template": "Defend {location_name}",
+      "description_template": "Intelligence reports indicate an imminent attack on {location_name} by {enemy_faction}. We need pilots to defend the facility against {wave_count} waves of attackers.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "DefendLocation",
+          "description": "Defend {location_name}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Eliminate attackers",
+          "quantity": 15,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 4000,
+        "experience": 300,
+        "items": ["ShieldBooster_Mk2"],
+        "faction_rep": {"Defenders": 25}
+      },
+      "requirements": {
+        "min_level": 5,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 10000,
+        "location_type": "Station"
+      },
+      "time_limit": 1800,
+      "repeatable": true,
+      "variables": {
+        "location_name": ["Trading Post Alpha", "Mining Station", "Research Facility", "Colonial Outpost"],
+        "enemy_faction": ["pirate raiders", "hostile mercenaries", "rogue military", "criminal syndicate"],
+        "wave_count": ["three", "four", "five"]
+      }
+    },
+    {
+      "mission_id": "combat_assault_001",
+      "mission_type": "Combat",
+      "title_template": "Assault on {target_location}",
+      "description_template": "Launch an assault on the {enemy_type} stronghold at {target_location}. Destroy {target_count} defensive installations and eliminate all hostile forces. Mission is classified as {risk_level}.",
+      "difficulty": "VeryHard",
+      "objectives": [
+        {
+          "type": "DestroyObject",
+          "description": "Destroy defensive turrets",
+          "quantity": 8,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Eliminate defenders",
+          "quantity": 12,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "DestroyObject",
+          "description": "Destroy command center",
+          "quantity": 1,
+          "optional": false,
+          "hidden": true
+        }
+      ],
+      "rewards": {
+        "credits": 7500,
+        "experience": 500,
+        "items": ["WeaponSystem_Advanced", "ArmorPlating_Heavy"],
+        "faction_rep": {"Military": 40}
+      },
+      "requirements": {
+        "min_level": 8,
+        "required_faction": "Military",
+        "prerequisite_missions": ["combat_defense_001"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 25000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": false,
+      "variables": {
+        "target_location": ["Crimson Base", "Shadow Fortress", "Iron Citadel", "Dark Nexus"],
+        "enemy_type": ["pirate", "criminal", "rogue military", "terrorist"],
+        "target_count": ["six", "eight", "ten"],
+        "risk_level": ["high risk", "extremely dangerous", "maximum threat level"]
+      }
+    },
+    {
+      "mission_id": "combat_interception_001",
+      "mission_type": "Combat",
+      "title_template": "Intercept {target_type}",
+      "description_template": "Intercept and neutralize a {target_type} carrying {cargo_type} through {location_name}. Do not let the target reach their destination. Time is critical.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "KillTarget",
+          "description": "Intercept and destroy target vessel",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 3200,
+        "experience": 200,
+        "items": [],
+        "faction_rep": {"LocalAuthority": 20}
+      },
+      "requirements": {
+        "min_level": 4,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 20000,
+        "location_type": "Space"
+      },
+      "time_limit": 900,
+      "repeatable": true,
+      "variables": {
+        "target_type": ["smuggling vessel", "courier ship", "transport freighter", "suspicious craft"],
+        "cargo_type": ["illegal weapons", "contraband goods", "stolen technology", "classified data"],
+        "location_name": ["trade route", "shipping lane", "patrol zone", "border sector"]
+      }
+    },
+    {
+      "mission_id": "combat_escort_combat_001",
+      "mission_type": "Combat",
+      "title_template": "Combat Escort: {client_name}",
+      "description_template": "{client_name} needs protection through {location_name}, a known {threat_type} hotspot. Multiple hostile contacts expected. Keep the client alive at all costs.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "EscortTarget",
+          "description": "Escort {client_name} to destination",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "DefendTarget",
+          "description": "Keep escort target alive",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 5000,
+        "experience": 350,
+        "items": ["ShieldGenerator_Advanced"],
+        "faction_rep": {"MerchantsGuild": 30}
+      },
+      "requirements": {
+        "min_level": 6,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 18000,
+        "location_type": "Space"
+      },
+      "time_limit": 1200,
+      "repeatable": true,
+      "variables": {
+        "client_name": ["Merchant Convoy", "Diplomatic Shuttle", "Corporate Transport", "Research Vessel"],
+        "location_name": ["Pirate Corridor", "War Zone", "Contested Space", "Hostile Territory"],
+        "threat_type": ["pirate", "mercenary", "raider", "hostile"]
+      }
+    },
+    {
+      "mission_id": "combat_pirate_raid_001",
+      "mission_type": "Combat",
+      "title_template": "Pirate Raid: {target_name}",
+      "description_template": "A {pirate_type} fleet is raiding {location_name}. Engage and destroy {enemy_count} pirate vessels before they escape with stolen cargo. Expect heavy resistance.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "KillTarget",
+          "description": "Destroy pirate vessels",
+          "quantity": 8,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "ProtectCargo",
+          "description": "Prevent cargo theft",
+          "quantity": 1,
+          "optional": true,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 4500,
+        "experience": 320,
+        "items": ["WeaponUpgrade_Mk2"],
+        "faction_rep": {"MerchantsGuild": 35, "Pirates": -20}
+      },
+      "requirements": {
+        "min_level": 6,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 16000,
+        "location_type": "Space"
+      },
+      "time_limit": 1500,
+      "repeatable": true,
+      "variables": {
+        "target_name": ["Cargo Fleet Alpha", "Mining Operation", "Trading Convoy"],
+        "pirate_type": ["organized", "notorious", "ruthless"],
+        "location_name": ["merchant corridor", "trade route", "mining sector"],
+        "enemy_count": ["six", "eight", "ten"]
+      }
+    },
+    {
+      "mission_id": "combat_fleet_battle_001",
+      "mission_type": "Combat",
+      "title_template": "Fleet Engagement: {battle_name}",
+      "description_template": "Join the {friendly_faction} fleet in a major engagement against {enemy_faction} forces at {location_name}. Destroy {capital_ship_count} capital ships and support vessels. This is total war.",
+      "difficulty": "VeryHard",
+      "objectives": [
+        {
+          "type": "DestroyObject",
+          "description": "Destroy enemy capital ships",
+          "quantity": 3,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Eliminate fighter support",
+          "quantity": 20,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 8000,
+        "experience": 600,
+        "items": ["MilitaryCommendation", "AdvancedReactor"],
+        "faction_rep": {"Military": 50}
+      },
+      "requirements": {
+        "min_level": 10,
+        "required_faction": "Military",
+        "prerequisite_missions": ["combat_assault_001"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 30000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": false,
+      "variables": {
+        "battle_name": ["Battle of Titan", "Siege of Neptune", "Clash at Jupiter"],
+        "friendly_faction": ["Federation", "Alliance", "Coalition"],
+        "enemy_faction": ["Separatists", "Invaders", "Rogue Fleet"],
+        "location_name": ["outer rim", "border zone", "strategic point"],
+        "capital_ship_count": ["two", "three", "four"]
+      }
+    },
+    {
+      "mission_id": "combat_ambush_001",
+      "mission_type": "Combat",
+      "title_template": "Ambush: {target_type}",
+      "description_template": "Set up an ambush for a {target_type} convoy passing through {location_name}. Eliminate {target_count} escort vessels and capture or destroy the primary target. No survivors.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "KillTarget",
+          "description": "Destroy escort vessels",
+          "quantity": 5,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "DestroyObject",
+          "description": "Neutralize primary target",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 5500,
+        "experience": 400,
+        "items": ["StealthModule"],
+        "faction_rep": {"LocalAuthority": -15}
+      },
+      "requirements": {
+        "min_level": 7,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 20000,
+        "location_type": "Space"
+      },
+      "time_limit": 1200,
+      "repeatable": true,
+      "variables": {
+        "target_type": ["corporate", "military", "diplomatic"],
+        "location_name": ["asteroid field", "nebula", "dead zone"],
+        "target_count": ["three", "five", "six"]
+      }
+    },
+    {
+      "mission_id": "combat_retaliation_001",
+      "mission_type": "Combat",
+      "title_template": "Retaliation Strike",
+      "description_template": "{enemy_faction} attacked our {facility_type}. Launch a retaliation strike against their {target_type} at {location_name}. Show them the cost of aggression.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "DestroyObject",
+          "description": "Destroy enemy facility",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Eliminate defenders",
+          "quantity": 10,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 5000,
+        "experience": 380,
+        "items": ["HeavyArmor"],
+        "faction_rep": {"Defenders": 30}
+      },
+      "requirements": {
+        "min_level": 7,
+        "required_faction": null,
+        "prerequisite_missions": ["combat_defense_001"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 22000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "enemy_faction": ["Pirates", "Raiders", "Mercenaries"],
+        "facility_type": ["outpost", "mining station", "trading post"],
+        "target_type": ["base", "hideout", "stronghold"],
+        "location_name": ["asteroid belt", "outer sector", "hostile zone"]
+      }
+    },
+    {
+      "mission_id": "combat_patrol_001",
+      "mission_type": "Combat",
+      "title_template": "Combat Patrol: {sector_name}",
+      "description_template": "Conduct an armed patrol of {sector_name}. Engage and eliminate any hostile contacts. Intel suggests {threat_count} potential targets in the area.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "PatrolRoute",
+          "description": "Complete patrol route",
+          "quantity": 5,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Eliminate hostile contacts",
+          "quantity": 6,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 3000,
+        "experience": 220,
+        "items": [],
+        "faction_rep": {"Military": 15}
+      },
+      "requirements": {
+        "min_level": 4,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 15000,
+        "location_type": "Space"
+      },
+      "time_limit": 1800,
+      "repeatable": true,
+      "variables": {
+        "sector_name": ["Sector 7", "Mars Orbit", "Asteroid Belt", "Outer Rim"],
+        "threat_count": ["multiple", "several", "numerous"]
+      }
+    },
+    {
+      "mission_id": "combat_siege_001",
+      "mission_type": "Combat",
+      "title_template": "Siege: {target_name}",
+      "description_template": "Participate in the siege of {target_name}, a {enemy_type} stronghold. Destroy {turret_count} defensive turrets and breach the shields to allow assault teams entry.",
+      "difficulty": "VeryHard",
+      "objectives": [
+        {
+          "type": "DestroyObject",
+          "description": "Destroy defensive turrets",
+          "quantity": 12,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "DestroyObject",
+          "description": "Breach shield generator",
+          "quantity": 3,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Clear defenders",
+          "quantity": 15,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 7000,
+        "experience": 550,
+        "items": ["SiegeMedal", "HeavyWeapons"],
+        "faction_rep": {"Military": 45}
+      },
+      "requirements": {
+        "min_level": 9,
+        "required_faction": "Military",
+        "prerequisite_missions": ["combat_assault_001"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 28000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": false,
+      "variables": {
+        "target_name": ["Fortress Prime", "Citadel Station", "Haven Base"],
+        "enemy_type": ["pirate", "rebel", "rogue military"],
+        "turret_count": ["ten", "twelve", "fifteen"]
+      }
+    },
+    {
+      "mission_id": "combat_dogfight_001",
+      "mission_type": "Combat",
+      "title_template": "Dogfight Challenge: {ace_name}",
+      "description_template": "{ace_name}, a renowned {enemy_type} ace pilot, has challenged you to single combat in {location_name}. This is a fight for honor and glory.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "KillTarget",
+          "description": "Defeat {ace_name}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 4000,
+        "experience": 350,
+        "items": ["AcePilotInsignia", "CustomWeapon"],
+        "faction_rep": {"PilotsGuild": 40}
+      },
+      "requirements": {
+        "min_level": 8,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 12000,
+        "location_type": "Space"
+      },
+      "time_limit": 900,
+      "repeatable": false,
+      "variables": {
+        "ace_name": ["Red Baron", "Sky Hunter", "Void Phantom", "Star Killer"],
+        "enemy_type": ["mercenary", "pirate", "rival"],
+        "location_name": ["neutral zone", "arena sector", "duel grounds"]
+      }
+    },
+    {
+      "mission_id": "combat_rescue_under_fire_001",
+      "mission_type": "Combat",
+      "title_template": "Hot Extraction: {target_name}",
+      "description_template": "{target_name} is pinned down by {enemy_faction} forces at {location_name}. Fight through {enemy_count} hostiles, extract the target, and escape.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "KillTarget",
+          "description": "Clear hostile forces",
+          "quantity": 8,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "RescueTarget",
+          "description": "Extract {target_name}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "EscortTarget",
+          "description": "Escort to safety",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 5500,
+        "experience": 420,
+        "items": ["RescueMedal"],
+        "faction_rep": {"Defenders": 35}
+      },
+      "requirements": {
+        "min_level": 7,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 18000,
+        "location_type": "Space"
+      },
+      "time_limit": 1200,
+      "repeatable": true,
+      "variables": {
+        "target_name": ["VIP", "Stranded Pilot", "Agent", "Commander"],
+        "enemy_faction": ["pirate", "hostile", "enemy"],
+        "location_name": ["combat zone", "hostile territory", "hot zone"],
+        "enemy_count": ["six", "eight", "ten"]
+      }
+    },
+    {
+      "mission_id": "combat_bomber_strike_001",
+      "mission_type": "Combat",
+      "title_template": "Bomber Strike: {target_name}",
+      "description_template": "Lead a bomber wing to destroy {target_name}, a {target_type}. Fighter escorts will oppose you. Destroy the target and {escort_count} fighters.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "DestroyObject",
+          "description": "Destroy primary target",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Eliminate fighter escorts",
+          "quantity": 8,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 5200,
+        "experience": 390,
+        "items": ["BomberWingInsignia"],
+        "faction_rep": {"Military": 35}
+      },
+      "requirements": {
+        "min_level": 7,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 20000,
+        "location_type": "Space"
+      },
+      "time_limit": 1500,
+      "repeatable": true,
+      "variables": {
+        "target_name": ["Capital Ship", "Space Station", "Command Cruiser"],
+        "target_type": ["enemy warship", "pirate base", "hostile station"],
+        "escort_count": ["six", "eight", "ten"]
+      }
+    },
+    {
+      "mission_id": "combat_minefield_assault_001",
+      "mission_type": "Combat",
+      "title_template": "Minefield Assault",
+      "description_template": "Navigate through a {mine_density} minefield and assault the {target_type} beyond. Clear {mine_count} mines and destroy {defender_count} defenders.",
+      "difficulty": "VeryHard",
+      "objectives": [
+        {
+          "type": "DestroyObject",
+          "description": "Clear mines",
+          "quantity": 15,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "DestroyObject",
+          "description": "Destroy target installation",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Eliminate defenders",
+          "quantity": 6,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 6500,
+        "experience": 500,
+        "items": ["MinesweeperKit", "ReinforcedHull"],
+        "faction_rep": {"Military": 40}
+      },
+      "requirements": {
+        "min_level": 9,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 25000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "mine_density": ["dense", "heavily mined", "dangerous"],
+        "target_type": ["enemy base", "pirate stronghold", "hostile facility"],
+        "mine_count": ["twelve", "fifteen", "twenty"],
+        "defender_count": ["four", "six", "eight"]
+      }
+    },
+    {
+      "mission_id": "combat_convoy_raid_001",
+      "mission_type": "Combat",
+      "title_template": "Convoy Raid: {convoy_name}",
+      "description_template": "Raid the {faction_type} convoy {convoy_name}. Destroy {escort_count} escort ships and capture or destroy cargo vessels. Fast and brutal.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "KillTarget",
+          "description": "Destroy escort vessels",
+          "quantity": 4,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "DestroyObject",
+          "description": "Disable cargo ships",
+          "quantity": 2,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 3800,
+        "experience": 280,
+        "items": ["StolenCargo"],
+        "faction_rep": {"Pirates": 25, "MerchantsGuild": -20}
+      },
+      "requirements": {
+        "min_level": 5,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 17000,
+        "location_type": "Space"
+      },
+      "time_limit": 1200,
+      "repeatable": true,
+      "variables": {
+        "convoy_name": ["Trade Fleet Omega", "Supply Line Alpha", "Merchant Group Seven"],
+        "faction_type": ["corporate", "merchant", "government"],
+        "escort_count": ["three", "four", "five"]
+      }
+    },
+    {
+      "mission_id": "combat_base_defense_001",
+      "mission_type": "Combat",
+      "title_template": "Last Stand: {base_name}",
+      "description_template": "{base_name} is under massive assault by {enemy_faction}. This is a desperate defense. Hold the line against {wave_count} waves. Failure means annihilation.",
+      "difficulty": "VeryHard",
+      "objectives": [
+        {
+          "type": "DefendLocation",
+          "description": "Defend {base_name}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Survive enemy waves",
+          "quantity": 25,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 8500,
+        "experience": 650,
+        "items": ["DefenderMedal", "LegendaryWeapon"],
+        "faction_rep": {"Defenders": 60}
+      },
+      "requirements": {
+        "min_level": 10,
+        "required_faction": null,
+        "prerequisite_missions": ["combat_defense_001"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 10000,
+        "location_type": "Station"
+      },
+      "time_limit": 2400,
+      "repeatable": false,
+      "variables": {
+        "base_name": ["Outpost Delta", "Haven Station", "Fort Triumph"],
+        "enemy_faction": ["overwhelming pirate force", "massive enemy fleet", "invasion force"],
+        "wave_count": ["five", "six", "seven"]
+      }
+    },
+    {
+      "mission_id": "combat_stealth_strike_001",
+      "mission_type": "Combat",
+      "title_template": "Stealth Strike: {target_name}",
+      "description_template": "Use stealth to infiltrate {location_name} and destroy {target_name}. Avoid detection by {patrol_count} patrols. One alert and the mission fails.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "StealthApproach",
+          "description": "Reach target undetected",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "DestroyObject",
+          "description": "Destroy {target_name}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "StealthEscape",
+          "description": "Escape undetected",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 6000,
+        "experience": 450,
+        "items": ["StealthCloak", "SilencedWeapons"],
+        "faction_rep": {"BlackOps": 40}
+      },
+      "requirements": {
+        "min_level": 8,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 22000,
+        "location_type": "Space"
+      },
+      "time_limit": 1800,
+      "repeatable": true,
+      "variables": {
+        "target_name": ["Communications Hub", "Command Center", "Power Core"],
+        "location_name": ["enemy territory", "hostile base", "secured zone"],
+        "patrol_count": ["numerous", "constant", "heavy"]
+      }
+    },
+    {
+      "mission_id": "combat_tournament_001",
+      "mission_type": "Combat",
+      "title_template": "Combat Tournament: {tournament_name}",
+      "description_template": "Enter the {tournament_name} combat tournament. Defeat {opponent_count} opponents in arena combat to claim the championship and grand prize.",
+      "difficulty": "VeryHard",
+      "objectives": [
+        {
+          "type": "KillTarget",
+          "description": "Defeat tournament opponents",
+          "quantity": 5,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Defeat champion",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 10000,
+        "experience": 700,
+        "items": ["ChampionTrophy", "LegendaryShip"],
+        "faction_rep": {"ArenaFighters": 80}
+      },
+      "requirements": {
+        "min_level": 10,
+        "required_faction": null,
+        "prerequisite_missions": ["combat_dogfight_001"]
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 15000,
+        "location_type": "Arena"
+      },
+      "time_limit": null,
+      "repeatable": false,
+      "variables": {
+        "tournament_name": ["Titan's Challenge", "Champion's Gauntlet", "Grand Melee"],
+        "opponent_count": ["four", "five", "six"]
+      }
+    },
+    {
+      "mission_id": "combat_distress_response_001",
+      "mission_type": "Combat",
+      "title_template": "Distress Call: {vessel_name}",
+      "description_template": "{vessel_name} sent a distress signal from {location_name}. They're under attack by {enemy_type}. Respond immediately and eliminate {enemy_count} hostiles.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "RespondDistress",
+          "description": "Reach distress location",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "KillTarget",
+          "description": "Eliminate attackers",
+          "quantity": 5,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "ProtectTarget",
+          "description": "Keep {vessel_name} alive",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 3500,
+        "experience": 250,
+        "items": ["RescueBonus"],
+        "faction_rep": {"Civilians": 25}
+      },
+      "requirements": {
+        "min_level": 4,
+        "required_faction": null,
+        "prerequisite_missions": []
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 14000,
+        "location_type": "Space"
+      },
+      "time_limit": 900,
+      "repeatable": true,
+      "variables": {
+        "vessel_name": ["Civilian Transport", "Trading Vessel", "Research Ship"],
+        "location_name": ["remote sector", "outer rim", "deep space"],
+        "enemy_type": ["pirates", "raiders", "hostiles"],
+        "enemy_count": ["four", "five", "six"]
+      }
+    }
+  ]
+}

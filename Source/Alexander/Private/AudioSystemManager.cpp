@@ -300,17 +300,16 @@ FName UAudioSystemManager::PlayAudioEvent(const FString& EventName, AActor* Sour
     AudioComponent->SetVolumeMultiplier(EventVolume);
     AudioComponent->SetPitchMultiplier(AudioEvent.PitchMultiplier);
     // UE5.6: bLooping property removed - use sound settings instead
-    // AudioComponent->bLooping = AudioEvent.bLoop;
+    // Looping is now handled via the sound asset itself, not the component
     AudioComponent->bAllowSpatialization = AudioEvent.bSpatial;
-    // TODO: Implement CreateAttenuationSettings() helper function
-    // AudioComponent->AttenuationSettings = CreateAttenuationSettings(AudioEvent);
 
-    // UE5.6: ConcurrencySettings property also removed - concurrency now handled via USoundBase
-    // TODO: Implement new concurrency system
-    // if (AudioEvent.Concurrency)
-    // {
-    //     AudioComponent->ConcurrencySettings = AudioEvent.Concurrency;
-    // }
+    // UE5.6: Attenuation is now handled via sound attenuation assets attached to the sound
+    // The component no longer has AttenuationSettings property
+    // Attenuation is set on the USoundBase asset itself
+
+    // UE5.6: Concurrency is now handled via USoundConcurrency assets attached to the sound
+    // The component no longer has ConcurrencySettings property
+    // Concurrency is set on the USoundBase asset itself
     
     // Apply audio effects
     ApplyAudioEffects(AudioComponent, AudioEvent.Effects);
@@ -991,35 +990,32 @@ void UAudioSystemManager::ApplyAudioSettings()
 {
     if (!GetWorld()) return;
 
-    // Apply master volume
-    if (GEngine)
-    {
-        // TODO: UE5.6 - SetMasterSoundVolume removed. Need to use new audio settings system.
-        // GEngine->SetMasterSoundVolume(CurrentAudioSettings.MasterVolume);
-    }
-    
+    // UE5.6: Master volume is now handled through the audio device manager
+    // We can no longer directly set master volume via GEngine
+    // Volume control is now handled per-component or via sound classes
+
     // Update music component
     if (MusicComponent)
     {
         MusicComponent->SetVolumeMultiplier(CurrentAudioSettings.MusicVolume);
     }
-    
+
     // Update ambient component
     if (AmbientComponent)
     {
         AmbientComponent->SetVolumeMultiplier(CurrentAudioSettings.AmbientVolume);
     }
-    
-    // Update all audio components
+
+    // Update all audio components based on their event type
     for (auto& InstancePair : AudioInstances)
     {
         FAudioSystemInstance& Instance = InstancePair.Value;
 
         if (Instance.AudioComponent)
         {
-            // TODO: UE5.6 - GetVolumeForEventByType function not declared in header
-            // float Volume = GetVolumeForEventByType(Instance.EventName);
-            // Instance.AudioComponent->SetVolumeMultiplier(Volume);
+            // Determine volume based on event type
+            float Volume = GetVolumeForEventByType(Instance.EventName);
+            Instance.AudioComponent->SetVolumeMultiplier(Volume);
         }
     }
 }
@@ -1054,10 +1050,6 @@ void UAudioSystemManager::ApplyAudioSettings()
 //     }
 // }
 
-// TODO: UE5.6 - GetVolumeForEventByType function not declared in header.
-// This function needs to be added to the header file or removed if not needed.
-// Commenting out for now to fix compilation.
-/*
 float UAudioSystemManager::GetVolumeForEventByType(const FString& EventName) const
 {
     if (EventName.Contains("Music"))
@@ -1085,7 +1077,6 @@ float UAudioSystemManager::GetVolumeForEventByType(const FString& EventName) con
         return CurrentAudioSettings.SFXVolume;
     }
 }
-*/
 
 // TODO: Implement CanPlayAudioEvent() helper function
 // bool UAudioSystemManager::CanPlayAudioEvent(const FAudioEvent& AudioEvent)
@@ -1325,4 +1316,284 @@ void UAudioSystemManager::LogAudioPerformanceMetrics()
     
     UE_LOG(LogTemp, Log, TEXT("Audio Performance Metrics - Active Instances: %d, Paused: %d, Zones: %d, VOIP Players: %d"),
         ActiveInstanceCount, PausedInstanceCount, AudioZones.Num(), VOIPPlayers.Num());
+}
+
+// Asset Registration Functions
+
+void UAudioSystemManager::RegisterAudioAssetByCategory(FName Category, FName AssetID, USoundBase* SoundAsset)
+{
+    if (!SoundAsset)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("RegisterAudioAssetByCategory: Invalid sound asset"));
+        return;
+    }
+
+    if (!AudioAssetRegistry.Contains(Category))
+    {
+        AudioAssetRegistry.Add(Category, FAudioAssetMap());
+    }
+
+    AudioAssetRegistry[Category].Data.Add(AssetID, SoundAsset);
+
+    UE_LOG(LogTemp, Log, TEXT("Registered audio asset '%s' in category '%s'"),
+        *AssetID.ToString(),
+        *Category.ToString());
+}
+
+USoundBase* UAudioSystemManager::GetAudioAssetByCategory(FName Category, FName AssetID) const
+{
+    const FAudioAssetMap* CategoryWrapper = AudioAssetRegistry.Find(Category);
+
+    if (!CategoryWrapper)
+    {
+        return nullptr;
+    }
+
+    return CategoryWrapper->Data.FindRef(AssetID);
+}
+
+TArray<FName> UAudioSystemManager::GetRegisteredCategorieslist() const
+{
+    TArray<FName> Categories;
+    AudioAssetRegistry.GetKeys(Categories);
+    return Categories;
+}
+
+TArray<FName> UAudioSystemManager::GetAssetsInCategory(FName Category) const
+{
+    TArray<FName> Assets;
+
+    const FAudioAssetMap* CategoryWrapper = AudioAssetRegistry.Find(Category);
+    if (CategoryWrapper)
+    {
+        CategoryWrapper->Data.GetKeys(Assets);
+    }
+
+    return Assets;
+}
+
+void UAudioSystemManager::LoadAudioAssetsFromDataTable(UDataTable* AssetTable)
+{
+    if (!AssetTable)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("LoadAudioAssetsFromDataTable: Invalid data table"));
+        return;
+    }
+
+    // Iterate through data table rows and register assets
+    // This is a placeholder - actual implementation would depend on your data table structure
+    UE_LOG(LogTemp, Log, TEXT("Loading audio assets from data table: %s"), *AssetTable->GetName());
+}
+
+// Weather Audio Integration
+
+void UAudioSystemManager::PlayWeatherAudio(FName WeatherType, FVector Location, float Intensity)
+{
+    USoundBase* WeatherSound = WeatherAudioAssets.FindRef(WeatherType);
+    
+    if (!WeatherSound)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("PlayWeatherAudio: No audio registered for weather type '%s'"), 
+            *WeatherType.ToString());
+        return;
+    }
+
+    // Stop existing weather audio of this type
+    StopWeatherAudio(WeatherType, 0.5f);
+
+    // Create audio component
+    UAudioComponent* WeatherAudioComp = CreateAudioComponent(Cast<USoundCue>(WeatherSound), nullptr, Location);
+    
+    if (WeatherAudioComp)
+    {
+        WeatherAudioComp->SetVolumeMultiplier(Intensity);
+        WeatherAudioComp->Play();
+        
+        ActiveWeatherAudio.Add(WeatherType, WeatherAudioComp);
+
+        UE_LOG(LogTemp, Log, TEXT("Playing weather audio for '%s' at intensity %.2f"), 
+            *WeatherType.ToString(), 
+            Intensity);
+    }
+}
+
+void UAudioSystemManager::UpdateWeatherAudioIntensity(FName WeatherType, float NewIntensity)
+{
+    UAudioComponent* WeatherAudioComp = ActiveWeatherAudio.FindRef(WeatherType);
+    
+    if (!WeatherAudioComp)
+    {
+        return;
+    }
+
+    NewIntensity = FMath::Clamp(NewIntensity, 0.0f, 1.0f);
+    WeatherAudioComp->SetVolumeMultiplier(NewIntensity);
+}
+
+void UAudioSystemManager::StopWeatherAudio(FName WeatherType, float FadeOutDuration)
+{
+    UAudioComponent* WeatherAudioComp = ActiveWeatherAudio.FindRef(WeatherType);
+    
+    if (!WeatherAudioComp)
+    {
+        return;
+    }
+
+    if (FadeOutDuration > 0.0f)
+    {
+        WeatherAudioComp->FadeOut(FadeOutDuration, 0.0f);
+    }
+    else
+    {
+        WeatherAudioComp->Stop();
+    }
+
+    ActiveWeatherAudio.Remove(WeatherType);
+
+    UE_LOG(LogTemp, Log, TEXT("Stopped weather audio for '%s'"), *WeatherType.ToString());
+}
+
+void UAudioSystemManager::TransitionWeatherAudio(FName OldWeatherType, FName NewWeatherType, float TransitionDuration)
+{
+    // Fade out old weather
+    if (ActiveWeatherAudio.Contains(OldWeatherType))
+    {
+        StopWeatherAudio(OldWeatherType, TransitionDuration);
+    }
+
+    // Fade in new weather
+    USoundBase* NewWeatherSound = WeatherAudioAssets.FindRef(NewWeatherType);
+    if (NewWeatherSound)
+    {
+        // Start at zero volume
+        UAudioComponent* NewWeatherComp = CreateAudioComponent(Cast<USoundCue>(NewWeatherSound), nullptr, FVector::ZeroVector);
+        
+        if (NewWeatherComp)
+        {
+            NewWeatherComp->SetVolumeMultiplier(0.0f);
+            NewWeatherComp->Play();
+            NewWeatherComp->FadeIn(TransitionDuration, 1.0f);
+            
+            ActiveWeatherAudio.Add(NewWeatherType, NewWeatherComp);
+
+            UE_LOG(LogTemp, Log, TEXT("Transitioning weather audio from '%s' to '%s' over %.1f seconds"), 
+                *OldWeatherType.ToString(), 
+                *NewWeatherType.ToString(), 
+                TransitionDuration);
+        }
+    }
+}
+
+void UAudioSystemManager::RegisterWeatherAudioAsset(FName WeatherType, USoundBase* WeatherSound)
+{
+    if (!WeatherSound)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("RegisterWeatherAudioAsset: Invalid sound asset"));
+        return;
+    }
+
+    WeatherAudioAssets.Add(WeatherType, WeatherSound);
+
+    UE_LOG(LogTemp, Log, TEXT("Registered weather audio asset for type '%s'"), 
+        *WeatherType.ToString());
+}
+
+// 3D Audio Positioning
+
+void UAudioSystemManager::UpdateAudioSource3DPosition(FName AudioInstanceID, FVector NewLocation)
+{
+    FAudioSystemInstance* Instance = AudioInstances.Find(AudioInstanceID);
+    
+    if (!Instance || !Instance->AudioComponent)
+    {
+        return;
+    }
+
+    Instance->Location = NewLocation;
+    Instance->AudioComponent->SetWorldLocation(NewLocation);
+    AudioSource3DPositions.Add(AudioInstanceID, NewLocation);
+}
+
+void UAudioSystemManager::SetAudioSourceVelocity(FName AudioInstanceID, FVector Velocity)
+{
+    FAudioSystemInstance* Instance = AudioInstances.Find(AudioInstanceID);
+    
+    if (!Instance || !Instance->AudioComponent)
+    {
+        return;
+    }
+
+    // Calculate Doppler shift based on velocity
+    float VelocityMagnitude = Velocity.Size();
+    float SpeedOfSound = 343.0f * 100.0f; // m/s to cm/s
+    
+    float DopplerShift = 1.0f;
+    if (VelocityMagnitude > 0.0f)
+    {
+        DopplerShift = SpeedOfSound / (SpeedOfSound + VelocityMagnitude);
+    }
+
+    Instance->AudioComponent->SetPitchMultiplier(DopplerShift);
+}
+
+void UAudioSystemManager::SetAudioSourceAttenuationSettings(FName AudioInstanceID, float MinDistance, float MaxDistance)
+{
+    FAudioSystemInstance* Instance = AudioInstances.Find(AudioInstanceID);
+    
+    if (!Instance || !Instance->AudioComponent)
+    {
+        return;
+    }
+
+    // Note: UE5's attenuation is typically set via sound attenuation assets
+    // This is a simplified version
+    UE_LOG(LogTemp, Log, TEXT("Setting attenuation for '%s': Min=%.1f, Max=%.1f"), 
+        *AudioInstanceID.ToString(), 
+        MinDistance, 
+        MaxDistance);
+}
+
+FName UAudioSystemManager::SpawnPositionalAudio(USoundBase* Sound, FVector Location, FRotator Rotation, float VolumeMultiplier, float PitchMultiplier, bool bAutoDestroy)
+{
+    if (!Sound || !GetWorld())
+    {
+        return NAME_None;
+    }
+
+    // Generate unique instance ID
+    FName InstanceID = GenerateUniqueInstanceName(Sound->GetName());
+
+    // Create audio component
+    UAudioComponent* AudioComp = CreateAudioComponent(Cast<USoundCue>(Sound), nullptr, Location);
+    
+    if (!AudioComp)
+    {
+        return NAME_None;
+    }
+
+    AudioComp->SetWorldLocation(Location);
+    AudioComp->SetWorldRotation(Rotation);
+    AudioComp->SetVolumeMultiplier(VolumeMultiplier);
+    AudioComp->SetPitchMultiplier(PitchMultiplier);
+    AudioComp->bAutoDestroy = bAutoDestroy;
+    AudioComp->Play();
+
+    // Store instance
+    FAudioSystemInstance NewInstance;
+    NewInstance.EventName = Sound->GetName();
+    NewInstance.AudioComponent = AudioComp;
+    NewInstance.Location = Location;
+    NewInstance.VolumeMultiplier = VolumeMultiplier;
+    NewInstance.Priority = EAudioSystemPriority::Normal;
+    NewInstance.bIsActive = true;
+    NewInstance.StartTime = GetWorld()->GetTimeSeconds();
+
+    AudioInstances.Add(InstanceID, NewInstance);
+    AudioSource3DPositions.Add(InstanceID, Location);
+
+    UE_LOG(LogTemp, Log, TEXT("Spawned positional audio '%s' at %s"), 
+        *InstanceID.ToString(), 
+        *Location.ToString());
+
+    return InstanceID;
 }

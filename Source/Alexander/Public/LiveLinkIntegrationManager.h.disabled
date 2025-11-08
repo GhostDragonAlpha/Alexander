@@ -1,0 +1,178 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "LiveLinkTypes.h"
+#include "Testing/TestDataStructures.h"
+#include "PerformanceTestingSystem.h"
+#include "LiveLinkIntegrationManager.generated.h"
+
+// Forward declarations
+class ILiveLinkClient;
+class UTestLevelGameMode;
+class AVRSpaceshipPawn;
+
+/**
+ * Live Link Integration Manager for Alexander VR Space Simulation
+ *
+ * Provides real-time data streaming and collaboration features:
+ * - Streams test results and performance metrics to Live Link Hub
+ * - Receives external control data for remote debugging
+ * - Enables collaborative development and monitoring
+ * - Supports VR tracking data streaming
+ *
+ * Usage:
+ * 1. Place one instance in levels that need Live Link integration
+ * 2. Configure connection settings and data streams
+ * 3. Use in-editor Live Link Hub for real-time monitoring
+ */
+UCLASS()
+class ALEXANDER_API ALiveLinkIntegrationManager : public AActor
+{
+	GENERATED_BODY()
+
+public:
+	ALiveLinkIntegrationManager();
+
+protected:
+	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+public:
+	// Connection management
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void ConnectToLiveLinkHub();
+
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void DisconnectFromLiveLinkHub();
+
+	UFUNCTION(BlueprintPure, Category = "Live Link")
+	bool IsConnectedToLiveLinkHub() const;
+
+	// Data streaming
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void StartStreamingTestData();
+
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void StopStreamingTestData();
+
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void StartStreamingVRData();
+
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void StopStreamingVRData();
+
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void StartStreamingPerformanceData();
+
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void StopStreamingPerformanceData();
+
+	// Remote control
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void EnableRemoteControl(bool bEnable);
+
+	UFUNCTION(BlueprintPure, Category = "Live Link")
+	bool IsRemoteControlEnabled() const { return bRemoteControlEnabled; }
+
+	// Data reception
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void ProcessIncomingLiveLinkData();
+
+	// Test integration
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void RegisterWithTestLevelGameMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Live Link")
+	void OnTestResultsUpdated(const FTestResults& Results);
+
+	// Configuration
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Config")
+	FString LiveLinkHubAddress = TEXT("127.0.0.1");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Config")
+	int32 LiveLinkHubPort = 54321;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Config")
+	bool bAutoConnectOnBeginPlay = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Config")
+	float DataUpdateInterval = 0.1f; // 10 Hz
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Config")
+	bool bStreamTestResults = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Config")
+	bool bStreamVRTracking = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Config")
+	bool bStreamPerformanceMetrics = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Config")
+	bool bEnableRemoteControl = false;
+
+	// Subject names for Live Link
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Subjects")
+	FName TestResultsSubject = TEXT("Alexander_TestResults");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Subjects")
+	FName VRTrackingSubject = TEXT("Alexander_VRTracking");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Subjects")
+	FName PerformanceSubject = TEXT("Alexander_Performance");
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Live Link|Subjects")
+	FName RemoteControlSubject = TEXT("Alexander_RemoteControl");
+
+protected:
+	// Live Link data structures
+	void SetupLiveLinkSubjects();
+	void UpdateLiveLinkData();
+	void SendTestResultsData();
+	void SendVRTrackingData();
+	void SendPerformanceData();
+	void ReceiveRemoteControlData();
+
+	// Helper functions
+	FVector GetPlayerPosition() const;
+	FRotator GetPlayerRotation() const;
+	FVector GetHMDPosition() const;
+	FRotator GetHMDRotation() const;
+	FTestResults GetCurrentTestResults() const;
+	FPerformanceMetrics GetCurrentPerformanceMetrics() const;
+
+	// Connection management
+	void InitializeLiveLinkClient();
+	void CleanupLiveLinkClient();
+
+	// Logging
+	void LogConnectionStatus(const FString& Status);
+	void LogDataTransmission(const FString& DataType, bool bSuccess);
+
+private:
+	// Live Link client reference
+	ILiveLinkClient* LiveLinkClient = nullptr;
+
+	// Game mode reference
+	UTestLevelGameMode* TestLevelGameMode = nullptr;
+
+	// VR pawn reference
+	AVRSpaceshipPawn* VRSpaceshipPawn = nullptr;
+
+	// State tracking
+	bool bConnected = false;
+	bool bStreamingTestData = false;
+	bool bStreamingVRData = false;
+	bool bStreamingPerformanceData = false;
+	bool bRemoteControlEnabled = false;
+
+	// Timing
+	float TimeSinceLastUpdate = 0.0f;
+
+	// Cached data
+	FTestResults LastTestResults;
+	FPerformanceMetrics LastPerformanceMetrics;
+};

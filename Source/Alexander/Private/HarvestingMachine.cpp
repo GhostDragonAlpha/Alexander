@@ -137,14 +137,14 @@ int32 AHarvestingMachine::PerformHarvestCycle()
 		}
 
 		// Get cells in harvest zone for this plot
-		TArray<FIntPoint>* CellsPtr = PlotCellMap.Find(Plot);
+		FFarmPlotCellArray* CellsPtr = PlotCellMap.Find(Plot);
 		if (!CellsPtr)
 		{
 			continue;
 		}
 
 		// Harvest ready crops in this plot
-		for (const FIntPoint& GridPos : *CellsPtr)
+		for (const FIntPoint& GridPos : CellsPtr->Cells)
 		{
 			if (IsCropReadyForHarvest(Plot, GridPos))
 			{
@@ -325,7 +325,8 @@ void AHarvestingMachine::UpdateManagedPlots()
 		}
 
 		TArray<FIntPoint> CellsInZone = GetCropCellsInZone(Plot);
-		PlotCellMap.Add(Plot, CellsInZone);
+		FFarmPlotCellArray& CellArray = PlotCellMap.Add(Plot);
+		CellArray.Cells = CellsInZone;
 
 		UE_LOG(LogTemp, Log, TEXT("HarvestingMachine: Plot has %d cells in harvest zone"), CellsInZone.Num());
 	}

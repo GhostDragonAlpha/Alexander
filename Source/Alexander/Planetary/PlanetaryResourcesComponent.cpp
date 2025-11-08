@@ -686,12 +686,12 @@ bool UPlanetaryResourcesComponent::CanProcessResource(EResourceType ResourceType
 TArray<EResourceType> UPlanetaryResourcesComponent::GetProcessingChain(EResourceType ResourceType) const
 {
     TArray<EResourceType> Chain;
-    
+
     if (ProcessingRecipes.Contains(ResourceType))
     {
-        Chain = ProcessingRecipes[ResourceType];
+        Chain = ProcessingRecipes[ResourceType].ResourceTypes;
     }
-    
+
     return Chain;
 }
 
@@ -968,11 +968,25 @@ void UPlanetaryResourcesComponent::GenerateResourceDeposits()
 void UPlanetaryResourcesComponent::InitializeProcessingRecipes()
 {
     // Initialize processing recipes
-    ProcessingRecipes.Add(EResourceType::Biomass, {EResourceType::Food, EResourceType::Medicine});
-    ProcessingRecipes.Add(EResourceType::Metals, {EResourceType::Electronics, EResourceType::Fuel});
-    ProcessingRecipes.Add(EResourceType::Crystals, {EResourceType::Electronics, EResourceType::Energy});
-    ProcessingRecipes.Add(EResourceType::Gas, {EResourceType::Fuel, EResourceType::Energy});
-    ProcessingRecipes.Add(EResourceType::Water, {EResourceType::Biomass, EResourceType::Food});
+    FResourceTypeArray BiomassRecipe;
+    BiomassRecipe.ResourceTypes = {EResourceType::Food, EResourceType::Medicine};
+    ProcessingRecipes.Add(EResourceType::Biomass, BiomassRecipe);
+
+    FResourceTypeArray MetalsRecipe;
+    MetalsRecipe.ResourceTypes = {EResourceType::Electronics, EResourceType::Fuel};
+    ProcessingRecipes.Add(EResourceType::Metals, MetalsRecipe);
+
+    FResourceTypeArray CrystalsRecipe;
+    CrystalsRecipe.ResourceTypes = {EResourceType::Electronics, EResourceType::Energy};
+    ProcessingRecipes.Add(EResourceType::Crystals, CrystalsRecipe);
+
+    FResourceTypeArray GasRecipe;
+    GasRecipe.ResourceTypes = {EResourceType::Fuel, EResourceType::Energy};
+    ProcessingRecipes.Add(EResourceType::Gas, GasRecipe);
+
+    FResourceTypeArray WaterRecipe;
+    WaterRecipe.ResourceTypes = {EResourceType::Biomass, EResourceType::Food};
+    ProcessingRecipes.Add(EResourceType::Water, WaterRecipe);
 }
 
 void UPlanetaryResourcesComponent::InitializeResourceValues()

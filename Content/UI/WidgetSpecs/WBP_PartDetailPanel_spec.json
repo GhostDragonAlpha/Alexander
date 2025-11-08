@@ -1,0 +1,435 @@
+{
+  "widgetName": "WBP_PartDetailPanel",
+  "description": "Center panel showing detailed information about the currently selected ship part",
+  "location": "Content/UI/Widgets/Customization/Panels/",
+  "layout": {
+    "rootType": "Border",
+    "size": "Flexible (fills center area)",
+    "backgroundColor": "#2A2A2A",
+    "borderColor": "#424242",
+    "padding": [16, 16, 16, 16]
+  },
+  "components": [
+    {
+      "name": "Text_Header",
+      "type": "Text",
+      "text": "PART DETAILS",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 24,
+          "vr": 48
+        }
+      },
+      "color": "#00BCD4"
+    },
+    {
+      "name": "Image_PartIcon",
+      "type": "Image",
+      "size": {
+        "desktop": [256, 256],
+        "vr": [512, 512]
+      },
+      "backgroundColor": "#1A1A1A",
+      "borderColor": "#424242",
+      "borderWidth": 2,
+      "description": "Displays part texture or 3D preview in VR"
+    },
+    {
+      "name": "Text_PartName",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 28,
+          "vr": 56
+        }
+      },
+      "color": "#FFFFFF",
+      "shadow": {
+        "offset": [2, 2],
+        "opacity": 0.5
+      }
+    },
+    {
+      "name": "Border_RarityBadge",
+      "type": "Border",
+      "padding": [4, 8, 4, 8],
+      "cornerRadius": 4,
+      "backgroundColor": "Dynamic (based on rarity)",
+      "children": [
+        {
+          "name": "Text_Rarity",
+          "type": "Text",
+          "font": {
+            "family": "Roboto SemiBold",
+            "size": {
+              "desktop": 14,
+              "vr": 28
+            }
+          },
+          "color": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "name": "Border_DescriptionBox",
+      "type": "Border",
+      "backgroundColor": "#1A1A1A",
+      "padding": [12, 12, 12, 12],
+      "maxHeight": {
+        "desktop": 120,
+        "vr": 240
+      },
+      "children": [
+        {
+          "name": "Text_Description",
+          "type": "Text",
+          "font": {
+            "family": "Roboto Regular",
+            "size": {
+              "desktop": 14,
+              "vr": 28
+            }
+          },
+          "color": "#BDBDBD",
+          "wrapText": true
+        }
+      ]
+    },
+    {
+      "name": "Text_StatsHeader",
+      "type": "Text",
+      "text": "STAT MODIFIERS:",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#00BCD4"
+    },
+    {
+      "name": "ScrollBox_StatsList",
+      "type": "ScrollBox",
+      "children": [
+        {
+          "name": "VBox_StatsContainer",
+          "type": "VerticalBox",
+          "description": "Dynamically populated with stat entries"
+        }
+      ]
+    },
+    {
+      "name": "Text_RequirementsHeader",
+      "type": "Text",
+      "text": "REQUIREMENTS:",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#00BCD4"
+    },
+    {
+      "name": "VBox_Requirements",
+      "type": "VerticalBox",
+      "description": "Dynamically populated with requirement entries"
+    },
+    {
+      "name": "Text_Cost",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 18,
+          "vr": 36
+        }
+      },
+      "color": "#FFC107",
+      "format": "{0} CR"
+    },
+    {
+      "name": "Text_Status",
+      "type": "Text",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 14,
+          "vr": 28
+        }
+      },
+      "colorLogic": {
+        "unlocked": "#4CAF50",
+        "locked": "#F44336",
+        "equipped": "#00BCD4"
+      }
+    },
+    {
+      "name": "Button_Unlock",
+      "type": "Button",
+      "text": "UNLOCK",
+      "size": {
+        "desktop": [140, 44],
+        "vr": [280, 88]
+      },
+      "style": {
+        "normal": "#00BCD4",
+        "hovered": "#00ACC1",
+        "pressed": "#0097A7",
+        "disabled": "#424242"
+      },
+      "font": {
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      }
+    },
+    {
+      "name": "Button_Equip",
+      "type": "Button",
+      "text": "EQUIP",
+      "size": {
+        "desktop": [140, 44],
+        "vr": [280, 88]
+      },
+      "style": {
+        "normal": "#00BCD4",
+        "hovered": "#00ACC1",
+        "pressed": "#0097A7",
+        "disabled": "#424242"
+      },
+      "font": {
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "SelectedPart",
+      "type": "UShipPartData*",
+      "description": "Currently displayed part"
+    },
+    {
+      "name": "SubsystemReference",
+      "type": "UShipCustomizationSubsystem*"
+    }
+  ],
+  "functions": [
+    {
+      "name": "DisplayPart",
+      "inputs": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ],
+      "description": "Displays the specified part's details",
+      "logic": [
+        "Set SelectedPart = PartData",
+        "Update part icon/image",
+        "Update part name and rarity",
+        "Update description text",
+        "Clear and repopulate stats list",
+        "Clear and repopulate requirements list",
+        "Update cost display",
+        "Update status text",
+        "Update button states (enabled/disabled)",
+        "Update button visibility",
+        "Play Anim_PartChanged"
+      ]
+    },
+    {
+      "name": "ClearDisplay",
+      "description": "Clears all displayed information"
+    },
+    {
+      "name": "GetRarityColor",
+      "returnType": "FLinearColor",
+      "pure": true,
+      "description": "Returns color based on part rarity"
+    },
+    {
+      "name": "GetPartStatus",
+      "returnType": "FText",
+      "pure": true,
+      "description": "Returns status text (LOCKED, UNLOCKED, EQUIPPED)"
+    },
+    {
+      "name": "CanUnlockPart",
+      "returnType": "bool",
+      "pure": true,
+      "description": "Returns true if player can unlock this part"
+    },
+    {
+      "name": "CanEquipPart",
+      "returnType": "bool",
+      "pure": true,
+      "description": "Returns true if player can equip this part"
+    },
+    {
+      "name": "GetUnlockButtonVisibility",
+      "returnType": "ESlateVisibility",
+      "pure": true,
+      "description": "Returns visibility for unlock button"
+    },
+    {
+      "name": "GetEquipButtonVisibility",
+      "returnType": "ESlateVisibility",
+      "pure": true,
+      "description": "Returns visibility for equip button"
+    },
+    {
+      "name": "OnUnlockButtonClicked",
+      "description": "Handler for unlock button"
+    },
+    {
+      "name": "OnEquipButtonClicked",
+      "description": "Handler for equip button"
+    }
+  ],
+  "eventDispatchers": [
+    {
+      "name": "OnUnlockRequested",
+      "parameters": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ]
+    },
+    {
+      "name": "OnEquipRequested",
+      "parameters": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ]
+    }
+  ],
+  "animations": [
+    {
+      "name": "Anim_PartChanged",
+      "duration": 0.3,
+      "tracks": [
+        {
+          "description": "Fade out content (0.15s)",
+          "property": "RenderOpacity",
+          "start": 1.0,
+          "end": 0.0
+        },
+        {
+          "description": "Update bindings (instant at 0.15s)"
+        },
+        {
+          "description": "Fade in content (0.15s)",
+          "property": "RenderOpacity",
+          "start": 0.0,
+          "end": 1.0
+        }
+      ]
+    },
+    {
+      "name": "Anim_UnlockSuccess",
+      "duration": 0.5,
+      "tracks": [
+        {
+          "target": "Border_RarityBadge",
+          "property": "RenderTransform.Scale",
+          "keyframes": [
+            { "time": 0.0, "value": [1.0, 1.0] },
+            { "time": 0.25, "value": [1.2, 1.2] },
+            { "time": 0.5, "value": [1.0, 1.0] }
+          ]
+        },
+        {
+          "description": "Update status text with color change"
+        }
+      ]
+    },
+    {
+      "name": "Anim_EquipSuccess",
+      "duration": 0.4,
+      "description": "Flash action buttons green and update status"
+    }
+  ],
+  "bindings": [
+    {
+      "property": "Image_PartIcon.Brush.ResourceObject",
+      "source": "SelectedPart->IconTexture"
+    },
+    {
+      "property": "Text_PartName.Text",
+      "source": "SelectedPart->PartName"
+    },
+    {
+      "property": "Text_Rarity.Text",
+      "source": "SelectedPart->Rarity"
+    },
+    {
+      "property": "Border_RarityBadge.BrushColor",
+      "source": "GetRarityColor()"
+    },
+    {
+      "property": "Text_Description.Text",
+      "source": "SelectedPart->Description"
+    },
+    {
+      "property": "Text_Cost.Text",
+      "source": "SelectedPart->UnlockCost",
+      "format": "{0} CR"
+    },
+    {
+      "property": "Text_Status.Text",
+      "source": "GetPartStatus()"
+    },
+    {
+      "property": "Button_Unlock.IsEnabled",
+      "source": "CanUnlockPart()"
+    },
+    {
+      "property": "Button_Equip.IsEnabled",
+      "source": "CanEquipPart()"
+    },
+    {
+      "property": "Button_Unlock.Visibility",
+      "source": "GetUnlockButtonVisibility()"
+    },
+    {
+      "property": "Button_Equip.Visibility",
+      "source": "GetEquipButtonVisibility()"
+    }
+  ],
+  "vrAdaptations": {
+    "partIcon": {
+      "mode": "3D preview instead of 2D texture",
+      "interaction": "Rotatable with hand gestures"
+    },
+    "statList": {
+      "scrolling": "Touch scrollable"
+    },
+    "buttons": {
+      "hitBoxes": "Larger for VR",
+      "feedback": "Haptic on press"
+    }
+  },
+  "testingChecklist": [
+    "Part displays correctly when selected",
+    "Rarity badge shows correct color",
+    "Stats list populates correctly",
+    "Requirements list shows correctly",
+    "Unlock button disabled when locked or insufficient funds",
+    "Equip button disabled when not owned",
+    "Unlock/Equip visibility toggles correctly",
+    "Animations play smoothly",
+    "3D preview works in VR"
+  ]
+}

@@ -7,6 +7,20 @@
 #include "TickReportingComponent.generated.h"
 
 /**
+ * UE 5.6 Wrapper: TMap<UActorComponent*, float> for nested TMap compatibility
+ * This wraps the inner TMap to allow TMap<FString, TMap<UActorComponent*, float>>
+ */
+USTRUCT(BlueprintType)
+struct FComponentTickConfigMap
+{
+	GENERATED_BODY()
+
+	// Map from component to tick interval
+	UPROPERTY()
+	TMap<UActorComponent*, float> ComponentIntervals;
+};
+
+/**
  * Component for generating tick performance reports and recommendations
  */
 UCLASS(ClassGroup=(Optimization), meta=(BlueprintSpawnableComponent))
@@ -35,6 +49,7 @@ public:
     void LoadTickConfiguration(const FString& ConfigName, class UTickAnalysisComponent* AnalysisComponent);
 
 private:
-    // Configuration storage
-    TMap<FString, TMap<UActorComponent*, float>> SavedConfigurations;
+    // Configuration storage (using wrapper for UE 5.6 TMap compatibility)
+    UPROPERTY()
+    TMap<FString, FComponentTickConfigMap> SavedConfigurations;
 };

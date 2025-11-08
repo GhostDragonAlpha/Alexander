@@ -389,9 +389,101 @@ def main():
         elif command == "validate":
             builder.validate_code_structure()
             builder.validate_plugin_structure()
+        elif command == "frontend":
+            # Use UnrealFrontend automation for builds
+            print("\nUsing UnrealFrontend for automated build...")
+            print("See automated_build.py for more options\n")
+            from automated_build import UnrealFrontendAutomation
+            automation = UnrealFrontendAutomation()
+            
+            # Get configuration from command line or use default
+            config = sys.argv[2] if len(sys.argv) > 2 else "Development"
+            success = automation.build_project(config)
+            sys.exit(0 if success else 1)
+        elif command == "package":
+            # Package using UnrealFrontend
+            print("\nPackaging game using UnrealFrontend...")
+            from automated_build import UnrealFrontendAutomation
+            automation = UnrealFrontendAutomation()
+            
+            config = sys.argv[2] if len(sys.argv) > 2 else "Shipping"
+            success, build_dir = automation.package_game(config)
+            if success:
+                print(f"\n✓ Package created: {build_dir}")
+            sys.exit(0 if success else 1)
+        elif command == "ai":
+            # AI-driven workflow automation
+            print("\n=== AI Workflow Automation ===")
+            from ai_workflow_orchestrator import WorkflowOrchestrator
+            
+            orchestrator = WorkflowOrchestrator(
+                engine_path="C:/Program Files/Epic Games/UE_5.6",
+                project_path=str(builder.project_root / "Alexander.uproject")
+            )
+            
+            # Get workflow type from arguments
+            workflow_type = sys.argv[2] if len(sys.argv) > 2 else "daily_maintenance"
+            
+            if workflow_type == "daily":
+                result = orchestrator.daily_maintenance_workflow()
+            elif workflow_type == "precommit":
+                result = orchestrator.pre_commit_workflow()
+            elif workflow_type == "content":
+                content_type = sys.argv[3] if len(sys.argv) > 3 else "environment"
+                result = orchestrator.content_creation_workflow(content_type=content_type)
+            elif workflow_type == "optimize":
+                result = orchestrator.performance_optimization_workflow()
+            elif workflow_type == "history":
+                limit = int(sys.argv[3]) if len(sys.argv) > 3 else 10
+                history = orchestrator.get_workflow_history(limit=limit)
+                print(f"\nWorkflow History (last {len(history)} runs):")
+                for item in history:
+                    status = 'SUCCESS' if item['success'] else 'FAILED'
+                    print(f"  [{item['timestamp']}] {item['workflow']}: {status} ({item['duration']:.1f}s)")
+                sys.exit(0)
+            else:
+                print(f"Unknown AI workflow: {workflow_type}")
+                print("Available workflows:")
+                print("  daily          - Daily maintenance (validation, cleanup, tests)")
+                print("  precommit      - Pre-commit validation (fast)")
+                print("  content [type] - Content creation workflow")
+                print("  optimize       - Performance optimization workflow")
+                print("  history [n]    - Show last n workflow runs")
+                sys.exit(1)
+            
+            # Print results
+            print(f"\n{'='*60}")
+            if result['overall_success']:
+                print(f"✓ {workflow_type.upper()} WORKFLOW COMPLETED SUCCESSFULLY")
+            else:
+                print(f"✗ {workflow_type.upper()} WORKFLOW FAILED")
+            print(f"Duration: {result['duration_seconds']:.1f}s")
+            print(f"Steps completed: {len(result['steps'])}")
+            
+            for step in result['steps']:
+                status = '✓' if step['success'] else '✗'
+                print(f"  {status} {step['name']}")
+            
+            print(f"{'='*60}\n")
+            sys.exit(0 if result['overall_success'] else 1)
         else:
             print(f"Unknown command: {command}")
-            print("Available commands: clean, generate, build, test, validate")
+            print("Available commands:")
+            print("  clean           - Clean build artifacts")
+            print("  generate        - Generate project files")
+            print("  build           - Build project (UBT)")
+            print("  test            - Run unit tests")
+            print("  validate        - Validate code structure")
+            print("  frontend [cfg]  - Build using UnrealFrontend (Development/Shipping)")
+            print("  package [cfg]   - Package game using UnrealFrontend")
+            print("  ai <workflow>   - AI-driven automation workflows:")
+            print("    daily         - Daily maintenance workflow")
+            print("    precommit     - Pre-commit validation")
+            print("    content       - Content creation workflow")
+            print("    optimize      - Performance optimization")
+            print("    history [n]   - Show workflow history")
+            print("\nFor more build options, use: python automated_build.py")
+            print("For AI workflows, use: python ai_workflow_orchestrator.py")
     else:
         # Run full pipeline
         success = builder.run_full_build_and_test()

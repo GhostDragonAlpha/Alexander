@@ -495,6 +495,9 @@ private:
     float GetDistance(const FVector2D& Point1, const FVector2D& Point2) const;
     bool IsPointInClimateZone(const FVector2D& Point, const FClimateZoneData& Zone) const;
     
+    // VFX Spawning
+    void SpawnStormVisuals(const FStormSystem& Storm);
+    
     // Constants
     static constexpr float DEFAULT_STORM_GENERATION_PROBABILITY = 0.01f;
     static constexpr float DEFAULT_WEATHER_EVENT_PROBABILITY = 0.005f;

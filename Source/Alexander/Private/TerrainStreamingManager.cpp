@@ -454,37 +454,12 @@ void UTerrainStreamingManager::ProcessTileRequest(FTileLoadRequest& Request)
 		Request.TilePosition.X, Request.TilePosition.Y, Request.LODLevel, ElapsedMS);
 }
 
-// ============================================================================
-// COMMENTED OUT: Enhanced terrain generation methods
-// ============================================================================
-// These methods are not declared in TerrainStreamingManager.h and use
-// struct members (HeightMap, NormalMap, BiomeMap, CaveMap, MineralMap) that
-// don't exist in FTerrainTileData. They also reference non-existent config
-// members (PlanetRadius, TerrainScale, TalusAngle, bGenerateVolcanoes,
-// bGenerateCraters, CraterDensity, MaxCraterSize, bApplySmoothing, bEnableEdgeBlending).
-//
-// TODO: Either:
-// 1. Add these methods to the header if needed, OR
-// 2. Use the standard UTerrainTileGenerator::GenerateTerrainTile instead
-//
-// TODO: Update FTerrainTileData in TerrainTile.h to include additional data layers if needed:
-// - TArray<FVector4> NormalMap
-// - TArray<uint8> BiomeMap
-// - TArray<float> CaveMap
-// - TArray<float> MineralMap
-//
-// TODO: Update FTerrainGenerationConfig in TerrainTile.h to include:
-// - float TerrainScale
-// - float PlanetRadius
-// - float TalusAngle
-// - bool bGenerateVolcanoes
-// - bool bGenerateCraters
-// - float CraterDensity
-// - float MaxCraterSize
-// - bool bApplySmoothing
-// - bool bEnableEdgeBlending
-// ============================================================================
 
+// COMMENTED OUT: This function is not declared in the header and uses many helper functions
+// that are also not declared. If you need enhanced terrain generation, you should:
+// 1. Add this function declaration to TerrainStreamingManager.h
+// 2. Add declarations for all helper functions it uses
+// 3. Uncomment this implementation
 /*
 FTerrainTileData UTerrainStreamingManager::GenerateEnhancedTerrainTile(
 	FVector2D TilePosition,
@@ -500,7 +475,7 @@ FTerrainTileData UTerrainStreamingManager::GenerateEnhancedTerrainTile(
 	TileData.LODLevel = LODLevel;
 
 	// Initialize heightmap
-	TileData.HeightMap.SetNumUninitialized(Resolution * Resolution);
+	TileData.HeightData.SetNumUninitialized(Resolution * Resolution);
 	TileData.NormalMap.SetNumUninitialized(Resolution * Resolution);
 	TileData.BiomeMap.SetNumUninitialized(Resolution * Resolution);
 
@@ -520,7 +495,7 @@ FTerrainTileData UTerrainStreamingManager::GenerateEnhancedTerrainTile(
 				WorldX, WorldY, Config.Seed, Config.PlanetRadius);
 
 			// Apply biome-specific features
-			EBiomeType DominantBiome = GetDominantBiomeAtPosition(WorldX, WorldY, Config);
+			EBiomeTypeTerrain DominantBiome = GetDominantBiomeAtPosition(WorldX, WorldY, Config);
 			float BiomeHeight = UProceduralNoiseGenerator::GenerateBiomeFeatures(
 				WorldX, WorldY, DominantBiome, Config.Seed + 1, BaseHeight);
 
@@ -528,7 +503,7 @@ FTerrainTileData UTerrainStreamingManager::GenerateEnhancedTerrainTile(
 			float ErodedHeight = ApplyErosionEffects(BiomeHeight, WorldX, WorldY, Config);
 
 			// Store final height
-			TileData.HeightMap[Index] = ErodedHeight;
+			TileData.HeightData[Index] = ErodedHeight;
 
 			// Generate normal map
 			TileData.NormalMap[Index] = CalculateTerrainNormal(
@@ -540,15 +515,20 @@ FTerrainTileData UTerrainStreamingManager::GenerateEnhancedTerrainTile(
 	}
 
 	// Generate additional data layers
-	// GenerateAdditionalDataLayers(TileData, Config); // Disabled - method not implemented
+	GenerateAdditionalDataLayers(TileData, Config);
 
 	// Apply post-processing effects
-	// ApplyPostProcessingEffects(TileData, Config); // Disabled - method not implemented
+	ApplyPostProcessingEffects(TileData, Config);
 
 	return TileData;
 }
+*/
 
-EBiomeType UTerrainStreamingManager::GetDominantBiomeAtPosition(
+// COMMENTED OUT: All these helper functions are not declared in the header.
+// They are only used by GenerateEnhancedTerrainTile which is also commented out.
+// If you need these, add declarations to TerrainStreamingManager.h and uncomment.
+/*
+EBiomeTypeTerrain UTerrainStreamingManager::GetDominantBiomeAtPosition(
 	float X, float Y, const FTerrainGenerationConfig& Config)
 {
 	// Use temperature and humidity to determine biome
@@ -560,23 +540,23 @@ EBiomeType UTerrainStreamingManager::GetDominantBiomeAtPosition(
 	// Simplified biome determination logic
 	if (Altitude < 0.0f) // Below sea level
 	{
-		return EBiomeType::Ocean;
+		return EBiomeTypeTerrain::Ocean;
 	}
 	else if (Temperature < -10.0f)
 	{
-		return Humidity > 0.5f ? EBiomeType::Tundra : EBiomeType::Alpine;
+		return Humidity > 0.5f ? EBiomeTypeTerrain::Tundra : EBiomeTypeTerrain::Alpine;
 	}
 	else if (Temperature < 15.0f)
 	{
-		return Humidity > 0.6f ? EBiomeType::Forest : EBiomeType::Grassland;
+		return Humidity > 0.6f ? EBiomeTypeTerrain::Forest : EBiomeTypeTerrain::Grassland;
 	}
 	else if (Temperature < 25.0f)
 	{
-		return Humidity > 0.4f ? EBiomeType::Savanna : EBiomeType::Desert;
+		return Humidity > 0.4f ? EBiomeTypeTerrain::Savanna : EBiomeTypeTerrain::Desert;
 	}
 	else
 	{
-		return Humidity > 0.7f ? EBiomeType::Rainforest : EBiomeType::Desert;
+		return Humidity > 0.7f ? EBiomeTypeTerrain::Rainforest : EBiomeTypeTerrain::Desert;
 	}
 }
 
@@ -647,7 +627,7 @@ void UTerrainStreamingManager::GenerateAdditionalDataLayers(
 			int32 Index = Y * Resolution + X;
 			float WorldX = TileData.WorldPosition.X + (X / float(Resolution)) * TileData.TileSize;
 			float WorldY = TileData.WorldPosition.Y + (Y / float(Resolution)) * TileData.TileSize;
-			float WorldZ = TileData.HeightMap[Index];
+			float WorldZ = TileData.HeightData[Index];
 
 			TileData.CaveMap[Index] = UProceduralNoiseGenerator::GenerateCaveSystem(
 				WorldX, WorldY, WorldZ, Config.Seed + 5);
@@ -665,7 +645,7 @@ void UTerrainStreamingManager::ApplyPostProcessingEffects(
 	// Apply smoothing filter to reduce artifacts
 	if (Config.bApplySmoothing)
 	{
-		ApplySmoothingFilter(TileData.HeightMap, TileData.Resolution);
+		ApplySmoothingFilter(TileData.HeightData, TileData.Resolution);
 	}
 
 	// Apply edge blending for seamless tiles
@@ -676,6 +656,176 @@ void UTerrainStreamingManager::ApplyPostProcessingEffects(
 
 	// Generate LOD-specific optimizations
 	ApplyLODOptimizations(TileData, Config);
+}
+
+void UTerrainStreamingManager::GenerateMineralDeposits(
+	FTerrainTileData& TileData, const FTerrainGenerationConfig& Config)
+{
+	int32 Resolution = TileData.Resolution;
+
+	for (int32 Y = 0; Y < Resolution; ++Y)
+	{
+		for (int32 X = 0; X < Resolution; ++X)
+		{
+			int32 Index = Y * Resolution + X;
+			float WorldX = TileData.WorldPosition.X + (X / float(Resolution)) * TileData.TileSize;
+			float WorldY = TileData.WorldPosition.Y + (Y / float(Resolution)) * TileData.TileSize;
+
+			// Generate mineral density based on biome and geological features
+			EBiomeTypeTerrain Biome = static_cast<EBiomeTypeTerrain>(TileData.BiomeMap[Index]);
+			float MineralDensity = 0.0f;
+
+			switch (Biome)
+			{
+			case EBiomeTypeTerrain::Mountain:
+			case EBiomeTypeTerrain::Alpine:
+				MineralDensity = FMath::FRandRange(0.3f, 0.8f);
+				break;
+			case EBiomeTypeTerrain::Volcanic:
+				MineralDensity = FMath::FRandRange(0.5f, 1.0f);
+				break;
+			case EBiomeTypeTerrain::Cave:
+			case EBiomeTypeTerrain::Underground:
+				MineralDensity = FMath::FRandRange(0.2f, 0.6f);
+				break;
+			default:
+				MineralDensity = FMath::FRandRange(0.0f, 0.3f);
+				break;
+			}
+
+			TileData.MineralMap[Index] = MineralDensity;
+		}
+	}
+}
+
+void UTerrainStreamingManager::ApplySmoothingFilter(
+	TArray<float>& HeightMap, int32 Resolution)
+{
+	TArray<float> SmoothedHeights;
+	SmoothedHeights.SetNumUninitialized(HeightMap.Num());
+
+	for (int32 Y = 0; Y < Resolution; ++Y)
+	{
+		for (int32 X = 0; X < Resolution; ++X)
+		{
+			int32 Index = Y * Resolution + X;
+			float Sum = 0.0f;
+			int32 Count = 0;
+
+			// Average with neighboring pixels
+			for (int32 OffsetY = -1; OffsetY <= 1; ++OffsetY)
+			{
+				for (int32 OffsetX = -1; OffsetX <= 1; ++OffsetX)
+				{
+					int32 NeighborX = X + OffsetX;
+					int32 NeighborY = Y + OffsetY;
+
+					if (NeighborX >= 0 && NeighborX < Resolution &&
+						NeighborY >= 0 && NeighborY < Resolution)
+					{
+						int32 NeighborIndex = NeighborY * Resolution + NeighborX;
+						Sum += HeightMap[NeighborIndex];
+						Count++;
+					}
+				}
+			}
+
+			SmoothedHeights[Index] = Sum / Count;
+		}
+	}
+
+	HeightMap = SmoothedHeights;
+}
+
+void UTerrainStreamingManager::ApplyEdgeBlending(FTerrainTileData& TileData)
+{
+	int32 Resolution = TileData.Resolution;
+	float BlendWidth = 4.0f; // Blend over 4 pixels
+
+	for (int32 Y = 0; Y < Resolution; ++Y)
+	{
+		for (int32 X = 0; X < Resolution; ++X)
+		{
+			int32 Index = Y * Resolution + X;
+
+			// Calculate distance from edge
+			float DistFromLeft = X;
+			float DistFromRight = Resolution - 1 - X;
+			float DistFromTop = Y;
+			float DistFromBottom = Resolution - 1 - Y;
+
+			float MinDistFromEdge = FMath::Min({DistFromLeft, DistFromRight, DistFromTop, DistFromBottom});
+
+			if (MinDistFromEdge < BlendWidth)
+			{
+				// Apply blending factor
+				float BlendFactor = MinDistFromEdge / BlendWidth;
+				TileData.HeightData[Index] *= BlendFactor;
+			}
+		}
+	}
+}
+
+void UTerrainStreamingManager::ApplyLODOptimizations(
+	FTerrainTileData& TileData, const FTerrainGenerationConfig& Config)
+{
+	// Apply LOD-specific optimizations
+	int32 LODLevel = TileData.LODLevel;
+
+	if (LODLevel > 0)
+	{
+		// Reduce detail for higher LOD levels
+		float DetailScale = 1.0f / (1 << LODLevel); // Divide by 2^LODLevel
+
+		for (float& Height : TileData.HeightData)
+		{
+			// Apply detail reduction
+			Height = FMath::RoundToFloat(Height * DetailScale) / DetailScale;
+		}
+	}
+}
+
+float UTerrainStreamingManager::CalculateTemperatureAtPosition(
+	float X, float Y, const FTerrainGenerationConfig& Config)
+{
+	// Simplified temperature calculation based on latitude and altitude
+	float Latitude = FMath::Atan2(Y, X) * 180.0f / PI;
+
+	// Temperature decreases with latitude (distance from equator)
+	float LatitudeTemp = 25.0f - FMath::Abs(Latitude) * 0.5f;
+
+	// Temperature decreases with altitude
+	float Altitude = UProceduralNoiseGenerator::GenerateContinentalTerrain(
+		X, Y, Config.Seed, Config.PlanetRadius);
+	float AltitudeTemp = -Altitude * 0.0065f; // 6.5°C per km
+
+	return LatitudeTemp + AltitudeTemp;
+}
+
+float UTerrainStreamingManager::CalculateHumidityAtPosition(
+	float X, float Y, const FTerrainGenerationConfig& Config)
+{
+	// Generate humidity using noise
+	return UProceduralNoiseGenerator::GenerateContinentalTerrain(
+		X * 0.5f, Y * 0.5f, Config.Seed + 10, Config.PlanetRadius) * 0.5f + 0.5f;
+}
+
+float UTerrainStreamingManager::CalculateSlopeAtPosition(
+	float X, float Y, const FTerrainGenerationConfig& Config)
+{
+	// Calculate slope using finite differences
+	float Offset = Config.TerrainScale * 0.1f;
+	float CenterHeight = UProceduralNoiseGenerator::GenerateContinentalTerrain(
+		X, Y, Config.Seed, Config.PlanetRadius);
+	float XHeight = UProceduralNoiseGenerator::GenerateContinentalTerrain(
+		X + Offset, Y, Config.Seed, Config.PlanetRadius);
+	float YHeight = UProceduralNoiseGenerator::GenerateContinentalTerrain(
+		X, Y + Offset, Config.Seed, Config.PlanetRadius);
+
+	float SlopeX = FMath::Abs(XHeight - CenterHeight) / Offset;
+	float SlopeY = FMath::Abs(YHeight - CenterHeight) / Offset;
+
+	return FMath::Sqrt(SlopeX * SlopeX + SlopeY * SlopeY);
 }
 */
 

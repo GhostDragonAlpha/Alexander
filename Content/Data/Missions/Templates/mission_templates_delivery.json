@@ -1,0 +1,468 @@
+{
+  "delivery_missions": [
+    {
+      "mission_id": "delivery_standard_001",
+      "mission_type": "Delivery",
+      "title_template": "Deliver {cargo_type} to {destination}",
+      "description_template": "Transport {cargo_quantity} units of {cargo_type} from {origin} to {destination}. The client expects timely delivery with {condition_requirement}.",
+      "difficulty": "Trivial",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Deliver cargo to {destination}",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 800,
+        "experience": 50,
+        "items": [],
+        "faction_rep": {"MerchantsGuild": 5}
+      },
+      "requirements": {
+        "min_level": 1,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "cargo_capacity": 10
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 8000,
+        "location_type": "Station"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "cargo_type": ["medical supplies", "food rations", "spare parts", "raw materials", "consumer goods"],
+        "cargo_quantity": ["5", "10", "15", "20"],
+        "origin": ["Trading Post Alpha", "Mining Station Beta", "Research Facility", "Military Base"],
+        "destination": ["Colonial Outpost", "Space Station Hub", "Frontier Settlement", "Remote Base"],
+        "condition_requirement": ["no damage to cargo", "minimal transit time", "discreet handling"]
+      }
+    },
+    {
+      "mission_id": "delivery_timesensitive_001",
+      "mission_type": "Delivery",
+      "title_template": "Urgent: {cargo_type} Delivery",
+      "description_template": "URGENT! {destination} requires immediate delivery of {cargo_type}. Time is critical - {urgency_reason}. Bonus credits for early delivery.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Deliver cargo before time expires",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 1500,
+        "experience": 100,
+        "items": [],
+        "faction_rep": {"MerchantsGuild": 10},
+        "bonus_credits": 500,
+        "bonus_condition": "Deliver 50% faster than time limit"
+      },
+      "requirements": {
+        "min_level": 2,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "cargo_capacity": 15
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 12000,
+        "location_type": "Station"
+      },
+      "time_limit": 600,
+      "repeatable": true,
+      "variables": {
+        "cargo_type": ["emergency medical supplies", "critical equipment", "life support components", "vaccine shipment"],
+        "destination": ["Research Station", "Medical Facility", "Disaster Zone", "Quarantine Station"],
+        "urgency_reason": ["lives depend on it", "outbreak spreading", "systems failing", "rescue operation underway"]
+      }
+    },
+    {
+      "mission_id": "delivery_fragile_001",
+      "mission_type": "Delivery",
+      "title_template": "Fragile Cargo: {cargo_type}",
+      "description_template": "Extremely delicate cargo requiring special care. Transport {cargo_type} to {destination}. Any damage above {damage_threshold}% will result in cargo loss and mission failure.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Deliver cargo with minimal damage",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "AvoidDamage",
+          "description": "Keep cargo damage below {damage_threshold}%",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 2200,
+        "experience": 150,
+        "items": [],
+        "faction_rep": {"MerchantsGuild": 15}
+      },
+      "requirements": {
+        "min_level": 3,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "cargo_capacity": 20
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 10000,
+        "location_type": "Station"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "cargo_type": ["scientific samples", "crystal resonators", "art collection", "unstable isotopes", "prototype technology"],
+        "destination": ["Research Lab", "Museum Station", "Corporate Headquarters", "University Station"],
+        "damage_threshold": ["5", "10", "15"]
+      }
+    },
+    {
+      "mission_id": "delivery_blackmarket_001",
+      "mission_type": "Delivery",
+      "title_template": "Discreet Transport: {cargo_type}",
+      "description_template": "No questions asked. Transport {cargo_type} to {destination}. Avoid authority patrols and {obstacle}. Payment on delivery, no records kept.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Deliver illegal cargo",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "AvoidDetection",
+          "description": "Avoid scanning by authorities",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 4500,
+        "experience": 250,
+        "items": [],
+        "faction_rep": {"Smugglers": 25, "LocalAuthority": -10}
+      },
+      "requirements": {
+        "min_level": 5,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "cargo_capacity": 25
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 15000,
+        "location_type": "Space"
+      },
+      "time_limit": 1200,
+      "repeatable": true,
+      "variables": {
+        "cargo_type": ["contraband goods", "illegal weapons", "stolen data", "prohibited substances", "unauthorized tech"],
+        "destination": ["hidden outpost", "black market station", "pirate base", "underground facility"],
+        "obstacle": ["military checkpoints", "customs inspections", "patrol routes", "sensor nets"]
+      }
+    },
+    {
+      "mission_id": "delivery_rescue_001",
+      "mission_type": "Delivery",
+      "title_template": "Emergency Relief: {destination}",
+      "description_template": "{destination} is facing {crisis_type}. Deliver emergency supplies including {cargo_list}. Survivors are counting on you.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Deliver emergency supplies",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "Bonus",
+          "description": "Deliver additional medical supplies",
+          "quantity": 1,
+          "optional": true,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 1800,
+        "experience": 180,
+        "items": ["MedalOfValor"],
+        "faction_rep": {"Humanitarian": 30}
+      },
+      "requirements": {
+        "min_level": 3,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "cargo_capacity": 30
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 18000,
+        "location_type": "Planet"
+      },
+      "time_limit": 900,
+      "repeatable": true,
+      "variables": {
+        "destination": ["Disaster Zone", "Stranded Colony", "Damaged Station", "Quarantine Area"],
+        "crisis_type": ["natural disaster", "equipment failure", "disease outbreak", "hostile attack"],
+        "cargo_list": ["medical kits, food, water", "oxygen, medicine, blankets", "tools, fuel, rations"]
+      }
+    },
+    {
+      "mission_id": "delivery_convoy_001",
+      "mission_type": "Delivery",
+      "title_template": "Convoy Delivery: {destination}",
+      "description_template": "Join a supply convoy transporting {cargo_type} to {destination}. Stay with the convoy formation and assist if {threat_type} attack.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Deliver cargo with convoy",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "StayInFormation",
+          "description": "Maintain convoy formation",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 2000,
+        "experience": 120,
+        "items": [],
+        "faction_rep": {"MerchantsGuild": 12}
+      },
+      "requirements": {
+        "min_level": 3,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "cargo_capacity": 20
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 14000,
+        "location_type": "Space"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "cargo_type": ["industrial equipment", "construction materials", "trade goods", "mining equipment"],
+        "destination": ["Frontier Colony", "Mining Operation", "New Settlement", "Expansion Zone"],
+        "threat_type": ["pirate", "raider", "hostile"]
+      }
+    },
+    {
+      "mission_id": "delivery_vip_001",
+      "mission_type": "Delivery",
+      "title_template": "VIP Transport: {passenger_name}",
+      "description_template": "Transport {passenger_title} {passenger_name} to {destination}. Ensure {comfort_requirement} and maintain {security_requirement}.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "TransportPassenger",
+          "description": "Transport VIP safely",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "MaintainComfort",
+          "description": "Keep passenger comfortable",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 3500,
+        "experience": 200,
+        "items": [],
+        "faction_rep": {"Diplomatic": 20}
+      },
+      "requirements": {
+        "min_level": 5,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "passenger_capacity": 1
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 12000,
+        "location_type": "Station"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "passenger_name": ["Ambassador Kress", "Senator Vale", "Admiral Torres", "Director Chen", "Professor Winters"],
+        "passenger_title": ["Ambassador", "Senator", "Admiral", "Director", "Professor"],
+        "destination": ["Diplomatic Station", "Political Summit", "Military Command", "Research Conference"],
+        "comfort_requirement": ["smooth flight with minimal turbulence", "premium cabin environment", "priority routing"],
+        "security_requirement": ["strict confidentiality", "armed escort readiness", "secure communications"]
+      }
+    },
+    {
+      "mission_id": "delivery_multipoint_001",
+      "mission_type": "Delivery",
+      "title_template": "Multi-Stop Delivery Route",
+      "description_template": "Efficient delivery route with {stop_count} stops. Pick up and deliver cargo to multiple stations: {route_description}. Optimize your route for maximum efficiency.",
+      "difficulty": "Normal",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Complete all delivery stops",
+          "quantity": 3,
+          "optional": false,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 2800,
+        "experience": 180,
+        "items": [],
+        "faction_rep": {"MerchantsGuild": 18}
+      },
+      "requirements": {
+        "min_level": 4,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "cargo_capacity": 25
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 20000,
+        "location_type": "Multiple"
+      },
+      "time_limit": 1500,
+      "repeatable": true,
+      "variables": {
+        "stop_count": ["three", "four", "five"],
+        "route_description": ["Station A → B → C", "Outpost 1 → Hub 2 → Base 3", "Alpha → Beta → Gamma"]
+      }
+    },
+    {
+      "mission_id": "delivery_prototype_001",
+      "mission_type": "Delivery",
+      "title_template": "Classified: Prototype Transport",
+      "description_template": "Transport classified {prototype_type} from {origin} to {destination}. Mission is classified {clearance_level}. Expect possible {threat_type} interest in the cargo.",
+      "difficulty": "VeryHard",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Deliver prototype safely",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "AvoidDetection",
+          "description": "Maintain stealth protocols",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "DefendCargo",
+          "description": "Protect cargo from theft attempts",
+          "quantity": 1,
+          "optional": false,
+          "hidden": true
+        }
+      ],
+      "rewards": {
+        "credits": 8000,
+        "experience": 450,
+        "items": ["PrototypeModule_Basic"],
+        "faction_rep": {"Military": 35, "Corporate": 25}
+      },
+      "requirements": {
+        "min_level": 8,
+        "required_faction": "Military",
+        "prerequisite_missions": ["delivery_standard_001"],
+        "cargo_capacity": 15,
+        "clearance_level": "Secret"
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 25000,
+        "location_type": "SecureFacility"
+      },
+      "time_limit": 1800,
+      "repeatable": false,
+      "variables": {
+        "prototype_type": ["weapon system", "shield generator", "FTL drive component", "AI core"],
+        "origin": ["Research Complex", "Military R&D", "Corporate Lab", "Black Site"],
+        "destination": ["Testing Facility", "Naval Base", "Secure Vault", "Hidden Bunker"],
+        "clearance_level": ["Secret", "Top Secret"],
+        "threat_type": ["corporate spy", "hostile intelligence", "pirate", "foreign agent"]
+      }
+    },
+    {
+      "mission_id": "delivery_humanitarian_001",
+      "mission_type": "Delivery",
+      "title_template": "Humanitarian Aid: {crisis_location}",
+      "description_template": "Deliver humanitarian aid to {crisis_location} suffering from {disaster_type}. Transport includes {aid_contents}. Pro-bono mission - payment covered by relief fund.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "DeliverItem",
+          "description": "Deliver aid supplies",
+          "quantity": 1,
+          "optional": false,
+          "hidden": false
+        },
+        {
+          "type": "Bonus",
+          "description": "Evacuate refugees (optional)",
+          "quantity": 5,
+          "optional": true,
+          "hidden": false
+        }
+      ],
+      "rewards": {
+        "credits": 1200,
+        "experience": 140,
+        "items": ["ReliefMedal"],
+        "faction_rep": {"Humanitarian": 40}
+      },
+      "requirements": {
+        "min_level": 2,
+        "required_faction": null,
+        "prerequisite_missions": [],
+        "cargo_capacity": 35
+      },
+      "location": {
+        "system": "SolarSystem",
+        "max_distance": 16000,
+        "location_type": "Planet"
+      },
+      "time_limit": null,
+      "repeatable": true,
+      "variables": {
+        "crisis_location": ["Refugee Camp", "Disaster Area", "War Zone", "Famine Region"],
+        "disaster_type": ["earthquake", "flood", "war", "famine", "disease"],
+        "aid_contents": ["food, water, medicine", "tents, blankets, medical supplies", "tools, seeds, clothing"]
+      }
+    }
+  ]
+}

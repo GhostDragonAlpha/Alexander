@@ -1,0 +1,420 @@
+{
+  "mission_category": "reconnaissance",
+  "version": "1.0",
+  "description": "Reconnaissance mission templates for intelligence gathering, surveillance, and espionage operations",
+  "templates": [
+    {
+      "mission_id": "reconnaissance_basic_001",
+      "type": "reconnaissance_survey",
+      "title": "Survey Mission: ${target_location}",
+      "description": "Conduct reconnaissance of ${target_location}. Gather intelligence on ${intelligence_type} without being detected. Stealth is critical.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "area_survey",
+          "description": "Survey ${scan_points} key locations",
+          "success_criteria": "scans_completed >= scan_points"
+        },
+        {
+          "type": "data_collection",
+          "description": "Collect ${data_packages} intelligence packages",
+          "success_criteria": "data_collected >= data_packages"
+        },
+        {
+          "type": "stealth_requirement",
+          "description": "Complete without detection",
+          "success_criteria": "no_alerts"
+        }
+      ],
+      "rewards": {
+        "credits": 8000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_stealth",
+            "credits": 3000,
+            "description": "Zero detection events"
+          },
+          {
+            "condition": "bonus_intel",
+            "credits": 2000,
+            "description": "Found additional intelligence"
+          }
+        ]
+      },
+      "requirements": {
+        "scanner": true,
+        "stealth_rating": 2,
+        "recommended_equipment": ["long_range_scanner", "stealth_module"]
+      },
+      "location": {
+        "spawn_type": "surveyed_area",
+        "security_level": "moderate"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "target_location": ["Pirate Outpost", "Corporate Facility", "Military Installation", "Research Station", "Mining Complex"],
+        "intelligence_type": ["Defenses", "Ship Movements", "Resource Deposits", "Personnel", "Technology"],
+        "scan_points": [5, 7, 10],
+        "data_packages": [3, 5, 7]
+      },
+      "ai_config": {
+        "patrol_density": "moderate",
+        "detection_range": "standard",
+        "alarm_response": "fast"
+      },
+      "repeatable": true,
+      "faction_affected": ["Intelligence_Agency", "Scout_Corps"]
+    },
+    {
+      "mission_id": "reconnaissance_photo_001",
+      "type": "reconnaissance_photo",
+      "title": "Photo Reconnaissance: ${target_name}",
+      "description": "Obtain photographic evidence of ${target_name}'s ${activity_type}. Must capture ${photo_count} clear images from specified angles.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "target_location",
+          "description": "Locate ${target_name}",
+          "success_criteria": "target_found"
+        },
+        {
+          "type": "photography",
+          "description": "Capture ${photo_count} quality images",
+          "success_criteria": "photos_taken >= photo_count"
+        },
+        {
+          "type": "angle_requirements",
+          "description": "Images must show ${required_angles}",
+          "success_criteria": "angle_criteria_met"
+        },
+        {
+          "type": "evidence_delivery",
+          "description": "Deliver photographic evidence",
+          "success_criteria": "evidence_transmitted"
+        }
+      ],
+      "rewards": {
+        "credits": 12000,
+        "reputation": 20,
+        "bonus_conditions": [
+          {
+            "condition": "high_resolution",
+            "credits": 4000,
+            "description": "Crystal clear imagery"
+          },
+          {
+            "condition": "undetected_photography",
+            "credits": 3000,
+            "description": "Never spotted taking photos"
+          }
+        ]
+      },
+      "requirements": {
+        "camera_equipment": true,
+        "min_stealth": 3,
+        "recommended_equipment": ["telephoto_lens", "image_stabilizer"]
+      },
+      "location": {
+        "spawn_type": "surveillance_zone",
+        "security_level": "moderate_to_high"
+      },
+      "time_limit": 2100,
+      "variables": {
+        "target_name": ["Suspect Ship", "Corporate Meeting", "Military Exercise", "Illegal Operation", "Secret Prototype"],
+        "activity_type": ["Illegal Activities", "Strategic Meeting", "Weapons Testing", "Smuggling Operation", "Covert Assembly"],
+        "photo_count": [5, 7, 10],
+        "required_angles": ["Multiple Perspectives", "Close-up Details", "Wide Context Shots", "Identifying Features"]
+      },
+      "ai_config": {
+        "target_mobility": "high",
+        "photography_difficulty": "moderate",
+        "detection_risk": "moderate",
+        "optimal_windows": "limited"
+      },
+      "repeatable": true,
+      "faction_affected": ["Intelligence_Agency", "Investigative_Corps"]
+    },
+    {
+      "mission_id": "reconnaissance_signal_001",
+      "type": "reconnaissance_sigint",
+      "title": "Signal Intelligence: ${transmission_source}",
+      "description": "Intercept and decode ${transmission_count} encrypted transmissions from ${transmission_source}. Position near transmission range without detection.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "positioning",
+          "description": "Position within ${intercept_range}m of source",
+          "success_criteria": "range_achieved"
+        },
+        {
+          "type": "signal_interception",
+          "description": "Intercept ${transmission_count} transmissions",
+          "success_criteria": "signals_captured >= transmission_count"
+        },
+        {
+          "type": "decryption",
+          "description": "Decrypt intercepted communications",
+          "success_criteria": "decryption_successful"
+        },
+        {
+          "type": "stealth_operation",
+          "description": "Remain undetected during operation",
+          "success_criteria": "no_detection"
+        }
+      ],
+      "rewards": {
+        "credits": 14000,
+        "reputation": 25,
+        "bonus_conditions": [
+          {
+            "condition": "priority_intel",
+            "credits": 6000,
+            "description": "Intercepted high-value intelligence"
+          },
+          {
+            "condition": "fast_decryption",
+            "credits": 3000,
+            "description": "Decoded in real-time"
+          }
+        ]
+      },
+      "requirements": {
+        "signal_interceptor": true,
+        "decryption_module": true,
+        "min_technical_skill": 4,
+        "recommended_equipment": ["signal_amplifier", "quantum_decoder"]
+      },
+      "location": {
+        "spawn_type": "communication_range",
+        "security_level": "high"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "transmission_source": ["Enemy Fleet", "Corporate Headquarters", "Pirate Base", "Government Facility", "Black Market Hub"],
+        "transmission_count": [3, 5, 8],
+        "intercept_range": [1000, 1500, 2000]
+      },
+      "ai_config": {
+        "counter_intelligence": "active",
+        "signal_encryption": "military_grade",
+        "detection_probability": 0.3,
+        "transmission_windows": "random"
+      },
+      "repeatable": true,
+      "faction_affected": ["Signals_Intelligence", "Cyber_Division"]
+    },
+    {
+      "mission_id": "reconnaissance_infiltration_001",
+      "type": "reconnaissance_infiltration",
+      "title": "Deep Infiltration: ${facility_name}",
+      "description": "Infiltrate ${facility_name} and access ${data_target}. Plant surveillance devices and exfiltrate without leaving traces.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "facility_breach",
+          "description": "Breach ${facility_name} security",
+          "success_criteria": "entry_achieved"
+        },
+        {
+          "type": "data_access",
+          "description": "Access and copy ${data_target}",
+          "success_criteria": "data_acquired"
+        },
+        {
+          "type": "device_placement",
+          "description": "Plant ${device_count} surveillance devices",
+          "success_criteria": "devices_planted >= device_count"
+        },
+        {
+          "type": "clean_exfiltration",
+          "description": "Exfiltrate without triggering alarms",
+          "success_criteria": "clean_exit"
+        }
+      ],
+      "rewards": {
+        "credits": 22000,
+        "reputation": 30,
+        "bonus_conditions": [
+          {
+            "condition": "ghost_operation",
+            "credits": 10000,
+            "description": "No evidence of infiltration"
+          },
+          {
+            "condition": "bonus_intel",
+            "credits": 6000,
+            "description": "Discovered additional secrets"
+          }
+        ]
+      },
+      "requirements": {
+        "min_stealth": 6,
+        "hacking_skill": 5,
+        "recommended_equipment": ["security_bypass", "data_siphon", "bug_kit"],
+        "infiltration_training": true
+      },
+      "location": {
+        "spawn_type": "secure_facility",
+        "security_level": "extreme"
+      },
+      "time_limit": 3000,
+      "variables": {
+        "facility_name": ["Corporate R&D Center", "Military Intelligence HQ", "Government Vault", "Tech Consortium Lab", "Crime Syndicate Hideout"],
+        "data_target": ["Research Data", "Strategic Plans", "Financial Records", "Personnel Files", "Weapon Schematics"],
+        "device_count": [3, 4, 5]
+      },
+      "ai_config": {
+        "security_layers": 4,
+        "guard_patrols": "heavy",
+        "surveillance_systems": "advanced",
+        "intrusion_detection": "cutting_edge",
+        "lockdown_procedures": "automatic"
+      },
+      "repeatable": true,
+      "faction_affected": ["Special_Operations", "Covert_Ops"]
+    },
+    {
+      "mission_id": "reconnaissance_fleet_001",
+      "type": "reconnaissance_fleet_tracking",
+      "title": "Fleet Surveillance: ${fleet_name}",
+      "description": "Track ${fleet_name} for ${duration} hours. Monitor composition, heading, and activities. Maintain surveillance distance without detection.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "fleet_location",
+          "description": "Locate ${fleet_name}",
+          "success_criteria": "fleet_found"
+        },
+        {
+          "type": "composition_analysis",
+          "description": "Identify all ship types and counts",
+          "success_criteria": "composition_catalogued"
+        },
+        {
+          "type": "tracking",
+          "description": "Track fleet for ${duration} hours",
+          "success_criteria": "tracking_duration_met"
+        },
+        {
+          "type": "activity_logging",
+          "description": "Log ${activity_count} significant activities",
+          "success_criteria": "activities_logged >= activity_count"
+        }
+      ],
+      "rewards": {
+        "credits": 16000,
+        "reputation": 25,
+        "bonus_conditions": [
+          {
+            "condition": "complete_intelligence",
+            "credits": 7000,
+            "description": "Full fleet intelligence package"
+          },
+          {
+            "condition": "never_detected",
+            "credits": 5000,
+            "description": "Perfect surveillance"
+          }
+        ]
+      },
+      "requirements": {
+        "long_range_sensors": true,
+        "stealth_capability": true,
+        "recommended_equipment": ["passive_scanner", "signal_masking"]
+      },
+      "location": {
+        "spawn_type": "fleet_operation_zone",
+        "security_level": "high"
+      },
+      "time_limit": 3600,
+      "variables": {
+        "fleet_name": ["Pirate Armada", "Corporate Security Fleet", "Military Task Force", "Mercenary Squadron", "Trade Convoy"],
+        "duration": [2, 3, 4],
+        "activity_count": [5, 7, 10]
+      },
+      "ai_config": {
+        "fleet_size": "8-15 ships",
+        "escort_fighters": "4-8",
+        "patrol_screen": "active",
+        "detection_sensitivity": "high",
+        "evasive_maneuvers": "advanced"
+      },
+      "repeatable": true,
+      "faction_affected": ["Naval_Intelligence", "Strategic_Reconnaissance"]
+    },
+    {
+      "mission_id": "reconnaissance_technology_001",
+      "type": "reconnaissance_tech_espionage",
+      "title": "Technology Espionage: ${tech_name}",
+      "description": "Gather intelligence on ${tech_name} being developed by ${developer}. Obtain specifications, test data, and prototype images.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "facility_infiltration",
+          "description": "Access ${facility_type} where tech is developed",
+          "success_criteria": "facility_accessed"
+        },
+        {
+          "type": "specification_theft",
+          "description": "Steal technical specifications",
+          "success_criteria": "specs_acquired"
+        },
+        {
+          "type": "prototype_documentation",
+          "description": "Document prototype with ${photo_count} images",
+          "success_criteria": "prototype_documented"
+        },
+        {
+          "type": "test_data_extraction",
+          "description": "Extract performance test data",
+          "success_criteria": "test_data_stolen"
+        }
+      ],
+      "rewards": {
+        "credits": 35000,
+        "reputation": 40,
+        "bonus_conditions": [
+          {
+            "condition": "complete_package",
+            "credits": 20000,
+            "description": "Acquired all intelligence types"
+          },
+          {
+            "condition": "undetected_theft",
+            "credits": 12000,
+            "description": "Theft not discovered for 7 days"
+          }
+        ]
+      },
+      "requirements": {
+        "min_stealth": 7,
+        "hacking_skill": 7,
+        "technical_knowledge": 6,
+        "recommended_equipment": ["advanced_data_siphon", "multi_spectrum_camera", "quantum_hacking_suite"]
+      },
+      "location": {
+        "spawn_type": "research_facility",
+        "security_level": "maximum"
+      },
+      "time_limit": 3600,
+      "variables": {
+        "tech_name": ["Quantum Drive", "Plasma Weapon", "Shield Generator", "Stealth System", "AI Core"],
+        "developer": ["MegaCorp Industries", "Military R&D Division", "Tech Consortium", "Advanced Systems Ltd", "Classified Project"],
+        "facility_type": ["Research Laboratory", "Testing Facility", "Development Center", "Prototype Workshop"],
+        "photo_count": [10, 15, 20]
+      },
+      "ai_config": {
+        "security_rating": "military_grade",
+        "guard_count": "20+",
+        "ai_security_systems": true,
+        "biometric_access": true,
+        "data_encryption": "quantum_level",
+        "self_destruct_protocols": true
+      },
+      "repeatable": false,
+      "faction_affected": ["Industrial_Espionage", "Tech_Thieves"],
+      "moral_alignment": "dark"
+    }
+  ]
+}

@@ -215,14 +215,14 @@ void UAutomationEfficiencySystem::GetDeviceStatusCounts(int32& Operational, int3
 void UAutomationEfficiencySystem::InitializeMaintenanceRequirements()
 {
 	// Irrigation System maintenance
-	TArray<FMaintenanceRequirement> IrrigationMaintenance;
+	FMaintenanceRequirementArray IrrigationMaintenance;
 	{
 		FMaintenanceRequirement Req;
 		Req.RequirementName = TEXT("Filter Replacement");
 		Req.ItemRequired = TEXT("Water Filter");
 		Req.QuantityRequired = 1;
 		Req.TimeRequired = 30.0f;
-		IrrigationMaintenance.Add(Req);
+		IrrigationMaintenance.Requirements.Add(Req);
 	}
 	{
 		FMaintenanceRequirement Req;
@@ -230,19 +230,19 @@ void UAutomationEfficiencySystem::InitializeMaintenanceRequirements()
 		Req.ItemRequired = TEXT("Cleaning Solution");
 		Req.QuantityRequired = 1;
 		Req.TimeRequired = 20.0f;
-		IrrigationMaintenance.Add(Req);
+		IrrigationMaintenance.Requirements.Add(Req);
 	}
 	MaintenanceRequirements.Add(EAutomationDeviceType::IrrigationSystem, IrrigationMaintenance);
 
 	// Harvesting Machine maintenance
-	TArray<FMaintenanceRequirement> HarvesterMaintenance;
+	FMaintenanceRequirementArray HarvesterMaintenance;
 	{
 		FMaintenanceRequirement Req;
 		Req.RequirementName = TEXT("Blade Sharpening");
 		Req.ItemRequired = TEXT("Sharpening Stone");
 		Req.QuantityRequired = 1;
 		Req.TimeRequired = 45.0f;
-		HarvesterMaintenance.Add(Req);
+		HarvesterMaintenance.Requirements.Add(Req);
 	}
 	{
 		FMaintenanceRequirement Req;
@@ -250,19 +250,19 @@ void UAutomationEfficiencySystem::InitializeMaintenanceRequirements()
 		Req.ItemRequired = TEXT("Machine Oil");
 		Req.QuantityRequired = 2;
 		Req.TimeRequired = 15.0f;
-		HarvesterMaintenance.Add(Req);
+		HarvesterMaintenance.Requirements.Add(Req);
 	}
 	MaintenanceRequirements.Add(EAutomationDeviceType::HarvestingMachine, HarvesterMaintenance);
 
 	// Power Generator maintenance
-	TArray<FMaintenanceRequirement> GeneratorMaintenance;
+	FMaintenanceRequirementArray GeneratorMaintenance;
 	{
 		FMaintenanceRequirement Req;
 		Req.RequirementName = TEXT("Oil Change");
 		Req.ItemRequired = TEXT("Engine Oil");
 		Req.QuantityRequired = 5;
 		Req.TimeRequired = 60.0f;
-		GeneratorMaintenance.Add(Req);
+		GeneratorMaintenance.Requirements.Add(Req);
 	}
 	{
 		FMaintenanceRequirement Req;
@@ -270,19 +270,19 @@ void UAutomationEfficiencySystem::InitializeMaintenanceRequirements()
 		Req.ItemRequired = TEXT("Spark Plug");
 		Req.QuantityRequired = 4;
 		Req.TimeRequired = 30.0f;
-		GeneratorMaintenance.Add(Req);
+		GeneratorMaintenance.Requirements.Add(Req);
 	}
 	MaintenanceRequirements.Add(EAutomationDeviceType::PowerGenerator, GeneratorMaintenance);
 
 	// Solar Panel maintenance
-	TArray<FMaintenanceRequirement> SolarMaintenance;
+	FMaintenanceRequirementArray SolarMaintenance;
 	{
 		FMaintenanceRequirement Req;
 		Req.RequirementName = TEXT("Panel Cleaning");
 		Req.ItemRequired = TEXT("Cleaning Cloth");
 		Req.QuantityRequired = 1;
 		Req.TimeRequired = 15.0f;
-		SolarMaintenance.Add(Req);
+		SolarMaintenance.Requirements.Add(Req);
 	}
 	MaintenanceRequirements.Add(EAutomationDeviceType::SolarPanel, SolarMaintenance);
 }
@@ -331,10 +331,10 @@ TArray<FMaintenanceRequirement> UAutomationEfficiencySystem::GetMaintenanceRequi
 		return TArray<FMaintenanceRequirement>();
 	}
 
-	const TArray<FMaintenanceRequirement>* Requirements = MaintenanceRequirements.Find(Stats->DeviceType);
-	if (Requirements)
+	const FMaintenanceRequirementArray* RequirementArray = MaintenanceRequirements.Find(Stats->DeviceType);
+	if (RequirementArray)
 	{
-		return *Requirements;
+		return RequirementArray->Requirements;
 	}
 
 	return TArray<FMaintenanceRequirement>();
@@ -362,7 +362,7 @@ TArray<AActor*> UAutomationEfficiencySystem::GetDevicesNeedingMaintenance() cons
 void UAutomationEfficiencySystem::InitializeUpgrades()
 {
 	// Irrigation System upgrades
-	TArray<FAutomationUpgrade> IrrigationUpgrades;
+	FAutomationUpgradeArray IrrigationUpgrades;
 	{
 		FAutomationUpgrade Upgrade;
 		Upgrade.UpgradeType = EAutomationUpgradeType::Efficiency;
@@ -371,7 +371,7 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Reduces water consumption by 10%");
 		Upgrade.EffectMultiplier = 0.9f; // 10% reduction
 		Upgrade.Cost = 500.0f;
-		IrrigationUpgrades.Add(Upgrade);
+		IrrigationUpgrades.Upgrades.Add(Upgrade);
 	}
 	{
 		FAutomationUpgrade Upgrade;
@@ -381,7 +381,7 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Increases watering radius by 20%");
 		Upgrade.EffectMultiplier = 1.2f; // 20% increase
 		Upgrade.Cost = 750.0f;
-		IrrigationUpgrades.Add(Upgrade);
+		IrrigationUpgrades.Upgrades.Add(Upgrade);
 	}
 	{
 		FAutomationUpgrade Upgrade;
@@ -391,12 +391,12 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Increases water capacity by 50%");
 		Upgrade.EffectMultiplier = 1.5f; // 50% increase
 		Upgrade.Cost = 1000.0f;
-		IrrigationUpgrades.Add(Upgrade);
+		IrrigationUpgrades.Upgrades.Add(Upgrade);
 	}
 	AvailableUpgrades.Add(EAutomationDeviceType::IrrigationSystem, IrrigationUpgrades);
 
 	// Harvesting Machine upgrades
-	TArray<FAutomationUpgrade> HarvesterUpgrades;
+	FAutomationUpgradeArray HarvesterUpgrades;
 	{
 		FAutomationUpgrade Upgrade;
 		Upgrade.UpgradeType = EAutomationUpgradeType::Speed;
@@ -405,7 +405,7 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Reduces harvest interval by 25%");
 		Upgrade.EffectMultiplier = 0.75f; // 25% faster
 		Upgrade.Cost = 800.0f;
-		HarvesterUpgrades.Add(Upgrade);
+		HarvesterUpgrades.Upgrades.Add(Upgrade);
 	}
 	{
 		FAutomationUpgrade Upgrade;
@@ -415,7 +415,7 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Increases storage capacity by 100%");
 		Upgrade.EffectMultiplier = 2.0f; // Double capacity
 		Upgrade.Cost = 1200.0f;
-		HarvesterUpgrades.Add(Upgrade);
+		HarvesterUpgrades.Upgrades.Add(Upgrade);
 	}
 	{
 		FAutomationUpgrade Upgrade;
@@ -425,12 +425,12 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Increases harvest radius by 30%");
 		Upgrade.EffectMultiplier = 1.3f; // 30% increase
 		Upgrade.Cost = 900.0f;
-		HarvesterUpgrades.Add(Upgrade);
+		HarvesterUpgrades.Upgrades.Add(Upgrade);
 	}
 	AvailableUpgrades.Add(EAutomationDeviceType::HarvestingMachine, HarvesterUpgrades);
 
 	// Power Generator upgrades
-	TArray<FAutomationUpgrade> GeneratorUpgrades;
+	FAutomationUpgradeArray GeneratorUpgrades;
 	{
 		FAutomationUpgrade Upgrade;
 		Upgrade.UpgradeType = EAutomationUpgradeType::Efficiency;
@@ -439,7 +439,7 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Reduces fuel consumption by 15%");
 		Upgrade.EffectMultiplier = 0.85f; // 15% reduction
 		Upgrade.Cost = 1500.0f;
-		GeneratorUpgrades.Add(Upgrade);
+		GeneratorUpgrades.Upgrades.Add(Upgrade);
 	}
 	{
 		FAutomationUpgrade Upgrade;
@@ -449,12 +449,12 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Increases fuel capacity by 50%");
 		Upgrade.EffectMultiplier = 1.5f; // 50% increase
 		Upgrade.Cost = 1000.0f;
-		GeneratorUpgrades.Add(Upgrade);
+		GeneratorUpgrades.Upgrades.Add(Upgrade);
 	}
 	AvailableUpgrades.Add(EAutomationDeviceType::PowerGenerator, GeneratorUpgrades);
 
 	// Solar Panel upgrades
-	TArray<FAutomationUpgrade> SolarUpgrades;
+	FAutomationUpgradeArray SolarUpgrades;
 	{
 		FAutomationUpgrade Upgrade;
 		Upgrade.UpgradeType = EAutomationUpgradeType::Efficiency;
@@ -463,7 +463,7 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Increases power output by 25%");
 		Upgrade.EffectMultiplier = 1.25f; // 25% increase
 		Upgrade.Cost = 2000.0f;
-		SolarUpgrades.Add(Upgrade);
+		SolarUpgrades.Upgrades.Add(Upgrade);
 	}
 	{
 		FAutomationUpgrade Upgrade;
@@ -473,7 +473,7 @@ void UAutomationEfficiencySystem::InitializeUpgrades()
 		Upgrade.Description = TEXT("Reduces maintenance frequency by 50%");
 		Upgrade.EffectMultiplier = 0.5f; // 50% slower degradation
 		Upgrade.Cost = 1500.0f;
-		SolarUpgrades.Add(Upgrade);
+		SolarUpgrades.Upgrades.Add(Upgrade);
 	}
 	AvailableUpgrades.Add(EAutomationDeviceType::SolarPanel, SolarUpgrades);
 }
@@ -486,10 +486,10 @@ TArray<FAutomationUpgrade> UAutomationEfficiencySystem::GetAvailableUpgrades(AAc
 		return TArray<FAutomationUpgrade>();
 	}
 
-	const TArray<FAutomationUpgrade>* Upgrades = AvailableUpgrades.Find(Stats->DeviceType);
-	if (Upgrades)
+	const FAutomationUpgradeArray* UpgradeArray = AvailableUpgrades.Find(Stats->DeviceType);
+	if (UpgradeArray)
 	{
-		return *Upgrades;
+		return UpgradeArray->Upgrades;
 	}
 
 	return TArray<FAutomationUpgrade>();
@@ -504,8 +504,8 @@ bool UAutomationEfficiencySystem::ApplyUpgrade(AActor* Device, const FAutomation
 	}
 
 	// Add to applied upgrades
-	TArray<FAutomationUpgrade>& DeviceUpgrades = AppliedUpgrades.FindOrAdd(Device);
-	DeviceUpgrades.Add(Upgrade);
+	FAutomationUpgradeArray& DeviceUpgrades = AppliedUpgrades.FindOrAdd(Device);
+	DeviceUpgrades.Upgrades.Add(Upgrade);
 
 	// Increment upgrade level
 	Stats->UpgradeLevel++;
@@ -536,10 +536,10 @@ bool UAutomationEfficiencySystem::ApplyUpgrade(AActor* Device, const FAutomation
 
 TArray<FAutomationUpgrade> UAutomationEfficiencySystem::GetAppliedUpgrades(AActor* Device) const
 {
-	const TArray<FAutomationUpgrade>* Upgrades = AppliedUpgrades.Find(Device);
-	if (Upgrades)
+	const FAutomationUpgradeArray* UpgradeArray = AppliedUpgrades.Find(Device);
+	if (UpgradeArray)
 	{
-		return *Upgrades;
+		return UpgradeArray->Upgrades;
 	}
 
 	return TArray<FAutomationUpgrade>();
@@ -547,14 +547,14 @@ TArray<FAutomationUpgrade> UAutomationEfficiencySystem::GetAppliedUpgrades(AActo
 
 float UAutomationEfficiencySystem::GetUpgradeMultiplier(AActor* Device, EAutomationUpgradeType UpgradeType) const
 {
-	const TArray<FAutomationUpgrade>* Upgrades = AppliedUpgrades.Find(Device);
-	if (!Upgrades)
+	const FAutomationUpgradeArray* UpgradeArray = AppliedUpgrades.Find(Device);
+	if (!UpgradeArray)
 	{
 		return 1.0f;
 	}
 
 	float Multiplier = 1.0f;
-	for (const FAutomationUpgrade& Upgrade : *Upgrades)
+	for (const FAutomationUpgrade& Upgrade : UpgradeArray->Upgrades)
 	{
 		if (Upgrade.UpgradeType == UpgradeType)
 		{

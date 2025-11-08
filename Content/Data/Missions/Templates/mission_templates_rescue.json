@@ -1,0 +1,539 @@
+{
+  "mission_templates": [
+    {
+      "mission_id": "rescue_distress_001",
+      "type": "rescue",
+      "title": "Emergency Distress Signal - ${ship_type}",
+      "description": "A ${ship_type} has sent out a distress signal from ${location}. They report ${emergency_type} and need immediate assistance. Time is critical - lives depend on your swift response.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "reach_location",
+          "description": "Navigate to distress signal coordinates",
+          "success_criteria": "arrive_at_destination"
+        },
+        {
+          "type": "rescue_survivors",
+          "description": "Extract ${survivor_count} survivors from disabled vessel",
+          "success_criteria": "all_survivors_rescued"
+        },
+        {
+          "type": "return_safely",
+          "description": "Transport survivors to ${destination}",
+          "success_criteria": "survivors_delivered"
+        }
+      ],
+      "rewards": {
+        "credits": 8000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "rescue_time_under_10_minutes",
+            "credits": 2000,
+            "description": "Swift response bonus"
+          },
+          {
+            "condition": "zero_casualties",
+            "credits": 3000,
+            "description": "Perfect rescue bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "cargo_capacity": 5,
+        "shield_rating": "basic"
+      },
+      "location": {
+        "spawn_type": "distress_zone",
+        "difficulty": "low_threat"
+      },
+      "time_limit": 1200,
+      "variables": {
+        "ship_type": ["civilian transport", "mining vessel", "research ship", "cargo hauler", "passenger liner"],
+        "location": ["asteroid field", "nebula", "planetary orbit", "deep space", "trade route"],
+        "emergency_type": ["engine failure", "hull breach", "life support failure", "pirate attack", "collision damage"],
+        "survivor_count": ["3", "5", "8", "12", "15"],
+        "destination": ["nearest station", "medical facility", "safe zone", "orbital platform"]
+      },
+      "ai_config": {
+        "enemy_waves": 0,
+        "environmental_hazards": true,
+        "debris_field": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Independent Traders", "Civilian Alliance"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "rescue_combat_extraction_001",
+      "type": "rescue",
+      "title": "Hot Zone Extraction - ${target_name}",
+      "description": "${target_name}, a ${target_role}, is stranded in hostile territory at ${location}. Enemy forces are ${threat_level}. You must fight your way in, extract the target, and escape before reinforcements arrive.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "breach_zone",
+          "description": "Break through enemy perimeter at ${location}",
+          "success_criteria": "enter_extraction_zone"
+        },
+        {
+          "type": "locate_target",
+          "description": "Find and secure ${target_name}",
+          "success_criteria": "target_located_and_protected"
+        },
+        {
+          "type": "combat_extraction",
+          "description": "Fight your way out with the target",
+          "success_criteria": "escape_to_safe_zone"
+        }
+      ],
+      "rewards": {
+        "credits": 18000,
+        "reputation": 30,
+        "bonus_conditions": [
+          {
+            "condition": "stealth_extraction",
+            "credits": 5000,
+            "description": "Undetected extraction bonus"
+          },
+          {
+            "condition": "target_uninjured",
+            "credits": 4000,
+            "description": "Target protection bonus"
+          },
+          {
+            "condition": "eliminate_all_threats",
+            "credits": 3000,
+            "description": "Zone clearance bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "experienced",
+        "shield_rating": "military_grade",
+        "weapons": "heavy"
+      },
+      "location": {
+        "spawn_type": "hostile_territory",
+        "difficulty": "high_threat"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "target_name": ["Commander Vex", "Dr. Chen", "Admiral Kross", "Agent Mira", "Captain Torres"],
+        "target_role": ["military officer", "scientist", "diplomat", "intelligence operative", "fleet commander"],
+        "location": ["enemy station", "pirate stronghold", "contested sector", "war zone", "blockaded system"],
+        "threat_level": ["actively hunting the target", "on high alert", "heavily fortified", "preparing execution"]
+      },
+      "ai_config": {
+        "enemy_waves": 4,
+        "enemies_per_wave": "3-6",
+        "enemy_types": ["fighters", "interceptors", "patrol_ships"],
+        "reinforcement_chance": 0.4
+      },
+      "repeatable": true,
+      "faction_affected": ["Allied Forces", "Resistance"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "rescue_medical_emergency_001",
+      "type": "rescue",
+      "title": "Medical Emergency - ${condition}",
+      "description": "A critical medical emergency has occurred at ${location}. A patient suffering from ${condition} requires immediate transport to ${hospital}. You have a specialized medical pod, but the clock is ticking - any delay could be fatal.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "retrieve_patient",
+          "description": "Pick up patient from ${location}",
+          "success_criteria": "patient_secured_in_medical_pod"
+        },
+        {
+          "type": "rapid_transit",
+          "description": "Transport patient to ${hospital} within time limit",
+          "success_criteria": "arrive_before_deadline"
+        },
+        {
+          "type": "stable_flight",
+          "description": "Maintain smooth flight - avoid excessive g-forces",
+          "success_criteria": "patient_condition_stable"
+        }
+      ],
+      "rewards": {
+        "credits": 12000,
+        "reputation": 25,
+        "bonus_conditions": [
+          {
+            "condition": "arrival_with_time_remaining",
+            "credits": 3000,
+            "description": "Early arrival bonus"
+          },
+          {
+            "condition": "perfect_stability",
+            "credits": 4000,
+            "description": "Zero trauma from flight bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "medical_pod_equipped": true,
+        "pilot_rating": "advanced",
+        "ship_handling": "precision"
+      },
+      "location": {
+        "spawn_type": "emergency_coordinates",
+        "difficulty": "time_pressure"
+      },
+      "time_limit": 900,
+      "variables": {
+        "condition": ["severe trauma", "radiation poisoning", "decompression injuries", "critical burns", "organ failure"],
+        "location": ["mining accident site", "damaged station", "crashed shuttle", "orbital platform", "deep space facility"],
+        "hospital": ["Central Medical Station", "Trauma Center Alpha", "Military Hospital", "Research Medical Facility"]
+      },
+      "ai_config": {
+        "enemy_waves": 0,
+        "flight_restrictions": {
+          "max_acceleration": 3.5,
+          "max_rotation_speed": 45
+        }
+      },
+      "repeatable": true,
+      "faction_affected": ["Medical Corps", "Civilian Alliance"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "rescue_disaster_relief_001",
+      "type": "rescue",
+      "title": "Disaster Relief - ${disaster_type}",
+      "description": "${location} has been hit by ${disaster_type}. Multiple distress signals detected. Your mission: evacuate as many survivors as possible before ${threat} makes rescue impossible. This is a race against time and nature.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "search_and_rescue",
+          "description": "Scan disaster zone for survivors",
+          "success_criteria": "locate_all_survivor_groups"
+        },
+        {
+          "type": "mass_evacuation",
+          "description": "Evacuate survivors from multiple locations",
+          "success_criteria": "rescue_minimum_survivors"
+        },
+        {
+          "type": "evade_disaster",
+          "description": "Avoid ${threat} while conducting rescue",
+          "success_criteria": "ship_survival"
+        }
+      ],
+      "rewards": {
+        "credits": 25000,
+        "reputation": 40,
+        "bonus_conditions": [
+          {
+            "condition": "rescue_all_survivors",
+            "credits": 8000,
+            "description": "Complete evacuation bonus"
+          },
+          {
+            "condition": "zero_ship_damage",
+            "credits": 5000,
+            "description": "Perfect execution bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "cargo_capacity": 20,
+        "shield_rating": "reinforced",
+        "environmental_protection": "advanced"
+      },
+      "location": {
+        "spawn_type": "disaster_zone",
+        "difficulty": "extreme_hazard"
+      },
+      "time_limit": 1500,
+      "variables": {
+        "disaster_type": ["solar storm", "asteroid impact", "station decompression", "reactor meltdown", "volcanic eruption"],
+        "location": ["mining colony", "orbital station", "research outpost", "terraforming facility", "planetary settlement"],
+        "threat": ["radiation levels reach lethal", "structural collapse", "atmospheric ignition", "gravitational anomaly", "debris field expansion"]
+      },
+      "ai_config": {
+        "enemy_waves": 0,
+        "environmental_hazards": true,
+        "hazard_types": ["radiation", "debris", "structural_collapse", "fire"],
+        "hazard_escalation": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Emergency Services", "Civilian Alliance"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "rescue_hostage_liberation_001",
+      "type": "rescue",
+      "title": "Hostage Rescue - ${hostage_count} Captives",
+      "description": "${faction} pirates have taken ${hostage_count} hostages aboard ${location}. They're demanding ${demand} and have threatened execution. You must infiltrate, neutralize the pirates, and extract the hostages unharmed.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "infiltrate",
+          "description": "Board ${location} without alerting pirates",
+          "success_criteria": "stealth_boarding_successful"
+        },
+        {
+          "type": "neutralize_captors",
+          "description": "Eliminate or incapacitate ${enemy_count} pirates",
+          "success_criteria": "all_threats_neutralized"
+        },
+        {
+          "type": "extract_hostages",
+          "description": "Evacuate all ${hostage_count} hostages safely",
+          "success_criteria": "zero_hostage_casualties"
+        }
+      ],
+      "rewards": {
+        "credits": 30000,
+        "reputation": 45,
+        "bonus_conditions": [
+          {
+            "condition": "zero_alarms_triggered",
+            "credits": 7000,
+            "description": "Ghost operation bonus"
+          },
+          {
+            "condition": "non_lethal_takedowns",
+            "credits": 5000,
+            "description": "Merciful approach bonus"
+          },
+          {
+            "condition": "sub_15_minute_rescue",
+            "credits": 6000,
+            "description": "Speed rescue bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "elite",
+        "boarding_equipment": true,
+        "stealth_capability": "advanced"
+      },
+      "location": {
+        "spawn_type": "pirate_held_location",
+        "difficulty": "extreme_danger"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "faction": ["Red Skull", "Void Reapers", "Black Star", "Crimson Hand"],
+        "hostage_count": ["6", "12", "18", "24"],
+        "location": ["captured freighter", "hijacked station", "pirate base", "disabled military ship"],
+        "demand": ["massive ransom", "prisoner release", "territorial concessions", "military secrets"],
+        "enemy_count": ["8-12", "15-20", "25-30"]
+      },
+      "ai_config": {
+        "enemy_waves": 3,
+        "enemies_per_wave": "4-8",
+        "enemy_types": ["pirates", "guards", "enforcers"],
+        "alert_system": true,
+        "execution_timer": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Allied Forces", "Civilian Alliance"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "rescue_escape_pod_field_001",
+      "type": "rescue",
+      "title": "Escape Pod Recovery - ${ship_name}",
+      "description": "The ${ship_type} ${ship_name} has been destroyed. Life pods scattered across ${location}. Survivors are running out of oxygen. Recover as many pods as possible before life support fails. Beware - the attackers may still be in the area.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "scan_area",
+          "description": "Locate all escape pods in ${location}",
+          "success_criteria": "all_pods_detected"
+        },
+        {
+          "type": "pod_recovery",
+          "description": "Retrieve escape pods before oxygen depletion",
+          "success_criteria": "minimum_pods_recovered"
+        },
+        {
+          "type": "evade_threats",
+          "description": "Avoid or eliminate remaining hostile forces",
+          "success_criteria": "complete_mission_alive"
+        }
+      ],
+      "rewards": {
+        "credits": 15000,
+        "reputation": 28,
+        "bonus_conditions": [
+          {
+            "condition": "recover_all_pods",
+            "credits": 5000,
+            "description": "Complete recovery bonus"
+          },
+          {
+            "condition": "no_pod_casualties",
+            "credits": 4000,
+            "description": "Zero oxygen depletion bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "tractor_beam": true,
+        "cargo_capacity": 10,
+        "scanner_range": "extended"
+      },
+      "location": {
+        "spawn_type": "debris_field",
+        "difficulty": "moderate_threat"
+      },
+      "time_limit": 1200,
+      "variables": {
+        "ship_name": ["Aurora", "Starlight", "Endeavor", "Horizon", "Pathfinder"],
+        "ship_type": ["passenger liner", "colony ship", "research vessel", "military transport", "cargo hauler"],
+        "location": ["debris field", "asteroid belt", "nebula edge", "patrol route", "trade corridor"]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["patrol_ships", "scavengers"],
+        "pod_decay_rate": 0.05
+      },
+      "repeatable": true,
+      "faction_affected": ["Independent Traders", "Civilian Alliance"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "rescue_deep_space_retrieval_001",
+      "type": "rescue",
+      "title": "Deep Space Retrieval - ${target_identity}",
+      "description": "${target_identity} went missing ${time_frame} during ${mission_type}. Last known position: ${location}. Trail is cold, resources are limited, but someone wants them found. This is a needle in a cosmic haystack - your scanning and navigation skills will be tested.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "follow_trail",
+          "description": "Track ${target_identity} using scattered clues and signals",
+          "success_criteria": "locate_target_coordinates"
+        },
+        {
+          "type": "search_zone",
+          "description": "Search designated area in ${location}",
+          "success_criteria": "target_located"
+        },
+        {
+          "type": "assess_and_extract",
+          "description": "Determine target status and execute appropriate rescue",
+          "success_criteria": "target_recovered"
+        }
+      ],
+      "rewards": {
+        "credits": 20000,
+        "reputation": 35,
+        "bonus_conditions": [
+          {
+            "condition": "target_alive",
+            "credits": 8000,
+            "description": "Live rescue bonus"
+          },
+          {
+            "condition": "evidence_recovered",
+            "credits": 4000,
+            "description": "Investigation completion bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "fuel_capacity": "extended_range",
+        "scanner_quality": "advanced",
+        "life_support": "extended"
+      },
+      "location": {
+        "spawn_type": "deep_space",
+        "difficulty": "isolation_challenge"
+      },
+      "time_limit": 3600,
+      "variables": {
+        "target_identity": ["explorer Drake", "scientist Martinez", "pilot Chen", "researcher Khan", "colonist Webb"],
+        "time_frame": ["3 weeks ago", "2 months ago", "6 months ago", "a year ago"],
+        "mission_type": ["survey mission", "exploration run", "research expedition", "transport route", "prospecting trip"],
+        "location": ["uncharted sector", "dark nebula", "outer rim", "void region", "unmapped zone"]
+      },
+      "ai_config": {
+        "enemy_waves": 1,
+        "enemies_per_wave": "1-3",
+        "enemy_types": ["scavengers", "claim_jumpers"],
+        "investigation_complexity": "high"
+      },
+      "repeatable": true,
+      "faction_affected": ["Search and Rescue Guild", "Explorers Union"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "rescue_sabotage_recovery_001",
+      "type": "rescue",
+      "title": "Sabotage Emergency - ${facility_name}",
+      "description": "${facility_name} at ${location} has been sabotaged. Critical systems failing: ${failure_type}. ${personnel_count} personnel trapped inside. You must stabilize the situation, evacuate survivors, and identify the saboteur if possible.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "emergency_stabilization",
+          "description": "Deploy emergency systems to slow ${failure_type}",
+          "success_criteria": "catastrophic_failure_delayed"
+        },
+        {
+          "type": "evacuate_personnel",
+          "description": "Extract ${personnel_count} trapped personnel",
+          "success_criteria": "all_personnel_evacuated"
+        },
+        {
+          "type": "investigation",
+          "description": "Gather evidence about the sabotage (optional)",
+          "success_criteria": "clues_recovered"
+        }
+      ],
+      "rewards": {
+        "credits": 22000,
+        "reputation": 38,
+        "bonus_conditions": [
+          {
+            "condition": "identify_saboteur",
+            "credits": 6000,
+            "description": "Investigation bonus"
+          },
+          {
+            "condition": "save_facility",
+            "credits": 8000,
+            "description": "Facility preservation bonus"
+          },
+          {
+            "condition": "zero_casualties",
+            "credits": 5000,
+            "description": "Perfect evacuation bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "engineering_capability": true,
+        "cargo_capacity": 15,
+        "investigation_tools": true
+      },
+      "location": {
+        "spawn_type": "sabotaged_facility",
+        "difficulty": "cascading_failures"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "facility_name": ["Research Station Beta", "Mining Platform 7", "Refinery Complex", "Processing Station", "Manufacturing Hub"],
+        "location": ["asteroid belt", "planetary orbit", "deep space", "mining sector", "industrial zone"],
+        "failure_type": ["reactor overload", "life support collapse", "structural breach", "coolant leak", "power core destabilization"],
+        "personnel_count": ["15", "28", "42", "56"]
+      },
+      "ai_config": {
+        "enemy_waves": 1,
+        "enemies_per_wave": "0-2",
+        "enemy_types": ["saboteur", "accomplice"],
+        "escape_chance": 0.3,
+        "environmental_hazards": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Industrial Consortium", "Security Forces"],
+      "moral_alignment": "neutral"
+    }
+  ]
+}

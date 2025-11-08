@@ -1,0 +1,319 @@
+{
+  "widgetName": "WBP_PartSelectionPanel",
+  "description": "Left panel for browsing ship parts by category with filtering options",
+  "location": "Content/UI/Widgets/Customization/Panels/",
+  "dependencies": [
+    "WBP_PartListEntry"
+  ],
+  "layout": {
+    "rootType": "Border",
+    "size": {
+      "desktop": { "width": 300 },
+      "vr": { "width": 600 }
+    },
+    "backgroundColor": "#2A2A2A",
+    "borderColor": "#424242",
+    "padding": [12, 12, 12, 12]
+  },
+  "components": [
+    {
+      "name": "Text_Header",
+      "type": "Text",
+      "text": "PART SELECTION",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 24,
+          "vr": 48
+        }
+      },
+      "color": "#00BCD4"
+    },
+    {
+      "name": "Grid_CategoryTabs",
+      "type": "UniformGridPanel",
+      "layout": "2x4",
+      "children": [
+        {
+          "name": "Button_Engine",
+          "position": [0, 0],
+          "text": "ENGINE"
+        },
+        {
+          "name": "Button_Weapon",
+          "position": [0, 1],
+          "text": "WEAPON"
+        },
+        {
+          "name": "Button_Shield",
+          "position": [1, 0],
+          "text": "SHIELD"
+        },
+        {
+          "name": "Button_Hull",
+          "position": [1, 1],
+          "text": "HULL"
+        },
+        {
+          "name": "Button_Thruster",
+          "position": [2, 0],
+          "text": "THRUSTER"
+        },
+        {
+          "name": "Button_Wings",
+          "position": [2, 1],
+          "text": "WINGS"
+        },
+        {
+          "name": "Button_Utility",
+          "position": [3, 0],
+          "text": "UTILITY"
+        },
+        {
+          "name": "Button_Skins",
+          "position": [3, 1],
+          "text": "SKINS"
+        }
+      ],
+      "buttonStyle": {
+        "size": {
+          "desktop": [140, 36],
+          "vr": [280, 72]
+        },
+        "normal": "#424242",
+        "hovered": "#616161",
+        "selected": "#00BCD4",
+        "textColor": {
+          "normal": "#BDBDBD",
+          "selected": "#FFFFFF"
+        }
+      }
+    },
+    {
+      "name": "TextBox_Search",
+      "type": "EditableTextBox",
+      "hintText": "Search parts...",
+      "font": {
+        "size": {
+          "desktop": 14,
+          "vr": 28
+        }
+      },
+      "backgroundColor": "#1A1A1A",
+      "foregroundColor": "#FFFFFF",
+      "height": {
+        "desktop": 32,
+        "vr": 64
+      }
+    },
+    {
+      "name": "ComboBox_Rarity",
+      "type": "ComboBoxString",
+      "options": ["All", "Common", "Uncommon", "Rare", "Epic", "Legendary"],
+      "default": "All",
+      "height": {
+        "desktop": 32,
+        "vr": 64
+      }
+    },
+    {
+      "name": "ScrollBox_PartsList",
+      "type": "ScrollBox",
+      "orientation": "Vertical",
+      "scrollbarVisibility": {
+        "desktop": "Auto",
+        "vr": "AlwaysVisible"
+      },
+      "scrollbarThickness": {
+        "desktop": 8,
+        "vr": 16
+      }
+    },
+    {
+      "name": "VBox_PartsContainer",
+      "type": "VerticalBox",
+      "description": "Dynamically populated with WBP_PartListEntry widgets"
+    }
+  ],
+  "variables": [
+    {
+      "name": "SubsystemReference",
+      "type": "UShipCustomizationSubsystem*",
+      "category": "References"
+    },
+    {
+      "name": "CurrentCategory",
+      "type": "EShipPartCategory",
+      "default": "Engine",
+      "description": "Currently selected part category"
+    },
+    {
+      "name": "FilteredParts",
+      "type": "TArray<UShipPartData*>",
+      "description": "Parts after applying filters"
+    },
+    {
+      "name": "SearchText",
+      "type": "FText",
+      "description": "Current search text"
+    },
+    {
+      "name": "SelectedRarity",
+      "type": "FString",
+      "default": "All",
+      "description": "Selected rarity filter"
+    },
+    {
+      "name": "PartEntryWidgets",
+      "type": "TArray<UWBPPartListEntry*>",
+      "description": "Widget pool for part list entries"
+    }
+  ],
+  "functions": [
+    {
+      "name": "Initialize",
+      "inputs": [
+        {
+          "name": "InSubsystem",
+          "type": "UShipCustomizationSubsystem*"
+        }
+      ],
+      "description": "Initializes the panel with subsystem reference"
+    },
+    {
+      "name": "RefreshPartsList",
+      "description": "Refreshes the parts list based on current filters",
+      "logic": [
+        "Clear parts container",
+        "Get all parts from subsystem",
+        "Filter by CurrentCategory",
+        "Filter by SearchText (if not empty)",
+        "Filter by SelectedRarity (if not 'All')",
+        "For each filtered part:",
+        "  - Create/pool WBP_PartListEntry",
+        "  - Set part data",
+        "  - Bind OnPartClicked event",
+        "  - Add to container"
+      ]
+    },
+    {
+      "name": "OnCategoryTabClicked",
+      "inputs": [
+        {
+          "name": "Category",
+          "type": "EShipPartCategory"
+        }
+      ],
+      "description": "Handler for category tab clicks"
+    },
+    {
+      "name": "OnSearchTextChanged",
+      "inputs": [
+        {
+          "name": "Text",
+          "type": "FText"
+        }
+      ],
+      "description": "Handler for search text changes (debounced)"
+    },
+    {
+      "name": "OnRarityFilterChanged",
+      "inputs": [
+        {
+          "name": "SelectedItem",
+          "type": "FString"
+        },
+        {
+          "name": "SelectionType",
+          "type": "ESelectInfo::Type"
+        }
+      ],
+      "description": "Handler for rarity filter changes"
+    },
+    {
+      "name": "OnPartEntryClicked",
+      "inputs": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ],
+      "description": "Handler when a part entry is clicked"
+    }
+  ],
+  "eventDispatchers": [
+    {
+      "name": "OnPartSelected",
+      "parameters": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ],
+      "description": "Fired when a part is selected"
+    }
+  ],
+  "animations": [
+    {
+      "name": "Anim_CategorySelect",
+      "duration": 0.15,
+      "description": "Animates category tab selection"
+    },
+    {
+      "name": "Anim_FilterApplied",
+      "duration": 0.2,
+      "tracks": [
+        {
+          "description": "Fade out old list (0.1s)"
+        },
+        {
+          "description": "Fade in new list (0.1s)"
+        }
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "property": "VBox_PartsContainer.ChildrenCount",
+      "source": "FilteredParts.Num()"
+    },
+    {
+      "property": "TextBox_Search.Text",
+      "source": "SearchText",
+      "twoWay": true
+    }
+  ],
+  "optimization": {
+    "widgetPooling": true,
+    "lazyLoading": true,
+    "maxVisibleEntries": 20,
+    "virtualization": "Recommended for 100+ parts"
+  },
+  "vrAdaptations": {
+    "categoryButtons": {
+      "layout": "2x4 grid for easier targeting"
+    },
+    "searchBox": {
+      "method": "Virtual keyboard overlay"
+    },
+    "rarityDropdown": {
+      "method": "Radial menu on VR hand"
+    },
+    "partListEntries": {
+      "minHeight": 80
+    },
+    "scrolling": {
+      "method": "Touch with momentum"
+    }
+  },
+  "testingChecklist": [
+    "All category tabs clickable and switch correctly",
+    "Search filters parts in real-time",
+    "Rarity filter updates list correctly",
+    "Part entries populate correctly",
+    "Clicking part fires OnPartSelected event",
+    "Scrolling works smoothly",
+    "Performance good with 100+ parts",
+    "No memory leaks on repeated filtering"
+  ]
+}

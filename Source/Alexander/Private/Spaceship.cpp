@@ -23,6 +23,7 @@
 // Forward declarations for components that will be implemented
 #include "FlightController.h"
 #include "ShipSystemsManager.h"
+#include "PerformanceProfilerSubsystem.h"
 
 // Agent 3 components (fully integrated)
 #include "PlayerOriginManager.h"
@@ -115,11 +116,16 @@ ASpaceship::ASpaceship()
 	VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("VRCamera"));
 	VRCamera->SetupAttachment(ShipRoot);
 
-	// Initialize components (will be created in BeginPlay)
-	CockpitComponent = nullptr;
-	EngineComponent = nullptr;
-	FlightController = nullptr;
-	SystemsManager = nullptr;
+	// Create ship components properly in constructor (not BeginPlay)
+	CockpitComponent = CreateDefaultSubobject<UCockpitComponent>(TEXT("CockpitComponent"));
+	CockpitComponent->SetupAttachment(ShipRoot);
+
+	EngineComponent = CreateDefaultSubobject<UEngineComponent>(TEXT("EngineComponent"));
+
+	FlightController = CreateDefaultSubobject<UFlightController>(TEXT("FlightController"));
+
+	SystemsManager = CreateDefaultSubobject<UShipSystemsManager>(TEXT("SystemsManager"));
+
 	OriginManager = nullptr; // Will be found/created in BeginPlay
 	// VRPawn = nullptr; // VRPawn disabled for UE 5.6 compatibility
 
@@ -164,27 +170,12 @@ void ASpaceship::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Create components if they don't exist
-	if (!CockpitComponent)
-	{
-		CockpitComponent = CreateDefaultSubobject<UCockpitComponent>(TEXT("CockpitComponent"));
-		CockpitComponent->SetupAttachment(ShipRoot);
-	}
-
-	if (!EngineComponent)
-	{
-		EngineComponent = CreateDefaultSubobject<UEngineComponent>(TEXT("EngineComponent"));
-	}
-
-	if (!FlightController)
-	{
-		FlightController = CreateDefaultSubobject<UFlightController>(TEXT("FlightController"));
-	}
-
-	if (!SystemsManager)
-	{
-		SystemsManager = CreateDefaultSubobject<UShipSystemsManager>(TEXT("SystemsManager"));
-	}
+	// Components are now created in constructor (lines 120-127)
+	// Verify they exist
+	check(CockpitComponent);
+	check(EngineComponent);
+	check(FlightController);
+	check(SystemsManager);
 
 	// Initialize origin-centered physics system (Agent 3 integration)
 	if (bUseOriginCenteredPhysics)
@@ -238,6 +229,10 @@ void ASpaceship::BeginPlay()
 void ASpaceship::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	// Profile spaceship tick (includes network replication)
+	UPerformanceProfilerSubsystem* Profiler = GetWorld()->GetSubsystem<UPerformanceProfilerSubsystem>();
+	PROFILE_SCOPE(Profiler, FName("Spaceship_Tick"));
 
 	// ORIGIN-CENTERED PHYSICS INTEGRATION (Agent 4 implementation)
 	if (bUseOriginCenteredPhysics && OriginManager && bOriginSystemInitialized)
@@ -698,7 +693,7 @@ void ASpaceship::InitializeOriginSystem()
 	}
 
 	// Validate safety system
-	if (UCelestialScalingSafetySystem* SafetySystem = GetGameInstance()->GetSubsystem<UCelestialScalingSafetySystem>())
+	if (UCelestialScalingSafetySystem* SafetySystem = GetWorld()->GetSubsystem<UCelestialScalingSafetySystem>())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Spaceship '%s': CelestialScalingSafetySystem available"), *GetName());
 	}
@@ -708,7 +703,7 @@ void ASpaceship::InitializeOriginSystem()
 	}
 
 	// Check for GravitySimulator subsystem
-	if (UGravitySimulator* GravSim = GetGameInstance()->GetSubsystem<UGravitySimulator>())
+	if (UGravitySimulator* GravSim = GetWorld()->GetSubsystem<UGravitySimulator>())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Spaceship '%s': GravitySimulator subsystem available"), *GetName());
 	}
@@ -798,7 +793,7 @@ void ASpaceship::UpdateOriginCenteredPhysics(float DeltaTime)
 		FVector CorrectionVector = -CurrentPosition.GetSafeNormal() * (DistanceFromOrigin - MaxOriginDistance * 0.25f);
 		AddActorWorldOffset(CorrectionVector * DeltaTime * 0.1f);
 
-		if (UCelestialScalingSafetySystem* SafetySystem = GetGameInstance()->GetSubsystem<UCelestialScalingSafetySystem>())
+		if (UCelestialScalingSafetySystem* SafetySystem = GetWorld()->GetSubsystem<UCelestialScalingSafetySystem>())
 		{
 			SafetySystem->LogSafetyEvent(
 				FString::Printf(TEXT("Ship drifting from origin (%.2f m) - applying correction"), DistanceFromOrigin),
@@ -836,7 +831,7 @@ void ASpaceship::ApplyGravitationalForces(float DeltaTime)
 {
 	// AGENT 4 IMPLEMENTATION: Full integration with Agent 3's GravitySimulator
 
-	UGravitySimulator* GravSim = GetGameInstance()->GetSubsystem<UGravitySimulator>();
+	UGravitySimulator* GravSim = GetWorld()->GetSubsystem<UGravitySimulator>();
 	if (!GravSim || !GravSim->IsGravityEnabled())
 		return;
 
@@ -901,7 +896,7 @@ void ASpaceship::RecenterOrigin()
 	LastOriginPosition = FVector::ZeroVector;
 
 	// Log to safety system
-	if (UCelestialScalingSafetySystem* SafetySystem = GetGameInstance()->GetSubsystem<UCelestialScalingSafetySystem>())
+	if (UCelestialScalingSafetySystem* SafetySystem = GetWorld()->GetSubsystem<UCelestialScalingSafetySystem>())
 	{
 		SafetySystem->LogSafetyEvent(
 			FString::Printf(TEXT("Universe recentered - ship was %.2f m from origin"), DistanceFromOrigin),
@@ -1257,7 +1252,7 @@ void ASpaceship::LimitGravitationalForces(FVector& GravityForce, float DeltaTime
 {
 	// AGENT 4 IMPLEMENTATION: Use SafetySystem for force limiting
 
-	UCelestialScalingSafetySystem* SafetySystem = GetGameInstance()->GetSubsystem<UCelestialScalingSafetySystem>();
+	UCelestialScalingSafetySystem* SafetySystem = GetWorld()->GetSubsystem<UCelestialScalingSafetySystem>();
 	if (!SafetySystem)
 	{
 		// Fallback: Manual limiting

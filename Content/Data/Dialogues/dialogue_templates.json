@@ -1,0 +1,424 @@
+{
+  "dialogue_system_version": "1.0",
+  "description": "Dialogue templates for NPCs integrated with AIDialogueSystem personality traits",
+  
+  "quest_giver_dialogues": {
+    "greeting_variants": [
+      {
+        "dialogue_id": "greeting_friendly_high",
+        "text": "Hey there, pilot! Great to see you again! Got a minute to chat?",
+        "personality_requirements": {
+          "friendliness": [70, 100],
+          "professionalism": [0, 50]
+        },
+        "conditions": {
+          "player_reputation": "positive",
+          "first_meeting": false
+        }
+      },
+      {
+        "dialogue_id": "greeting_friendly_first",
+        "text": "Welcome! You must be {player_name}. I've heard good things about you!",
+        "personality_requirements": {
+          "friendliness": [60, 100]
+        },
+        "conditions": {
+          "first_meeting": true
+        }
+      },
+      {
+        "dialogue_id": "greeting_hostile",
+        "text": "What do you want? Make it quick.",
+        "personality_requirements": {
+          "aggressiveness": [60, 100],
+          "friendliness": [0, 30]
+        }
+      },
+      {
+        "dialogue_id": "greeting_professional",
+        "text": "Greetings, pilot. I require your assistance with a matter of some importance.",
+        "personality_requirements": {
+          "professionalism": [70, 100],
+          "friendliness": [30, 70]
+        }
+      },
+      {
+        "dialogue_id": "greeting_nervous",
+        "text": "Oh! Um, h-hello. I... I need help with something. If you're not too busy, that is...",
+        "personality_requirements": {
+          "nervousness": [70, 100]
+        }
+      },
+      {
+        "dialogue_id": "greeting_humorous",
+        "text": "Well, well! If it isn't my favorite pilot! Or at least top five. I keep a list.",
+        "personality_requirements": {
+          "humor": [70, 100],
+          "friendliness": [50, 100]
+        }
+      },
+      {
+        "dialogue_id": "greeting_greedy",
+        "text": "You. You look like someone who knows how to make credits. I've got a job that pays well.",
+        "personality_requirements": {
+          "greed": [70, 100]
+        }
+      }
+    ],
+    
+    "mission_offers": [
+      {
+        "dialogue_id": "mission_offer_direct",
+        "text": "I need someone to {mission_objective}. The pay is {credit_amount} credits. Interested?",
+        "personality_requirements": {
+          "professionalism": [60, 100],
+          "honesty": [70, 100]
+        }
+      },
+      {
+        "dialogue_id": "mission_offer_vague",
+        "text": "There's a... situation that needs handling. Let's just say it's worth your time. Details upon acceptance.",
+        "personality_requirements": {
+          "honesty": [0, 40]
+        }
+      },
+      {
+        "dialogue_id": "mission_offer_desperate",
+        "text": "Please, I'm begging you! I need help with {mission_objective}. I'll pay whatever I can - {credit_amount} credits!",
+        "personality_requirements": {
+          "nervousness": [70, 100]
+        }
+      },
+      {
+        "dialogue_id": "mission_offer_casual",
+        "text": "So, funny story... I need someone to {mission_objective}. Think you could help a friend out? There's {credit_amount} credits in it for you.",
+        "personality_requirements": {
+          "friendliness": [70, 100],
+          "humor": [50, 100],
+          "professionalism": [0, 40]
+        }
+      },
+      {
+        "dialogue_id": "mission_offer_threatening",
+        "text": "Listen up. You're going to {mission_objective}. Do this right and you'll get {credit_amount} credits. Screw it up and... well, don't screw it up.",
+        "personality_requirements": {
+          "aggressiveness": [70, 100],
+          "friendliness": [0, 30]
+        }
+      }
+    ],
+    
+    "mission_acceptance": [
+      {
+        "dialogue_id": "accept_professional",
+        "text": "Excellent. I'll transmit the coordinates and mission details to your ship's computer. Report back upon completion.",
+        "personality_requirements": {
+          "professionalism": [70, 100]
+        }
+      },
+      {
+        "dialogue_id": "accept_friendly",
+        "text": "Awesome! I knew I could count on you. Details are uploading to your ship now. Good luck out there!",
+        "personality_requirements": {
+          "friendliness": [70, 100]
+        }
+      },
+      {
+        "dialogue_id": "accept_relieved",
+        "text": "Oh thank goodness! You have no idea how much this means to me. I'm sending you everything you need right now.",
+        "personality_requirements": {
+          "nervousness": [70, 100]
+        }
+      },
+      {
+        "dialogue_id": "accept_suspicious",
+        "text": "Good. Don't talk to anyone about this. The details are encrypted - your eyes only. Now get going.",
+        "personality_requirements": {
+          "honesty": [0, 40],
+          "aggressiveness": [50, 100]
+        }
+      }
+    ],
+    
+    "mission_completion": [
+      {
+        "dialogue_id": "complete_satisfied",
+        "text": "Perfect work, pilot. Your payment has been transferred. I'll keep you in mind for future opportunities.",
+        "personality_requirements": {
+          "professionalism": [60, 100],
+          "honesty": [70, 100]
+        }
+      },
+      {
+        "dialogue_id": "complete_enthusiastic",
+        "text": "You did it! That's exactly what we needed! Here's your payment, plus a little bonus. You've earned it!",
+        "personality_requirements": {
+          "friendliness": [70, 100],
+          "loyalty": [70, 100]
+        }
+      },
+      {
+        "dialogue_id": "complete_grateful",
+        "text": "I... I can't thank you enough. The credits are yours, every last one. You're a lifesaver!",
+        "personality_requirements": {
+          "nervousness": [60, 100]
+        }
+      },
+      {
+        "dialogue_id": "complete_greedy",
+        "text": "Yeah, yeah, good work. Here's your cut. Now if you'll excuse me, I have business to attend to.",
+        "personality_requirements": {
+          "greed": [70, 100],
+          "friendliness": [0, 40]
+        }
+      },
+      {
+        "dialogue_id": "complete_humorous",
+        "text": "Ha! Knew you'd pull it off! Here's your payment, hot off the digital press. Pleasure doing business with you!",
+        "personality_requirements": {
+          "humor": [70, 100],
+          "friendliness": [60, 100]
+        }
+      }
+    ]
+  },
+  
+  "npc_ambient_dialogues": {
+    "station_chatter": [
+      {
+        "dialogue_id": "chatter_news_001",
+        "text": "Did you hear about the convoy that got hit near the asteroid belt? Pirates are getting bolder.",
+        "location": "TradingPost",
+        "frequency": "common"
+      },
+      {
+        "dialogue_id": "chatter_gossip_001",
+        "text": "They say someone found an alien artifact out in the frontier. Corporate's offering big money for it.",
+        "location": "SocialArea",
+        "frequency": "uncommon"
+      },
+      {
+        "dialogue_id": "chatter_complaint_001",
+        "text": "Fuel prices are through the roof again. How are we supposed to make a living out here?",
+        "location": "DockingBay",
+        "frequency": "common"
+      },
+      {
+        "dialogue_id": "chatter_warning_001",
+        "text": "Avoid sector 7-G if you can. Some kind of anomaly out there is messing with navigation systems.",
+        "location": "MissionBoard",
+        "frequency": "uncommon"
+      },
+      {
+        "dialogue_id": "chatter_opportunity_001",
+        "text": "Mining guild is looking for escorts. Pays decent if you don't mind some potential pirate action.",
+        "location": "TradingPost",
+        "frequency": "common"
+      }
+    ],
+    
+    "player_reputation_reactions": [
+      {
+        "dialogue_id": "rep_high_positive",
+        "text": "Hey, you're {player_name}! I've heard about your work. Top-notch stuff!",
+        "reputation_requirement": [80, 100],
+        "personality_requirements": {
+          "friendliness": [50, 100]
+        }
+      },
+      {
+        "dialogue_id": "rep_high_suspicious",
+        "text": "So you're the famous {player_name}. Hope you're as good as they say.",
+        "reputation_requirement": [80, 100],
+        "personality_requirements": {
+          "honesty": [0, 50]
+        }
+      },
+      {
+        "dialogue_id": "rep_low_hostile",
+        "text": "You've got some nerve showing your face around here after what you've done.",
+        "reputation_requirement": [-100, -60],
+        "personality_requirements": {
+          "aggressiveness": [60, 100]
+        }
+      },
+      {
+        "dialogue_id": "rep_low_cautious",
+        "text": "I'd watch my back if I were you. Not everyone's happy with your recent choices.",
+        "reputation_requirement": [-100, -40],
+        "personality_requirements": {
+          "loyalty": [60, 100]
+        }
+      }
+    ]
+  },
+  
+  "tutorial_narrator": {
+    "basic_controls": [
+      {
+        "dialogue_id": "tutorial_welcome",
+        "text": "Welcome to your ship, pilot. Let's start with the basics. Look at your hands - you'll use these to interact with everything.",
+        "step": 1
+      },
+      {
+        "dialogue_id": "tutorial_grab",
+        "text": "Good! Now try grabbing the throttle lever. Close your hand when you're near it.",
+        "step": 2
+      },
+      {
+        "dialogue_id": "tutorial_success",
+        "text": "Excellent work! You're getting the hang of it. Let's move on to flight controls.",
+        "step": 3
+      },
+      {
+        "dialogue_id": "tutorial_error",
+        "text": "Not quite. Remember, you need to be close to the object before grabbing. Try again.",
+        "trigger": "error_correction"
+      }
+    ],
+    
+    "flight_training": [
+      {
+        "dialogue_id": "flight_intro",
+        "text": "Time to take her for a spin. Grab the flight stick and gently push forward to increase throttle.",
+        "step": 1
+      },
+      {
+        "dialogue_id": "flight_maneuver",
+        "text": "Now try some basic maneuvers. Pull the stick left or right to roll, up or down to pitch.",
+        "step": 2
+      },
+      {
+        "dialogue_id": "flight_advice",
+        "text": "Pro tip: Smooth, controlled movements work better than jerky inputs, especially in VR.",
+        "trigger": "hint"
+      }
+    ],
+    
+    "combat_training": [
+      {
+        "dialogue_id": "combat_intro",
+        "text": "Let's talk weapons. Your ship is equipped with basic lasers. Target the practice drone ahead.",
+        "step": 1
+      },
+      {
+        "dialogue_id": "combat_engage",
+        "text": "Target locked! Now squeeze the fire trigger. Short, controlled bursts are more accurate.",
+        "step": 2
+      },
+      {
+        "dialogue_id": "combat_defense",
+        "text": "Good shooting! But combat isn't just offense. Watch your shield indicator - manage your energy wisely.",
+        "step": 3
+      }
+    ]
+  },
+  
+  "computer_ai_voice": {
+    "system_status": [
+      {
+        "dialogue_id": "system_startup",
+        "text": "Systems online. All primary functions nominal. Welcome aboard, Commander.",
+        "trigger": "ship_startup"
+      },
+      {
+        "dialogue_id": "system_warning",
+        "text": "Warning: Shield integrity at 30 percent. Recommend immediate evasive action.",
+        "trigger": "low_shields"
+      },
+      {
+        "dialogue_id": "system_critical",
+        "text": "Critical alert: Hull breach detected. Emergency protocols engaged.",
+        "trigger": "hull_breach"
+      }
+    ],
+    
+    "navigation": [
+      {
+        "dialogue_id": "nav_waypoint",
+        "text": "Waypoint set. Estimated time to arrival: {eta} minutes.",
+        "trigger": "waypoint_set"
+      },
+      {
+        "dialogue_id": "nav_arrival",
+        "text": "Approaching destination. Reducing speed to approach velocity.",
+        "trigger": "destination_near"
+      },
+      {
+        "dialogue_id": "nav_hazard",
+        "text": "Navigational hazard detected ahead. Recommend course correction.",
+        "trigger": "hazard_detected"
+      }
+    ],
+    
+    "combat_alerts": [
+      {
+        "dialogue_id": "combat_hostile",
+        "text": "Hostile contact detected. Threat level: {threat_level}. Weapons hot.",
+        "trigger": "combat_start"
+      },
+      {
+        "dialogue_id": "combat_missile",
+        "text": "Missile lock detected! Deploy countermeasures!",
+        "trigger": "missile_lock"
+      },
+      {
+        "dialogue_id": "combat_victory",
+        "text": "All hostiles neutralized. Combat systems standing down.",
+        "trigger": "combat_end"
+      }
+    ]
+  },
+  
+  "contextual_hints": [
+    {
+      "hint_id": "hint_docking",
+      "text": "Approach the docking bay slowly. Line up with the guidance markers for a smooth landing.",
+      "trigger": "near_station",
+      "frequency": "once"
+    },
+    {
+      "hint_id": "hint_scanning",
+      "text": "Hold steady while scanning. Movement will interrupt the scan process.",
+      "trigger": "scanning_active",
+      "frequency": "once"
+    },
+    {
+      "hint_id": "hint_fuel",
+      "text": "Fuel running low. Consider refueling at the nearest station or using a fuel scoop.",
+      "trigger": "low_fuel",
+      "frequency": "repeating"
+    },
+    {
+      "hint_id": "hint_cargo",
+      "text": "Cargo hold is full. You'll need to sell or store items before collecting more.",
+      "trigger": "cargo_full",
+      "frequency": "repeating"
+    }
+  ],
+  
+  "dialogue_variables": {
+    "player_name": "string",
+    "credit_amount": "integer",
+    "mission_objective": "string",
+    "location_name": "string",
+    "threat_level": "string",
+    "eta": "integer",
+    "item_name": "string",
+    "faction_name": "string"
+  },
+  
+  "personality_trait_ranges": {
+    "description": "Personality trait values from AIDialogueSystem (0-100 scale)",
+    "traits": {
+      "aggressiveness": "How confrontational and forceful the NPC is",
+      "friendliness": "How warm and welcoming the NPC is",
+      "honesty": "How truthful and straightforward the NPC is",
+      "nervousness": "How anxious and uncertain the NPC appears",
+      "professionalism": "How formal and business-like the NPC is",
+      "humor": "How often the NPC uses jokes and levity",
+      "greed": "How money-focused and self-interested the NPC is",
+      "loyalty": "How trustworthy and faithful the NPC is"
+    }
+  }
+}

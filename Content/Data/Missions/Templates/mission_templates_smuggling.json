@@ -1,0 +1,543 @@
+{
+  "mission_templates": [
+    {
+      "mission_id": "smuggling_contraband_001",
+      "type": "smuggling",
+      "title": "Contraband Run - ${cargo_type}",
+      "description": "You've been hired to transport ${cargo_type} from ${origin} to ${destination}. The cargo is highly illegal in this sector. Avoid ${authority} patrols, don't get scanned, and deliver the goods intact. Payment is generous, but so are the consequences of failure.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "pickup_cargo",
+          "description": "Collect ${cargo_type} from ${origin}",
+          "success_criteria": "cargo_loaded"
+        },
+        {
+          "type": "evade_detection",
+          "description": "Avoid ${authority} scans while transporting cargo",
+          "success_criteria": "remain_unscanned"
+        },
+        {
+          "type": "deliver_cargo",
+          "description": "Deliver to black market contact at ${destination}",
+          "success_criteria": "cargo_delivered_intact"
+        }
+      ],
+      "rewards": {
+        "credits": 15000,
+        "reputation": -5,
+        "bonus_conditions": [
+          {
+            "condition": "zero_detection_events",
+            "credits": 5000,
+            "description": "Ghost run bonus"
+          },
+          {
+            "condition": "fast_delivery",
+            "credits": 3000,
+            "description": "Speed delivery bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "cargo_capacity": 10,
+        "stealth_rating": "basic",
+        "shield_rating": "basic"
+      },
+      "location": {
+        "spawn_type": "black_market_route",
+        "difficulty": "moderate_risk"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "cargo_type": ["narcotics", "stolen military tech", "prohibited xenotech", "illegal weapons", "restricted AI cores"],
+        "origin": ["abandoned station", "pirate depot", "black market hub", "smuggler's den", "underground facility"],
+        "destination": ["corporate buyer", "rebel contact", "crime syndicate", "underground market", "hidden base"],
+        "authority": ["Federal Police", "Corporate Security", "Military Patrol", "Customs Enforcement"]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "1-3",
+        "enemy_types": ["patrol_ships", "customs_vessels"],
+        "scan_frequency": "high",
+        "detection_escalation": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Criminal Syndicates", "Underground Network"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "smuggling_blockade_run_001",
+      "type": "smuggling",
+      "title": "Blockade Runner - ${destination}",
+      "description": "${destination} is under ${blockade_type} by ${faction}. Critical supplies are needed inside: ${cargo_type}. You must break through the blockade, deliver the cargo, and escape before they can respond. High risk, high reward.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "approach_blockade",
+          "description": "Navigate to blockade perimeter at ${destination}",
+          "success_criteria": "reach_blockade_zone"
+        },
+        {
+          "type": "break_blockade",
+          "description": "Penetrate ${blockade_type} using speed and evasion",
+          "success_criteria": "breach_blockade_line"
+        },
+        {
+          "type": "deliver_and_escape",
+          "description": "Deliver ${cargo_type} and escape pursuit",
+          "success_criteria": "cargo_delivered_and_escaped"
+        }
+      ],
+      "rewards": {
+        "credits": 22000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "zero_hull_damage",
+            "credits": 6000,
+            "description": "Clean run bonus"
+          },
+          {
+            "condition": "no_combat_engagement",
+            "credits": 5000,
+            "description": "Pure evasion bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "speed_rating": "high",
+        "shield_rating": "military_grade",
+        "evasion_capability": "advanced"
+      },
+      "location": {
+        "spawn_type": "blockaded_system",
+        "difficulty": "high_threat"
+      },
+      "time_limit": 1500,
+      "variables": {
+        "destination": ["besieged colony", "rebel planet", "quarantined station", "contested system", "isolated outpost"],
+        "blockade_type": ["military blockade", "quarantine cordon", "siege line", "embargo enforcement", "interdiction zone"],
+        "faction": ["Federal Navy", "Corporate Fleet", "Enemy Alliance", "Quarantine Authority"],
+        "cargo_type": ["medical supplies", "food and water", "weapons", "communications equipment", "power cells"]
+      },
+      "ai_config": {
+        "enemy_waves": 4,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["blockade_ships", "interceptors", "patrol_craft"],
+        "pursuit_duration": "extended",
+        "reinforcement_chance": 0.5
+      },
+      "repeatable": true,
+      "faction_affected": ["Resistance", "Besieged Colonies"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "smuggling_customs_evasion_001",
+      "type": "smuggling",
+      "title": "Customs Dodge - ${checkpoint}",
+      "description": "You're carrying ${cargo_type} that won't pass legal inspection at ${checkpoint}. Use false transponders, hidden compartments, or bribery to get through. ${authority} are ${vigilance_level} today. One wrong move and you're impounded.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "approach_checkpoint",
+          "description": "Enter customs zone at ${checkpoint}",
+          "success_criteria": "checkpoint_reached"
+        },
+        {
+          "type": "evade_inspection",
+          "description": "Pass through customs without contraband discovery",
+          "success_criteria": "inspection_passed_or_evaded"
+        },
+        {
+          "type": "clear_jurisdiction",
+          "description": "Reach safe distance from customs authority",
+          "success_criteria": "escaped_jurisdiction"
+        }
+      ],
+      "rewards": {
+        "credits": 12000,
+        "reputation": -3,
+        "bonus_conditions": [
+          {
+            "condition": "successful_bribe",
+            "credits": 2000,
+            "description": "Diplomatic solution bonus"
+          },
+          {
+            "condition": "perfect_deception",
+            "credits": 4000,
+            "description": "Flawless false documentation bonus"
+          },
+          {
+            "condition": "no_secondary_inspection",
+            "credits": 3000,
+            "description": "Primary inspection only bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "hidden_compartments": true,
+        "false_transponder": true,
+        "bribe_funds": 5000
+      },
+      "location": {
+        "spawn_type": "customs_checkpoint",
+        "difficulty": "inspection_challenge"
+      },
+      "time_limit": 1200,
+      "variables": {
+        "cargo_type": ["unlicensed goods", "taxable contraband", "prohibited imports", "unregistered tech", "black market wares"],
+        "checkpoint": ["border station", "trade hub checkpoint", "system gate", "customs waypoint", "inspection platform"],
+        "authority": ["Customs Officers", "Port Authority", "Trade Inspectors", "Border Control"],
+        "vigilance_level": ["highly vigilant", "on high alert", "conducting thorough inspections", "cracking down on smugglers"]
+      },
+      "ai_config": {
+        "enemy_waves": 1,
+        "enemies_per_wave": "1-2",
+        "enemy_types": ["customs_cutters", "inspection_ships"],
+        "scan_intensity": "thorough",
+        "bribe_success_chance": 0.6
+      },
+      "repeatable": true,
+      "faction_affected": ["Criminal Syndicates", "Black Market Traders"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "smuggling_hot_cargo_001",
+      "type": "smuggling",
+      "title": "Hot Cargo - ${cargo_description}",
+      "description": "${cargo_description} was just stolen from ${victim}. It's extremely hot - every authority and bounty hunter in ${region} is looking for it. You need to move it NOW from ${pickup} to ${buyer} before the heat intensifies. This is the riskiest run you'll ever make.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "rapid_pickup",
+          "description": "Collect ${cargo_description} from ${pickup}",
+          "success_criteria": "cargo_loaded_quickly"
+        },
+        {
+          "type": "evade_pursuit",
+          "description": "Shake off ${pursuit_type} hunting the cargo",
+          "success_criteria": "pursuers_evaded"
+        },
+        {
+          "type": "hot_delivery",
+          "description": "Deliver to ${buyer} before window closes",
+          "success_criteria": "delivered_within_timeframe"
+        }
+      ],
+      "rewards": {
+        "credits": 35000,
+        "reputation": -15,
+        "bonus_conditions": [
+          {
+            "condition": "zero_combat",
+            "credits": 8000,
+            "description": "Pure evasion expert bonus"
+          },
+          {
+            "condition": "under_15_minutes",
+            "credits": 10000,
+            "description": "Lightning delivery bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "speed_rating": "maximum",
+        "stealth_rating": "advanced",
+        "combat_capability": "heavy"
+      },
+      "location": {
+        "spawn_type": "hot_zone",
+        "difficulty": "extreme_danger"
+      },
+      "time_limit": 1200,
+      "variables": {
+        "cargo_description": ["prototype warship engine", "corporate vault contents", "military intelligence data", "experimental weapon system", "priceless xenotech artifact"],
+        "victim": ["major corporation", "military installation", "crime lord", "government facility", "research complex"],
+        "region": ["the sector", "surrounding systems", "this quadrant", "the trade lanes"],
+        "pickup": ["heist site", "drop point", "fence location", "temporary hideout"],
+        "buyer": ["underground fence", "rival corporation", "foreign power", "crime boss", "black market broker"],
+        "pursuit_type": ["corporate security", "military hunters", "bounty hunters", "rival thieves"]
+      },
+      "ai_config": {
+        "enemy_waves": 5,
+        "enemies_per_wave": "3-6",
+        "enemy_types": ["hunters", "security_forces", "bounty_hunters"],
+        "pursuit_intensity": "relentless",
+        "reinforcement_chance": 0.7
+      },
+      "repeatable": true,
+      "faction_affected": ["Criminal Syndicates", "Fences"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "smuggling_refugee_transport_001",
+      "type": "smuggling",
+      "title": "Refugee Run - ${refugee_group}",
+      "description": "${refugee_count} ${refugee_group} need to escape ${origin}. ${threat} makes legal transport impossible. You'll smuggle them to ${destination} in hidden compartments. It's dangerous, uncomfortable, and illegal - but it's their only chance.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "covert_pickup",
+          "description": "Extract ${refugee_count} refugees from ${origin}",
+          "success_criteria": "all_refugees_aboard"
+        },
+        {
+          "type": "safe_transport",
+          "description": "Keep refugees hidden during ${checkpoint_count} checkpoints",
+          "success_criteria": "zero_refugee_discovery"
+        },
+        {
+          "type": "safe_delivery",
+          "description": "Deliver refugees to sanctuary at ${destination}",
+          "success_criteria": "all_refugees_safely_delivered"
+        }
+      ],
+      "rewards": {
+        "credits": 18000,
+        "reputation": 20,
+        "bonus_conditions": [
+          {
+            "condition": "zero_casualties",
+            "credits": 5000,
+            "description": "Every life saved bonus"
+          },
+          {
+            "condition": "comfort_maintained",
+            "credits": 3000,
+            "description": "Humane transport bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "hidden_compartments": true,
+        "life_support_capacity": 20,
+        "stealth_capability": "advanced"
+      },
+      "location": {
+        "spawn_type": "refugee_route",
+        "difficulty": "high_scrutiny"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "refugee_count": ["12", "18", "24", "30"],
+        "refugee_group": ["war refugees", "political dissidents", "persecuted minorities", "escaped prisoners", "colony evacuees"],
+        "origin": ["war zone", "oppressive regime", "disaster area", "occupied territory", "failing colony"],
+        "destination": ["safe haven system", "refugee camp", "neutral territory", "sanctuary station", "free colony"],
+        "threat": ["persecution", "genocide", "war", "natural disaster", "political oppression"],
+        "checkpoint_count": ["2", "3", "4"]
+      },
+      "ai_config": {
+        "enemy_waves": 3,
+        "enemies_per_wave": "1-3",
+        "enemy_types": ["border_patrol", "inspection_vessels", "regime_forces"],
+        "inspection_frequency": "high",
+        "humanitarian_consideration": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Humanitarian Organizations", "Refugee Networks"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "smuggling_information_courier_001",
+      "type": "smuggling",
+      "title": "Data Runner - ${data_type}",
+      "description": "You're carrying ${data_type} in an encrypted data core. ${faction} will kill to keep this information secret. Deliver to ${recipient} at ${destination}. If captured, the data core will self-destruct. Don't let that happen.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "secure_transport",
+          "description": "Transport ${data_type} without data core compromise",
+          "success_criteria": "data_integrity_maintained"
+        },
+        {
+          "type": "evade_hunters",
+          "description": "Avoid or eliminate ${faction} hunter teams",
+          "success_criteria": "reach_destination_alive"
+        },
+        {
+          "type": "secure_delivery",
+          "description": "Deliver to ${recipient} at secure location",
+          "success_criteria": "data_transferred_successfully"
+        }
+      ],
+      "rewards": {
+        "credits": 25000,
+        "reputation": 25,
+        "bonus_conditions": [
+          {
+            "condition": "zero_interceptions",
+            "credits": 7000,
+            "description": "Clean run bonus"
+          },
+          {
+            "condition": "data_core_undamaged",
+            "credits": 5000,
+            "description": "Perfect data integrity bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "encrypted_storage": true,
+        "combat_rating": "experienced",
+        "evasion_capability": "advanced"
+      },
+      "location": {
+        "spawn_type": "intelligence_route",
+        "difficulty": "active_pursuit"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "data_type": ["corporate espionage data", "military intelligence", "government secrets", "criminal evidence", "scientific research"],
+        "faction": ["corporations", "military intelligence", "crime syndicates", "secret police", "rival spies"],
+        "recipient": ["journalist", "intelligence agency", "resistance leader", "legal authority", "rival corporation"],
+        "destination": ["secure facility", "hidden safehouse", "neutral embassy", "encrypted relay", "protected archive"]
+      },
+      "ai_config": {
+        "enemy_waves": 4,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["assassins", "interceptors", "intelligence_agents"],
+        "hunter_aggression": "extreme",
+        "self_destruct_timer": 300
+      },
+      "repeatable": true,
+      "faction_affected": ["Intelligence Networks", "Investigative Journalists"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "smuggling_luxury_contraband_001",
+      "type": "smuggling",
+      "title": "Elite Contraband - ${luxury_item}",
+      "description": "Wealthy ${client} wants ${luxury_item}, which is banned in their system due to ${ban_reason}. They're willing to pay premium rates. Acquire from ${source}, smuggle past customs, and deliver discretely to their ${location}. Rich clients expect perfection.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "acquire_luxury_goods",
+          "description": "Purchase ${luxury_item} from ${source}",
+          "success_criteria": "goods_acquired"
+        },
+        {
+          "type": "discrete_transport",
+          "description": "Smuggle past customs without attracting attention",
+          "success_criteria": "passed_inspection"
+        },
+        {
+          "type": "exclusive_delivery",
+          "description": "Deliver to ${client}'s ${location} with discretion",
+          "success_criteria": "delivered_privately"
+        }
+      ],
+      "rewards": {
+        "credits": 10000,
+        "reputation": 5,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_condition",
+            "credits": 3000,
+            "description": "Pristine delivery bonus"
+          },
+          {
+            "condition": "total_discretion",
+            "credits": 2000,
+            "description": "No witnesses bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "cargo_protection": "premium",
+        "discretion_rating": "high",
+        "social_standing": "neutral_or_better"
+      },
+      "location": {
+        "spawn_type": "luxury_route",
+        "difficulty": "low_risk"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "luxury_item": ["rare wines", "exotic pets", "prohibited artworks", "designer narcotics", "banned literature"],
+        "client": ["corporate executive", "nobility", "celebrity", "politician", "crime boss"],
+        "source": ["black market dealer", "luxury fence", "underground auction", "specialty smuggler", "private collector"],
+        "location": ["private estate", "luxury yacht", "penthouse", "orbital mansion", "exclusive club"],
+        "ban_reason": ["moral legislation", "trade restrictions", "cultural laws", "taxation", "religious prohibition"]
+      },
+      "ai_config": {
+        "enemy_waves": 1,
+        "enemies_per_wave": "0-1",
+        "enemy_types": ["customs_patrol"],
+        "scan_frequency": "low",
+        "social_engineering_possible": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Elite Society", "Black Market Traders"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "smuggling_biological_samples_001",
+      "type": "smuggling",
+      "title": "Biohazard Transport - ${sample_type}",
+      "description": "${sample_type} must be transported from ${origin} to ${destination} for ${purpose}. The samples are illegal, highly dangerous, and require ${special_handling}. Any containment breach could be catastrophic. Handle with extreme care.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "secure_samples",
+          "description": "Load ${sample_type} with proper containment",
+          "success_criteria": "samples_secured_safely"
+        },
+        {
+          "type": "maintain_containment",
+          "description": "Keep ${special_handling} conditions during transport",
+          "success_criteria": "zero_containment_breaches"
+        },
+        {
+          "type": "safe_delivery",
+          "description": "Deliver to ${destination} laboratory",
+          "success_criteria": "samples_delivered_intact"
+        }
+      ],
+      "rewards": {
+        "credits": 30000,
+        "reputation": -10,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_containment",
+            "credits": 8000,
+            "description": "Zero contamination risk bonus"
+          },
+          {
+            "condition": "rapid_delivery",
+            "credits": 6000,
+            "description": "Sample viability preserved bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "biohazard_containment": true,
+        "temperature_control": true,
+        "medical_certification": "required"
+      },
+      "location": {
+        "spawn_type": "biohazard_route",
+        "difficulty": "extreme_hazard"
+      },
+      "time_limit": 1500,
+      "variables": {
+        "sample_type": ["engineered viruses", "xenobiological specimens", "prohibited pathogens", "genetic materials", "experimental organisms"],
+        "origin": ["illegal lab", "quarantine zone", "research facility", "black site", "contaminated area"],
+        "destination": ["underground lab", "bioweapons facility", "research station", "pharmaceutical company", "military research base"],
+        "purpose": ["bioweapon development", "illegal research", "corporate espionage", "black market medicine", "genetic engineering"],
+        "special_handling": ["cryogenic freezing", "radiation shielding", "pressurized containment", "magnetic isolation"]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "2-3",
+        "enemy_types": ["quarantine_enforcement", "bioterror_response"],
+        "containment_fragility": "high",
+        "environmental_hazards": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Underground Science", "Biotech Black Market"],
+      "moral_alignment": "dark"
+    }
+  ]
+}

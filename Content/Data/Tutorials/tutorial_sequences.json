@@ -1,0 +1,887 @@
+{
+  "tutorial_system_version": "1.0",
+  "description": "Tutorial sequence specifications for TutorialSystem integration",
+  
+  "module_1_basic_vr": {
+    "module_id": "tutorial_basic_vr",
+    "title": "Basic VR Controls",
+    "description": "Master hand tracking and VR interaction fundamentals",
+    "estimated_duration_minutes": 8,
+    "required_previous": null,
+    "skippable": true,
+    "completion_rewards": {
+      "experience": 50,
+      "unlocks": ["module_2_flight"]
+    },
+    
+    "steps": [
+      {
+        "step_id": "vr_intro",
+        "step_number": 1,
+        "title": "Welcome to VR",
+        "instruction": "Look around using your VR headset. Move your head naturally to explore the environment.",
+        "narrator_text": "Welcome to your ship, pilot. Let's start with the basics. Look around - you're in virtual reality now.",
+        "success_criteria": {
+          "type": "head_movement",
+          "threshold": 90,
+          "unit": "degrees"
+        },
+        "time_limit": null,
+        "hint_after_seconds": 10,
+        "hint_text": "Turn your head left and right, look up and down. Get comfortable with VR movement."
+      },
+      {
+        "step_id": "hand_calibration",
+        "step_number": 2,
+        "title": "Hand Tracking",
+        "instruction": "Look at your hands. Move them around to see them in VR.",
+        "narrator_text": "Great! Now look at your hands. These will be your primary way of interacting with the world.",
+        "success_criteria": {
+          "type": "hands_visible",
+          "duration_seconds": 3
+        },
+        "time_limit": null,
+        "hint_after_seconds": 8,
+        "hint_text": "Hold your hands in front of your face. Wiggle your fingers!"
+      },
+      {
+        "step_id": "grab_object_1",
+        "step_number": 3,
+        "title": "Grabbing Objects",
+        "instruction": "Reach for the highlighted cube and close your hand to grab it.",
+        "narrator_text": "Now let's practice grabbing. Reach for the glowing cube and close your hand.",
+        "success_criteria": {
+          "type": "grab_object",
+          "target": "TutorialCube_01",
+          "duration_seconds": 1
+        },
+        "time_limit": null,
+        "hint_after_seconds": 15,
+        "hint_text": "Move your hand close to the cube, then make a fist to grab it."
+      },
+      {
+        "step_id": "release_object",
+        "step_number": 4,
+        "title": "Releasing Objects",
+        "instruction": "Open your hand to release the cube.",
+        "narrator_text": "Perfect! Now open your hand to let it go.",
+        "success_criteria": {
+          "type": "release_object",
+          "target": "TutorialCube_01"
+        },
+        "time_limit": null,
+        "hint_after_seconds": 10,
+        "hint_text": "Simply open your fingers to release what you're holding."
+      },
+      {
+        "step_id": "locomotion_choice",
+        "step_number": 5,
+        "title": "Choose Movement Type",
+        "instruction": "Select your preferred locomotion method: Teleport, Smooth, or Snap Turn.",
+        "narrator_text": "Now let's set up movement. Choose the type that feels most comfortable to you.",
+        "success_criteria": {
+          "type": "ui_selection",
+          "target": "LocomotionMenu"
+        },
+        "time_limit": null,
+        "options": [
+          {
+            "option_id": "teleport",
+            "name": "Teleport",
+            "description": "Point and click to teleport - most comfortable for VR newcomers"
+          },
+          {
+            "option_id": "smooth",
+            "name": "Smooth Locomotion",
+            "description": "Joystick/touchpad movement - like traditional games"
+          },
+          {
+            "option_id": "snap_turn",
+            "name": "Snap Turn",
+            "description": "Rotate in fixed increments - reduces motion sickness"
+          }
+        ]
+      },
+      {
+        "step_id": "practice_movement",
+        "step_number": 6,
+        "title": "Practice Moving",
+        "instruction": "Move to the three waypoint markers.",
+        "narrator_text": "Let's practice! Move to each of the glowing markers.",
+        "success_criteria": {
+          "type": "reach_waypoints",
+          "waypoints": ["Waypoint_01", "Waypoint_02", "Waypoint_03"],
+          "radius": 1.5
+        },
+        "time_limit": null,
+        "hint_after_seconds": 20,
+        "hint_text": "Use your chosen movement method to reach each blue marker."
+      },
+      {
+        "step_id": "ui_interaction",
+        "step_number": 7,
+        "title": "Interacting with UI",
+        "instruction": "Point at the holographic panel and press the button.",
+        "narrator_text": "Excellent movement! Now let's interact with a UI panel.",
+        "success_criteria": {
+          "type": "ui_button_press",
+          "target": "TutorialPanel_01"
+        },
+        "time_limit": null,
+        "hint_after_seconds": 12,
+        "hint_text": "Point your hand at the panel. A laser will appear. Aim at the button and use your trigger."
+      },
+      {
+        "step_id": "comfort_settings",
+        "step_number": 8,
+        "title": "Comfort Options",
+        "instruction": "Adjust comfort settings to your preference.",
+        "narrator_text": "Finally, let's set up comfort options. These help reduce motion sickness.",
+        "success_criteria": {
+          "type": "menu_visited",
+          "target": "ComfortSettings"
+        },
+        "time_limit": null,
+        "adjustable_settings": [
+          "vignette_intensity",
+          "tunnel_vision",
+          "field_of_view",
+          "snap_turn_angle"
+        ]
+      }
+    ]
+  },
+  
+  "module_2_flight_basics": {
+    "module_id": "tutorial_flight_basics",
+    "title": "Ship Flight Basics",
+    "description": "Learn to pilot your spacecraft",
+    "estimated_duration_minutes": 12,
+    "required_previous": "tutorial_basic_vr",
+    "skippable": true,
+    "completion_rewards": {
+      "experience": 100,
+      "credits": 500,
+      "unlocks": ["module_3_combat"]
+    },
+    
+    "steps": [
+      {
+        "step_id": "enter_cockpit",
+        "step_number": 1,
+        "title": "Enter Your Ship",
+        "instruction": "Walk to your ship and sit in the pilot's seat.",
+        "narrator_text": "Time to become a pilot. Your ship is waiting. Take a seat at the controls.",
+        "success_criteria": {
+          "type": "sit_in_seat",
+          "target": "PilotSeat"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "identify_controls",
+        "step_number": 2,
+        "title": "Cockpit Overview",
+        "instruction": "Look at the highlighted controls: throttle, flight stick, and panels.",
+        "narrator_text": "Welcome to your cockpit. Let me show you the essential controls.",
+        "success_criteria": {
+          "type": "look_at_objects",
+          "targets": ["Throttle", "FlightStick", "MainPanel"],
+          "duration_each": 2
+        },
+        "time_limit": null,
+        "hint_after_seconds": 15,
+        "hint_text": "Look at each highlighted control for a moment."
+      },
+      {
+        "step_id": "start_engines",
+        "step_number": 3,
+        "title": "Engine Startup",
+        "instruction": "Press the engine start button on the main panel.",
+        "narrator_text": "Let's bring her online. Press the engine start button.",
+        "success_criteria": {
+          "type": "button_press",
+          "target": "EngineStartButton"
+        },
+        "time_limit": null,
+        "audio_cue": "engine_startup_sequence"
+      },
+      {
+        "step_id": "throttle_control",
+        "step_number": 4,
+        "title": "Throttle Control",
+        "instruction": "Grab the throttle and push it forward slowly to increase speed.",
+        "narrator_text": "Good! Now grab the throttle lever and gently push forward.",
+        "success_criteria": {
+          "type": "throttle_input",
+          "min_value": 30,
+          "max_value": 60,
+          "maintain_seconds": 3
+        },
+        "time_limit": null,
+        "hint_after_seconds": 15,
+        "hint_text": "Grab the left lever and push it forward. Start slow!"
+      },
+      {
+        "step_id": "basic_pitch",
+        "step_number": 5,
+        "title": "Pitch Control",
+        "instruction": "Grab the flight stick and pull back to pitch up, push forward to pitch down.",
+        "narrator_text": "Now the flight stick. Pull back to pitch up, forward to pitch down.",
+        "success_criteria": {
+          "type": "pitch_input",
+          "range": 20,
+          "repetitions": 2
+        },
+        "time_limit": null,
+        "hint_after_seconds": 15,
+        "hint_text": "The right stick controls pitch. Pull and push it gently."
+      },
+      {
+        "step_id": "basic_roll",
+        "step_number": 6,
+        "title": "Roll Control",
+        "instruction": "Move the flight stick left and right to roll.",
+        "narrator_text": "Excellent! Now move the stick left and right to roll.",
+        "success_criteria": {
+          "type": "roll_input",
+          "range": 30,
+          "repetitions": 2
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "basic_yaw",
+        "step_number": 7,
+        "title": "Yaw Control",
+        "instruction": "Twist the flight stick to yaw left and right.",
+        "narrator_text": "Finally, twist the stick to yaw - that's rotating left and right.",
+        "success_criteria": {
+          "type": "yaw_input",
+          "range": 20,
+          "repetitions": 2
+        },
+        "time_limit": null,
+        "hint_after_seconds": 15,
+        "hint_text": "Rotate the stick like turning a doorknob."
+      },
+      {
+        "step_id": "waypoint_navigation",
+        "step_number": 8,
+        "title": "Navigate to Waypoint",
+        "instruction": "Fly through the three waypoint rings.",
+        "narrator_text": "Time to put it together! Fly through each ring in sequence.",
+        "success_criteria": {
+          "type": "fly_through_rings",
+          "rings": ["Ring_01", "Ring_02", "Ring_03"],
+          "sequence": true
+        },
+        "time_limit": 180,
+        "hint_after_seconds": 30,
+        "hint_text": "Use all your controls together. Throttle for speed, stick for direction."
+      },
+      {
+        "step_id": "approach_station",
+        "step_number": 9,
+        "title": "Station Approach",
+        "instruction": "Slow down and approach the landing pad marker.",
+        "narrator_text": "Great flying! Now let's practice approaching a landing pad. Reduce throttle.",
+        "success_criteria": {
+          "type": "approach_target",
+          "target": "LandingPad_Tutorial",
+          "max_speed": 20,
+          "distance": 100
+        },
+        "time_limit": null,
+        "hint_after_seconds": 20,
+        "hint_text": "Pull throttle back to slow down. You need to be under 20 m/s."
+      },
+      {
+        "step_id": "first_landing",
+        "step_number": 10,
+        "title": "Landing Procedure",
+        "instruction": "Land on the designated pad. Keep it gentle!",
+        "narrator_text": "Final step - land on the pad. Nice and easy does it.",
+        "success_criteria": {
+          "type": "land_on_pad",
+          "target": "LandingPad_Tutorial",
+          "max_landing_speed": 5,
+          "max_position_error": 3
+        },
+        "time_limit": null,
+        "hint_after_seconds": 25,
+        "hint_text": "Line up with the pad, slow to under 5 m/s, then descend gently."
+      }
+    ]
+  },
+  
+  "module_3_combat_training": {
+    "module_id": "tutorial_combat",
+    "title": "Combat Training",
+    "description": "Learn weapon systems and combat tactics",
+    "estimated_duration_minutes": 15,
+    "required_previous": "tutorial_flight_basics",
+    "skippable": true,
+    "completion_rewards": {
+      "experience": 200,
+      "credits": 1000,
+      "items": ["WeaponUpgrade_Basic"],
+      "unlocks": ["module_4_station_ops"]
+    },
+    
+    "steps": [
+      {
+        "step_id": "weapons_overview",
+        "step_number": 1,
+        "title": "Weapons Systems",
+        "instruction": "Locate the weapons controls and fire button.",
+        "narrator_text": "Welcome to combat training. Let's start with your weapon systems.",
+        "success_criteria": {
+          "type": "look_at_object",
+          "target": "WeaponsPanel",
+          "duration": 3
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "target_practice_stationary",
+        "step_number": 2,
+        "title": "Target Practice",
+        "instruction": "Destroy the 5 stationary target drones.",
+        "narrator_text": "Practice drones deployed. Line them up and fire when ready.",
+        "success_criteria": {
+          "type": "destroy_targets",
+          "targets": ["Drone_01", "Drone_02", "Drone_03", "Drone_04", "Drone_05"],
+          "accuracy_required": 0
+        },
+        "time_limit": 120,
+        "hint_after_seconds": 20,
+        "hint_text": "Center the target in your crosshair and press the fire trigger."
+      },
+      {
+        "step_id": "target_practice_moving",
+        "step_number": 3,
+        "title": "Moving Targets",
+        "instruction": "Hit 5 moving target drones.",
+        "narrator_text": "Good shooting! Now try moving targets. Lead your shots!",
+        "success_criteria": {
+          "type": "destroy_targets",
+          "targets": ["MovingDrone_01", "MovingDrone_02", "MovingDrone_03", "MovingDrone_04", "MovingDrone_05"],
+          "accuracy_required": 0
+        },
+        "time_limit": 180,
+        "hint_after_seconds": 30,
+        "hint_text": "Aim where the target is going, not where it is. Lead your shots!"
+      },
+      {
+        "step_id": "shield_management",
+        "step_number": 4,
+        "title": "Shield Systems",
+        "instruction": "Monitor your shield gauge. Recharge shields using the panel control.",
+        "narrator_text": "Combat isn't just offense. Let's talk defense. Watch your shield indicator.",
+        "success_criteria": {
+          "type": "use_system",
+          "target": "ShieldRecharge",
+          "repetitions": 2
+        },
+        "time_limit": null,
+        "hint_after_seconds": 15,
+        "hint_text": "Your shields are the blue bar. Press the shield button to recharge them."
+      },
+      {
+        "step_id": "energy_distribution",
+        "step_number": 5,
+        "title": "Power Management",
+        "instruction": "Adjust power distribution between weapons, shields, and engines.",
+        "narrator_text": "Power management is crucial. Balance your systems based on the situation.",
+        "success_criteria": {
+          "type": "adjust_power",
+          "systems": ["Weapons", "Shields", "Engines"],
+          "changes_required": 3
+        },
+        "time_limit": null,
+        "hint_after_seconds": 20,
+        "hint_text": "Use the power distribution sliders. More power = better performance."
+      },
+      {
+        "step_id": "evasive_maneuvers",
+        "step_number": 6,
+        "title": "Evasive Action",
+        "instruction": "Practice evasive flying. Avoid the incoming fire indicators.",
+        "narrator_text": "Time to learn evasion. Avoid the red warning zones!",
+        "success_criteria": {
+          "type": "avoid_damage",
+          "max_hits": 3,
+          "duration": 30
+        },
+        "time_limit": 30,
+        "hint_after_seconds": 10,
+        "hint_text": "Roll, pitch, and yaw to dodge! Keep moving!"
+      },
+      {
+        "step_id": "target_locking",
+        "step_number": 7,
+        "title": "Target Lock",
+        "instruction": "Lock onto the marked target and maintain lock for 5 seconds.",
+        "narrator_text": "Advanced targeting systems can lock onto enemies. Center them and hold.",
+        "success_criteria": {
+          "type": "maintain_target_lock",
+          "target": "LockPractice_Drone",
+          "duration": 5
+        },
+        "time_limit": null,
+        "hint_after_seconds": 15,
+        "hint_text": "Keep the target in your crosshair for 5 seconds to lock on."
+      },
+      {
+        "step_id": "combat_simulation_easy",
+        "step_number": 8,
+        "title": "Combat Simulation",
+        "instruction": "Defeat the AI opponent. Use everything you've learned!",
+        "narrator_text": "Final test! A simulated opponent. Show me what you've learned!",
+        "success_criteria": {
+          "type": "defeat_enemy",
+          "target": "AI_Opponent_Tutorial",
+          "player_survival_required": true
+        },
+        "time_limit": 240,
+        "hint_after_seconds": 60,
+        "hint_text": "Remember: shoot when you have a shot, evade when under fire, manage your power!"
+      }
+    ]
+  },
+  
+  "module_4_station_ops": {
+    "module_id": "tutorial_station",
+    "title": "Station Operations",
+    "description": "Learn to dock, trade, and accept missions",
+    "estimated_duration_minutes": 12,
+    "required_previous": "tutorial_combat",
+    "skippable": false,
+    "completion_rewards": {
+      "experience": 150,
+      "credits": 750,
+      "unlocks": ["module_5_planet_landing"]
+    },
+    
+    "steps": [
+      {
+        "step_id": "request_docking",
+        "step_number": 1,
+        "title": "Docking Request",
+        "instruction": "Use the comms panel to request docking clearance.",
+        "narrator_text": "Stations require docking permission. Use your communications panel.",
+        "success_criteria": {
+          "type": "comm_request",
+          "request_type": "docking_clearance"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "follow_guidance",
+        "step_number": 2,
+        "title": "Docking Guidance",
+        "instruction": "Follow the holographic guidance markers to your assigned bay.",
+        "narrator_text": "Clearance granted! Follow the green guidance path to your docking bay.",
+        "success_criteria": {
+          "type": "follow_path",
+          "path": "DockingGuidance_Tutorial",
+          "max_deviation": 20
+        },
+        "time_limit": 180
+      },
+      {
+        "step_id": "dock_ship",
+        "step_number": 3,
+        "title": "Docking Procedure",
+        "instruction": "Land in the docking bay. Align with the pad and set down gently.",
+        "narrator_text": "Almost there. Line up carefully and land smoothly.",
+        "success_criteria": {
+          "type": "dock_at_station",
+          "station": "Tutorial_Station",
+          "max_landing_speed": 5,
+          "max_angle": 15
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "exit_ship",
+        "step_number": 4,
+        "title": "Exit Your Ship",
+        "instruction": "Press the exit button to leave your ship.",
+        "narrator_text": "Perfect landing! Time to explore the station. Exit your ship.",
+        "success_criteria": {
+          "type": "exit_vehicle",
+          "vehicle": "PlayerShip"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "navigate_station",
+        "step_number": 5,
+        "title": "Station Navigation",
+        "instruction": "Navigate to the Trading Floor. Follow the signs.",
+        "narrator_text": "Let's explore! Find your way to the Trading Floor.",
+        "success_criteria": {
+          "type": "reach_location",
+          "location": "TradingFloor",
+          "radius": 5
+        },
+        "time_limit": null,
+        "hint_after_seconds": 30,
+        "hint_text": "Look for signs on the walls. They'll point you to different areas."
+      },
+      {
+        "step_id": "trading_basics",
+        "step_number": 6,
+        "title": "Trading Interface",
+        "instruction": "Interact with a vendor. Buy one item and sell one item.",
+        "narrator_text": "This is where you buy and sell. Try making a purchase and a sale.",
+        "success_criteria": {
+          "type": "complete_trades",
+          "buy_count": 1,
+          "sell_count": 1
+        },
+        "time_limit": null,
+        "hint_after_seconds": 25,
+        "hint_text": "Approach a vendor terminal. Green prices are buying, red are selling."
+      },
+      {
+        "step_id": "mission_board",
+        "step_number": 7,
+        "title": "Mission Board",
+        "instruction": "Find the Mission Board and browse available missions.",
+        "narrator_text": "Time to find work! Locate the Mission Board.",
+        "success_criteria": {
+          "type": "reach_location",
+          "location": "MissionBoard",
+          "radius": 3
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "accept_mission",
+        "step_number": 8,
+        "title": "Accept a Mission",
+        "instruction": "Select and accept the tutorial mission from the board.",
+        "narrator_text": "Browse the available missions. Accept the one marked 'Tutorial Mission'.",
+        "success_criteria": {
+          "type": "accept_mission",
+          "mission_id": "tutorial_mission_simple"
+        },
+        "time_limit": null,
+        "hint_after_seconds": 20,
+        "hint_text": "Look for the mission tagged [TUTORIAL]. Select it and press Accept."
+      },
+      {
+        "step_id": "return_to_ship",
+        "step_number": 9,
+        "title": "Return to Ship",
+        "instruction": "Navigate back to your ship in the docking bay.",
+        "narrator_text": "Mission accepted! Head back to your ship to begin.",
+        "success_criteria": {
+          "type": "reach_location",
+          "location": "PlayerShipDock",
+          "radius": 5
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "launch_from_station",
+        "step_number": 10,
+        "title": "Launch Procedure",
+        "instruction": "Request launch clearance and depart the station.",
+        "narrator_text": "Ready to launch? Request clearance and take off when clear.",
+        "success_criteria": {
+          "type": "launch_from_station",
+          "station": "Tutorial_Station"
+        },
+        "time_limit": null
+      }
+    ]
+  },
+  
+  "module_5_planet_landing": {
+    "module_id": "tutorial_planet",
+    "title": "Planetary Operations",
+    "description": "Learn planetary landing and surface exploration",
+    "estimated_duration_minutes": 14,
+    "required_previous": "tutorial_station",
+    "skippable": true,
+    "completion_rewards": {
+      "experience": 200,
+      "credits": 1000,
+      "items": ["EnvironmentSuit_Basic"],
+      "unlocks": ["module_6_advanced"]
+    },
+    
+    "steps": [
+      {
+        "step_id": "planet_approach",
+        "step_number": 1,
+        "title": "Planetary Approach",
+        "instruction": "Approach the planet and enter orbit.",
+        "narrator_text": "Time to land on a planet! First, achieve stable orbit.",
+        "success_criteria": {
+          "type": "enter_orbit",
+          "planet": "Tutorial_Planet",
+          "max_altitude": 10000,
+          "min_altitude": 5000
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "landing_site_selection",
+        "step_number": 2,
+        "title": "Select Landing Site",
+        "instruction": "Scan the surface and select a marked landing zone.",
+        "narrator_text": "Scan for a suitable landing zone. Look for the marked area.",
+        "success_criteria": {
+          "type": "select_landing_zone",
+          "zone": "Tutorial_LZ"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "atmospheric_entry",
+        "step_number": 3,
+        "title": "Atmospheric Entry",
+        "instruction": "Follow the entry corridor. Keep your ship aligned with the guidance markers.",
+        "narrator_text": "Beginning atmospheric entry. Stay in the guidance corridor!",
+        "success_criteria": {
+          "type": "atmospheric_entry",
+          "max_deviation": 30,
+          "successful_entry": true
+        },
+        "time_limit": 120,
+        "hint_after_seconds": 15,
+        "hint_text": "Entry can be bumpy! Make small corrections, don't overcontrol."
+      },
+      {
+        "step_id": "surface_landing",
+        "step_number": 4,
+        "title": "Surface Landing",
+        "instruction": "Land at the designated zone. Watch your descent rate!",
+        "narrator_text": "Final approach. Reduce speed and land smoothly.",
+        "success_criteria": {
+          "type": "land_on_surface",
+          "zone": "Tutorial_LZ",
+          "max_landing_speed": 10,
+          "max_angle": 20
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "equip_suit",
+        "step_number": 5,
+        "title": "Environment Suit",
+        "instruction": "Equip your environment suit before exiting.",
+        "narrator_text": "Before you exit, equip your environment suit. The atmosphere may not be breathable.",
+        "success_criteria": {
+          "type": "equip_item",
+          "item": "EnvironmentSuit"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "surface_exploration",
+        "step_number": 6,
+        "title": "Surface Exploration",
+        "instruction": "Exit your ship and explore the area. Collect 3 resource samples.",
+        "narrator_text": "Welcome to the surface! Collect some resource samples nearby.",
+        "success_criteria": {
+          "type": "collect_items",
+          "item_type": "ResourceSample",
+          "quantity": 3
+        },
+        "time_limit": null,
+        "hint_after_seconds": 30,
+        "hint_text": "Look for glowing resource nodes. Approach and interact to collect."
+      },
+      {
+        "step_id": "weather_awareness",
+        "step_number": 7,
+        "title": "Weather Systems",
+        "instruction": "Observe the weather change. Monitor your suit's protection status.",
+        "narrator_text": "Weather's changing! Keep an eye on your suit's protection indicators.",
+        "success_criteria": {
+          "type": "experience_weather",
+          "weather_type": "any",
+          "duration": 15
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "return_to_ship_surface",
+        "step_number": 8,
+        "title": "Return to Ship",
+        "instruction": "Return to your ship.",
+        "narrator_text": "Good work! Head back to your ship.",
+        "success_criteria": {
+          "type": "reach_vehicle",
+          "vehicle": "PlayerShip",
+          "radius": 5
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "launch_from_surface",
+        "step_number": 9,
+        "title": "Surface Launch",
+        "instruction": "Start engines and launch from the surface.",
+        "narrator_text": "Time to leave. Start your engines and launch!",
+        "success_criteria": {
+          "type": "launch_from_surface",
+          "min_altitude": 1000
+        },
+        "time_limit": null,
+        "hint_after_seconds": 15,
+        "hint_text": "Full throttle straight up to escape the gravity well!"
+      },
+      {
+        "step_id": "escape_atmosphere",
+        "step_number": 10,
+        "title": "Escape to Orbit",
+        "instruction": "Ascend through the atmosphere and return to orbit.",
+        "narrator_text": "Keep climbing! Break through the atmosphere.",
+        "success_criteria": {
+          "type": "reach_orbit",
+          "min_altitude": 8000
+        },
+        "time_limit": null
+      }
+    ]
+  },
+  
+  "module_6_advanced": {
+    "module_id": "tutorial_advanced",
+    "title": "Advanced Systems",
+    "description": "Master ship customization, economy, and progression",
+    "estimated_duration_minutes": 18,
+    "required_previous": "tutorial_planet",
+    "skippable": true,
+    "completion_rewards": {
+      "experience": 300,
+      "credits": 2000,
+      "items": ["UpgradeKit_Advanced"],
+      "achievement": "Tutorial_Master"
+    },
+    
+    "steps": [
+      {
+        "step_id": "customization_overview",
+        "step_number": 1,
+        "title": "Ship Customization",
+        "instruction": "Access the ship customization interface at a station.",
+        "narrator_text": "Let's talk about upgrading your ship. Dock and access customization.",
+        "success_criteria": {
+          "type": "open_interface",
+          "interface": "ShipCustomization"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "install_upgrade",
+        "step_number": 2,
+        "title": "Install an Upgrade",
+        "instruction": "Install a weapon or system upgrade to your ship.",
+        "narrator_text": "Choose and install an upgrade. Each will change your ship's capabilities.",
+        "success_criteria": {
+          "type": "install_upgrade",
+          "upgrade_type": "any",
+          "quantity": 1
+        },
+        "time_limit": null,
+        "hint_after_seconds": 20,
+        "hint_text": "Browse available upgrades. Select one and click Install."
+      },
+      {
+        "step_id": "quest_system",
+        "step_number": 3,
+        "title": "Quest Log",
+        "instruction": "Open your quest log and review active quests.",
+        "narrator_text": "Your quest log tracks your missions and objectives. Take a look.",
+        "success_criteria": {
+          "type": "open_interface",
+          "interface": "QuestLog"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "faction_standing",
+        "step_number": 4,
+        "title": "Faction Reputation",
+        "instruction": "Check your faction standings in the reputation screen.",
+        "narrator_text": "Your actions affect your standing with different factions. Monitor these carefully.",
+        "success_criteria": {
+          "type": "open_interface",
+          "interface": "FactionReputation"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "market_analysis",
+        "step_number": 5,
+        "title": "Market Dynamics",
+        "instruction": "Compare prices at two different trading posts.",
+        "narrator_text": "Smart traders know markets vary! Check prices at different stations.",
+        "success_criteria": {
+          "type": "visit_markets",
+          "market_count": 2,
+          "view_prices": true
+        },
+        "time_limit": null,
+        "hint_after_seconds": 30,
+        "hint_text": "Travel between stations and check their trading interfaces."
+      },
+      {
+        "step_id": "trade_route",
+        "step_number": 6,
+        "title": "Profitable Trade Run",
+        "instruction": "Buy cargo at a station and sell it at another for profit.",
+        "narrator_text": "Time to make some credits! Buy low, sell high.",
+        "success_criteria": {
+          "type": "profitable_trade",
+          "min_profit": 500
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "progression_overview",
+        "step_number": 7,
+        "title": "Character Progression",
+        "instruction": "Review your pilot level and skill progression.",
+        "narrator_text": "As you play, you'll level up and unlock new abilities. Check your progress.",
+        "success_criteria": {
+          "type": "open_interface",
+          "interface": "CharacterSheet"
+        },
+        "time_limit": null
+      },
+      {
+        "step_id": "completion_ceremony",
+        "step_number": 8,
+        "title": "Tutorial Complete!",
+        "instruction": "Congratulations! You've completed all tutorial modules.",
+        "narrator_text": "Outstanding work, pilot! You're ready for the wider universe. Good luck out there!",
+        "success_criteria": {
+          "type": "acknowledge",
+          "required": true
+        },
+        "time_limit": null,
+        "final_rewards_summary": true
+      }
+    ]
+  },
+  
+  "tutorial_configuration": {
+    "allow_skip": true,
+    "skip_penalty": "none",
+    "hint_system": "enabled",
+    "hint_delay_default": 15,
+    "max_retries_per_step": 3,
+    "auto_progress_on_completion": true,
+    "save_progress": true,
+    "show_progress_indicator": true
+  }
+}

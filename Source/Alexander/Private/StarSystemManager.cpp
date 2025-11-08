@@ -4,6 +4,7 @@
 #include "Engine/World.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
+#include "PerformanceProfilerSubsystem.h"
 
 UStarSystemManager::UStarSystemManager()
 {
@@ -31,6 +32,10 @@ void UStarSystemManager::BeginPlay()
 void UStarSystemManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    // Profile star system manager
+    UPerformanceProfilerSubsystem* Profiler = GetWorld()->GetSubsystem<UPerformanceProfilerSubsystem>();
+    PROFILE_SCOPE(Profiler, FName("StarSystemManager"));
 
     TotalGameTime += DeltaTime;
 

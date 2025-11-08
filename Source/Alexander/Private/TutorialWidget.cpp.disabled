@@ -1,0 +1,85 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#include "TutorialWidget.h"
+#include "Components/TextBlock.h"      // For UTextBlock
+#include "Components/ProgressBar.h"    // For UProgressBar
+#include "Components/Button.h"         // For UButton
+#include "Kismet/GameplayStatics.h"
+
+void UTutorialWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	// Get tutorial system
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		TutorialSystem = World->GetSubsystem<UTutorialSystem>();
+	}
+
+	UpdateTutorialDisplay();
+}
+
+void UTutorialWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	// Update display if tutorial is active
+	if (TutorialSystem && TutorialSystem->IsTutorialActive())
+	{
+		UpdateTutorialDisplay();
+	}
+}
+
+void UTutorialWidget::UpdateTutorialDisplay()
+{
+	if (!TutorialSystem || !TutorialSystem->IsTutorialActive())
+	{
+		// Hide widget if no tutorial active
+		SetVisibility(ESlateVisibility::Collapsed);
+		return;
+	}
+
+	// Show widget
+	SetVisibility(ESlateVisibility::Visible);
+
+	// Get current step info
+	FTutorialStepSystem CurrentStepData = TutorialSystem->GetCurrentStep();
+	CurrentStep = TutorialSystem->GetCurrentStepIndex() + 1;
+	TotalSteps = TutorialSystem->GetTotalSteps();
+
+	// Update text
+	CurrentTitle = CurrentStepData.Title;
+	CurrentDescription = CurrentStepData.Description;
+	CurrentHint = CurrentStepData.HintText;
+
+	// Calculate progress
+	if (TotalSteps > 0)
+	{
+		StepProgress = static_cast<float>(CurrentStep) / static_cast<float>(TotalSteps);
+	}
+	else
+	{
+		StepProgress = 0.0f;
+	}
+
+	// Update skip button availability
+	// bCanSkip would come from tutorial sequence
+	bCanSkip = true;
+}
+
+void UTutorialWidget::OnSkipButtonClicked()
+{
+	if (TutorialSystem)
+	{
+		TutorialSystem->SkipCurrentTutorial();
+	}
+}
+
+void UTutorialWidget::OnNextButtonClicked()
+{
+	if (TutorialSystem)
+	{
+		TutorialSystem->CompleteCurrentStep();
+	}
+}

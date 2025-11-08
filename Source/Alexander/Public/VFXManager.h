@@ -134,6 +134,18 @@ struct FVFXStats
     float MemoryUsageMB = 0.0f;
 };
 
+/**
+ * Wrapper struct for TArray<UNiagaraComponent*> to satisfy UE 5.6 TMap value restrictions
+ */
+USTRUCT()
+struct FNiagaraComponentArray
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    TArray<UNiagaraComponent*> Components;
+};
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnVFXSpawned, const FString&, InstanceID, EVFXCategory, Category);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnVFXCompleted, const FString&, InstanceID, EVFXCategory, Category);
 
@@ -306,9 +318,8 @@ private:
     UPROPERTY()
     TMap<FString, FVFXManagerInstance> ActiveVFX;
 
-    // VFX pools
-// VFX pools (C++ only due to TArray in TMap limitation)
-    TMap<FString, TArray<UNiagaraComponent*>> VFXPools;
+    // VFX pools (UE 5.6 compatible - using wrapper struct)
+    TMap<FString, FNiagaraComponentArray> VFXPools;
 
     // Template storage
     UPROPERTY()

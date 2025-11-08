@@ -1,0 +1,283 @@
+{
+  "widgetName": "WBP_CustomizationMenu",
+  "description": "Main container widget for the entire ship customization system",
+  "location": "Content/UI/Widgets/Customization/Main/",
+  "dependencies": [
+    "WBP_PartSelectionPanel",
+    "WBP_PartDetailPanel",
+    "WBP_StatsComparison",
+    "WBP_UnlockDialog"
+  ],
+  "layout": {
+    "rootType": "CanvasPanel",
+    "size": {
+      "desktop": "1920x1080",
+      "vr": "3840x2160"
+    },
+    "anchors": "Fill Screen",
+    "zOrder": 100
+  },
+  "components": [
+    {
+      "name": "Image_Background",
+      "type": "Image",
+      "material": "M_UI_BackgroundBlur",
+      "tint": "#000000",
+      "opacity": 0.6,
+      "anchors": "Fill"
+    },
+    {
+      "name": "Overlay_MainContainer",
+      "type": "Overlay",
+      "size": {
+        "width": 1728,
+        "height": 972
+      },
+      "anchors": "Center",
+      "alignment": [0.5, 0.5]
+    },
+    {
+      "name": "Border_MainPanel",
+      "type": "Border",
+      "backgroundColor": "#1A1A1A",
+      "borderColor": "#00BCD4",
+      "borderWidth": 2,
+      "padding": [16, 16, 16, 16]
+    },
+    {
+      "name": "Text_Title",
+      "type": "Text",
+      "text": "SHIP CUSTOMIZATION",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 32,
+          "vr": 64
+        }
+      },
+      "color": "#FFFFFF",
+      "shadow": {
+        "offset": [2, 2],
+        "opacity": 0.5
+      }
+    },
+    {
+      "name": "Button_Close",
+      "type": "Button",
+      "size": {
+        "desktop": [40, 40],
+        "vr": [80, 80]
+      },
+      "style": {
+        "normal": "#424242",
+        "hovered": "#F44336",
+        "pressed": "#D32F2F"
+      },
+      "text": "✕",
+      "events": ["OnClicked"]
+    },
+    {
+      "name": "Widget_PartSelection",
+      "type": "UserWidget",
+      "class": "WBP_PartSelectionPanel",
+      "slot": {
+        "size": "Auto",
+        "padding": [0, 0, 8, 0]
+      }
+    },
+    {
+      "name": "Widget_PartDetail",
+      "type": "UserWidget",
+      "class": "WBP_PartDetailPanel",
+      "slot": {
+        "size": "Fill"
+      }
+    },
+    {
+      "name": "Widget_StatsComparison",
+      "type": "UserWidget",
+      "class": "WBP_StatsComparison",
+      "slot": {
+        "size": "Auto"
+      }
+    },
+    {
+      "name": "Widget_UnlockDialog",
+      "type": "UserWidget",
+      "class": "WBP_UnlockDialog",
+      "visibility": "Hidden"
+    }
+  ],
+  "variables": [
+    {
+      "name": "SubsystemReference",
+      "type": "UShipCustomizationSubsystem*",
+      "category": "References",
+      "description": "Reference to the customization subsystem"
+    },
+    {
+      "name": "bIsOpen",
+      "type": "bool",
+      "default": false,
+      "description": "Whether the menu is currently open"
+    },
+    {
+      "name": "CurrentlySelectedPart",
+      "type": "UShipPartData*",
+      "description": "Currently selected part in the menu"
+    },
+    {
+      "name": "PendingLoadout",
+      "type": "FShipLoadout",
+      "description": "Pending loadout changes before applying"
+    }
+  ],
+  "functions": [
+    {
+      "name": "InitializeMenu",
+      "inputs": [
+        {
+          "name": "InSubsystem",
+          "type": "UShipCustomizationSubsystem*"
+        }
+      ],
+      "description": "Initializes the menu with subsystem reference and child widgets"
+    },
+    {
+      "name": "ShowMenu",
+      "description": "Shows the menu with animation"
+    },
+    {
+      "name": "HideMenu",
+      "description": "Hides the menu with animation"
+    },
+    {
+      "name": "OnCloseButtonClicked",
+      "description": "Handler for close button click"
+    },
+    {
+      "name": "OnPartSelected",
+      "inputs": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ],
+      "description": "Handler when a part is selected in the selection panel"
+    },
+    {
+      "name": "OnEquipPartRequested",
+      "inputs": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ],
+      "description": "Handler when equip button is clicked"
+    },
+    {
+      "name": "OnUnlockPartRequested",
+      "inputs": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ],
+      "description": "Handler when unlock button is clicked"
+    },
+    {
+      "name": "OnApplyChangesClicked",
+      "description": "Handler when apply changes button is clicked"
+    }
+  ],
+  "animations": [
+    {
+      "name": "Anim_Open",
+      "duration": 0.3,
+      "tracks": [
+        {
+          "target": "Overlay_MainContainer",
+          "property": "RenderOpacity",
+          "keyframes": [
+            { "time": 0.0, "value": 0.0 },
+            { "time": 0.3, "value": 1.0 }
+          ],
+          "easing": "EaseOutCubic"
+        },
+        {
+          "target": "Overlay_MainContainer",
+          "property": "RenderTransform.Scale",
+          "keyframes": [
+            { "time": 0.0, "value": [0.95, 0.95] },
+            { "time": 0.3, "value": [1.0, 1.0] }
+          ],
+          "easing": "EaseOutCubic"
+        }
+      ]
+    },
+    {
+      "name": "Anim_Close",
+      "duration": 0.2,
+      "tracks": [
+        {
+          "target": "Overlay_MainContainer",
+          "property": "RenderOpacity",
+          "keyframes": [
+            { "time": 0.0, "value": 1.0 },
+            { "time": 0.2, "value": 0.0 }
+          ],
+          "easing": "EaseInCubic"
+        },
+        {
+          "target": "Overlay_MainContainer",
+          "property": "RenderTransform.Scale",
+          "keyframes": [
+            { "time": 0.0, "value": [1.0, 1.0] },
+            { "time": 0.2, "value": [0.95, 0.95] }
+          ],
+          "easing": "EaseInCubic"
+        }
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "property": "Text_Title.Text",
+      "source": "PlayerLevel",
+      "format": "SHIP CUSTOMIZATION - Level {0}"
+    },
+    {
+      "property": "Widget_UnlockDialog.Visibility",
+      "source": "bShowingUnlockDialog",
+      "type": "ESlateVisibility"
+    }
+  ],
+  "vrAdaptations": {
+    "widgetComponent": {
+      "drawSize": [2000, 1500],
+      "pivot": [0.5, 0.5],
+      "geometryMode": "Plane",
+      "blendMode": "Transparent"
+    },
+    "interaction": {
+      "source": "World",
+      "distance": 500,
+      "pointerType": "Laser"
+    },
+    "scaling": {
+      "globalMultiplier": 2.0,
+      "fontMultiplier": 2.0,
+      "buttonMultiplier": 2.0
+    }
+  },
+  "testingChecklist": [
+    "Menu opens with correct animation",
+    "All child panels are visible and initialized",
+    "Close button works and plays animation",
+    "Part selection updates detail panel",
+    "Stats comparison updates on part change",
+    "Unlock dialog appears when requested",
+    "Apply changes processes correctly",
+    "No console errors on open/close"
+  ]
+}

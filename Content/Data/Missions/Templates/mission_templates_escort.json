@@ -1,0 +1,525 @@
+{
+  "mission_category": "escort",
+  "version": "1.0",
+  "description": "Escort mission templates for protecting ships, convoys, and VIPs during transit",
+  "templates": [
+    {
+      "mission_id": "escort_standard_001",
+      "type": "escort",
+      "title": "Escort ${target_name}",
+      "description": "Provide protection for ${target_name} traveling from ${origin} to ${destination}. Stay within ${escort_range}m and eliminate any threats.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "escort",
+          "description": "Stay within ${escort_range}m of ${target_name}",
+          "success_criteria": "distance_check"
+        },
+        {
+          "type": "defend",
+          "description": "Protect ${target_name} from all threats",
+          "success_criteria": "target_health > 70%"
+        },
+        {
+          "type": "arrival",
+          "description": "Ensure safe arrival at ${destination}",
+          "success_criteria": "location_reached"
+        }
+      ],
+      "rewards": {
+        "credits": 8000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "target_health == 100%",
+            "credits": 2000,
+            "description": "No damage bonus"
+          },
+          {
+            "condition": "enemies_destroyed >= 5",
+            "credits": 1500,
+            "description": "Combat excellence"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 0,
+        "recommended_weapons": ["any"],
+        "recommended_shields": "standard"
+      },
+      "location": {
+        "spawn_type": "route",
+        "route_difficulty": "safe_to_moderate"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "target_name": ["Merchant Vessel", "Cargo Hauler", "Transport Ship", "Civilian Freighter"],
+        "origin": ["Station Alpha", "Trading Post Beta", "Mining Outpost", "Colony Hub"],
+        "destination": ["Central Hub", "Border Station", "Trade Center", "Military Base"],
+        "escort_range": [500, 750, 1000]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "2-3",
+        "enemy_types": ["pirate_fighter", "bandit_scout"]
+      },
+      "repeatable": true,
+      "faction_affected": ["Merchants_Guild", "Transport_Union"]
+    },
+    {
+      "mission_id": "escort_vip_001",
+      "type": "escort_vip",
+      "title": "VIP Protection: ${vip_name}",
+      "description": "${vip_title} ${vip_name} requires discrete protection during travel to ${destination}. Maintain distance, avoid detection, and eliminate threats silently when possible.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "stealth_escort",
+          "description": "Maintain ${stealth_range}m distance from VIP ship",
+          "success_criteria": "distance_check_stealth"
+        },
+        {
+          "type": "stealth_defense",
+          "description": "Eliminate threats without alerting VIP",
+          "success_criteria": "silent_kills"
+        },
+        {
+          "type": "discretion",
+          "description": "Complete mission without VIP awareness",
+          "success_criteria": "vip_unaware"
+        }
+      ],
+      "rewards": {
+        "credits": 15000,
+        "reputation": 25,
+        "bonus_conditions": [
+          {
+            "condition": "zero_alerts",
+            "credits": 5000,
+            "description": "Perfect discretion"
+          },
+          {
+            "condition": "vip_comfort >= 95%",
+            "credits": 3000,
+            "description": "Smooth journey"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 2,
+        "recommended_weapons": ["silenced", "emp"],
+        "stealth_capable": true
+      },
+      "location": {
+        "spawn_type": "diplomatic_route",
+        "route_difficulty": "moderate_to_high"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "vip_name": ["Ambassador Tarkin", "Senator Cross", "Corporate Executive Hayes", "Admiral Morrison"],
+        "vip_title": ["Ambassador", "Senator", "CEO", "Admiral"],
+        "destination": ["Peace Summit", "Trade Conference", "Military Headquarters", "Corporate Tower"],
+        "stealth_range": [1500, 2000, 2500]
+      },
+      "ai_config": {
+        "enemy_waves": 3,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["assassin_fighter", "hostile_interceptor"],
+        "ambush_probability": 0.7
+      },
+      "repeatable": true,
+      "faction_affected": ["Diplomatic_Corps", "Corporate_Elite"]
+    },
+    {
+      "mission_id": "escort_convoy_001",
+      "type": "escort_convoy",
+      "title": "Convoy Protection: ${convoy_name}",
+      "description": "Escort a convoy of ${convoy_size} ships through ${danger_zone}. Coordinate with other escorts and respond to threats across multiple targets.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "multi_escort",
+          "description": "Protect ${convoy_size} ships simultaneously",
+          "success_criteria": "min_survivors >= ${min_survivors}"
+        },
+        {
+          "type": "threat_response",
+          "description": "Respond to threats within ${response_time} seconds",
+          "success_criteria": "response_time_check"
+        },
+        {
+          "type": "formation",
+          "description": "Maintain convoy formation integrity",
+          "success_criteria": "formation_maintained"
+        }
+      ],
+      "rewards": {
+        "credits": 25000,
+        "reputation": 35,
+        "bonus_conditions": [
+          {
+            "condition": "all_ships_survive",
+            "credits": 10000,
+            "description": "Zero losses"
+          },
+          {
+            "condition": "formation_never_broken",
+            "credits": 5000,
+            "description": "Perfect formation"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 4,
+        "recommended_weapons": ["rapid_fire", "area_effect"],
+        "multi_target_capability": true
+      },
+      "location": {
+        "spawn_type": "dangerous_corridor",
+        "route_difficulty": "high"
+      },
+      "time_limit": 3000,
+      "variables": {
+        "convoy_name": ["Relief Convoy Alpha", "Trade Fleet Gamma", "Supply Line Delta", "Refugee Column"],
+        "convoy_size": [5, 7, 10],
+        "danger_zone": ["Pirate Corridor", "Contested Space", "The Gauntlet", "No Man's Land"],
+        "min_survivors": [4, 5, 7],
+        "response_time": [10, 15, 20]
+      },
+      "ai_config": {
+        "enemy_waves": 5,
+        "enemies_per_wave": "3-6",
+        "enemy_types": ["pirate_wing", "raider_squadron", "bandit_pack"],
+        "continuous_spawning": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Transport_Union", "Relief_Organization"]
+    },
+    {
+      "mission_id": "escort_retreat_001",
+      "type": "escort_retreat",
+      "title": "Cover Retreat: ${retreat_force}",
+      "description": "Provide rear guard protection for ${retreat_force} retreating from ${combat_zone}. Hold off pursuers while damaged ships escape.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "rear_guard",
+          "description": "Delay enemy forces for ${delay_time} minutes",
+          "success_criteria": "time_survived"
+        },
+        {
+          "type": "protect_retreat",
+          "description": "Ensure ${min_escaped}/${total_ships} ships escape",
+          "success_criteria": "escape_count"
+        },
+        {
+          "type": "survive",
+          "description": "Survive and make your own escape",
+          "success_criteria": "player_escape"
+        }
+      ],
+      "rewards": {
+        "credits": 20000,
+        "reputation": 40,
+        "bonus_conditions": [
+          {
+            "condition": "all_ships_escaped",
+            "credits": 8000,
+            "description": "Total evacuation"
+          },
+          {
+            "condition": "no_player_damage",
+            "credits": 5000,
+            "description": "Unscathed guardian"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 5,
+        "recommended_weapons": ["defensive", "crowd_control"],
+        "high_survivability": true
+      },
+      "location": {
+        "spawn_type": "active_combat_zone",
+        "route_difficulty": "extreme"
+      },
+      "time_limit": 1200,
+      "variables": {
+        "retreat_force": ["Defeated Squadron", "Damaged Fleet", "Evacuating Force", "Broken Battle Group"],
+        "combat_zone": ["Ambush Point", "Failed Assault", "Overrun Position", "Lost Territory"],
+        "delay_time": [5, 7, 10],
+        "total_ships": [6, 8, 10],
+        "min_escaped": [4, 6, 8]
+      },
+      "ai_config": {
+        "enemy_waves": 4,
+        "enemies_per_wave": "4-8",
+        "enemy_types": ["aggressive_pursuit", "heavy_fighter", "interceptor_pack"],
+        "increasing_difficulty": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Military_Alliance", "Defense_Force"]
+    },
+    {
+      "mission_id": "escort_minefield_001",
+      "type": "escort_hazard",
+      "title": "Minefield Navigation: ${convoy_name}",
+      "description": "Guide ${convoy_name} through the ${minefield_name}. Clear safe paths, detonate mines remotely, and protect ships from both mines and opportunistic attackers.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "pathfinding",
+          "description": "Scout and mark safe corridor through minefield",
+          "success_criteria": "path_marked"
+        },
+        {
+          "type": "mine_clearance",
+          "description": "Clear ${min_mines} mines from the path",
+          "success_criteria": "mines_destroyed"
+        },
+        {
+          "type": "escort",
+          "description": "Guide convoy safely through hazard zone",
+          "success_criteria": "convoy_survival >= 80%"
+        }
+      ],
+      "rewards": {
+        "credits": 30000,
+        "reputation": 45,
+        "bonus_conditions": [
+          {
+            "condition": "zero_mine_hits",
+            "credits": 10000,
+            "description": "Perfect navigation"
+          },
+          {
+            "condition": "all_mines_cleared",
+            "credits": 8000,
+            "description": "Complete clearance"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 6,
+        "recommended_weapons": ["precise", "remote_detonation"],
+        "scanner_range": "enhanced",
+        "shield_strength": "high"
+      },
+      "location": {
+        "spawn_type": "minefield",
+        "route_difficulty": "extreme"
+      },
+      "time_limit": 2700,
+      "variables": {
+        "convoy_name": ["Emergency Supply Run", "Trapped Colonists", "Stranded Fleet", "Desperate Refugees"],
+        "minefield_name": ["The Graveyard", "Death Corridor", "Mine Cluster Sigma", "Explosive Nebula"],
+        "min_mines": [15, 20, 25]
+      },
+      "ai_config": {
+        "enemy_waves": 3,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["scavenger", "opportunist_raider"],
+        "spawn_on_explosion": true,
+        "mine_density": "high"
+      },
+      "repeatable": true,
+      "faction_affected": ["Relief_Organization", "Mining_Collective"]
+    },
+    {
+      "mission_id": "escort_diplomatic_001",
+      "type": "escort_diplomatic",
+      "title": "Diplomatic Mission: ${treaty_name}",
+      "description": "Escort diplomatic envoys to ${treaty_location} for ${treaty_name}. Navigate political tensions, avoid provocations, but defend if attacked.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "political_escort",
+          "description": "Maintain neutral stance with all factions",
+          "success_criteria": "no_hostile_actions"
+        },
+        {
+          "type": "de_escalation",
+          "description": "Resolve ${encounters} tense encounters peacefully",
+          "success_criteria": "peaceful_resolutions"
+        },
+        {
+          "type": "safe_delivery",
+          "description": "Deliver diplomats safely to ${treaty_location}",
+          "success_criteria": "arrival_intact"
+        }
+      ],
+      "rewards": {
+        "credits": 18000,
+        "reputation": 30,
+        "bonus_conditions": [
+          {
+            "condition": "zero_shots_fired",
+            "credits": 7000,
+            "reputation": 15,
+            "description": "Complete pacifism"
+          },
+          {
+            "condition": "improved_relations",
+            "reputation": 20,
+            "description": "Diplomatic success"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 2,
+        "reputation_minimum": 0,
+        "recommended_equipment": ["defensive_systems", "communication_suite"]
+      },
+      "location": {
+        "spawn_type": "contested_space",
+        "route_difficulty": "politically_volatile"
+      },
+      "time_limit": 2100,
+      "variables": {
+        "treaty_name": ["Peace Accord", "Trade Agreement", "Cease-Fire Negotiation", "Border Settlement"],
+        "treaty_location": ["Neutral Station", "Border Outpost", "DMZ Platform", "Peace Summit"],
+        "encounters": [2, 3, 4]
+      },
+      "ai_config": {
+        "enemy_waves": 0,
+        "encounter_scenarios": [
+          {"type": "blockade", "resolution": "negotiation"},
+          {"type": "patrol_inspection", "resolution": "diplomacy"},
+          {"type": "protest_fleet", "resolution": "patience"}
+        ],
+        "hostile_probability": 0.3
+      },
+      "repeatable": true,
+      "faction_affected": ["Diplomatic_Corps", "Peace_Coalition"]
+    },
+    {
+      "mission_id": "escort_prototype_001",
+      "type": "escort_valuable",
+      "title": "Prototype Transport: ${prototype_name}",
+      "description": "Escort experimental ${prototype_name} from ${origin_lab} to ${destination_facility}. Expect heavy enemy interest in the valuable cargo.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "high_value_escort",
+          "description": "Protect carrier with ${prototype_name}",
+          "success_criteria": "carrier_health >= 90%"
+        },
+        {
+          "type": "secrecy",
+          "description": "Minimize exposure to scanners",
+          "success_criteria": "detection_events < 3"
+        },
+        {
+          "type": "threat_elimination",
+          "description": "Eliminate all pursuit attempts",
+          "success_criteria": "zero_survivors"
+        }
+      ],
+      "rewards": {
+        "credits": 35000,
+        "reputation": 50,
+        "bonus_conditions": [
+          {
+            "condition": "carrier_pristine",
+            "credits": 15000,
+            "description": "Zero damage delivery"
+          },
+          {
+            "condition": "zero_detections",
+            "credits": 10000,
+            "description": "Perfect stealth"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 7,
+        "security_clearance": "high",
+        "recommended_weapons": ["lethal", "anti_scan"],
+        "recommended_shields": "military_grade"
+      },
+      "location": {
+        "spawn_type": "classified_route",
+        "route_difficulty": "extreme"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "prototype_name": ["Quantum Drive", "Experimental Weapon", "Advanced AI Core", "Revolutionary Engine"],
+        "origin_lab": ["Research Station Omega", "Black Site Alpha", "Tech Facility Seven", "Deep Space Lab"],
+        "destination_facility": ["Military R&D", "Corporate Headquarters", "Government Vault", "Secure Installation"]
+      },
+      "ai_config": {
+        "enemy_waves": 6,
+        "enemies_per_wave": "3-5",
+        "enemy_types": ["elite_interceptor", "spy_craft", "corporate_mercenary", "foreign_agent"],
+        "advanced_tactics": true,
+        "intel_leaks": true
+      },
+      "repeatable": false,
+      "faction_affected": ["Military_Alliance", "Tech_Corporation", "Government"]
+    },
+    {
+      "mission_id": "escort_medical_001",
+      "type": "escort_emergency",
+      "title": "Medical Emergency: ${patient_status}",
+      "description": "Escort medical transport carrying ${patient_status} to ${medical_facility}. Time is critical, but patient condition requires smooth flight.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "speed_escort",
+          "description": "Maintain high speed while ensuring smooth flight",
+          "success_criteria": "time_balance"
+        },
+        {
+          "type": "medical_protection",
+          "description": "Prevent jarring maneuvers - patient stability critical",
+          "success_criteria": "smooth_flight_metrics"
+        },
+        {
+          "type": "rapid_arrival",
+          "description": "Arrive within ${time_critical} minutes",
+          "success_criteria": "time_limit_met"
+        }
+      ],
+      "rewards": {
+        "credits": 12000,
+        "reputation": 30,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_smoothness",
+            "credits": 5000,
+            "reputation": 10,
+            "description": "Optimal patient care"
+          },
+          {
+            "condition": "early_arrival",
+            "credits": 3000,
+            "description": "Life-saving speed"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 1,
+        "recommended_equipment": ["stabilizers", "defensive_systems"],
+        "flight_skill": "smooth_control"
+      },
+      "location": {
+        "spawn_type": "emergency_route",
+        "route_difficulty": "time_critical"
+      },
+      "time_limit": 900,
+      "variables": {
+        "patient_status": ["Critical Injury", "Rare Disease", "Radiation Exposure", "Emergency Surgery Case"],
+        "medical_facility": ["Medical Station", "Hospital Ship", "Trauma Center", "Emergency Clinic"],
+        "time_critical": [12, 15, 18]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "1-3",
+        "enemy_types": ["opportunist", "pirate_scout"],
+        "low_aggression": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Medical_Corps", "Civilian_Population"]
+    }
+  ]
+}

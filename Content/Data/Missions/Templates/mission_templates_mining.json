@@ -1,0 +1,521 @@
+{
+  "mission_category": "mining",
+  "version": "1.0",
+  "description": "Mining mission templates for resource extraction, asteroid mining, and salvage operations",
+  "templates": [
+    {
+      "mission_id": "mining_asteroid_001",
+      "type": "mining_extraction",
+      "title": "Asteroid Mining: ${resource_type}",
+      "description": "Extract ${target_amount} units of ${resource_type} from the ${field_name} asteroid field. Watch for claim jumpers and environmental hazards.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "resource_extraction",
+          "description": "Mine ${target_amount} units of ${resource_type}",
+          "success_criteria": "resource_collected >= target_amount"
+        },
+        {
+          "type": "cargo_delivery",
+          "description": "Deliver ore to ${delivery_point}",
+          "success_criteria": "cargo_delivered"
+        },
+        {
+          "type": "equipment_preservation",
+          "description": "Maintain mining equipment integrity above 70%",
+          "success_criteria": "equipment_health >= 70%"
+        }
+      ],
+      "rewards": {
+        "credits": 5000,
+        "resource_bonus": "${resource_type}",
+        "reputation": 10,
+        "bonus_conditions": [
+          {
+            "condition": "over_quota",
+            "credits": 2000,
+            "description": "Exceeded extraction quota"
+          },
+          {
+            "condition": "pure_grade",
+            "credits": 1500,
+            "description": "High purity ore"
+          }
+        ]
+      },
+      "requirements": {
+        "mining_laser": true,
+        "cargo_capacity": 50,
+        "recommended_equipment": ["refinery_module", "cargo_scanner"]
+      },
+      "location": {
+        "spawn_type": "asteroid_field",
+        "field_density": "moderate"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "resource_type": ["Iron", "Copper", "Titanium", "Gold", "Platinum"],
+        "target_amount": [30, 50, 75, 100],
+        "field_name": ["Ceres Belt", "Vesta Field", "Juno Cluster", "Pallas Ring"],
+        "delivery_point": ["Mining Station", "Refinery Hub", "Trading Post", "Industrial Complex"]
+      },
+      "ai_config": {
+        "pirate_probability": 0.3,
+        "claim_jumpers": "1-2",
+        "asteroid_density": "medium"
+      },
+      "repeatable": true,
+      "faction_affected": ["Mining_Collective", "Industrial_Guild"]
+    },
+    {
+      "mission_id": "mining_deepscan_001",
+      "type": "mining_survey",
+      "title": "Deep Scan Survey: ${survey_zone}",
+      "description": "Conduct detailed scans of ${survey_zone} to locate valuable resource deposits. Deploy survey probes and analyze geological data.",
+      "difficulty": "Easy",
+      "objectives": [
+        {
+          "type": "scanning",
+          "description": "Scan ${scan_points} survey points",
+          "success_criteria": "scans_completed >= scan_points"
+        },
+        {
+          "type": "probe_deployment",
+          "description": "Deploy ${probe_count} survey probes",
+          "success_criteria": "probes_deployed >= probe_count"
+        },
+        {
+          "type": "data_collection",
+          "description": "Collect and compile survey data",
+          "success_criteria": "data_packages >= 5"
+        }
+      ],
+      "rewards": {
+        "credits": 7000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "rare_deposit_found",
+            "credits": 5000,
+            "description": "Discovered rare resource vein"
+          },
+          {
+            "condition": "complete_coverage",
+            "credits": 2000,
+            "description": "100% survey coverage"
+          }
+        ]
+      },
+      "requirements": {
+        "deep_scanner": true,
+        "survey_probes": 10,
+        "recommended_equipment": ["geological_analyzer", "probe_launcher"]
+      },
+      "location": {
+        "spawn_type": "unexplored_belt",
+        "survey_difficulty": "standard"
+      },
+      "time_limit": 2100,
+      "variables": {
+        "survey_zone": ["Uncharted Belt", "Deep Sector", "Outer Rim", "Frontier Zone"],
+        "scan_points": [8, 10, 12],
+        "probe_count": [6, 8, 10]
+      },
+      "ai_config": {
+        "hostile_encounters": 0,
+        "environmental_hazards": ["radiation_pockets", "unstable_asteroids"],
+        "discovery_events": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Survey_Corps", "Mining_Collective"]
+    },
+    {
+      "mission_id": "mining_rare_001",
+      "type": "mining_rare_extraction",
+      "title": "Rare Element Mining: ${rare_element}",
+      "description": "Extract rare ${rare_element} from ${hazard_location}. Specialized equipment required. High risk, high reward operation.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "precision_mining",
+          "description": "Extract ${rare_amount} units of ${rare_element}",
+          "success_criteria": "rare_resource >= rare_amount"
+        },
+        {
+          "type": "contamination_avoidance",
+          "description": "Maintain ore purity above ${purity_threshold}%",
+          "success_criteria": "purity_check"
+        },
+        {
+          "type": "hazard_survival",
+          "description": "Survive ${hazard_type} conditions",
+          "success_criteria": "health_maintained"
+        }
+      ],
+      "rewards": {
+        "credits": 25000,
+        "reputation": 35,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_purity",
+            "credits": 15000,
+            "description": "99%+ purity extraction"
+          },
+          {
+            "condition": "speed_bonus",
+            "credits": 5000,
+            "description": "Completed in half time"
+          }
+        ]
+      },
+      "requirements": {
+        "advanced_mining_laser": true,
+        "specialized_refinery": true,
+        "hazard_protection": "high",
+        "cargo_capacity": 20
+      },
+      "location": {
+        "spawn_type": "hazardous_zone",
+        "danger_level": "extreme"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "rare_element": ["Iridium", "Osmium", "Rhodium", "Palladium", "Promethium"],
+        "rare_amount": [5, 10, 15],
+        "hazard_location": ["Radiation Zone", "Unstable Nebula", "Magnetic Storm Field", "Volatile Core"],
+        "hazard_type": ["radiation", "magnetic_interference", "toxic_gas", "extreme_heat"],
+        "purity_threshold": [95, 97, 99]
+      },
+      "ai_config": {
+        "pirate_probability": 0.6,
+        "enemy_types": ["elite_pirate", "corporate_claim_jumper"],
+        "environmental_damage": "continuous",
+        "extraction_difficulty": "high"
+      },
+      "repeatable": true,
+      "faction_affected": ["Mining_Collective", "Tech_Corporation"]
+    },
+    {
+      "mission_id": "mining_ice_001",
+      "type": "mining_ice_harvesting",
+      "title": "Ice Mining: ${ice_field}",
+      "description": "Harvest water ice from ${ice_field} for station life support. Precision required to avoid shattering valuable ice deposits.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "ice_extraction",
+          "description": "Harvest ${ice_amount} tons of water ice",
+          "success_criteria": "ice_collected >= ice_amount"
+        },
+        {
+          "type": "preservation",
+          "description": "Minimize ice shattering (max ${shatter_tolerance}% loss)",
+          "success_criteria": "shatter_rate <= shatter_tolerance"
+        },
+        {
+          "type": "temperature_control",
+          "description": "Maintain cargo at -50°C or below",
+          "success_criteria": "temperature_maintained"
+        }
+      ],
+      "rewards": {
+        "credits": 8000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "zero_shattering",
+            "credits": 3000,
+            "description": "Perfect extraction"
+          },
+          {
+            "condition": "pristine_ice",
+            "credits": 2000,
+            "description": "Contamination-free"
+          }
+        ]
+      },
+      "requirements": {
+        "thermal_laser": true,
+        "refrigerated_cargo": true,
+        "cargo_capacity": 100,
+        "recommended_equipment": ["precision_laser", "thermal_regulator"]
+      },
+      "location": {
+        "spawn_type": "ice_field",
+        "temperature": "cryogenic"
+      },
+      "time_limit": 1500,
+      "variables": {
+        "ice_field": ["Kuiper Ice Belt", "Oort Cloud Fragment", "Comet Trail", "Frozen Ring"],
+        "ice_amount": [50, 75, 100],
+        "shatter_tolerance": [10, 15, 20]
+      },
+      "ai_config": {
+        "pirate_probability": 0.2,
+        "environmental_hazards": ["sublimation_jets", "ice_splinters"],
+        "precision_required": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Water_Supply_Authority", "Colony_Support"]
+    },
+    {
+      "mission_id": "mining_salvage_001",
+      "type": "mining_salvage",
+      "title": "Salvage Operation: ${wreck_type}",
+      "description": "Salvage valuable materials from ${wreck_type} in ${location}. Cut through hull plating and extract reusable components.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "hull_cutting",
+          "description": "Cut access to ${target_sections} valuable sections",
+          "success_criteria": "sections_accessed >= target_sections"
+        },
+        {
+          "type": "component_extraction",
+          "description": "Extract ${component_count} intact components",
+          "success_criteria": "components_salvaged >= component_count"
+        },
+        {
+          "type": "material_recovery",
+          "description": "Recover ${scrap_amount} tons of scrap metal",
+          "success_criteria": "scrap_collected >= scrap_amount"
+        }
+      ],
+      "rewards": {
+        "credits": 12000,
+        "reputation": 20,
+        "bonus_conditions": [
+          {
+            "condition": "rare_component_found",
+            "credits": 8000,
+            "description": "Discovered valuable tech"
+          },
+          {
+            "condition": "clean_extraction",
+            "credits": 3000,
+            "description": "No component damage"
+          }
+        ]
+      },
+      "requirements": {
+        "cutting_laser": true,
+        "tractor_beam": true,
+        "cargo_capacity": 75,
+        "recommended_equipment": ["component_scanner", "magnetic_grapple"]
+      },
+      "location": {
+        "spawn_type": "wreck_site",
+        "hazard_level": "moderate"
+      },
+      "time_limit": 2100,
+      "variables": {
+        "wreck_type": ["Destroyed Freighter", "Battle Wreckage", "Station Debris", "Derelict Warship"],
+        "location": ["Debris Field", "Battle Site", "Graveyard Sector", "Abandoned Zone"],
+        "target_sections": [3, 4, 5],
+        "component_count": [5, 7, 10],
+        "scrap_amount": [30, 50, 75]
+      },
+      "ai_config": {
+        "rival_salvagers": "1-2",
+        "environmental_hazards": ["unstable_structure", "explosive_residue"],
+        "discovery_probability": 0.4
+      },
+      "repeatable": true,
+      "faction_affected": ["Salvage_Guild", "Recycling_Corporation"]
+    },
+    {
+      "mission_id": "mining_gas_001",
+      "type": "mining_gas_harvesting",
+      "title": "Gas Mining: ${gas_type}",
+      "description": "Harvest ${gas_type} from the atmosphere of ${gas_giant}. Navigate atmospheric currents and pressure zones.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "atmospheric_descent",
+          "description": "Descend to optimal extraction depth",
+          "success_criteria": "depth_reached"
+        },
+        {
+          "type": "gas_collection",
+          "description": "Collect ${gas_amount} units of ${gas_type}",
+          "success_criteria": "gas_harvested >= gas_amount"
+        },
+        {
+          "type": "atmospheric_ascent",
+          "description": "Escape gravity well with full cargo",
+          "success_criteria": "altitude_gained"
+        }
+      ],
+      "rewards": {
+        "credits": 20000,
+        "reputation": 30,
+        "bonus_conditions": [
+          {
+            "condition": "deep_dive_bonus",
+            "credits": 8000,
+            "description": "Harvested from optimal zone"
+          },
+          {
+            "condition": "storm_survival",
+            "credits": 5000,
+            "description": "Survived atmospheric storm"
+          }
+        ]
+      },
+      "requirements": {
+        "atmospheric_scoop": true,
+        "pressure_hull": true,
+        "powerful_engines": true,
+        "cargo_capacity": 150
+      },
+      "location": {
+        "spawn_type": "gas_giant",
+        "atmospheric_pressure": "extreme"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "gas_type": ["Hydrogen", "Helium-3", "Deuterium", "Tritium", "Methane"],
+        "gas_giant": ["Jupiter-class", "Saturn-analog", "Neptune-type", "Super-Jupiter"],
+        "gas_amount": [100, 150, 200]
+      },
+      "ai_config": {
+        "rival_miners": "0-2",
+        "atmospheric_hazards": ["lightning_storms", "pressure_changes", "turbulence"],
+        "gravity_challenge": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Fuel_Consortium", "Energy_Authority"]
+    },
+    {
+      "mission_id": "mining_disputed_001",
+      "type": "mining_contested",
+      "title": "Disputed Claim: ${claim_name}",
+      "description": "Mine ${resource_type} from contested ${claim_name}. Multiple factions claim ownership. Defend your extraction rights.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "claim_defense",
+          "description": "Defend mining claim from ${rival_count} rivals",
+          "success_criteria": "claim_maintained"
+        },
+        {
+          "type": "resource_extraction",
+          "description": "Extract ${target_amount} units during conflict",
+          "success_criteria": "resource_quota_met"
+        },
+        {
+          "type": "rival_deterrence",
+          "description": "Drive off or destroy rival mining vessels",
+          "success_criteria": "rivals_defeated"
+        }
+      ],
+      "rewards": {
+        "credits": 30000,
+        "reputation": 40,
+        "bonus_conditions": [
+          {
+            "condition": "claim_secured",
+            "credits": 15000,
+            "reputation": 20,
+            "description": "Established permanent rights"
+          },
+          {
+            "condition": "zero_extraction_loss",
+            "credits": 8000,
+            "description": "Protected all extracted ore"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": 5,
+        "mining_equipment": true,
+        "weapons": "required",
+        "shields": "military_grade"
+      },
+      "location": {
+        "spawn_type": "contested_zone",
+        "faction_conflict": "active"
+      },
+      "time_limit": 3000,
+      "variables": {
+        "claim_name": ["Rich Vein Alpha", "Mother Lode", "Fortune's Strike", "Jackpot Claim"],
+        "resource_type": ["Gold", "Platinum", "Rare Earth", "Exotic Matter"],
+        "target_amount": [50, 75, 100],
+        "rival_count": [2, 3, 4]
+      },
+      "ai_config": {
+        "enemy_waves": 4,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["rival_miner", "claim_jumper", "corporate_enforcer"],
+        "reinforcements": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Mining_Collective", "Corporate_Mining"]
+    },
+    {
+      "mission_id": "mining_emergency_001",
+      "type": "mining_rescue_extraction",
+      "title": "Emergency Mining: ${disaster_type}",
+      "description": "Station life support failing. Emergency mining required to extract ${resource_type} for critical repairs. Race against time.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "urgent_extraction",
+          "description": "Mine ${emergency_amount} units in ${time_critical} minutes",
+          "success_criteria": "speed_quota_met"
+        },
+        {
+          "type": "rapid_delivery",
+          "description": "Return ore to ${station_name} immediately",
+          "success_criteria": "delivery_time < deadline"
+        },
+        {
+          "type": "life_saving",
+          "description": "Deliver before life support failure",
+          "success_criteria": "lives_saved"
+        }
+      ],
+      "rewards": {
+        "credits": 15000,
+        "reputation": 35,
+        "bonus_conditions": [
+          {
+            "condition": "early_delivery",
+            "credits": 7000,
+            "reputation": 15,
+            "description": "Extra time margin provided"
+          },
+          {
+            "condition": "over_delivery",
+            "credits": 5000,
+            "description": "Exceeded emergency quota"
+          }
+        ]
+      },
+      "requirements": {
+        "fast_mining_laser": true,
+        "high_speed_engines": true,
+        "cargo_capacity": 50
+      },
+      "location": {
+        "spawn_type": "near_station",
+        "urgency": "critical"
+      },
+      "time_limit": 900,
+      "variables": {
+        "disaster_type": ["Life Support Failure", "Water Contamination", "Oxygen Depletion", "Power Loss"],
+        "resource_type": ["Water Ice", "Oxygen-bearing Ore", "Fuel Components", "Repair Materials"],
+        "emergency_amount": [25, 40, 60],
+        "time_critical": [10, 12, 15],
+        "station_name": ["Outpost Delta", "Mining Station", "Colony Hub", "Research Platform"]
+      },
+      "ai_config": {
+        "no_hostiles": true,
+        "environmental_hazards": ["desperation_pressure"],
+        "time_pressure": "extreme"
+      },
+      "repeatable": true,
+      "faction_affected": ["Station_Authority", "Civilian_Population"]
+    }
+  ]
+}

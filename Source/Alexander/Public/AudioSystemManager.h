@@ -50,6 +50,21 @@ struct FAudioEffect
     }
 };
 
+/**
+ * Audio asset map wrapper (needed for TMap compatibility in UE 5.6)
+ * Wraps TMap<FName, USoundBase*> for use as a value in another TMap
+ */
+USTRUCT(BlueprintType)
+struct FAudioAssetMap
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    TMap<FName, USoundBase*> Data;
+
+    FAudioAssetMap() {}
+};
+
 // Audio Mix Types
 UENUM(BlueprintType)
 enum class EAudioMixType : uint8
@@ -217,6 +232,9 @@ struct FAudioSystemInstance
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     bool bIsPaused = false;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    float VolumeMultiplier = 1.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TMap<FName, float> ParameterValues;
@@ -513,6 +531,9 @@ public:
     UFUNCTION(BlueprintPure, Category = "Audio System")
     TArray<FName> GetActiveAudioEvents() const;
 
+    // Helper function to get volume for event type
+    float GetVolumeForEventByType(const FString& EventName) const;
+
     UFUNCTION(BlueprintCallable, Category = "Audio System")
     void StopAllAudioEvents(bool bImmediate = false);
 
@@ -521,6 +542,51 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Audio System")
     void ResumeAllAudioEvents();
+
+    // Asset Registration Functions
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Asset Management")
+    void RegisterAudioAssetByCategory(FName Category, FName AssetID, USoundBase* SoundAsset);
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Asset Management")
+    USoundBase* GetAudioAssetByCategory(FName Category, FName AssetID) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Asset Management")
+    TArray<FName> GetRegisteredCategorieslist() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Asset Management")
+    TArray<FName> GetAssetsInCategory(FName Category) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Asset Management")
+    void LoadAudioAssetsFromDataTable(class UDataTable* AssetTable);
+
+    // Weather Audio Integration
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Weather")
+    void PlayWeatherAudio(FName WeatherType, FVector Location, float Intensity);
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Weather")
+    void UpdateWeatherAudioIntensity(FName WeatherType, float NewIntensity);
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Weather")
+    void StopWeatherAudio(FName WeatherType, float FadeOutDuration = 1.0f);
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Weather")
+    void TransitionWeatherAudio(FName OldWeatherType, FName NewWeatherType, float TransitionDuration);
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Weather")
+    void RegisterWeatherAudioAsset(FName WeatherType, USoundBase* WeatherSound);
+
+    // 3D Audio Positioning
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Spatial")
+    void UpdateAudioSource3DPosition(FName AudioInstanceID, FVector NewLocation);
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Spatial")
+    void SetAudioSourceVelocity(FName AudioInstanceID, FVector Velocity);
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Spatial")
+    void SetAudioSourceAttenuationSettings(FName AudioInstanceID, float MinDistance, float MaxDistance);
+
+    UFUNCTION(BlueprintCallable, Category = "Audio System | Spatial")
+    FName SpawnPositionalAudio(USoundBase* Sound, FVector Location, FRotator Rotation, float VolumeMultiplier = 1.0f, float PitchMultiplier = 1.0f, bool bAutoDestroy = true);
 
     // Events
     UPROPERTY(BlueprintAssignable, Category = "Audio System")
@@ -602,6 +668,23 @@ private:
     float LastUpdateTime;
     int32 AudioInstanceCounter;
     TMap<FName, USoundConcurrency*> ConcurrencyGroups;
+
+    // Asset Registration Storage - Category-based organization
+    UPROPERTY()
+    TMap<FName, FAudioAssetMap> AudioAssetRegistry; // Category -> (AssetID -> Sound)
+
+    // Asset Registration Storage - Flattened access
+    UPROPERTY()
+    TMap<FName, USoundBase*> AudioAssetRegistryFlat; // Flattened Category_AssetID -> Sound
+
+    UPROPERTY()
+    TMap<FName, USoundBase*> WeatherAudioAssets; // WeatherType -> Sound
+
+    UPROPERTY()
+    TMap<FName, UAudioComponent*> ActiveWeatherAudio; // WeatherType -> Component
+
+    UPROPERTY()
+    TMap<FName, FVector> AudioSource3DPositions; // InstanceID -> Position
 
     void UpdateAudioInstances(float DeltaTime);
     void UpdateAudioZones(float DeltaTime);

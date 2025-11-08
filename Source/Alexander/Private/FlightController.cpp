@@ -13,6 +13,7 @@
 #include "Math/Vector.h"
 #include "Math/Rotator.h"
 #include "Net/UnrealNetwork.h"
+#include "PerformanceProfilerSubsystem.h"
 
 UFlightController::UFlightController()
 {
@@ -68,6 +69,10 @@ void UFlightController::BeginPlay()
 void UFlightController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	// Profile flight controller
+	UPerformanceProfilerSubsystem* Profiler = GetWorld()->GetSubsystem<UPerformanceProfilerSubsystem>();
+	PROFILE_SCOPE(Profiler, FName("FlightController"));
 	
 	if (!bIsControllerActive)
 		return;

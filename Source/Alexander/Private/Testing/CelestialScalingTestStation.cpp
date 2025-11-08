@@ -24,11 +24,11 @@ void UCelestialScalingTestStation::BeginPlay()
 	if (UWorld* World = GetWorld())
 	{
 		BodyRegistry = World->GetSubsystem<UCelestialBodyRegistry>();
+		GravitySimulator = World->GetSubsystem<UGravitySimulator>();
 
 		if (UGameInstance* GameInstance = World->GetGameInstance())
 		{
 			ScalingCalculator = GameInstance->GetSubsystem<UScalingCalculator>();
-			GravitySimulator = GameInstance->GetSubsystem<UGravitySimulator>();
 		}
 	}
 }

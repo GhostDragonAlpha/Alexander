@@ -330,11 +330,11 @@ public:
 	/**
 	 * Calculate Henyey-Greenstein phase function for scattering
 	 * @param CosAngle Cosine of angle between view and light direction
-	 * @param G Anisotropy parameter (-1 to 1)
+	 * @param GParam Anisotropy parameter (-1 to 1)
 	 * @return Phase function value
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Cloud Lighting")
-	float HenyeyGreensteinPhase(float CosAngle, float G);
+	float HenyeyGreensteinPhase(float CosAngle, float GParam);
 
 	/**
 	 * Calculate cloud shadow intensity at terrain position

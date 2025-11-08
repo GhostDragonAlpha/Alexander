@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AdvancedWeatherSystem.h"
+#include "WeatherVFXLibrary.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
@@ -177,6 +178,9 @@ void UAdvancedWeatherSystem::GenerateStorm(const FVector2D& Location, EStormInte
     }
     
     ActiveStorms.Add(NewStorm);
+    
+    // Spawn visual effects for storm
+    SpawnStormVisuals(NewStorm);
     
     OnStormGenerated.Broadcast(NewStorm, Location);
     
@@ -1102,6 +1106,56 @@ FVector2D UAdvancedWeatherSystem::GetRandomLocationInClimateZone(EClimateZone Zo
 float UAdvancedWeatherSystem::GetDistance(const FVector2D& Point1, const FVector2D& Point2) const
 {
     return FVector2D::Distance(Point1, Point2);
+}
+
+void UAdvancedWeatherSystem::SpawnStormVisuals(const FStormSystem& Storm)
+{
+    // Convert 2D location to 3D world location
+    FVector StormLocation3D(Storm.CenterLocation.X, Storm.CenterLocation.Y, 5000.0f); // Altitude for storms
+
+    // Determine weather type based on storm intensity and climate
+    EWeatherType WeatherType = EWeatherType::Thunderstorm;
+
+    // Get climate zone to determine storm type
+    EClimateZone Zone = GetClimateZoneAtLocation(Storm.CenterLocation);
+    switch (Zone)
+    {
+    case EClimateZone::Arctic:
+    case EClimateZone::Polar:
+        WeatherType = EWeatherType::Blizzard; // Snow/ice storm
+        break;
+    case EClimateZone::Desert:
+        WeatherType = EWeatherType::Sandstorm;
+        break;
+    case EClimateZone::Tropical:
+        WeatherType = EWeatherType::Thunderstorm; // Intense tropical storm
+        break;
+    default:
+        WeatherType = EWeatherType::Thunderstorm;
+        break;
+    }
+    
+    // Calculate intensity factor
+    float IntensityFactor = static_cast<float>(static_cast<int32>(Storm.Intensity)) / 5.0f;
+    IntensityFactor = FMath::Clamp(IntensityFactor, 0.3f, 1.0f);
+    
+    // Spawn the weather effect
+    UParticleSystemComponent* StormVFX = UWeatherVFXLibrary::SpawnWeatherEffect(
+        this,
+        static_cast<EWeatherTypeNew>(WeatherType),
+        StormLocation3D,
+        IntensityFactor
+    );
+    
+    if (StormVFX)
+    {
+        // Scale based on storm radius
+        float ScaleFactor = Storm.Radius / 10000.0f;
+        StormVFX->SetRelativeScale3D(FVector(ScaleFactor, ScaleFactor, ScaleFactor));
+        
+        UE_LOG(LogTemp, Log, TEXT("Spawned storm visuals at %s with intensity %.2f"), 
+            *StormLocation3D.ToString(), IntensityFactor);
+    }
 }
 
 bool UAdvancedWeatherSystem::IsPointInClimateZone(const FVector2D& Point, const FClimateZoneData& Zone) const

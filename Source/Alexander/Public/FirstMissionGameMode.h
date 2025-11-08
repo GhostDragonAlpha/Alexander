@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "TutorialSystem.h"
+#include "TutorialOnboardingSystem.h"
 #include "FirstMissionGameMode.generated.h"
 
 // Forward declarations
 class ASpaceship;
 class APlanet;
-class UTutorialSystem;
+class UTutorialOnboardingSystem;
 class UQuestSystem;
 class UAudioManager;
 class UVFXManager;
@@ -317,7 +317,7 @@ protected:
     APlanet* Moon;
 
     UPROPERTY()
-    UTutorialSystem* TutorialSystem;
+    UTutorialOnboardingSystem* TutorialSystem;
 
     UPROPERTY()
     UQuestSystem* QuestSystem;

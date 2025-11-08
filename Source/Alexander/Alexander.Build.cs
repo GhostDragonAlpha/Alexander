@@ -15,7 +15,7 @@ public class Alexander : ModuleRules
 			   "Slate", "SlateCore", "UMG", "ToolMenus", "ProceduralMeshComponent",
 			   "GameplayTags", "GameplayTasks", "AIModule", "NavigationSystem",
 			   "AudioMixer", "DeveloperSettings", "EnhancedInput", "HeadMountedDisplay", "CinematicCamera", "XRBase",
-		   "PhysicsCore", "Sockets", "Networking"
+		   "PhysicsCore", "Sockets", "Networking", "LiveLink", "LiveLinkInterface"
 		   });
 
 		// Add public include paths

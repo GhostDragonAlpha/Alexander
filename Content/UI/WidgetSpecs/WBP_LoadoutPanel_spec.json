@@ -1,0 +1,499 @@
+{
+  "widgetName": "WBP_LoadoutPanel",
+  "description": "Manages saved loadout presets, allowing quick switching between configurations",
+  "location": "Content/UI/Widgets/Customization/Panels/",
+  "dependencies": [
+    "WBP_LoadoutSlot"
+  ],
+  "layout": {
+    "rootType": "Border",
+    "size": {
+      "desktop": { "width": 300 },
+      "vr": { "width": 600 }
+    },
+    "backgroundColor": "#2A2A2A",
+    "borderColor": "#424242",
+    "padding": [16, 16, 16, 16]
+  },
+  "components": [
+    {
+      "name": "Text_Header",
+      "type": "Text",
+      "text": "LOADOUT MANAGEMENT",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 24,
+          "vr": 48
+        }
+      },
+      "color": "#00BCD4"
+    },
+    {
+      "name": "Text_SubHeader",
+      "type": "Text",
+      "text": "SAVED LOADOUTS",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#FFFFFF"
+    },
+    {
+      "name": "ScrollBox_LoadoutsList",
+      "type": "ScrollBox",
+      "orientation": "Vertical"
+    },
+    {
+      "name": "VBox_LoadoutsContainer",
+      "type": "VerticalBox",
+      "children": [
+        {
+          "name": "Widget_LoadoutSlot1",
+          "type": "WBP_LoadoutSlot",
+          "slotIndex": 0
+        },
+        {
+          "name": "Widget_LoadoutSlot2",
+          "type": "WBP_LoadoutSlot",
+          "slotIndex": 1
+        },
+        {
+          "name": "Widget_LoadoutSlot3",
+          "type": "WBP_LoadoutSlot",
+          "slotIndex": 2
+        },
+        {
+          "name": "Widget_LoadoutSlot4",
+          "type": "WBP_LoadoutSlot",
+          "slotIndex": 3
+        },
+        {
+          "name": "Widget_LoadoutSlot5",
+          "type": "WBP_LoadoutSlot",
+          "slotIndex": 4
+        }
+      ]
+    },
+    {
+      "name": "Button_SaveCurrent",
+      "type": "Button",
+      "text": "SAVE CURRENT LOADOUT",
+      "size": {
+        "desktop": { "width": "Fill", "height": 48 },
+        "vr": { "width": "Fill", "height": 96 }
+      },
+      "style": {
+        "normal": "#4CAF50",
+        "hovered": "#45A049",
+        "pressed": "#388E3C"
+      },
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      }
+    }
+  ],
+  "subWidget": {
+    "name": "WBP_LoadoutSlot",
+    "description": "Individual loadout slot widget",
+    "components": [
+      {
+        "name": "Border_SlotContainer",
+        "type": "Border",
+        "backgroundColor": "#1A1A1A",
+        "borderColor": "#616161",
+        "borderWidth": 1,
+        "padding": [12, 12, 12, 12],
+        "margin": [0, 0, 0, 8]
+      },
+      {
+        "name": "Text_SlotNumber",
+        "type": "Text",
+        "format": "Slot {0}:",
+        "font": {
+          "family": "Roboto SemiBold",
+          "size": {
+            "desktop": 14,
+            "vr": 28
+          }
+        },
+        "color": "#9E9E9E",
+        "width": 60
+      },
+      {
+        "name": "EditableText_LoadoutName",
+        "type": "EditableText",
+        "font": {
+          "size": {
+            "desktop": 16,
+            "vr": 32
+          }
+        },
+        "colorLogic": {
+          "hasData": "#FFFFFF",
+          "empty": "#616161"
+        },
+        "hintText": "(Empty)",
+        "maxLength": 20
+      },
+      {
+        "name": "Text_LoadoutSummary",
+        "type": "Text",
+        "font": {
+          "size": {
+            "desktop": 12,
+            "vr": 24
+          }
+        },
+        "color": "#BDBDBD",
+        "format": "Speed: {0}, Armor: {1}, Shields: {2}"
+      },
+      {
+        "name": "Button_Load",
+        "type": "Button",
+        "text": "LOAD",
+        "size": {
+          "desktop": [80, 32],
+          "vr": [160, 64]
+        },
+        "style": {
+          "normal": "#00BCD4",
+          "hovered": "#00ACC1",
+          "pressed": "#0097A7",
+          "disabled": "#424242"
+        },
+        "visibilityLogic": "Visible if slot has data"
+      },
+      {
+        "name": "Button_Save",
+        "type": "Button",
+        "text": "SAVE",
+        "size": {
+          "desktop": [80, 32],
+          "vr": [160, 64]
+        },
+        "style": {
+          "normal": "#4CAF50",
+          "hovered": "#45A049",
+          "pressed": "#388E3C",
+          "disabled": "#424242"
+        },
+        "visibilityLogic": "Visible if slot is empty"
+      },
+      {
+        "name": "Button_Delete",
+        "type": "Button",
+        "text": "DELETE",
+        "size": {
+          "desktop": [80, 32],
+          "vr": [160, 64]
+        },
+        "style": {
+          "normal": "#F44336",
+          "hovered": "#E53935",
+          "pressed": "#D32F2F",
+          "disabled": "#424242"
+        },
+        "visibilityLogic": "Visible if slot has data"
+      }
+    ],
+    "variables": [
+      {
+        "name": "SlotIndex",
+        "type": "int32",
+        "description": "Index of this loadout slot (0-4)"
+      },
+      {
+        "name": "LoadoutData",
+        "type": "FShipLoadout",
+        "description": "Saved loadout data"
+      },
+      {
+        "name": "bHasData",
+        "type": "bool",
+        "default": false,
+        "description": "Whether this slot has saved data"
+      }
+    ],
+    "functions": [
+      {
+        "name": "SetSlotData",
+        "inputs": [
+          {
+            "name": "Index",
+            "type": "int32"
+          },
+          {
+            "name": "Loadout",
+            "type": "FShipLoadout"
+          }
+        ],
+        "description": "Sets the loadout data for this slot"
+      },
+      {
+        "name": "ClearSlot",
+        "description": "Clears the slot data"
+      },
+      {
+        "name": "GetLoadoutSummary",
+        "returnType": "FText",
+        "description": "Returns summary text of loadout stats"
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "SubsystemReference",
+      "type": "UShipCustomizationSubsystem*"
+    },
+    {
+      "name": "SavedLoadouts",
+      "type": "TArray<FShipLoadout>",
+      "maxSize": 5,
+      "description": "Array of saved loadouts"
+    },
+    {
+      "name": "LoadoutSlotWidgets",
+      "type": "TArray<UWBPLoadoutSlot*>",
+      "description": "References to slot widgets"
+    }
+  ],
+  "functions": [
+    {
+      "name": "Initialize",
+      "inputs": [
+        {
+          "name": "InSubsystem",
+          "type": "UShipCustomizationSubsystem*"
+        }
+      ],
+      "description": "Initializes the panel and loads saved loadouts"
+    },
+    {
+      "name": "RefreshLoadoutsList",
+      "description": "Refreshes all loadout slots from saved data",
+      "logic": [
+        "Get saved loadouts from subsystem or save file",
+        "For each slot (0-4):",
+        "  If loadout exists:",
+        "    Call slot.SetSlotData(index, loadout)",
+        "  Else:",
+        "    Call slot.ClearSlot()"
+      ]
+    },
+    {
+      "name": "OnLoadButtonClicked",
+      "inputs": [
+        {
+          "name": "SlotIndex",
+          "type": "int32"
+        }
+      ],
+      "description": "Handler when load button is clicked for a slot",
+      "logic": [
+        "Get loadout from SavedLoadouts[SlotIndex]",
+        "Apply loadout to ship via subsystem",
+        "Fire OnLoadoutLoaded event",
+        "Play Anim_LoadSuccess on slot",
+        "Update parent menu displays"
+      ]
+    },
+    {
+      "name": "OnSaveButtonClicked",
+      "inputs": [
+        {
+          "name": "SlotIndex",
+          "type": "int32"
+        }
+      ],
+      "description": "Handler when save button is clicked for a slot",
+      "logic": [
+        "Get current loadout from subsystem",
+        "Save to SavedLoadouts[SlotIndex]",
+        "Save to file/player save",
+        "Fire OnLoadoutSaved event",
+        "Play Anim_SaveSuccess on slot",
+        "Refresh slot display"
+      ]
+    },
+    {
+      "name": "OnDeleteButtonClicked",
+      "inputs": [
+        {
+          "name": "SlotIndex",
+          "type": "int32"
+        }
+      ],
+      "description": "Handler when delete button is clicked for a slot",
+      "logic": [
+        "Show confirmation dialog (optional)",
+        "Clear SavedLoadouts[SlotIndex]",
+        "Delete from file/player save",
+        "Play Anim_DeleteConfirm on slot",
+        "Refresh slot display"
+      ]
+    },
+    {
+      "name": "OnLoadoutNameChanged",
+      "inputs": [
+        {
+          "name": "NewName",
+          "type": "FText"
+        },
+        {
+          "name": "SlotIndex",
+          "type": "int32"
+        }
+      ],
+      "description": "Handler when loadout name is edited",
+      "logic": [
+        "Update SavedLoadouts[SlotIndex].Name",
+        "Save to file"
+      ]
+    },
+    {
+      "name": "OnSaveCurrentClicked",
+      "description": "Handler for main save button",
+      "logic": [
+        "Find first empty slot",
+        "If found:",
+        "  Call OnSaveButtonClicked(SlotIndex)",
+        "Else:",
+        "  Show message: 'All slots full. Delete a loadout first.'"
+      ]
+    }
+  ],
+  "eventDispatchers": [
+    {
+      "name": "OnLoadoutLoaded",
+      "parameters": [
+        {
+          "name": "SlotIndex",
+          "type": "int32"
+        }
+      ],
+      "description": "Fired when a loadout is loaded"
+    },
+    {
+      "name": "OnLoadoutSaved",
+      "parameters": [
+        {
+          "name": "SlotIndex",
+          "type": "int32"
+        }
+      ],
+      "description": "Fired when a loadout is saved"
+    }
+  ],
+  "animations": [
+    {
+      "name": "Anim_LoadSuccess",
+      "duration": 0.4,
+      "tracks": [
+        {
+          "target": "LoadoutSlot",
+          "property": "Border color flash",
+          "color": "#4CAF50"
+        },
+        {
+          "target": "LoadoutSlot",
+          "property": "RenderTransform.Scale",
+          "keyframes": [
+            { "time": 0.0, "value": [1.0, 1.0] },
+            { "time": 0.2, "value": [1.05, 1.05] },
+            { "time": 0.4, "value": [1.0, 1.0] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Anim_SaveSuccess",
+      "duration": 0.4,
+      "tracks": [
+        {
+          "description": "Flash slot green"
+        },
+        {
+          "description": "Fade in loadout summary"
+        }
+      ]
+    },
+    {
+      "name": "Anim_DeleteConfirm",
+      "duration": 0.3,
+      "tracks": [
+        {
+          "description": "Flash slot red"
+        },
+        {
+          "description": "Fade out content"
+        },
+        {
+          "description": "Replace with empty state"
+        }
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "property": "LoadoutSlot.LoadoutName",
+      "source": "SavedLoadouts[Index].Name"
+    },
+    {
+      "property": "LoadoutSlot.LoadoutSummary",
+      "source": "SavedLoadouts[Index].GetSummary()"
+    },
+    {
+      "property": "LoadoutSlot.Button_Load.Visibility",
+      "source": "bHasData ? Visible : Collapsed"
+    },
+    {
+      "property": "LoadoutSlot.Button_Save.Visibility",
+      "source": "!bHasData ? Visible : Collapsed"
+    },
+    {
+      "property": "LoadoutSlot.Button_Delete.Visibility",
+      "source": "bHasData ? Visible : Collapsed"
+    }
+  ],
+  "persistence": {
+    "saveLocation": "SavedGames/PlayerProfile/Loadouts.sav",
+    "format": "JSON or Binary",
+    "autoSave": true,
+    "maxSlots": 5
+  },
+  "vrAdaptations": {
+    "loadoutSlots": {
+      "height": "Taller for easier interaction"
+    },
+    "nameEditing": {
+      "method": "Virtual keyboard overlay"
+    },
+    "deleteAction": {
+      "confirmation": "Dialog required"
+    },
+    "haptics": {
+      "onSave": "Success pulse",
+      "onLoad": "Success pulse"
+    }
+  },
+  "testingChecklist": [
+    "All 5 slots display correctly",
+    "Save current loadout works",
+    "Load loadout applies correctly",
+    "Delete removes loadout",
+    "Name editing saves correctly",
+    "Empty slots show save button",
+    "Filled slots show load/delete buttons",
+    "Summary displays correct stats",
+    "Data persists between sessions",
+    "Animations play smoothly"
+  ]
+}

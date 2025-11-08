@@ -4,6 +4,7 @@
 #include "OrbitalBody.h"
 #include "OrbitalMechanics.h"
 #include "Engine/World.h"
+#include "PerformanceProfilerSubsystem.h"
 
 UPhysicsConsensus::UPhysicsConsensus()
 {
@@ -29,6 +30,10 @@ UPhysicsConsensus::UPhysicsConsensus()
 
 FVector UPhysicsConsensus::PredictPosition(int32 PlayerID, float DeltaTime)
 {
+	// Profile physics prediction
+	UPerformanceProfilerSubsystem* Profiler = GetWorld()->GetSubsystem<UPerformanceProfilerSubsystem>();
+	PROFILE_SCOPE(Profiler, FName("PhysicsConsensus_Predict"));
+	
 	// Get last known state
 	FVector LastPosition = GetLastKnownPosition(PlayerID);
 	FVector LastVelocity = GetLastKnownVelocity(PlayerID);
@@ -76,6 +81,10 @@ FVector UPhysicsConsensus::PredictPosition(int32 PlayerID, float DeltaTime)
 
 bool UPhysicsConsensus::ValidatePosition(int32 PlayerID, FVector ReportedPosition, float Timestamp)
 {
+	// Profile physics validation
+	UPerformanceProfilerSubsystem* Profiler = GetWorld()->GetSubsystem<UPerformanceProfilerSubsystem>();
+	PROFILE_SCOPE(Profiler, FName("PhysicsConsensus_Validate"));
+	
 	// Get last timestamp and calculate delta time
 	float LastTimestamp = GetLastTimestamp(PlayerID);
 	float DeltaTime = Timestamp - LastTimestamp;
@@ -170,21 +179,21 @@ bool UPhysicsConsensus::ValidateThrust(int32 PlayerID, FVector ReportedThrust, F
 
 bool UPhysicsConsensus::ValidateDistanceOverTime(int32 PlayerID, float TimeWindow)
 {
-	TArray<FPositionReport>* History = PositionHistory.Find(PlayerID);
-	if (!History || History->Num() < 2)
+	FPositionReportArray* HistoryWrapper = PositionHistory.Find(PlayerID);
+	if (!HistoryWrapper || HistoryWrapper->Reports.Num() < 2)
 	{
 		// Not enough history to validate
 		return true;
 	}
 
 	// Calculate total distance traveled
-	float TotalDistance = CalculateTotalDistance(*History, TimeWindow);
+	float TotalDistance = CalculateTotalDistance(HistoryWrapper->Reports, TimeWindow);
 
 	// Calculate maximum possible distance (max thrust for entire time)
-	float MaxPossibleDistance = CalculateMaxPossibleDistance(*History, TimeWindow);
+	float MaxPossibleDistance = CalculateMaxPossibleDistance(HistoryWrapper->Reports, TimeWindow);
 
 	// Calculate minimum possible distance (gravity only, no thrust)
-	float MinPossibleDistance = CalculateMinPossibleDistance(*History, TimeWindow);
+	float MinPossibleDistance = CalculateMinPossibleDistance(HistoryWrapper->Reports, TimeWindow);
 
 	// Valid if distance is within possible range
 	bool bIsValid = (TotalDistance >= MinPossibleDistance * 0.9f) && (TotalDistance <= MaxPossibleDistance * 1.1f);
@@ -220,40 +229,40 @@ void UPhysicsConsensus::AddPositionReport(const FPositionReport& Report)
 
 FVector UPhysicsConsensus::GetLastKnownPosition(int32 PlayerID) const
 {
-	const TArray<FPositionReport>* History = PositionHistory.Find(PlayerID);
-	if (History && History->Num() > 0)
+	const FPositionReportArray* HistoryWrapper = PositionHistory.Find(PlayerID);
+	if (HistoryWrapper && HistoryWrapper->Reports.Num() > 0)
 	{
-		return History->Last().Position;
+		return HistoryWrapper->Reports.Last().Position;
 	}
 	return FVector::ZeroVector;
 }
 
 FVector UPhysicsConsensus::GetLastKnownVelocity(int32 PlayerID) const
 {
-	const TArray<FPositionReport>* History = PositionHistory.Find(PlayerID);
-	if (History && History->Num() > 0)
+	const FPositionReportArray* HistoryWrapper = PositionHistory.Find(PlayerID);
+	if (HistoryWrapper && HistoryWrapper->Reports.Num() > 0)
 	{
-		return History->Last().Velocity;
+		return HistoryWrapper->Reports.Last().Velocity;
 	}
 	return FVector::ZeroVector;
 }
 
 FVector UPhysicsConsensus::GetLastReportedThrust(int32 PlayerID) const
 {
-	const TArray<FPositionReport>* History = PositionHistory.Find(PlayerID);
-	if (History && History->Num() > 0)
+	const FPositionReportArray* HistoryWrapper = PositionHistory.Find(PlayerID);
+	if (HistoryWrapper && HistoryWrapper->Reports.Num() > 0)
 	{
-		return History->Last().Thrust;
+		return HistoryWrapper->Reports.Last().Thrust;
 	}
 	return FVector::ZeroVector;
 }
 
 float UPhysicsConsensus::GetLastTimestamp(int32 PlayerID) const
 {
-	const TArray<FPositionReport>* History = PositionHistory.Find(PlayerID);
-	if (History && History->Num() > 0)
+	const FPositionReportArray* HistoryWrapper = PositionHistory.Find(PlayerID);
+	if (HistoryWrapper && HistoryWrapper->Reports.Num() > 0)
 	{
-		return History->Last().Timestamp;
+		return HistoryWrapper->Reports.Last().Timestamp;
 	}
 	return 0.0f;
 }
@@ -264,24 +273,24 @@ float UPhysicsConsensus::GetLastTimestamp(int32 PlayerID) const
 
 void UPhysicsConsensus::SubmitValidationVote(const FValidationVote& Vote)
 {
-	// Get or create vote storage for this player
-	TMap<int32, TArray<FValidationVote>>* PlayerVotes = ValidationVotes.Find(Vote.TargetPlayerID);
-	if (!PlayerVotes)
+	// Get or create vote storage for this player (outer wrapper)
+	FValidationVoteSequenceMap* PlayerVotesWrapper = ValidationVotes.Find(Vote.TargetPlayerID);
+	if (!PlayerVotesWrapper)
 	{
-		ValidationVotes.Add(Vote.TargetPlayerID, TMap<int32, TArray<FValidationVote>>());
-		PlayerVotes = ValidationVotes.Find(Vote.TargetPlayerID);
+		ValidationVotes.Add(Vote.TargetPlayerID, FValidationVoteSequenceMap());
+		PlayerVotesWrapper = ValidationVotes.Find(Vote.TargetPlayerID);
 	}
 
-	// Get or create vote array for this sequence number
-	TArray<FValidationVote>* SequenceVotes = PlayerVotes->Find(Vote.SequenceNumber);
-	if (!SequenceVotes)
+	// Get or create vote array for this sequence number (inner wrapper)
+	FValidationVoteArray* SequenceVotesWrapper = PlayerVotesWrapper->SequenceVotes.Find(Vote.SequenceNumber);
+	if (!SequenceVotesWrapper)
 	{
-		PlayerVotes->Add(Vote.SequenceNumber, TArray<FValidationVote>());
-		SequenceVotes = PlayerVotes->Find(Vote.SequenceNumber);
+		PlayerVotesWrapper->SequenceVotes.Add(Vote.SequenceNumber, FValidationVoteArray());
+		SequenceVotesWrapper = PlayerVotesWrapper->SequenceVotes.Find(Vote.SequenceNumber);
 	}
 
-	// Add vote
-	SequenceVotes->Add(Vote);
+	// Add vote to the innermost array
+	SequenceVotesWrapper->Votes.Add(Vote);
 
 	if (bEnableDebugLogging)
 	{
@@ -302,22 +311,23 @@ FConsensusResult UPhysicsConsensus::CalculateConsensus(int32 PlayerID, int32 Seq
 	Result.InvalidVotes = 0;
 	Result.AveragePositionError = 0.0f;
 
-	// Get votes for this player and sequence
-	TMap<int32, TArray<FValidationVote>>* PlayerVotes = ValidationVotes.Find(PlayerID);
-	if (!PlayerVotes)
+	// Get votes for this player and sequence (outer wrapper)
+	FValidationVoteSequenceMap* PlayerVotesWrapper = ValidationVotes.Find(PlayerID);
+	if (!PlayerVotesWrapper)
 	{
 		return Result;
 	}
 
-	TArray<FValidationVote>* SequenceVotes = PlayerVotes->Find(SequenceNumber);
-	if (!SequenceVotes || SequenceVotes->Num() == 0)
+	// Get vote array for this sequence number (inner wrapper)
+	FValidationVoteArray* SequenceVotesWrapper = PlayerVotesWrapper->SequenceVotes.Find(SequenceNumber);
+	if (!SequenceVotesWrapper || SequenceVotesWrapper->Votes.Num() == 0)
 	{
 		return Result;
 	}
 
 	// Count votes
 	float TotalPositionError = 0.0f;
-	for (const FValidationVote& Vote : *SequenceVotes)
+	for (const FValidationVote& Vote : SequenceVotesWrapper->Votes)
 	{
 		if (Vote.bIsValid)
 		{
@@ -354,13 +364,13 @@ FConsensusResult UPhysicsConsensus::CalculateConsensus(int32 PlayerID, int32 Seq
 bool UPhysicsConsensus::IsConsensusReached(int32 PlayerID)
 {
 	// Check if last sequence has consensus
-	const TArray<FPositionReport>* History = PositionHistory.Find(PlayerID);
-	if (!History || History->Num() == 0)
+	const FPositionReportArray* HistoryWrapper = PositionHistory.Find(PlayerID);
+	if (!HistoryWrapper || HistoryWrapper->Reports.Num() == 0)
 	{
 		return false;
 	}
 
-	int32 LastSequence = History->Last().SequenceNumber;
+	int32 LastSequence = HistoryWrapper->Reports.Last().SequenceNumber;
 	FConsensusResult Result = CalculateConsensus(PlayerID, LastSequence);
 
 	return Result.bConsensusReached;
@@ -541,13 +551,14 @@ float UPhysicsConsensus::GetNetworkLatency(int32 PlayerID) const
 
 TArray<FPositionReport>* UPhysicsConsensus::GetOrCreatePositionHistory(int32 PlayerID)
 {
-	TArray<FPositionReport>* History = PositionHistory.Find(PlayerID);
-	if (!History)
+	FPositionReportArray* HistoryWrapper = PositionHistory.Find(PlayerID);
+	if (!HistoryWrapper)
 	{
-		PositionHistory.Add(PlayerID, TArray<FPositionReport>());
-		History = PositionHistory.Find(PlayerID);
+		PositionHistory.Add(PlayerID, FPositionReportArray());
+		HistoryWrapper = PositionHistory.Find(PlayerID);
 	}
-	return History;
+	// Return pointer to the inner Reports array
+	return &HistoryWrapper->Reports;
 }
 
 void UPhysicsConsensus::AddToHistory(TArray<FPositionReport>& History, const FPositionReport& Report)

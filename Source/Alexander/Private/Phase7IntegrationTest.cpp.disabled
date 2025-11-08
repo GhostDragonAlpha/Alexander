@@ -257,7 +257,7 @@ bool UPhase7IntegrationTest::TestTutorialSystem()
     FTutorialDefinition TestTutorial;
     TestTutorial.TutorialID = "TestTutorial";
     TestTutorial.Title = "Test Tutorial";
-    TestTutorial.Difficulty = ETutorialDifficulty::Beginner;
+    TestTutorial.Difficulty = ETutorialDifficultyOnboarding::Beginner;
     TestTutorial.bIsMandatory = false;
     TestTutorial.EstimatedDuration = 60.0f;
 

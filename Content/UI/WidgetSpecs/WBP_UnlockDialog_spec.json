@@ -1,0 +1,602 @@
+{
+  "widgetName": "WBP_UnlockDialog",
+  "description": "Modal confirmation dialog for purchasing/unlocking ship parts",
+  "location": "Content/UI/Widgets/Customization/Dialogs/",
+  "usage": "Spawned by WBP_CustomizationMenu when unlock is requested",
+  "layout": {
+    "rootType": "Overlay",
+    "size": "Fullscreen",
+    "zOrder": 200
+  },
+  "components": [
+    {
+      "name": "Border_ModalBackground",
+      "type": "Border",
+      "size": "Fullscreen",
+      "backgroundColor": "#000000",
+      "opacity": 0.7,
+      "description": "Semi-transparent background blocker"
+    },
+    {
+      "name": "Border_DialogBox",
+      "type": "Border",
+      "size": {
+        "desktop": [500, 600],
+        "vr": [1000, 1200]
+      },
+      "anchors": "Center",
+      "alignment": [0.5, 0.5],
+      "backgroundColor": "#1A1A1A",
+      "borderColor": "#00BCD4",
+      "borderWidth": 2,
+      "borderGlow": {
+        "color": "#00BCD4",
+        "opacity": 0.5,
+        "blur": 8
+      },
+      "padding": [24, 24, 24, 24],
+      "cornerRadius": 8
+    },
+    {
+      "name": "Text_Header",
+      "type": "Text",
+      "text": "UNLOCK PART?",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 28,
+          "vr": 56
+        }
+      },
+      "color": "#00BCD4",
+      "alignment": "Center"
+    },
+    {
+      "name": "Image_PartIcon",
+      "type": "Image",
+      "size": {
+        "desktop": [160, 160],
+        "vr": [320, 320]
+      },
+      "borderColor": "#424242",
+      "borderWidth": 2,
+      "alignment": "Center"
+    },
+    {
+      "name": "Text_PartName",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 24,
+          "vr": 48
+        }
+      },
+      "color": "#FFFFFF"
+    },
+    {
+      "name": "Border_RarityBadge",
+      "type": "Border",
+      "backgroundColor": "Dynamic (rarity color)",
+      "padding": [4, 8, 4, 8],
+      "cornerRadius": 4,
+      "children": [
+        {
+          "name": "Text_Rarity",
+          "type": "Text",
+          "font": {
+            "family": "Roboto SemiBold",
+            "size": {
+              "desktop": 14,
+              "vr": 28
+            }
+          },
+          "color": "#FFFFFF"
+        }
+      ]
+    },
+    {
+      "name": "Text_ConfirmationMessage",
+      "type": "Text",
+      "text": "This will unlock the part for use in customization.",
+      "font": {
+        "family": "Roboto Regular",
+        "size": {
+          "desktop": 14,
+          "vr": 28
+        }
+      },
+      "color": "#BDBDBD",
+      "alignment": "Center",
+      "wrapText": true
+    },
+    {
+      "name": "Text_CostLabel",
+      "type": "Text",
+      "text": "Cost:",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#9E9E9E"
+    },
+    {
+      "name": "Text_CostValue",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#FFC107",
+      "format": "{0} CR"
+    },
+    {
+      "name": "Text_BalanceLabel",
+      "type": "Text",
+      "text": "Your Balance:",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#9E9E9E"
+    },
+    {
+      "name": "Text_BalanceValue",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#FFFFFF",
+      "format": "{0} CR"
+    },
+    {
+      "name": "Text_AfterLabel",
+      "type": "Text",
+      "text": "After Purchase:",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#9E9E9E"
+    },
+    {
+      "name": "Text_AfterValue",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "colorLogic": {
+        "sufficient": "#4CAF50",
+        "insufficient": "#F44336"
+      },
+      "format": "{0} CR"
+    },
+    {
+      "name": "Button_Cancel",
+      "type": "Button",
+      "text": "CANCEL",
+      "size": {
+        "desktop": [140, 48],
+        "vr": [280, 96]
+      },
+      "style": {
+        "normal": "#616161",
+        "hovered": "#757575",
+        "pressed": "#424242"
+      },
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "textColor": "#FFFFFF"
+    },
+    {
+      "name": "Button_Confirm",
+      "type": "Button",
+      "text": "CONFIRM",
+      "size": {
+        "desktop": [140, 48],
+        "vr": [280, 96]
+      },
+      "style": {
+        "normal": "#4CAF50",
+        "hovered": "#45A049",
+        "pressed": "#388E3C",
+        "disabled": "#424242"
+      },
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "textColor": "#FFFFFF"
+    }
+  ],
+  "variables": [
+    {
+      "name": "PartToUnlock",
+      "type": "UShipPartData*",
+      "description": "The part being unlocked"
+    },
+    {
+      "name": "PlayerCredits",
+      "type": "int32",
+      "description": "Player's current credits"
+    },
+    {
+      "name": "UnlockCost",
+      "type": "int32",
+      "description": "Cost to unlock this part"
+    },
+    {
+      "name": "bCanAfford",
+      "type": "bool",
+      "description": "Whether player can afford this unlock"
+    }
+  ],
+  "functions": [
+    {
+      "name": "ShowDialog",
+      "inputs": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        },
+        {
+          "name": "Credits",
+          "type": "int32"
+        }
+      ],
+      "description": "Shows the unlock dialog for a specific part",
+      "logic": [
+        "Set PartToUnlock = PartData",
+        "Set PlayerCredits = Credits",
+        "Set UnlockCost = PartData->UnlockCost",
+        "Calculate bCanAfford = (PlayerCredits >= UnlockCost)",
+        "Update all display bindings",
+        "Set Image_PartIcon texture",
+        "Set Text_PartName",
+        "Set Text_Rarity and color",
+        "Set Text_CostValue",
+        "Set Text_BalanceValue",
+        "Calculate after value = PlayerCredits - UnlockCost",
+        "Set Text_AfterValue and color",
+        "Set Button_Confirm enabled state",
+        "Set Visibility = Visible",
+        "Play Anim_Show",
+        "Set Input Mode UI Only",
+        "Set Focus to Button_Confirm (if can afford) or Button_Cancel"
+      ]
+    },
+    {
+      "name": "HideDialog",
+      "description": "Hides the dialog",
+      "logic": [
+        "Play Anim_Hide",
+        "Delay (animation duration)",
+        "Set Visibility = Hidden",
+        "Clear PartToUnlock",
+        "Restore previous input mode"
+      ]
+    },
+    {
+      "name": "CanAfford",
+      "returnType": "bool",
+      "pure": true,
+      "description": "Returns true if player can afford the unlock"
+    },
+    {
+      "name": "GetAffordabilityColor",
+      "returnType": "FLinearColor",
+      "pure": true,
+      "description": "Returns color for after-purchase value",
+      "logic": {
+        "canAfford": "#4CAF50",
+        "cannotAfford": "#F44336"
+      }
+    },
+    {
+      "name": "GetRarityColor",
+      "returnType": "FLinearColor",
+      "pure": true,
+      "description": "Returns rarity color"
+    },
+    {
+      "name": "OnCancelClicked",
+      "description": "Handler for cancel button",
+      "logic": [
+        "Fire OnUnlockCancelled event",
+        "Call HideDialog()"
+      ]
+    },
+    {
+      "name": "OnConfirmClicked",
+      "description": "Handler for confirm button",
+      "logic": [
+        "If CanAfford():",
+        "  Fire OnUnlockConfirmed event with PartToUnlock",
+        "  Play Anim_PurchaseSuccess",
+        "  Delay (animation duration)",
+        "  Call HideDialog()",
+        "Else:",
+        "  Play Anim_InsufficientFunds",
+        "  (Do not close dialog)"
+      ]
+    }
+  ],
+  "eventDispatchers": [
+    {
+      "name": "OnUnlockConfirmed",
+      "parameters": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ],
+      "description": "Fired when player confirms unlock"
+    },
+    {
+      "name": "OnUnlockCancelled",
+      "description": "Fired when player cancels unlock"
+    }
+  ],
+  "animations": [
+    {
+      "name": "Anim_Show",
+      "duration": 0.3,
+      "tracks": [
+        {
+          "target": "Border_ModalBackground",
+          "property": "RenderOpacity",
+          "keyframes": [
+            { "time": 0.0, "value": 0.0 },
+            { "time": 0.3, "value": 0.7 }
+          ]
+        },
+        {
+          "target": "Border_DialogBox",
+          "property": "RenderTransform.Scale",
+          "keyframes": [
+            { "time": 0.0, "value": [0.8, 0.8] },
+            { "time": 0.3, "value": [1.0, 1.0] }
+          ],
+          "easing": "EaseOutBack"
+        },
+        {
+          "target": "Border_DialogBox",
+          "property": "RenderOpacity",
+          "keyframes": [
+            { "time": 0.0, "value": 0.0 },
+            { "time": 0.3, "value": 1.0 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Anim_Hide",
+      "duration": 0.2,
+      "tracks": [
+        {
+          "target": "Border_ModalBackground",
+          "property": "RenderOpacity",
+          "keyframes": [
+            { "time": 0.0, "value": 0.7 },
+            { "time": 0.2, "value": 0.0 }
+          ]
+        },
+        {
+          "target": "Border_DialogBox",
+          "property": "RenderTransform.Scale",
+          "keyframes": [
+            { "time": 0.0, "value": [1.0, 1.0] },
+            { "time": 0.2, "value": [0.8, 0.8] }
+          ],
+          "easing": "EaseInCubic"
+        },
+        {
+          "target": "Border_DialogBox",
+          "property": "RenderOpacity",
+          "keyframes": [
+            { "time": 0.0, "value": 1.0 },
+            { "time": 0.2, "value": 0.0 }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Anim_InsufficientFunds",
+      "duration": 0.4,
+      "tracks": [
+        {
+          "target": "Text_AfterValue",
+          "property": "RenderTransform.Translation.X",
+          "description": "Shake animation",
+          "keyframes": [
+            { "time": 0.0, "value": 0 },
+            { "time": 0.1, "value": -10 },
+            { "time": 0.2, "value": 10 },
+            { "time": 0.3, "value": -5 },
+            { "time": 0.4, "value": 0 }
+          ]
+        },
+        {
+          "target": "Button_Confirm",
+          "property": "ColorAndOpacity",
+          "description": "Flash red",
+          "keyframes": [
+            { "time": 0.0, "value": "#424242" },
+            { "time": 0.2, "value": "#F44336" },
+            { "time": 0.4, "value": "#424242" }
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "type": "Sound",
+          "sound": "SFX_Error"
+        }
+      ]
+    },
+    {
+      "name": "Anim_PurchaseSuccess",
+      "duration": 0.6,
+      "tracks": [
+        {
+          "target": "Border_DialogBox",
+          "property": "BorderColor",
+          "description": "Flash green border",
+          "keyframes": [
+            { "time": 0.0, "value": "#00BCD4" },
+            { "time": 0.2, "value": "#4CAF50" },
+            { "time": 0.6, "value": "#00BCD4" }
+          ]
+        },
+        {
+          "target": "Image_PartIcon",
+          "property": "RenderTransform.Scale",
+          "description": "Scale pulse",
+          "keyframes": [
+            { "time": 0.0, "value": [1.0, 1.0] },
+            { "time": 0.3, "value": [1.15, 1.15] },
+            { "time": 0.6, "value": [1.0, 1.0] }
+          ]
+        }
+      ],
+      "effects": [
+        {
+          "type": "Sound",
+          "sound": "SFX_Purchase_Success"
+        },
+        {
+          "type": "Particles",
+          "particle": "P_Unlock_Success",
+          "location": "Center of dialog"
+        }
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "property": "Image_PartIcon.Brush.ResourceObject",
+      "source": "PartToUnlock->IconTexture"
+    },
+    {
+      "property": "Text_PartName.Text",
+      "source": "PartToUnlock->PartName"
+    },
+    {
+      "property": "Text_Rarity.Text",
+      "source": "PartToUnlock->Rarity"
+    },
+    {
+      "property": "Border_RarityBadge.BrushColor",
+      "source": "GetRarityColor()"
+    },
+    {
+      "property": "Text_CostValue.Text",
+      "source": "PartToUnlock->UnlockCost",
+      "format": "{0} CR"
+    },
+    {
+      "property": "Text_BalanceValue.Text",
+      "source": "PlayerCredits",
+      "format": "{0} CR"
+    },
+    {
+      "property": "Text_AfterValue.Text",
+      "source": "PlayerCredits - UnlockCost",
+      "format": "{0} CR"
+    },
+    {
+      "property": "Text_AfterValue.ColorAndOpacity",
+      "source": "GetAffordabilityColor()"
+    },
+    {
+      "property": "Button_Confirm.IsEnabled",
+      "source": "CanAfford()"
+    }
+  ],
+  "inputBindings": [
+    {
+      "key": "Escape",
+      "action": "OnCancelClicked"
+    },
+    {
+      "key": "Enter",
+      "action": "OnConfirmClicked",
+      "condition": "CanAfford()"
+    }
+  ],
+  "vrAdaptations": {
+    "placement": {
+      "mode": "Center of view",
+      "distance": "1 meter from player"
+    },
+    "dismissal": {
+      "gazeBased": "Can be dismissed by looking away",
+      "voiceCommand": "Yes/No voice commands"
+    },
+    "buttons": {
+      "size": "Larger for easier targeting"
+    },
+    "feedback": {
+      "haptic": "On button press",
+      "audio": "Clear audio cues"
+    }
+  },
+  "accessibility": {
+    "screenReader": {
+      "announceOnShow": "Unlock dialog opened. Part: {PartName}, Cost: {Cost}, Balance: {Balance}"
+    },
+    "colorBlind": {
+      "affordability": "Use icons in addition to colors",
+      "insufficientIcon": "⚠ warning icon",
+      "sufficientIcon": "✓ checkmark icon"
+    },
+    "keyboardNavigation": {
+      "tabOrder": ["Button_Confirm", "Button_Cancel"],
+      "defaultFocus": "Button_Confirm (if can afford) or Button_Cancel"
+    }
+  },
+  "testingChecklist": [
+    "Dialog appears centered on screen",
+    "Part information displays correctly",
+    "Rarity badge shows correct color",
+    "Cost calculation correct",
+    "After-purchase value correct",
+    "Confirm button disabled when insufficient funds",
+    "Insufficient funds animation plays",
+    "Cancel closes dialog",
+    "Confirm (when affordable) fires event and closes",
+    "Success animation plays",
+    "Escape key closes dialog",
+    "Enter key confirms (if affordable)",
+    "VR: Dialog appears in front of player",
+    "VR: Buttons large enough to target"
+  ]
+}

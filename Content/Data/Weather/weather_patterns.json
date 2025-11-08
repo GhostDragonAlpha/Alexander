@@ -1,0 +1,317 @@
+{
+  "weather_patterns": [
+    {
+      "pattern_id": "clear_sunny",
+      "name": "Clear Sky",
+      "description": "Perfect visibility with bright sunlight",
+      "visibility_percent": 100,
+      "movement_modifier": 1.0,
+      "damage_per_second": 0,
+      "particle_system": null,
+      "fog_density": 0.0,
+      "lighting": {
+        "sun_intensity": 1.0,
+        "ambient_brightness": 0.8,
+        "sky_color": [0.4, 0.6, 1.0],
+        "fog_color": [0.7, 0.8, 0.9]
+      },
+      "audio_ambience": "wind_light",
+      "duration_range_seconds": [300, 600],
+      "transition_time_seconds": 30,
+      "biome_restrictions": ["Temperate", "Desert", "Tropical"]
+    },
+    {
+      "pattern_id": "light_clouds",
+      "name": "Light Clouds",
+      "description": "Partially cloudy with good visibility",
+      "visibility_percent": 90,
+      "movement_modifier": 1.0,
+      "damage_per_second": 0,
+      "particle_system": "PS_Clouds_Light",
+      "fog_density": 0.1,
+      "lighting": {
+        "sun_intensity": 0.85,
+        "ambient_brightness": 0.7,
+        "sky_color": [0.5, 0.6, 0.8],
+        "fog_color": [0.6, 0.7, 0.8]
+      },
+      "audio_ambience": "wind_moderate",
+      "duration_range_seconds": [400, 800],
+      "transition_time_seconds": 60,
+      "biome_restrictions": null
+    },
+    {
+      "pattern_id": "heavy_clouds",
+      "name": "Overcast",
+      "description": "Heavy cloud cover with reduced light",
+      "visibility_percent": 70,
+      "movement_modifier": 0.95,
+      "damage_per_second": 0,
+      "particle_system": "PS_Clouds_Heavy",
+      "fog_density": 0.25,
+      "lighting": {
+        "sun_intensity": 0.5,
+        "ambient_brightness": 0.5,
+        "sky_color": [0.4, 0.4, 0.5],
+        "fog_color": [0.5, 0.5, 0.6]
+      },
+      "audio_ambience": "wind_strong",
+      "duration_range_seconds": [300, 600],
+      "transition_time_seconds": 90,
+      "biome_restrictions": null
+    },
+    {
+      "pattern_id": "light_rain",
+      "name": "Light Rain",
+      "description": "Gentle rainfall with minor visibility reduction",
+      "visibility_percent": 80,
+      "movement_modifier": 0.95,
+      "damage_per_second": 0,
+      "particle_system": "PS_Rain_Light",
+      "particle_count": 5000,
+      "fog_density": 0.3,
+      "lighting": {
+        "sun_intensity": 0.4,
+        "ambient_brightness": 0.45,
+        "sky_color": [0.35, 0.4, 0.5],
+        "fog_color": [0.5, 0.55, 0.6]
+      },
+      "audio_ambience": "rain_light",
+      "surface_effects": {
+        "puddles": true,
+        "wetness": 0.5
+      },
+      "duration_range_seconds": [200, 400],
+      "transition_time_seconds": 45,
+      "biome_restrictions": ["Temperate", "Tropical", "Jungle"]
+    },
+    {
+      "pattern_id": "heavy_storm",
+      "name": "Thunderstorm",
+      "description": "Intense rainfall with lightning and thunder",
+      "visibility_percent": 40,
+      "movement_modifier": 0.85,
+      "damage_per_second": 0,
+      "particle_system": "PS_Rain_Heavy",
+      "particle_count": 15000,
+      "fog_density": 0.5,
+      "lighting": {
+        "sun_intensity": 0.2,
+        "ambient_brightness": 0.3,
+        "sky_color": [0.2, 0.2, 0.3],
+        "fog_color": [0.3, 0.3, 0.4]
+      },
+      "audio_ambience": "storm_heavy",
+      "special_effects": {
+        "lightning_frequency": 8.0,
+        "lightning_intensity": 1.5,
+        "thunder_delay": 2.0,
+        "wind_gusts": true
+      },
+      "surface_effects": {
+        "puddles": true,
+        "wetness": 1.0,
+        "flooding": 0.3
+      },
+      "duration_range_seconds": [180, 300],
+      "transition_time_seconds": 30,
+      "biome_restrictions": ["Temperate", "Tropical", "Jungle"]
+    },
+    {
+      "pattern_id": "snow_blizzard",
+      "name": "Blizzard",
+      "description": "Heavy snowfall with extreme cold",
+      "visibility_percent": 30,
+      "movement_modifier": 0.8,
+      "damage_per_second": 2,
+      "damage_type": "Cold",
+      "particle_system": "PS_Snow_Heavy",
+      "particle_count": 10000,
+      "fog_density": 0.6,
+      "lighting": {
+        "sun_intensity": 0.3,
+        "ambient_brightness": 0.6,
+        "sky_color": [0.7, 0.7, 0.8],
+        "fog_color": [0.8, 0.8, 0.9]
+      },
+      "audio_ambience": "wind_howling",
+      "special_effects": {
+        "wind_gusts": true,
+        "ice_formation": true
+      },
+      "surface_effects": {
+        "snow_accumulation": 0.8,
+        "ice_patches": 0.5
+      },
+      "protection_required": true,
+      "duration_range_seconds": [200, 400],
+      "transition_time_seconds": 60,
+      "biome_restrictions": ["Arctic", "Tundra", "Alpine"]
+    },
+    {
+      "pattern_id": "dust_storm",
+      "name": "Dust Storm",
+      "description": "Violent dust storm with low visibility and health damage",
+      "visibility_percent": 20,
+      "movement_modifier": 0.75,
+      "damage_per_second": 1,
+      "damage_type": "Environmental",
+      "particle_system": "PS_Dust_Storm",
+      "particle_count": 20000,
+      "fog_density": 0.75,
+      "lighting": {
+        "sun_intensity": 0.15,
+        "ambient_brightness": 0.25,
+        "sky_color": [0.6, 0.4, 0.2],
+        "fog_color": [0.7, 0.5, 0.3]
+      },
+      "audio_ambience": "wind_desert_storm",
+      "special_effects": {
+        "dust_particles": true,
+        "wind_gusts": true,
+        "sand_damage": true
+      },
+      "protection_required": true,
+      "duration_range_seconds": [180, 350],
+      "transition_time_seconds": 45,
+      "biome_restrictions": ["Desert", "Arid", "Wasteland"]
+    },
+    {
+      "pattern_id": "fog_dense",
+      "name": "Dense Fog",
+      "description": "Thick fog with severely limited visibility",
+      "visibility_percent": 25,
+      "movement_modifier": 0.9,
+      "damage_per_second": 0,
+      "particle_system": "PS_Fog_Dense",
+      "fog_density": 0.85,
+      "lighting": {
+        "sun_intensity": 0.25,
+        "ambient_brightness": 0.35,
+        "sky_color": [0.5, 0.5, 0.55],
+        "fog_color": [0.6, 0.6, 0.65]
+      },
+      "audio_ambience": "atmosphere_eerie",
+      "surface_effects": {
+        "wetness": 0.3,
+        "visibility_orbs": true
+      },
+      "duration_range_seconds": [300, 600],
+      "transition_time_seconds": 120,
+      "biome_restrictions": ["Temperate", "Wetland", "Coastal"]
+    },
+    {
+      "pattern_id": "toxic_atmosphere",
+      "name": "Toxic Atmosphere",
+      "description": "Hazardous toxic air requiring immediate protection",
+      "visibility_percent": 60,
+      "movement_modifier": 1.0,
+      "damage_per_second": 5,
+      "damage_type": "Chemical",
+      "particle_system": "PS_Toxic_Gas",
+      "particle_count": 8000,
+      "fog_density": 0.4,
+      "lighting": {
+        "sun_intensity": 0.6,
+        "ambient_brightness": 0.4,
+        "sky_color": [0.4, 0.6, 0.3],
+        "fog_color": [0.3, 0.5, 0.2]
+      },
+      "audio_ambience": "atmosphere_toxic",
+      "special_effects": {
+        "gas_clouds": true,
+        "corrosion_effect": true
+      },
+      "protection_required": true,
+      "warning_level": "Critical",
+      "duration_range_seconds": [240, 480],
+      "transition_time_seconds": 20,
+      "biome_restrictions": ["Toxic", "Industrial", "Volcanic"]
+    },
+    {
+      "pattern_id": "electrical_storm",
+      "name": "Electrical Storm",
+      "description": "Intense electrical activity with shield-damaging lightning",
+      "visibility_percent": 50,
+      "movement_modifier": 0.9,
+      "damage_per_second": 0,
+      "shield_damage_per_second": 10,
+      "particle_system": "PS_Electrical_Storm",
+      "fog_density": 0.45,
+      "lighting": {
+        "sun_intensity": 0.3,
+        "ambient_brightness": 0.4,
+        "sky_color": [0.3, 0.3, 0.5],
+        "fog_color": [0.4, 0.4, 0.6]
+      },
+      "audio_ambience": "storm_electrical",
+      "special_effects": {
+        "lightning_frequency": 15.0,
+        "lightning_intensity": 2.0,
+        "electrical_arcs": true,
+        "emp_pulse_chance": 0.05,
+        "static_discharge": true
+      },
+      "protection_required": false,
+      "warning_level": "High",
+      "duration_range_seconds": [150, 300],
+      "transition_time_seconds": 30,
+      "biome_restrictions": null
+    }
+  ],
+  "transition_rules": {
+    "clear_sunny": {
+      "can_transition_to": ["light_clouds", "light_rain"],
+      "probability": [0.6, 0.4]
+    },
+    "light_clouds": {
+      "can_transition_to": ["clear_sunny", "heavy_clouds", "light_rain"],
+      "probability": [0.4, 0.3, 0.3]
+    },
+    "heavy_clouds": {
+      "can_transition_to": ["light_clouds", "light_rain", "heavy_storm"],
+      "probability": [0.4, 0.4, 0.2]
+    },
+    "light_rain": {
+      "can_transition_to": ["light_clouds", "heavy_storm", "fog_dense"],
+      "probability": [0.5, 0.3, 0.2]
+    },
+    "heavy_storm": {
+      "can_transition_to": ["light_rain", "heavy_clouds"],
+      "probability": [0.6, 0.4]
+    },
+    "snow_blizzard": {
+      "can_transition_to": ["light_clouds", "fog_dense"],
+      "probability": [0.7, 0.3]
+    },
+    "dust_storm": {
+      "can_transition_to": ["clear_sunny", "light_clouds"],
+      "probability": [0.6, 0.4]
+    },
+    "fog_dense": {
+      "can_transition_to": ["light_clouds", "clear_sunny"],
+      "probability": [0.6, 0.4]
+    },
+    "toxic_atmosphere": {
+      "can_transition_to": ["toxic_atmosphere"],
+      "probability": [1.0],
+      "note": "Toxic atmosphere is persistent and requires special events to clear"
+    },
+    "electrical_storm": {
+      "can_transition_to": ["heavy_storm", "heavy_clouds"],
+      "probability": [0.5, 0.5]
+    }
+  },
+  "biome_default_patterns": {
+    "Temperate": ["clear_sunny", "light_clouds", "light_rain"],
+    "Desert": ["clear_sunny", "dust_storm"],
+    "Arctic": ["light_clouds", "snow_blizzard"],
+    "Tropical": ["light_rain", "heavy_storm"],
+    "Toxic": ["toxic_atmosphere"],
+    "Volcanic": ["dust_storm", "toxic_atmosphere"],
+    "Wetland": ["fog_dense", "light_rain"],
+    "Alpine": ["snow_blizzard", "light_clouds"],
+    "Arid": ["clear_sunny", "dust_storm"],
+    "Jungle": ["heavy_storm", "fog_dense"]
+  }
+}

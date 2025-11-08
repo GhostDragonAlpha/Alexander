@@ -542,18 +542,18 @@ float UPlanetCloudComponent::RayMarchShadow(FVector StartPosition, FVector SunDi
 	return FMath::Clamp(Transmittance, 0.0f, 1.0f);
 }
 
-float UPlanetCloudComponent::HenyeyGreensteinPhase(float CosAngle, float G)
+float UPlanetCloudComponent::HenyeyGreensteinPhase(float CosAngle, float GParam)
 {
 	// Henyey-Greenstein phase function for anisotropic scattering
 	// P(cos θ) = (1 - g²) / (4π * (1 + g² - 2g*cos θ)^(3/2))
 	// Simplified without the 4π normalization factor
-	
-	float G2 = G * G;
-	float Denominator = 1.0f + G2 - 2.0f * G * CosAngle;
+
+	float G2 = GParam * GParam;
+	float Denominator = 1.0f + G2 - 2.0f * GParam * CosAngle;
 	Denominator = FMath::Pow(FMath::Max(Denominator, 0.001f), 1.5f);
-	
+
 	float Phase = (1.0f - G2) / Denominator;
-	
+
 	return Phase;
 }
 

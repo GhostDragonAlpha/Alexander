@@ -98,6 +98,44 @@ struct FValidationVote
 };
 
 /**
+ * UE 5.6 Wrapper: TArray<FPositionReport> for TMap compatibility
+ */
+USTRUCT(BlueprintType)
+struct FPositionReportArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Consensus")
+	TArray<FPositionReport> Reports;
+};
+
+/**
+ * UE 5.6 Wrapper: TArray<FValidationVote> for TMap compatibility
+ */
+USTRUCT(BlueprintType)
+struct FValidationVoteArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Consensus")
+	TArray<FValidationVote> Votes;
+};
+
+/**
+ * UE 5.6 Wrapper: TMap<int32, TArray<FValidationVote>> for nested TMap compatibility
+ * This wraps the inner TMap to allow TMap<int32, TMap<int32, TArray<FValidationVote>>>
+ */
+USTRUCT(BlueprintType)
+struct FValidationVoteSequenceMap
+{
+	GENERATED_BODY()
+
+	// Map from sequence number to array of votes
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Consensus")
+	TMap<int32, FValidationVoteArray> SequenceVotes;
+};
+
+/**
  * Consensus result for a player
  */
 USTRUCT(BlueprintType)
@@ -436,12 +474,17 @@ public:
 
 protected:
 	// Position history per player (circular buffer)
-	// Note: Not UPROPERTY because UHT doesn't support nested containers
-	TMap<int32, TArray<FPositionReport>> PositionHistory;
+	// UE 5.6: Wrapped TArray in FPositionReportArray for UPROPERTY compatibility
+	UPROPERTY()
+	TMap<int32, FPositionReportArray> PositionHistory;
 
 	// Validation votes per player per sequence number
-	// Note: Not UPROPERTY because UHT doesn't support nested containers
-	TMap<int32, TMap<int32, TArray<FValidationVote>>> ValidationVotes;
+	// UE 5.6: Double-wrapped for nested TMap compatibility
+	// Outer TMap: PlayerID -> FValidationVoteSequenceMap
+	// Inner TMap (in wrapper): SequenceNumber -> FValidationVoteArray
+	// Innermost TArray (in wrapper): TArray<FValidationVote>
+	UPROPERTY()
+	TMap<int32, FValidationVoteSequenceMap> ValidationVotes;
 
 	// Validation state per player
 	TMap<int32, EValidationState> ValidationStates;
@@ -458,7 +501,7 @@ protected:
 	// Network latency per player (seconds)
 	TMap<int32, float> NetworkLatencies;
 
-	// Helper: Get position history for player
+	// Helper: Get position history for player (returns wrapper's Reports array)
 	TArray<FPositionReport>* GetOrCreatePositionHistory(int32 PlayerID);
 
 	// Helper: Add to circular buffer with max size

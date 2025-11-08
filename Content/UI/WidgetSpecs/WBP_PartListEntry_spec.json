@@ -1,0 +1,350 @@
+{
+  "widgetName": "WBP_PartListEntry",
+  "description": "Reusable widget representing a single part in the parts list",
+  "location": "Content/UI/Widgets/Customization/Components/",
+  "usage": "Used by WBP_PartSelectionPanel for each part in the list",
+  "layout": {
+    "rootType": "Button",
+    "size": {
+      "desktop": { "width": "Fill", "height": 64 },
+      "vr": { "width": "Fill", "height": 128 }
+    },
+    "style": {
+      "normal": "Transparent",
+      "hovered": "#424242 (20% opacity)",
+      "pressed": "#00BCD4 (30% opacity)"
+    },
+    "padding": [8, 8, 8, 8]
+  },
+  "components": [
+    {
+      "name": "Border_Container",
+      "type": "Border",
+      "borderStyle": {
+        "image": "WhiteSquareTexture",
+        "margins": [0.05, 0, 0, 0],
+        "drawAs": "Border",
+        "description": "Left border only (2px)"
+      },
+      "borderColor": "Dynamic (rarity color)"
+    },
+    {
+      "name": "Border_IconContainer",
+      "type": "Border",
+      "size": {
+        "desktop": [48, 48],
+        "vr": [96, 96]
+      },
+      "backgroundColor": "#1A1A1A",
+      "borderColor": "#424242",
+      "borderWidth": 1
+    },
+    {
+      "name": "Image_PartIcon",
+      "type": "Image",
+      "size": "Fill",
+      "stretch": "Uniform",
+      "tintLogic": {
+        "unlocked": "#FFFFFF",
+        "locked": "#616161"
+      }
+    },
+    {
+      "name": "Text_PartName",
+      "type": "Text",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "colorLogic": {
+        "unlocked": "#FFFFFF",
+        "locked": "#9E9E9E"
+      }
+    },
+    {
+      "name": "Text_PartSubtext",
+      "type": "Text",
+      "font": {
+        "family": "Roboto Regular",
+        "size": {
+          "desktop": 12,
+          "vr": 24
+        }
+      },
+      "color": "Dynamic (rarity color)",
+      "content": "Rarity name"
+    },
+    {
+      "name": "Image_EquippedCheckmark",
+      "type": "Image",
+      "texture": "T_Icon_Checkmark",
+      "size": {
+        "desktop": [24, 24],
+        "vr": [48, 48]
+      },
+      "tint": "#4CAF50",
+      "visibility": "Hidden (shown when equipped)"
+    },
+    {
+      "name": "Image_LockedIcon",
+      "type": "Image",
+      "texture": "T_Icon_Lock",
+      "size": {
+        "desktop": [24, 24],
+        "vr": [48, 48]
+      },
+      "tint": "#F44336",
+      "visibility": "Hidden (shown when locked)"
+    }
+  ],
+  "variables": [
+    {
+      "name": "PartData",
+      "type": "UShipPartData*",
+      "description": "The part this entry represents"
+    },
+    {
+      "name": "bIsEquipped",
+      "type": "bool",
+      "default": false,
+      "description": "Whether this part is currently equipped"
+    },
+    {
+      "name": "bIsLocked",
+      "type": "bool",
+      "default": true,
+      "description": "Whether this part is locked (not owned)"
+    }
+  ],
+  "functions": [
+    {
+      "name": "SetPartData",
+      "inputs": [
+        {
+          "name": "InPartData",
+          "type": "UShipPartData*"
+        },
+        {
+          "name": "InIsEquipped",
+          "type": "bool"
+        },
+        {
+          "name": "InIsLocked",
+          "type": "bool"
+        }
+      ],
+      "description": "Initializes the entry with part data and status",
+      "logic": [
+        "Set PartData",
+        "Set bIsEquipped",
+        "Set bIsLocked",
+        "Update icon texture",
+        "Update name text",
+        "Update rarity subtext",
+        "Update rarity border color",
+        "Call UpdateStatus()"
+      ]
+    },
+    {
+      "name": "UpdateStatus",
+      "inputs": [
+        {
+          "name": "InIsEquipped",
+          "type": "bool"
+        },
+        {
+          "name": "InIsLocked",
+          "type": "bool"
+        }
+      ],
+      "description": "Updates visual status of the entry",
+      "logic": [
+        "Set icon tint (gray if locked, white if unlocked)",
+        "Set name color (gray if locked, white if unlocked)",
+        "Set checkmark visibility (visible if equipped)",
+        "Set lock icon visibility (visible if locked)"
+      ]
+    },
+    {
+      "name": "GetRarityColor",
+      "returnType": "FLinearColor",
+      "pure": true,
+      "description": "Returns the color based on part rarity",
+      "colorMap": {
+        "Common": "#4CAF50",
+        "Uncommon": "#2196F3",
+        "Rare": "#9C27B0",
+        "Epic": "#FF9800",
+        "Legendary": "#F44336"
+      }
+    },
+    {
+      "name": "GetIconTint",
+      "returnType": "FSlateColor",
+      "pure": true,
+      "description": "Returns icon tint based on lock status"
+    },
+    {
+      "name": "GetNameColor",
+      "returnType": "FSlateColor",
+      "pure": true,
+      "description": "Returns name color based on lock status"
+    },
+    {
+      "name": "OnButtonClicked",
+      "description": "Handler for button click"
+    }
+  ],
+  "eventDispatchers": [
+    {
+      "name": "OnPartClicked",
+      "parameters": [
+        {
+          "name": "PartData",
+          "type": "UShipPartData*"
+        }
+      ],
+      "description": "Fired when this entry is clicked"
+    }
+  ],
+  "animations": [
+    {
+      "name": "Anim_Hover",
+      "duration": 0.1,
+      "tracks": [
+        {
+          "target": "Root Button",
+          "property": "RenderTransform.Scale",
+          "start": [1.0, 1.0],
+          "end": [1.02, 1.02]
+        },
+        {
+          "target": "Root Button",
+          "property": "Background Opacity",
+          "start": 0.0,
+          "end": 0.2
+        }
+      ]
+    },
+    {
+      "name": "Anim_Unhover",
+      "duration": 0.1,
+      "tracks": [
+        {
+          "target": "Root Button",
+          "property": "RenderTransform.Scale",
+          "start": [1.02, 1.02],
+          "end": [1.0, 1.0]
+        },
+        {
+          "target": "Root Button",
+          "property": "Background Opacity",
+          "start": 0.2,
+          "end": 0.0
+        }
+      ]
+    },
+    {
+      "name": "Anim_Click",
+      "duration": 0.1,
+      "tracks": [
+        {
+          "target": "Root Button",
+          "property": "RenderTransform.Scale",
+          "keyframes": [
+            { "time": 0.0, "value": [1.0, 1.0] },
+            { "time": 0.05, "value": [0.98, 0.98] },
+            { "time": 0.1, "value": [1.0, 1.0] }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Anim_StatusChanged",
+      "duration": 0.3,
+      "description": "Flash border color and fade status icons"
+    }
+  ],
+  "bindings": [
+    {
+      "property": "Image_PartIcon.Brush.ResourceObject",
+      "source": "PartData->IconTexture"
+    },
+    {
+      "property": "Text_PartName.Text",
+      "source": "PartData->PartName"
+    },
+    {
+      "property": "Text_PartSubtext.Text",
+      "source": "PartData->Rarity"
+    },
+    {
+      "property": "Text_PartSubtext.ColorAndOpacity",
+      "source": "GetRarityColor()"
+    },
+    {
+      "property": "Border_Container.BrushColor",
+      "source": "GetRarityColor()"
+    },
+    {
+      "property": "Image_EquippedCheckmark.Visibility",
+      "source": "bIsEquipped",
+      "conversion": "bool to ESlateVisibility"
+    },
+    {
+      "property": "Image_LockedIcon.Visibility",
+      "source": "bIsLocked",
+      "conversion": "bool to ESlateVisibility"
+    },
+    {
+      "property": "Image_PartIcon.ColorAndOpacity",
+      "source": "GetIconTint()"
+    },
+    {
+      "property": "Text_PartName.ColorAndOpacity",
+      "source": "GetNameColor()"
+    }
+  ],
+  "events": [
+    {
+      "name": "OnHovered",
+      "action": "Play Anim_Hover"
+    },
+    {
+      "name": "OnUnhovered",
+      "action": "Play Anim_Unhover"
+    },
+    {
+      "name": "OnClicked",
+      "action": [
+        "Play Anim_Click",
+        "Fire OnPartClicked event dispatcher with PartData"
+      ]
+    }
+  ],
+  "vrAdaptations": {
+    "height": 128,
+    "hoverTrigger": "Laser pointer proximity",
+    "haptics": "Pulse on hover",
+    "selectedState": "Distinct glow effect"
+  },
+  "optimization": {
+    "poolingRecommended": true,
+    "poolSize": "20-50 widgets",
+    "lazyLoadIcons": true,
+    "invalidationMode": "OnSourceChanged"
+  },
+  "testingChecklist": [
+    "Entry displays part correctly",
+    "Rarity border color matches rarity",
+    "Equipped checkmark shows when equipped",
+    "Lock icon shows when locked",
+    "Locked parts are grayed out",
+    "Hover animation plays smoothly",
+    "Click fires event with correct data",
+    "Status updates when changed"
+  ]
+}

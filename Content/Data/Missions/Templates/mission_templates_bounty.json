@@ -1,0 +1,544 @@
+{
+  "mission_templates": [
+    {
+      "mission_id": "bounty_standard_capture_001",
+      "type": "bounty_hunting",
+      "title": "Bounty Contract - ${target_name}",
+      "description": "${target_name}, wanted for ${crime}, was last seen in ${location}. Standard bounty contract: ${reward_preference}. Track them down, neutralize or capture, and claim your reward. Watch for tricks - wanted criminals don't go quietly.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "locate_target",
+          "description": "Track ${target_name} to their location in ${location}",
+          "success_criteria": "target_located"
+        },
+        {
+          "type": "apprehend_target",
+          "description": "Capture or eliminate ${target_name}",
+          "success_criteria": "target_neutralized"
+        },
+        {
+          "type": "claim_bounty",
+          "description": "Return to bounty office with proof",
+          "success_criteria": "bounty_claimed"
+        }
+      ],
+      "rewards": {
+        "credits": 14000,
+        "reputation": 10,
+        "bonus_conditions": [
+          {
+            "condition": "captured_alive",
+            "credits": 4000,
+            "description": "Live capture bonus"
+          },
+          {
+            "condition": "minimal_collateral_damage",
+            "credits": 2000,
+            "description": "Clean apprehension bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "experienced",
+        "tracking_equipment": "basic",
+        "bounty_hunter_license": true
+      },
+      "location": {
+        "spawn_type": "fugitive_hideout",
+        "difficulty": "moderate_threat"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "target_name": ["Marcus Vane", "Kira Solis", "Jack Ferro", "Nina Cross", "Drake Havoc"],
+        "crime": ["murder", "piracy", "grand theft", "smuggling", "assault"],
+        "location": ["asteroid hideout", "abandoned station", "outer rim planet", "pirate base", "neutral colony"],
+        "reward_preference": ["alive for trial", "dead or alive", "preferably alive"]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "1-3",
+        "enemy_types": ["target", "bodyguards", "accomplices"],
+        "target_flee_chance": 0.4,
+        "surrender_possible": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Bounty Hunters Guild", "Law Enforcement"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "bounty_gang_leader_001",
+      "type": "bounty_hunting",
+      "title": "High Value Target - ${gang_leader}",
+      "description": "${gang_leader}, leader of the ${gang_name}, has a massive bounty. They're holed up in ${location} with ${protection_count} loyal gang members. This won't be easy - expect heavy resistance. But the payout is worth the risk.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "infiltrate_compound",
+          "description": "Breach ${location} defenses",
+          "success_criteria": "compound_infiltrated"
+        },
+        {
+          "type": "eliminate_protection",
+          "description": "Fight through ${protection_count} gang members",
+          "success_criteria": "path_to_leader_clear"
+        },
+        {
+          "type": "capture_leader",
+          "description": "Apprehend or eliminate ${gang_leader}",
+          "success_criteria": "leader_neutralized"
+        }
+      ],
+      "rewards": {
+        "credits": 28000,
+        "reputation": 35,
+        "bonus_conditions": [
+          {
+            "condition": "leader_captured_alive",
+            "credits": 8000,
+            "description": "Live capture premium"
+          },
+          {
+            "condition": "gang_disbanded",
+            "credits": 6000,
+            "description": "Organization destruction bonus"
+          },
+          {
+            "condition": "under_30_minutes",
+            "credits": 5000,
+            "description": "Speed raid bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "elite",
+        "heavy_weapons": true,
+        "tactical_gear": "advanced"
+      },
+      "location": {
+        "spawn_type": "gang_stronghold",
+        "difficulty": "high_threat"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "gang_leader": ["Razor Kane", "Valkyrie Red", "The Butcher", "Snake Eyes", "Iron Hawk"],
+        "gang_name": ["Red Vipers", "Void Jackals", "Black Suns", "Steel Serpents", "Crimson Reapers"],
+        "location": ["fortified compound", "gang headquarters", "armored station", "defended base"],
+        "protection_count": ["15-20", "20-30", "25-35"]
+      },
+      "ai_config": {
+        "enemy_waves": 4,
+        "enemies_per_wave": "5-8",
+        "enemy_types": ["gang_members", "enforcers", "gang_leader"],
+        "fortification_level": "heavy",
+        "leader_escape_attempt": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Bounty Hunters Guild", "Security Forces"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "bounty_pirate_captain_001",
+      "type": "bounty_hunting",
+      "title": "Pirate Bounty - Captain ${pirate_name}",
+      "description": "Captain ${pirate_name} of the ${ship_name} has been raiding ${area} for ${duration}. The bounty is substantial. They're currently at ${location} with their crew. Space combat expected - bring firepower.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "track_pirate",
+          "description": "Locate ${ship_name} at ${location}",
+          "success_criteria": "pirate_ship_located"
+        },
+        {
+          "type": "space_combat",
+          "description": "Disable or destroy ${ship_name}",
+          "success_criteria": "ship_neutralized"
+        },
+        {
+          "type": "capture_captain",
+          "description": "Board and capture Captain ${pirate_name}",
+          "success_criteria": "captain_apprehended"
+        }
+      ],
+      "rewards": {
+        "credits": 24000,
+        "reputation": 30,
+        "bonus_conditions": [
+          {
+            "condition": "ship_captured_intact",
+            "credits": 10000,
+            "description": "Prize ship bonus"
+          },
+          {
+            "condition": "captain_alive",
+            "credits": 6000,
+            "description": "Live capture bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "veteran",
+        "weapons": "heavy",
+        "boarding_capability": true
+      },
+      "location": {
+        "spawn_type": "pirate_territory",
+        "difficulty": "space_combat"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "pirate_name": ["Black Beard", "Red Jenny", "The Scorpion", "Mad Jack", "Serpent Queen"],
+        "ship_name": ["Bloody Revenge", "Dark Star", "Crimson Reaper", "Void Terror", "Death's Hand"],
+        "area": ["trade routes", "mining sectors", "colony systems", "shipping lanes"],
+        "duration": ["months", "years", "a decade"],
+        "location": ["asteroid field", "nebula hideout", "pirate base", "debris field"]
+      },
+      "ai_config": {
+        "enemy_waves": 3,
+        "enemies_per_wave": "2-4",
+        "enemy_types": ["pirate_fighters", "pirate_ship", "boarding_crew"],
+        "ship_tactics": "aggressive",
+        "boarding_resistance": "fierce"
+      },
+      "repeatable": true,
+      "faction_affected": ["Bounty Hunters Guild", "Merchant Alliance"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "bounty_war_criminal_001",
+      "type": "bounty_hunting",
+      "title": "War Criminal - ${criminal_name}",
+      "description": "${criminal_name}, wanted for ${war_crimes} during ${conflict}, has been located at ${location}. International tribunal wants them alive for trial. They're under ${protection} protection. Extraction will be extremely difficult.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "covert_approach",
+          "description": "Infiltrate ${location} undetected",
+          "success_criteria": "infiltration_successful"
+        },
+        {
+          "type": "capture_target",
+          "description": "Capture ${criminal_name} alive",
+          "success_criteria": "target_captured_alive"
+        },
+        {
+          "type": "exfiltration",
+          "description": "Extract with prisoner through hostile territory",
+          "success_criteria": "prisoner_delivered"
+        }
+      ],
+      "rewards": {
+        "credits": 40000,
+        "reputation": 50,
+        "bonus_conditions": [
+          {
+            "condition": "zero_casualties",
+            "credits": 10000,
+            "description": "Clean operation bonus"
+          },
+          {
+            "condition": "stealth_maintained",
+            "credits": 8000,
+            "description": "Ghost extraction bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "elite",
+        "stealth_capability": "expert",
+        "international_clearance": true
+      },
+      "location": {
+        "spawn_type": "protected_territory",
+        "difficulty": "extreme_danger"
+      },
+      "time_limit": 3600,
+      "variables": {
+        "criminal_name": ["General Volkov", "Colonel Mendez", "Commander Stone", "Admiral Chen", "Major Reeves"],
+        "war_crimes": ["genocide", "war atrocities", "civilian massacres", "chemical weapons use"],
+        "conflict": ["the Border Wars", "the Colony Uprising", "the Corporate Wars", "the Sector Conflict"],
+        "location": ["neutral territory", "protected compound", "sympathetic nation", "hidden fortress"],
+        "protection": ["private military", "loyal soldiers", "government forces", "mercenary"]
+      },
+      "ai_config": {
+        "enemy_waves": 5,
+        "enemies_per_wave": "4-8",
+        "enemy_types": ["guards", "military", "special_forces"],
+        "alert_level": "maximum",
+        "extraction_pursuit": "relentless"
+      },
+      "repeatable": false,
+      "faction_affected": ["International Tribunal", "Allied Forces"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "bounty_corporate_target_001",
+      "type": "bounty_hunting",
+      "title": "Corporate Bounty - ${executive_name}",
+      "description": "${executive_name}, ${position} at ${corporation}, embezzled ${amount} and fled with trade secrets. Corporation wants them back quietly - alive only. They're hiding at ${location} under ${alias}. Discretion required.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "investigation",
+          "description": "Verify identity of ${alias} at ${location}",
+          "success_criteria": "target_confirmed"
+        },
+        {
+          "type": "discrete_capture",
+          "description": "Capture ${executive_name} without public incident",
+          "success_criteria": "quiet_apprehension"
+        },
+        {
+          "type": "corporate_delivery",
+          "description": "Deliver to corporation's security team",
+          "success_criteria": "handoff_completed"
+        }
+      ],
+      "rewards": {
+        "credits": 18000,
+        "reputation": 15,
+        "bonus_conditions": [
+          {
+            "condition": "zero_public_exposure",
+            "credits": 6000,
+            "description": "Perfect discretion bonus"
+          },
+          {
+            "condition": "data_recovered",
+            "credits": 5000,
+            "description": "Trade secrets recovery bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "investigation_skills": "advanced",
+        "discretion_rating": "high",
+        "corporate_contacts": true
+      },
+      "location": {
+        "spawn_type": "civilian_area",
+        "difficulty": "stealth_challenge"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "executive_name": ["James Richter", "Sarah Kowalski", "David Chen", "Elena Volkov", "Marcus Drake"],
+        "position": ["CFO", "VP of Operations", "Chief Scientist", "Senior Executive", "Division Head"],
+        "corporation": ["MegaCorp Industries", "Stellar Dynamics", "Nova Systems", "Titan Corporation"],
+        "amount": ["50 million credits", "100 million credits", "200 million credits"],
+        "location": ["luxury resort", "neutral colony", "space station", "orbital habitat"],
+        "alias": ["John Smith", "Maria Garcia", "Tom Anderson", "Lisa Wong"]
+      },
+      "ai_config": {
+        "enemy_waves": 1,
+        "enemies_per_wave": "0-2",
+        "enemy_types": ["bodyguards", "hired_security"],
+        "civilian_presence": true,
+        "escape_contingencies": 3
+      },
+      "repeatable": true,
+      "faction_affected": ["Corporate Security", "Bounty Hunters Guild"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "bounty_multi_target_001",
+      "type": "bounty_hunting",
+      "title": "Gang Sweep - ${gang_name}",
+      "description": "${target_count} members of ${gang_name} have bounties totaling ${total_bounty}. They're scattered across ${area}. Track them all down within the time limit. Each capture adds to your payout. This is a marathon, not a sprint.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "track_multiple",
+          "description": "Locate ${target_count} gang members across ${area}",
+          "success_criteria": "all_targets_located"
+        },
+        {
+          "type": "serial_apprehension",
+          "description": "Capture or eliminate all targets",
+          "success_criteria": "minimum_captures_achieved"
+        },
+        {
+          "type": "mass_bounty_claim",
+          "description": "Claim all bounties at central office",
+          "success_criteria": "bounties_collected"
+        }
+      ],
+      "rewards": {
+        "credits": 32000,
+        "reputation": 40,
+        "bonus_conditions": [
+          {
+            "condition": "all_captured_alive",
+            "credits": 10000,
+            "description": "Perfect capture bonus"
+          },
+          {
+            "condition": "complete_in_90_minutes",
+            "credits": 8000,
+            "description": "Speed sweep bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "veteran",
+        "fast_ship": true,
+        "tracking_equipment": "advanced"
+      },
+      "location": {
+        "spawn_type": "multi_location",
+        "difficulty": "logistics_challenge"
+      },
+      "time_limit": 3600,
+      "variables": {
+        "target_count": ["5", "7", "10"],
+        "gang_name": ["Black Stars", "Void Rats", "Red Hand", "Steel Wolves"],
+        "total_bounty": ["150,000 credits", "200,000 credits", "250,000 credits"],
+        "area": ["the sector", "multiple systems", "the outer rim", "trade corridor"]
+      },
+      "ai_config": {
+        "enemy_waves": 7,
+        "enemies_per_wave": "1-2",
+        "enemy_types": ["gang_members", "lookouts"],
+        "targets_warn_each_other": true,
+        "difficulty_escalation": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Bounty Hunters Guild", "Law Enforcement"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "bounty_legendary_target_001",
+      "type": "bounty_hunting",
+      "title": "Legendary Bounty - ${legend_name}",
+      "description": "${legend_name}, the ${title}, has evaded capture for ${years}. Wanted for ${crimes}. Current bounty: ${amount}. Last seen at ${location}. Dozens have tried and failed. Are you skilled enough to succeed where others haven't?",
+      "difficulty": "Legendary",
+      "objectives": [
+        {
+          "type": "legendary_hunt",
+          "description": "Track the elusive ${legend_name} to ${location}",
+          "success_criteria": "legend_located"
+        },
+        {
+          "type": "ultimate_confrontation",
+          "description": "Defeat ${legend_name} in combat",
+          "success_criteria": "legend_defeated"
+        },
+        {
+          "type": "historic_claim",
+          "description": "Claim the legendary bounty",
+          "success_criteria": "bounty_awarded"
+        }
+      ],
+      "rewards": {
+        "credits": 50000,
+        "reputation": 100,
+        "bonus_conditions": [
+          {
+            "condition": "solo_takedown",
+            "credits": 15000,
+            "description": "Lone wolf legendary bonus"
+          },
+          {
+            "condition": "captured_alive",
+            "credits": 20000,
+            "description": "Impossible capture bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "combat_rating": "legendary",
+        "reputation": "renowned",
+        "special_equipment": true
+      },
+      "location": {
+        "spawn_type": "legendary_hideout",
+        "difficulty": "maximum_threat"
+      },
+      "time_limit": 3600,
+      "variables": {
+        "legend_name": ["The Ghost", "Phantom", "The Untouchable", "Shadow King", "Death's Door"],
+        "title": ["most wanted criminal", "legendary outlaw", "master assassin", "phantom thief"],
+        "years": ["10 years", "15 years", "two decades", "a generation"],
+        "crimes": ["hundreds of murders", "countless heists", "galactic terrorism", "mass destruction"],
+        "amount": ["1 million credits", "2 million credits", "5 million credits"],
+        "location": ["unknown space", "legendary fortress", "phantom base", "mythical hideout"]
+      },
+      "ai_config": {
+        "enemy_waves": 6,
+        "enemies_per_wave": "3-8",
+        "enemy_types": ["elite_guards", "legendary_target"],
+        "boss_mechanics": true,
+        "legendary_abilities": true,
+        "escape_options": 5
+      },
+      "repeatable": false,
+      "faction_affected": ["Bounty Hunters Guild", "Galactic Law Enforcement"],
+      "moral_alignment": "neutral"
+    },
+    {
+      "mission_id": "bounty_escaped_convict_001",
+      "type": "bounty_hunting",
+      "title": "Prison Break - ${convict_name}",
+      "description": "${convict_name} escaped from ${prison} ${time_ago}. They're dangerous, desperate, and heading for ${destination}. Recapture before they reach safety. Dead or alive - authorities don't care which.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "pursuit",
+          "description": "Chase ${convict_name} heading to ${destination}",
+          "success_criteria": "intercept_before_arrival"
+        },
+        {
+          "type": "combat_capture",
+          "description": "Apprehend the desperate fugitive",
+          "success_criteria": "convict_neutralized"
+        },
+        {
+          "type": "return_custody",
+          "description": "Return ${convict_name} to authorities",
+          "success_criteria": "bounty_claimed"
+        }
+      ],
+      "rewards": {
+        "credits": 16000,
+        "reputation": 20,
+        "bonus_conditions": [
+          {
+            "condition": "captured_before_border",
+            "credits": 5000,
+            "description": "Border prevention bonus"
+          },
+          {
+            "condition": "minimal_pursuit_time",
+            "credits": 3000,
+            "description": "Quick capture bonus"
+          }
+        ]
+      },
+      "requirements": {
+        "fast_ship": true,
+        "combat_rating": "experienced",
+        "restraint_equipment": true
+      },
+      "location": {
+        "spawn_type": "pursuit_route",
+        "difficulty": "time_pressure"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "convict_name": ["Victor Kane", "Sarah Blackwell", "Chen Wei", "Maria Santos", "Jake Thornton"],
+        "prison": ["Maximum Security Facility", "Orbital Prison", "Penal Colony", "Military Brig"],
+        "time_ago": ["hours ago", "yesterday", "two days ago"],
+        "destination": ["neutral territory", "outlaw haven", "pirate base", "border crossing"]
+      },
+      "ai_config": {
+        "enemy_waves": 2,
+        "enemies_per_wave": "1-2",
+        "enemy_types": ["escaped_convict", "accomplices"],
+        "pursuit_intensity": "desperate",
+        "surrender_unlikely": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Prison Authority", "Law Enforcement"],
+      "moral_alignment": "neutral"
+    }
+  ]
+}

@@ -1,0 +1,423 @@
+{
+  "mission_category": "assassination",
+  "version": "1.0",
+  "description": "Assassination mission templates for elimination contracts, targeted killings, and stealth operations",
+  "templates": [
+    {
+      "mission_id": "assassination_single_001",
+      "type": "assassination_target",
+      "title": "Eliminate ${target_name}",
+      "description": "${client_name} has issued a contract on ${target_name}, a ${target_type} operating in ${location}. Eliminate the target by any means necessary.",
+      "difficulty": "Medium",
+      "objectives": [
+        {
+          "type": "target_elimination",
+          "description": "Eliminate ${target_name}",
+          "success_criteria": "target_killed"
+        },
+        {
+          "type": "confirmation",
+          "description": "Confirm kill and collect bounty proof",
+          "success_criteria": "proof_collected"
+        },
+        {
+          "type": "escape",
+          "description": "Escape the area without capture",
+          "success_criteria": "player_escaped"
+        }
+      ],
+      "rewards": {
+        "credits": 15000,
+        "reputation": -10,
+        "faction_reputation": {
+          "target_faction": -30,
+          "employer_faction": 20
+        },
+        "bonus_conditions": [
+          {
+            "condition": "clean_kill",
+            "credits": 5000,
+            "description": "No witnesses"
+          },
+          {
+            "condition": "quick_escape",
+            "credits": 3000,
+            "description": "Escaped within 60 seconds"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 3,
+        "reputation_minimum": -25,
+        "recommended_weapons": ["precision", "lethal"],
+        "legal_status": "illegal"
+      },
+      "location": {
+        "spawn_type": "populated_area",
+        "security_level": "moderate"
+      },
+      "time_limit": 1800,
+      "variables": {
+        "target_name": ["Captain Vex", "Commander Drake", "Officer Hayes", "Agent Morrison", "Doctor Chen"],
+        "target_type": ["Corrupt Official", "Crime Lord", "Corporate Executive", "Military Officer", "Rogue Scientist"],
+        "location": ["Trade Station", "Mining Outpost", "Corporate Hub", "Military Base", "Research Facility"],
+        "client_name": ["Anonymous Client", "Resistance Cell", "Rival Corporation", "Crime Syndicate", "Political Faction"]
+      },
+      "ai_config": {
+        "target_escort": "2-4",
+        "security_forces": "moderate",
+        "alert_response": "fast",
+        "backup_arrival_time": 120
+      },
+      "repeatable": true,
+      "faction_affected": ["Bounty_Hunters_Guild", "Criminal_Underworld"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "assassination_stealth_001",
+      "type": "assassination_stealth",
+      "title": "Silent Elimination: ${target_name}",
+      "description": "High-value target ${target_name} must be eliminated without raising alarms. Stealth is mandatory. Use silenced weapons and avoid detection.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "infiltration",
+          "description": "Infiltrate ${facility_name} undetected",
+          "success_criteria": "no_alarms"
+        },
+        {
+          "type": "stealth_kill",
+          "description": "Eliminate ${target_name} silently",
+          "success_criteria": "silent_elimination"
+        },
+        {
+          "type": "exfiltration",
+          "description": "Exfiltrate without detection",
+          "success_criteria": "stealth_maintained"
+        }
+      ],
+      "rewards": {
+        "credits": 25000,
+        "reputation": -15,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_stealth",
+            "credits": 15000,
+            "description": "Zero detection throughout mission"
+          },
+          {
+            "condition": "no_bodies_found",
+            "credits": 8000,
+            "description": "Body hidden successfully"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 5,
+        "stealth_rating": 4,
+        "recommended_weapons": ["silenced", "melee", "poison"],
+        "recommended_equipment": ["cloaking_device", "noise_dampener"]
+      },
+      "location": {
+        "spawn_type": "secure_facility",
+        "security_level": "high"
+      },
+      "time_limit": 2400,
+      "variables": {
+        "target_name": ["CEO Blackwood", "General Carver", "Admiral Sterling", "Director Kane", "Chairman Volkov"],
+        "facility_name": ["Corporate Tower", "Military Command", "Research Lab", "Government Complex", "Private Estate"]
+      },
+      "ai_config": {
+        "guard_patrols": "8-12",
+        "patrol_patterns": "complex",
+        "camera_coverage": "extensive",
+        "alarm_sensitivity": "high",
+        "target_security": "maximum"
+      },
+      "repeatable": true,
+      "faction_affected": ["Shadow_Operatives", "Elite_Assassins"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "assassination_public_001",
+      "type": "assassination_public",
+      "title": "Public Execution: ${target_name}",
+      "description": "Eliminate ${target_name} in public view at ${event_name}. The client wants this to be a message. Expect heavy security response.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "public_assassination",
+          "description": "Eliminate ${target_name} during ${event_name}",
+          "success_criteria": "target_killed_publicly"
+        },
+        {
+          "type": "message_delivery",
+          "description": "Leave evidence of ${message_type}",
+          "success_criteria": "message_left"
+        },
+        {
+          "type": "combat_escape",
+          "description": "Fight through security and escape",
+          "success_criteria": "escaped_alive"
+        }
+      ],
+      "rewards": {
+        "credits": 35000,
+        "reputation": -30,
+        "faction_reputation": {
+          "target_faction": -50,
+          "employer_faction": 40
+        },
+        "bonus_conditions": [
+          {
+            "condition": "no_civilian_casualties",
+            "credits": 10000,
+            "reputation": 10,
+            "description": "Avoided collateral damage"
+          },
+          {
+            "condition": "survived_escape",
+            "credits": 15000,
+            "description": "Escaped without critical damage"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 7,
+        "recommended_weapons": ["high_damage", "rapid_fire"],
+        "recommended_shields": "heavy",
+        "escape_plan": "required"
+      },
+      "location": {
+        "spawn_type": "public_venue",
+        "security_level": "extreme"
+      },
+      "time_limit": 1200,
+      "variables": {
+        "target_name": ["Governor Ashford", "Ambassador Tanaka", "Senator Walsh", "Judge Reeves", "Magnate Luxor"],
+        "event_name": ["Peace Summit", "Trade Conference", "Victory Celebration", "Award Ceremony", "Political Rally"],
+        "message_type": ["Political Statement", "Factional Warning", "Corporate Message", "Revolutionary Symbol", "Vengeance Declaration"]
+      },
+      "ai_config": {
+        "security_forces": "15-20",
+        "response_waves": 4,
+        "reinforcement_speed": "immediate",
+        "civilian_count": "50-100",
+        "escape_difficulty": "extreme"
+      },
+      "repeatable": false,
+      "faction_affected": ["Revolutionary_Front", "Political_Radicals"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "assassination_sniper_001",
+      "type": "assassination_longrange",
+      "title": "Long Range Strike: ${target_name}",
+      "description": "Eliminate ${target_name} from long range. Set up position, wait for opportunity, take the shot, and disappear before security responds.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "position_setup",
+          "description": "Reach sniping position ${distance}m away",
+          "success_criteria": "position_reached"
+        },
+        {
+          "type": "target_acquisition",
+          "description": "Identify and track ${target_name}",
+          "success_criteria": "target_identified"
+        },
+        {
+          "type": "precision_elimination",
+          "description": "Eliminate target with single shot",
+          "success_criteria": "one_shot_kill"
+        },
+        {
+          "type": "rapid_extraction",
+          "description": "Evacuate before security arrives",
+          "success_criteria": "extracted_in_time"
+        }
+      ],
+      "rewards": {
+        "credits": 22000,
+        "reputation": -12,
+        "bonus_conditions": [
+          {
+            "condition": "headshot_kill",
+            "credits": 8000,
+            "description": "Perfect precision"
+          },
+          {
+            "condition": "zero_traces",
+            "credits": 6000,
+            "description": "Left no evidence"
+          }
+        ]
+      },
+      "requirements": {
+        "sniper_rifle": true,
+        "min_combat_rating": 4,
+        "marksmanship_skill": 6,
+        "recommended_equipment": ["ballistic_computer", "wind_compensator"]
+      },
+      "location": {
+        "spawn_type": "urban_environment",
+        "security_level": "high"
+      },
+      "time_limit": 2100,
+      "variables": {
+        "target_name": ["Colonel Bennett", "Chief Inspector Rhodes", "Warden Cross", "Director Vale", "Minister Feng"],
+        "distance": [800, 1000, 1500, 2000]
+      },
+      "ai_config": {
+        "target_movement": "unpredictable",
+        "window_of_opportunity": "30-90 seconds",
+        "security_response": "within 60 seconds",
+        "investigation_radius": 500
+      },
+      "repeatable": true,
+      "faction_affected": ["Mercenary_Guild", "Professional_Killers"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "assassination_sabotage_001",
+      "type": "assassination_accident",
+      "title": "Accidental Death: ${target_name}",
+      "description": "Eliminate ${target_name} but make it look like an accident. Sabotage ${accident_method} to create plausible deniability. No direct combat allowed.",
+      "difficulty": "Hard",
+      "objectives": [
+        {
+          "type": "infiltration",
+          "description": "Access ${target_location} unseen",
+          "success_criteria": "no_detection"
+        },
+        {
+          "type": "sabotage",
+          "description": "Sabotage ${accident_method}",
+          "success_criteria": "sabotage_complete"
+        },
+        {
+          "type": "accidental_kill",
+          "description": "Ensure ${target_name}'s 'accidental' death",
+          "success_criteria": "death_ruled_accidental"
+        },
+        {
+          "type": "clean_exit",
+          "description": "Leave no trace of involvement",
+          "success_criteria": "zero_suspicion"
+        }
+      ],
+      "rewards": {
+        "credits": 28000,
+        "reputation": -5,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_accident",
+            "credits": 12000,
+            "description": "No investigation triggered"
+          },
+          {
+            "condition": "creative_method",
+            "credits": 8000,
+            "description": "Unique sabotage approach"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 2,
+        "technical_skill": 5,
+        "stealth_rating": 4,
+        "recommended_equipment": ["hacking_tools", "sabotage_kit", "forensic_cleaner"]
+      },
+      "location": {
+        "spawn_type": "semi_public",
+        "security_level": "moderate"
+      },
+      "time_limit": 2700,
+      "variables": {
+        "target_name": ["Industrialist Morgan", "Scientist Park", "Engineer Volkov", "Architect Sato", "Trader Henley"],
+        "target_location": ["Private Ship", "Personal Quarters", "Executive Office", "Research Lab", "Workshop"],
+        "accident_method": ["Life Support System", "Engine Coolant", "Airlock Seal", "Power Regulator", "Gravity Generator"]
+      },
+      "ai_config": {
+        "witnesses_present": "2-5",
+        "investigation_triggered": false,
+        "forensic_scan_probability": 0.3,
+        "no_combat_allowed": true
+      },
+      "repeatable": true,
+      "faction_affected": ["Shadow_Operatives", "Corporate_Fixers"],
+      "moral_alignment": "dark"
+    },
+    {
+      "mission_id": "assassination_multiple_001",
+      "type": "assassination_group",
+      "title": "Mass Elimination: ${target_group}",
+      "description": "Eliminate all members of ${target_group} meeting at ${meeting_location}. ${target_count} targets must be neutralized. Time-sensitive operation.",
+      "difficulty": "Very Hard",
+      "objectives": [
+        {
+          "type": "simultaneous_elimination",
+          "description": "Eliminate all ${target_count} targets",
+          "success_criteria": "all_targets_dead"
+        },
+        {
+          "type": "prevent_escape",
+          "description": "Stop any targets from fleeing",
+          "success_criteria": "zero_escapees"
+        },
+        {
+          "type": "time_constraint",
+          "description": "Complete within ${time_window} minutes",
+          "success_criteria": "time_limit_met"
+        },
+        {
+          "type": "evidence_collection",
+          "description": "Collect evidence of their crimes",
+          "success_criteria": "evidence_gathered"
+        }
+      ],
+      "rewards": {
+        "credits": 40000,
+        "reputation": -20,
+        "bonus_conditions": [
+          {
+            "condition": "perfect_execution",
+            "credits": 20000,
+            "description": "All targets in under 5 minutes"
+          },
+          {
+            "condition": "no_alerts",
+            "credits": 10000,
+            "description": "Silent elimination of entire group"
+          }
+        ]
+      },
+      "requirements": {
+        "min_combat_rating": 8,
+        "recommended_weapons": ["area_effect", "rapid_fire", "high_capacity"],
+        "recommended_equipment": ["tactical_scanner", "breach_charges"]
+      },
+      "location": {
+        "spawn_type": "secure_meeting",
+        "security_level": "extreme"
+      },
+      "time_limit": 1500,
+      "variables": {
+        "target_group": ["Crime Syndicate Leaders", "Corrupt Officials", "Terrorist Cell", "Pirate Council", "Cartel Bosses"],
+        "target_count": [5, 7, 10],
+        "meeting_location": ["Abandoned Station", "Secret Hideout", "Neutral Territory", "Underground Facility", "Remote Outpost"],
+        "time_window": [10, 12, 15]
+      },
+      "ai_config": {
+        "targets_armed": true,
+        "bodyguards_per_target": "2-3",
+        "escape_routes": 3,
+        "panic_response": "coordinated",
+        "backup_forces": "possible"
+      },
+      "repeatable": false,
+      "faction_affected": ["Vigilante_Justice", "Law_Enforcement"],
+      "moral_alignment": "neutral"
+    }
+  ]
+}

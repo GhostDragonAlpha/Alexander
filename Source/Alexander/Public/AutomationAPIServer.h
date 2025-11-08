@@ -17,6 +17,18 @@ class FSocket;
 struct FIPv4Endpoint;
 
 /**
+ * Wrapper struct for TArray<FObserverMeasurement> to work in TMap
+ */
+USTRUCT()
+struct FObserverMeasurementArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<FObserverMeasurement> Measurements;
+};
+
+/**
  * HTTP-based Automation API Server
  * Allows Python scripts to control the game for automated testing
  * Runs in dedicated server mode for autonomous development
@@ -170,7 +182,8 @@ protected:
 	float TotalProcessingTime = 0.0f;
 
 	// Observation tracking (target_id -> array of observations)
-	TMap<int32, TArray<FObserverMeasurement>> StoredObservations;
+	UPROPERTY()
+	TMap<int32, FObserverMeasurementArray> StoredObservations;
 
 	// Next observation ID counter
 	int32 NextObservationID = 1;

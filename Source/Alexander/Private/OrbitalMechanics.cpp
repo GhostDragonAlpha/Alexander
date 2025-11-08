@@ -10,6 +10,7 @@
 #include "Math/Rotator.h"
 #include "Math/Transform.h"
 #include "Components/PrimitiveComponent.h"
+#include "PerformanceProfilerSubsystem.h"
 
 using namespace OrbitalConstants;
 
@@ -60,6 +61,10 @@ void UOrbitalMechanics::BeginPlay()
 void UOrbitalMechanics::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+    
+    // Profile orbital mechanics
+    UPerformanceProfilerSubsystem* Profiler = GetWorld()->GetSubsystem<UPerformanceProfilerSubsystem>();
+    PROFILE_SCOPE(Profiler, FName("OrbitalMechanics"));
     
     // Apply time warp
     const double ScaledDeltaTime = DeltaTime * TimeWarpFactor;

@@ -1,0 +1,155 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Engine/DataTable.h"
+
+/**
+ * Mission objective types - simplified to avoid compilation issues
+ */
+UENUM(BlueprintType)
+enum class EMissionObjectiveTypeSimple : uint8
+{
+    Location,
+    Item,
+    Interaction,
+    Destroy,
+    Escort,
+    Deliver,
+    Survey,
+    Mine
+};
+
+/**
+ * Single mission objective - simplified version
+ */
+USTRUCT(BlueprintType)
+struct FMissionObjectiveSimple
+{
+    GENERATED_BODY()
+
+    /** Description of what player needs to do */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
+    FString Description;
+
+    /** Type of objective */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
+    EMissionObjectiveTypeSimple Type;
+
+    /** Target location, item ID, or object name */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
+    FString Target;
+
+    /** How many of target are needed */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
+    int32 RequiredQuantity;
+
+    /** How many of player has collected/completed */
+    UPROPERTY(BlueprintReadOnly, Category = "Objective")
+    int32 CurrentQuantity;
+
+    /** Whether this objective is completed */
+    UPROPERTY(BlueprintReadOnly, Category = "Objective")
+    bool bIsCompleted;
+
+    FMissionObjectiveSimple()
+        : Description(TEXT(""))
+        , Type(EMissionObjectiveTypeSimple::Location)
+        , Target(TEXT(""))
+        , RequiredQuantity(1)
+        , CurrentQuantity(0)
+        , bIsCompleted(false)
+    {}
+};
+
+/**
+ * Mission rewards structure - simplified
+ */
+USTRUCT(BlueprintType)
+struct FMissionRewardsSimple
+{
+    GENERATED_BODY()
+
+    /** Credit reward amount */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewards")
+    int32 Credits;
+
+    /** Experience points awarded */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewards")
+    int32 Experience;
+
+    /** Reputation points with relevant faction */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewards")
+    int32 Reputation;
+
+    /** Item IDs to reward */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewards")
+    TArray<FString> Items;
+
+    /** Time bonus credits (awarded if completed quickly) */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rewards")
+    int32 TimeBonus;
+
+    FMissionRewardsSimple()
+        : Credits(0)
+        , Experience(0)
+        , Reputation(0)
+        , Items()
+        , TimeBonus(0)
+    {}
+};
+
+/**
+ * Complete mission template structure - simplified
+ */
+USTRUCT(BlueprintType)
+struct FMissionTemplateSimple
+{
+    GENERATED_BODY()
+
+    /** Unique identifier for this mission */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+    FString MissionID;
+
+    /** Display title of mission */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+    FString Title;
+
+    /** Brief description of mission */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+    FString Description;
+
+    /** All objectives for this mission */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+    TArray<FMissionObjectiveSimple> Objectives;
+
+    /** Rewards for completing mission */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+    FMissionRewardsSimple Rewards;
+
+    /** Mission IDs that must be completed first */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+    TArray<FString> Prerequisites;
+
+    /** Time limit in seconds (0 = no limit) */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+    int32 TimeLimit;
+
+    /** Location where mission starts */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
+    FString Location;
+
+    FMissionTemplateSimple()
+        : MissionID(TEXT(""))
+        , Title(TEXT(""))
+        , Description(TEXT(""))
+        , Objectives()
+        , Rewards()
+        , Prerequisites()
+        , TimeLimit(0)
+        , Location(TEXT(""))
+    {}
+};
+
+#include "MissionTypesMinimal.generated.h"

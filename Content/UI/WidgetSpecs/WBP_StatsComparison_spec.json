@@ -1,0 +1,471 @@
+{
+  "widgetName": "WBP_StatsComparison",
+  "description": "Right panel showing before/after comparison of ship stats when equipping different parts",
+  "location": "Content/UI/Widgets/Customization/Panels/",
+  "layout": {
+    "rootType": "Border",
+    "size": {
+      "desktop": { "width": 300 },
+      "vr": { "width": 600 }
+    },
+    "backgroundColor": "#2A2A2A",
+    "borderColor": "#424242",
+    "padding": [16, 16, 16, 16]
+  },
+  "components": [
+    {
+      "name": "Text_Header",
+      "type": "Text",
+      "text": "STATS COMPARISON",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 24,
+          "vr": 48
+        }
+      },
+      "color": "#00BCD4"
+    },
+    {
+      "name": "Text_CurrentHeader",
+      "type": "Text",
+      "text": "CURRENT LOADOUT",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#FFFFFF",
+      "underline": {
+        "thickness": 1,
+        "color": "#616161"
+      }
+    },
+    {
+      "name": "VBox_CurrentStats",
+      "type": "VerticalBox",
+      "description": "Contains current stat rows",
+      "statRows": [
+        {
+          "label": "Speed",
+          "variable": "CurrentSpeed"
+        },
+        {
+          "label": "Armor",
+          "variable": "CurrentArmor"
+        },
+        {
+          "label": "Shields",
+          "variable": "CurrentShields"
+        },
+        {
+          "label": "Handling",
+          "variable": "CurrentHandling"
+        },
+        {
+          "label": "Firepower",
+          "variable": "CurrentFirepower"
+        }
+      ]
+    },
+    {
+      "name": "Text_NewHeader",
+      "type": "Text",
+      "text": "WITH CHANGES",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#FFFFFF"
+    },
+    {
+      "name": "VBox_NewStats",
+      "type": "VerticalBox",
+      "description": "Contains new stat rows with arrows and differences",
+      "statRowComponents": [
+        {
+          "name": "HBox_StatRow",
+          "children": [
+            {
+              "name": "Text_StatLabel",
+              "type": "Text",
+              "font": {
+                "size": {
+                  "desktop": 14,
+                  "vr": 28
+                }
+              },
+              "color": "#BDBDBD",
+              "width": 120
+            },
+            {
+              "name": "Text_NewValue",
+              "type": "Text",
+              "font": {
+                "family": "Roboto Bold",
+                "size": {
+                  "desktop": 16,
+                  "vr": 32
+                }
+              },
+              "color": "#FFFFFF",
+              "alignment": "Right"
+            },
+            {
+              "name": "Image_Arrow",
+              "type": "Image",
+              "size": {
+                "desktop": [16, 16],
+                "vr": [32, 32]
+              },
+              "textures": {
+                "up": "T_Arrow_Up",
+                "down": "T_Arrow_Down",
+                "neutral": "T_Arrow_Neutral"
+              },
+              "tintLogic": {
+                "up": "#4CAF50",
+                "down": "#F44336",
+                "neutral": "#9E9E9E"
+              }
+            },
+            {
+              "name": "Text_Difference",
+              "type": "Text",
+              "font": {
+                "family": "Roboto SemiBold",
+                "size": {
+                  "desktop": 14,
+                  "vr": 28
+                }
+              },
+              "colorLogic": {
+                "positive": "#4CAF50",
+                "negative": "#F44336",
+                "zero": "#9E9E9E"
+              },
+              "format": "+{value} or -{value}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Text_SummaryHeader",
+      "type": "Text",
+      "text": "TOTAL CHANGES",
+      "font": {
+        "family": "Roboto SemiBold",
+        "size": {
+          "desktop": 16,
+          "vr": 32
+        }
+      },
+      "color": "#FFFFFF"
+    },
+    {
+      "name": "ScrollBox_Summary",
+      "type": "ScrollBox",
+      "children": [
+        {
+          "name": "VBox_SummaryList",
+          "type": "VerticalBox",
+          "description": "Dynamically populated with summary entries"
+        }
+      ]
+    },
+    {
+      "name": "Button_ApplyChanges",
+      "type": "Button",
+      "text": "APPLY CHANGES",
+      "size": {
+        "desktop": { "width": "Fill", "height": 48 },
+        "vr": { "width": "Fill", "height": 96 }
+      },
+      "style": {
+        "normal": "#4CAF50",
+        "hovered": "#45A049",
+        "pressed": "#388E3C",
+        "disabled": "#424242"
+      },
+      "font": {
+        "family": "Roboto Bold",
+        "size": {
+          "desktop": 18,
+          "vr": 36
+        }
+      },
+      "textColor": "#FFFFFF"
+    }
+  ],
+  "variables": [
+    {
+      "name": "CurrentLoadoutStats",
+      "type": "FShipStats",
+      "description": "Current equipped loadout stats"
+    },
+    {
+      "name": "PreviewLoadoutStats",
+      "type": "FShipStats",
+      "description": "Preview stats with pending changes"
+    },
+    {
+      "name": "bHasPendingChanges",
+      "type": "bool",
+      "default": false,
+      "description": "Whether there are pending changes to apply"
+    },
+    {
+      "name": "SubsystemReference",
+      "type": "UShipCustomizationSubsystem*"
+    }
+  ],
+  "functions": [
+    {
+      "name": "UpdateComparison",
+      "inputs": [
+        {
+          "name": "Current",
+          "type": "FShipStats"
+        },
+        {
+          "name": "Preview",
+          "type": "FShipStats"
+        }
+      ],
+      "description": "Updates the comparison display with new stats",
+      "logic": [
+        "Set CurrentLoadoutStats = Current",
+        "Set PreviewLoadoutStats = Preview",
+        "Update current stats display",
+        "Update new stats display",
+        "Calculate differences",
+        "Update arrow directions",
+        "Update difference colors",
+        "Regenerate summary list",
+        "Set bHasPendingChanges = (Current != Preview)",
+        "Play Anim_StatsUpdated"
+      ]
+    },
+    {
+      "name": "RefreshDisplay",
+      "description": "Refreshes all displayed values"
+    },
+    {
+      "name": "ClearComparison",
+      "description": "Clears all comparison data"
+    },
+    {
+      "name": "GetDifferenceColor",
+      "inputs": [
+        {
+          "name": "Difference",
+          "type": "float"
+        }
+      ],
+      "returnType": "FLinearColor",
+      "pure": true,
+      "description": "Returns color based on difference value",
+      "logic": {
+        "positive": "#4CAF50",
+        "negative": "#F44336",
+        "zero": "#9E9E9E"
+      }
+    },
+    {
+      "name": "GetArrowTexture",
+      "inputs": [
+        {
+          "name": "Difference",
+          "type": "float"
+        }
+      ],
+      "returnType": "UTexture2D*",
+      "pure": true,
+      "description": "Returns arrow texture based on difference",
+      "logic": {
+        "positive": "T_Arrow_Up",
+        "negative": "T_Arrow_Down",
+        "zero": "T_Arrow_Neutral"
+      }
+    },
+    {
+      "name": "GenerateSummaryList",
+      "returnType": "TArray<FText>",
+      "pure": true,
+      "description": "Generates summary text entries",
+      "format": {
+        "improvement": "+ Improved {StatName} (+{Percent}%)",
+        "penalty": "- Reduced {StatName} (-{Percent}%)"
+      },
+      "logic": [
+        "For each stat type:",
+        "  Calculate percent change",
+        "  If change > 0: Add improvement entry",
+        "  If change < 0: Add penalty entry",
+        "Return array of text entries"
+      ]
+    },
+    {
+      "name": "OnApplyChangesClicked",
+      "description": "Handler for apply button"
+    }
+  ],
+  "eventDispatchers": [
+    {
+      "name": "OnApplyChanges",
+      "description": "Fired when apply changes button is clicked"
+    }
+  ],
+  "animations": [
+    {
+      "name": "Anim_StatsUpdated",
+      "duration": 0.4,
+      "tracks": [
+        {
+          "description": "Number counter animation",
+          "effect": "Interpolate from old to new value"
+        },
+        {
+          "description": "Arrow fade in with scale",
+          "target": "Image_Arrow",
+          "property": "RenderOpacity",
+          "start": 0.0,
+          "end": 1.0
+        },
+        {
+          "target": "Image_Arrow",
+          "property": "RenderTransform.Scale",
+          "start": [0.5, 0.5],
+          "end": [1.0, 1.0]
+        }
+      ]
+    },
+    {
+      "name": "Anim_PositiveChange",
+      "duration": 0.5,
+      "description": "Green glow pulse on improved stats",
+      "tracks": [
+        {
+          "target": "Stat rows with positive changes",
+          "property": "Background glow",
+          "color": "#4CAF50",
+          "opacity": [0.0, 0.3, 0.0]
+        }
+      ]
+    },
+    {
+      "name": "Anim_NegativeChange",
+      "duration": 0.5,
+      "description": "Red glow pulse on reduced stats",
+      "tracks": [
+        {
+          "target": "Stat rows with negative changes",
+          "property": "Background glow",
+          "color": "#F44336",
+          "opacity": [0.0, 0.3, 0.0]
+        }
+      ]
+    },
+    {
+      "name": "Anim_ApplySuccess",
+      "duration": 0.6,
+      "tracks": [
+        {
+          "description": "Button flash green"
+        },
+        {
+          "description": "Entire panel briefly highlighted"
+        }
+      ]
+    }
+  ],
+  "bindings": [
+    {
+      "property": "Current Stats Values",
+      "source": "CurrentLoadoutStats"
+    },
+    {
+      "property": "New Stats Values",
+      "source": "PreviewLoadoutStats"
+    },
+    {
+      "property": "Difference Values",
+      "source": "Calculated (PreviewLoadoutStats - CurrentLoadoutStats)"
+    },
+    {
+      "property": "Arrow Images",
+      "source": "GetArrowTexture(Difference)"
+    },
+    {
+      "property": "Summary List",
+      "source": "GenerateSummaryList()"
+    },
+    {
+      "property": "Button_ApplyChanges.IsEnabled",
+      "source": "bHasPendingChanges"
+    }
+  ],
+  "statsTracked": [
+    {
+      "name": "Speed",
+      "displayName": "Speed",
+      "unit": "units/s"
+    },
+    {
+      "name": "Armor",
+      "displayName": "Armor",
+      "unit": "points"
+    },
+    {
+      "name": "Shields",
+      "displayName": "Shields",
+      "unit": "points"
+    },
+    {
+      "name": "Handling",
+      "displayName": "Handling",
+      "unit": "points"
+    },
+    {
+      "name": "Firepower",
+      "displayName": "Firepower",
+      "unit": "DPS"
+    }
+  ],
+  "vrAdaptations": {
+    "statBars": {
+      "mode": "3D progress bars visualization"
+    },
+    "colorCoding": {
+      "prominence": "Enhanced for easier readability"
+    },
+    "summaryList": {
+      "icons": "Larger icons for each entry"
+    },
+    "applyButton": {
+      "size": "Larger and centered"
+    }
+  },
+  "optimization": {
+    "updateThrottling": "30 FPS max",
+    "numberAnimation": "Use lerp instead of per-frame updates",
+    "summaryGeneration": "Cache until stats change"
+  },
+  "testingChecklist": [
+    "Current stats display correctly",
+    "New stats update when part changes",
+    "Differences calculate correctly",
+    "Arrow directions correct (up/down/neutral)",
+    "Colors correct (green/red/gray)",
+    "Summary list generates correctly",
+    "Apply button enables/disables correctly",
+    "Number animations smooth",
+    "Apply changes fires event"
+  ]
+}

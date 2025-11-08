@@ -38,6 +38,18 @@ struct FHarvestedCropEntry
 };
 
 /**
+ * Wrapper struct for TArray<FIntPoint> to work in TMap
+ */
+USTRUCT()
+struct FFarmPlotCellArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<FIntPoint> Cells;
+};
+
+/**
  * Harvesting machine configuration
  */
 USTRUCT(BlueprintType)
@@ -139,8 +151,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Harvesting")
 	TArray<AFarmPlot*> ManagedPlots;
 
-// Plot cell mapping (C++ only due to TArray in TMap limitation)
-	TMap<AFarmPlot*, TArray<FIntPoint>> PlotCellMap;
+	// Plot cell mapping (C++ only due to TArray in TMap limitation)
+	UPROPERTY()
+	TMap<AFarmPlot*, FFarmPlotCellArray> PlotCellMap;
 
 	// ============================================================================
 	// STATISTICS

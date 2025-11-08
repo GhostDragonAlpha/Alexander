@@ -250,6 +250,26 @@ public:
 	FString GetPersonalityDescription();
 
 	// ============================================================================
+	// DIALOGUE DATABASE INTEGRATION
+	// ============================================================================
+
+	// Get contextual dialogue from database
+	UFUNCTION(BlueprintCallable, Category = "Dialogue Database")
+	FText GetContextualDialogue(const FName& ConversationContext, const TArray<FName>& ActiveTags);
+
+	// Get random greeting
+	UFUNCTION(BlueprintCallable, Category = "Dialogue Database")
+	FText GetGreetingDialogue();
+
+	// Get random farewell
+	UFUNCTION(BlueprintCallable, Category = "Dialogue Database")
+	FText GetFarewellDialogue();
+
+	// Load dialogue database
+	UFUNCTION(BlueprintCallable, Category = "Dialogue Database")
+	void LoadDialogueDatabase(UDialogueContentDatabase* Database);
+
+	// ============================================================================
 	// RELATIONSHIP SYSTEM
 	// ============================================================================
 
@@ -364,6 +384,14 @@ public:
 	// Enable debug mode
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
 	bool bDebugMode = false;
+
+	// ===== Dialogue Content Database =====
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Content")
+	UDialogueContentDatabase* DialogueDatabase = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Content")
+	FName NPCPersonalityType = FName("Neutral");
 
 protected:
 	// Internal systems

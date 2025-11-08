@@ -159,6 +159,18 @@ struct FResourceAmount
     }
 };
 
+/**
+ * Wrapper struct for TArray<EResourceType> to work in TMap
+ */
+USTRUCT()
+struct FResourceTypeArray
+{
+    GENERATED_BODY()
+
+    UPROPERTY()
+    TArray<EResourceType> ResourceTypes;
+};
+
 // Resource deposit data
 USTRUCT(BlueprintType)
 struct FResourceDeposit
@@ -734,7 +746,8 @@ public:
     TMap<EResourceType, float> ResourceDecayRates;
 
     // Processing recipes (C++ only due to TArray in TMap limitation)
-    TMap<EResourceType, TArray<EResourceType>> ProcessingRecipes;
+    UPROPERTY()
+    TMap<EResourceType, FResourceTypeArray> ProcessingRecipes;
 
     // Events
     UPROPERTY(BlueprintAssignable, Category = "Resources")

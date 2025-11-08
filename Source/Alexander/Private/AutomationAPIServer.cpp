@@ -925,13 +925,13 @@ FString UAutomationAPIServer::HandleSubmitObservation(const FString& RequestBody
 
 	// Store observation using atomic operations to avoid any reference invalidation
 	// Each FindOrAdd call is atomic and safe
-	StoredObservations.FindOrAdd(TargetID).Add(Measurement);
+	StoredObservations.FindOrAdd(TargetID).Measurements.Add(Measurement);
 
 	// Generate observation ID
 	int32 ObservationID = NextObservationID++;
 
 	// Get count using atomic access
-	int32 TotalObservations = StoredObservations.FindOrAdd(TargetID).Num();
+	int32 TotalObservations = StoredObservations.FindOrAdd(TargetID).Measurements.Num();
 
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Stored observation %d for target %d from observer %d (total: %d)"),
 		ObservationID, TargetID, ObserverID, TotalObservations);

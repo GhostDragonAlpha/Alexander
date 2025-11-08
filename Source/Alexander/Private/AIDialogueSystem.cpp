@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "AIDialogueSystem.h"
+#include "DialogueContentDatabase.h"
 #include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -735,4 +736,144 @@ FString UAIDialogueSystem::GenerateGenericResponse(const FString& Input, const F
     };
 
     return Responses[FMath::RandRange(0, Responses.Num() - 1)];
+}
+
+// ===== Dialogue Database Integration =====
+
+void UAIDialogueSystem::LoadDialogueDatabase(UDialogueContentDatabase* Database)
+{
+	if (!Database)
+	{
+		UE_LOG(LogTemp, Error, TEXT("LoadDialogueDatabase: Invalid database"));
+		return;
+	}
+
+	DialogueDatabase = Database;
+	UE_LOG(LogTemp, Log, TEXT("Loaded dialogue database with %d entries"), 
+		DialogueDatabase->GetTotalDialogueCount());
+}
+
+FText UAIDialogueSystem::GetContextualDialogue(
+	const FName& ConversationContext, 
+	const TArray<FName>& ActiveTags)
+{
+	if (!DialogueDatabase)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("GetContextualDialogue: No dialogue database loaded"));
+		return FText::FromString(TEXT("..."));
+	}
+
+	// Build dialogue context
+	FAIDialogueContext Context;
+	Context.NPCPersonality = NPCPersonalityType;
+	Context.ConversationContext = ConversationContext;
+	Context.ActiveTags = ActiveTags;
+	Context.PlayerReputation = 0; // Should be retrieved from game state
+	Context.TimesSpoken = DialogueHistory.Num();
+	Context.bFirstMeeting = (DialogueHistory.Num() == 0);
+
+	// Determine category
+	EDialogueCategory Category = EDialogueCategory::Social;
+	if (ConversationContext == FName("Mission"))
+	{
+		Category = EDialogueCategory::Mission;
+	}
+	else if (ConversationContext == FName("Trading"))
+	{
+		Category = EDialogueCategory::Trading;
+	}
+	else if (ConversationContext == FName("Combat"))
+	{
+		Category = EDialogueCategory::Combat;
+	}
+	else if (ConversationContext == FName("Information"))
+	{
+		Category = EDialogueCategory::Information;
+	}
+
+	// Get random dialogue matching context
+	FDialogueEntry Entry = DialogueDatabase->GetRandomDialogue(Context, Category);
+	
+	if (Entry.DialogueID != NAME_None)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Selected dialogue: %s"), *Entry.DialogueID.ToString());
+		return Entry.DialogueText;
+	}
+
+	// Fallback to generic response
+	return FText::FromString(GenerateGenericResponse(TEXT(""), CurrentContext));
+}
+
+FText UAIDialogueSystem::GetGreetingDialogue()
+{
+	if (!DialogueDatabase)
+	{
+		return FText::FromString(TEXT("Hello."));
+	}
+
+	TArray<FDialogueEntry> Greetings = DialogueDatabase->GetGreetingsForPersonality(NPCPersonalityType);
+	
+	if (Greetings.Num() > 0)
+	{
+		// Build context for filtering
+		FAIDialogueContext Context;
+		Context.NPCPersonality = NPCPersonalityType;
+		Context.ConversationContext = FName("Greeting");
+		Context.bFirstMeeting = (DialogueHistory.Num() == 0);
+		
+		// Filter valid greetings
+		TArray<FDialogueEntry> ValidGreetings;
+		for (const FDialogueEntry& Entry : Greetings)
+		{
+			if (DialogueDatabase->IsDialogueValidForContext(Entry, Context))
+			{
+				ValidGreetings.Add(Entry);
+			}
+		}
+		
+		if (ValidGreetings.Num() > 0)
+		{
+			int32 RandomIndex = FMath::RandRange(0, ValidGreetings.Num() - 1);
+			return ValidGreetings[RandomIndex].DialogueText;
+		}
+	}
+
+	// Fallback
+	return FText::FromString(GenerateGreeting(CurrentContext));
+}
+
+FText UAIDialogueSystem::GetFarewellDialogue()
+{
+	if (!DialogueDatabase)
+	{
+		return FText::FromString(TEXT("Goodbye."));
+	}
+
+	TArray<FDialogueEntry> Farewells = DialogueDatabase->GetFarewellsForPersonality(NPCPersonalityType);
+	
+	if (Farewells.Num() > 0)
+	{
+		FAIDialogueContext Context;
+		Context.NPCPersonality = NPCPersonalityType;
+		Context.ConversationContext = FName("Farewell");
+		
+		// Filter valid farewells
+		TArray<FDialogueEntry> ValidFarewells;
+		for (const FDialogueEntry& Entry : Farewells)
+		{
+			if (DialogueDatabase->IsDialogueValidForContext(Entry, Context))
+			{
+				ValidFarewells.Add(Entry);
+			}
+		}
+		
+		if (ValidFarewells.Num() > 0)
+		{
+			int32 RandomIndex = FMath::RandRange(0, ValidFarewells.Num() - 1);
+			return ValidFarewells[RandomIndex].DialogueText;
+		}
+	}
+
+	// Fallback
+	return FText::FromString(GenerateFarewell(CurrentContext));
 }

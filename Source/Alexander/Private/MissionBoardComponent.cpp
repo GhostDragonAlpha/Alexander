@@ -9,9 +9,6 @@
 #include "FactionTerritorySystem.h"
 #include "GameFramework/PlayerController.h"
 
-// Typedef for compatibility with header
-typedef FMissionBoardObjective FMissionBoardObjective;
-
 UMissionBoardComponent::UMissionBoardComponent()
 {
     PrimaryComponentTick.bCanEverTick = true;

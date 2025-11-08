@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "ProceduralNoiseGenerator.h"
+#include "PlanetConfiguration.h"
 #include "Math/UnrealMathUtility.h"
 #include "Math/Vector.h"
 

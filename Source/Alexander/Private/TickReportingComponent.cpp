@@ -88,18 +88,18 @@ void UTickReportingComponent::SaveTickConfiguration(const FString& ConfigName, c
         return;
     }
 
-    TMap<UActorComponent*, float> Config;
+    FComponentTickConfigMap ConfigWrapper;
     TArray<UActorComponent*> Components = AnalysisComponent->GetAnalyzedComponents();
 
     for (UActorComponent* Component : Components)
     {
         if (Component)
         {
-            Config.Add(Component, Component->PrimaryComponentTick.TickInterval);
+            ConfigWrapper.ComponentIntervals.Add(Component, Component->PrimaryComponentTick.TickInterval);
         }
     }
 
-    SavedConfigurations.Add(ConfigName, Config);
+    SavedConfigurations.Add(ConfigName, ConfigWrapper);
 }
 
 void UTickReportingComponent::LoadTickConfiguration(const FString& ConfigName, class UTickAnalysisComponent* AnalysisComponent)
@@ -109,9 +109,9 @@ void UTickReportingComponent::LoadTickConfiguration(const FString& ConfigName, c
         return;
     }
 
-    if (const TMap<UActorComponent*, float>* Config = SavedConfigurations.Find(ConfigName))
+    if (const FComponentTickConfigMap* ConfigWrapper = SavedConfigurations.Find(ConfigName))
     {
-        for (const auto& Pair : *Config)
+        for (const auto& Pair : ConfigWrapper->ComponentIntervals)
         {
             if (Pair.Key && !Pair.Key->IsBeingDestroyed())
             {

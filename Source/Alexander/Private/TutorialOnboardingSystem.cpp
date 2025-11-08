@@ -653,6 +653,14 @@ TArray<FTutorialOnboardingStep> UTutorialOnboardingSystem::GetTutorialSteps(cons
     return TutorialDefinitions[TutorialID].Steps;
 }
 
+bool UTutorialOnboardingSystem::IsTutorialStepCompleted(const FString& StepID) const
+{
+    if (!TutorialProgress.Contains(CurrentTutorialID)) return false;
+
+    const FTutorialOnboardingProgress& Progress = TutorialProgress[CurrentTutorialID];
+    return Progress.CompletedSteps.Contains(StepID);
+}
+
 void UTutorialOnboardingSystem::ShowTutorialUI(const FString& TutorialID)
 {
     if (!TutorialWidget) return;
@@ -933,7 +941,7 @@ bool UTutorialOnboardingSystem::IsAdaptiveDifficultyEnabled() const
     return bAdaptiveDifficulty;
 }
 
-void UTutorialOnboardingSystem::AdjustTutorialDifficulty(const FString& TutorialID, ETutorialDifficulty NewDifficulty)
+void UTutorialOnboardingSystem::AdjustTutorialDifficulty(const FString& TutorialID, ETutorialDifficultyOnboarding NewDifficulty)
 {
     if (!TutorialDefinitions.Contains(TutorialID)) return;
     
@@ -943,9 +951,9 @@ void UTutorialOnboardingSystem::AdjustTutorialDifficulty(const FString& Tutorial
     UE_LOG(LogTemp, Log, TEXT("Adjusted tutorial difficulty for %s to %d"), *TutorialID, (int32)NewDifficulty);
 }
 
-ETutorialDifficulty UTutorialOnboardingSystem::GetRecommendedDifficulty(const FString& TutorialID) const
+ETutorialDifficultyOnboarding UTutorialOnboardingSystem::GetRecommendedDifficulty(const FString& TutorialID) const
 {
-    if (!bAdaptiveDifficulty) return ETutorialDifficulty::Beginner;
+    if (!bAdaptiveDifficulty) return ETutorialDifficultyOnboarding::Beginner;
     
     return CalculateOptimalDifficulty(TutorialID);
 }
@@ -1184,29 +1192,29 @@ void UTutorialOnboardingSystem::AdjustDifficultyBasedOnPerformance(const FString
     }
     
     // Adjust difficulty based on performance
-    ETutorialDifficulty NewDifficulty = ETutorialDifficulty::Beginner;
+    ETutorialDifficultyOnboarding NewDifficulty = ETutorialDifficultyOnboarding::Beginner;
     
     if (CompletionTime < 30.0f && Progress.Skips == 0)
     {
-        NewDifficulty = ETutorialDifficulty::Advanced;
+        NewDifficulty = ETutorialDifficultyOnboarding::Advanced;
     }
     else if (CompletionTime < 60.0f && Progress.Skips <= 1)
     {
-        NewDifficulty = ETutorialDifficulty::Intermediate;
+        NewDifficulty = ETutorialDifficultyOnboarding::Intermediate;
     }
     else if (CompletionTime > 120.0f || Progress.Skips > 2)
     {
-        NewDifficulty = ETutorialDifficulty::Beginner;
+        NewDifficulty = ETutorialDifficultyOnboarding::Beginner;
     }
     
     AdjustTutorialDifficulty(TutorialID, NewDifficulty);
 }
 
-ETutorialDifficulty UTutorialOnboardingSystem::CalculateOptimalDifficulty(const FString& TutorialID) const
+ETutorialDifficultyOnboarding UTutorialOnboardingSystem::CalculateOptimalDifficulty(const FString& TutorialID) const
 {
     // Calculate optimal difficulty based on player's past performance
     // This is a simplified implementation
-    return ETutorialDifficulty::Intermediate;
+    return ETutorialDifficultyOnboarding::Intermediate;
 }
 
 void UTutorialOnboardingSystem::CreateTutorialUI()
@@ -1319,7 +1327,7 @@ void UTutorialOnboardingSystem::RegisterDefaultTutorials()
     BasicMovementTutorial.TutorialID = "BasicMovement";
     BasicMovementTutorial.Title = "Basic Movement";
     BasicMovementTutorial.Description = "Learn how to move your character";
-    BasicMovementTutorial.Difficulty = ETutorialDifficulty::Beginner;
+    BasicMovementTutorial.Difficulty = ETutorialDifficultyOnboarding::Beginner;
     BasicMovementTutorial.bIsMandatory = true;
     BasicMovementTutorial.EstimatedDuration = 60.0f;
     

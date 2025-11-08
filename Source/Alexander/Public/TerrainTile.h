@@ -7,6 +7,27 @@
 #include "ProceduralMeshComponent.h"
 #include "TerrainTile.generated.h"
 
+// Biome types for enhanced terrain generation
+UENUM(BlueprintType)
+enum class EBiomeTypeTerrain : uint8
+{
+	None,
+	Ocean,
+	Grassland,
+	Forest,
+	Desert,
+	Tundra,
+	Alpine,
+	Savanna,
+	Rainforest,
+	Swamp,
+	Mountain,
+	Volcanic,
+	Arctic,
+	Cave,
+	Underground
+};
+
 /**
  * Terrain tile data structure
  */
@@ -50,6 +71,19 @@ struct FTerrainTileData
 	// Heightmap data
 	UPROPERTY()
 	TArray<float> HeightData;
+
+	// Enhanced terrain data layers
+	UPROPERTY()
+	TArray<FVector4> NormalMap;
+
+	UPROPERTY()
+	TArray<uint8> BiomeMap;
+
+	UPROPERTY()
+	TArray<float> CaveMap;
+
+	UPROPERTY()
+	TArray<float> MineralMap;
 
 	// State
 	UPROPERTY(BlueprintReadWrite, Category = "Tile")
@@ -140,6 +174,34 @@ struct FTerrainGenerationConfig
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Generation")
 	float WarpStrength = 50.0f;
+
+	// Enhanced terrain generation parameters
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	float TerrainScale = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	float PlanetRadius = 6371000.0f; // Earth radius in meters
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	float TalusAngle = 0.6f; // Slope angle for erosion
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	bool bGenerateVolcanoes = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	bool bGenerateCraters = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	float CraterDensity = 0.001f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	float MaxCraterSize = 500.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	bool bApplySmoothing = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enhanced")
+	bool bEnableEdgeBlending = true;
 };
 
 /**

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Subsystems/GameInstanceSubsystem.h"
+#include "Subsystems/WorldSubsystem.h"
 #include "HAL/CriticalSection.h"
 #include "GravitySimulator.generated.h"
 
@@ -32,12 +32,12 @@ enum class EGravitySimulationMode : uint8
 };
 
 /**
- * Game instance subsystem for simulating gravitational forces
+ * World subsystem for simulating gravitational forces
  * Handles multi-body gravitational calculations and physics integration
  * Network prediction with server validation
  */
 UCLASS()
-class ALEXANDER_API UGravitySimulator : public UGameInstanceSubsystem
+class ALEXANDER_API UGravitySimulator : public UWorldSubsystem
 {
 	GENERATED_BODY()
 

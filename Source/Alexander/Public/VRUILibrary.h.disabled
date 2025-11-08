@@ -1,0 +1,278 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Kismet/BlueprintFunctionLibrary.h"
+#include "Components/WidgetComponent.h"
+#include "Blueprint/UserWidget.h"
+#include "VRUILibrary.generated.h"
+
+/**
+ * VR UI interaction method
+ */
+UENUM(BlueprintType)
+enum class EVRUIInteractionMethod : uint8
+{
+	Pointer UMETA(DisplayName = "Laser Pointer"),
+	Touch UMETA(DisplayName = "Direct Touch"),
+	Gaze UMETA(DisplayName = "Gaze Selection"),
+	Grab UMETA(DisplayName = "Grab and Drag")
+};
+
+/**
+ * VR widget configuration
+ */
+USTRUCT(BlueprintType)
+struct FVRWidgetConfig
+{
+	GENERATED_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	FVector2D Size = FVector2D(800.0f, 600.0f);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	float DrawSizeScale = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	bool bEnableDistanceScaling = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	float MinScale = 0.5f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	float MaxScale = 3.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	float OptimalViewDistance = 150.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	EVRUIInteractionMethod InteractionMethod = EVRUIInteractionMethod::Pointer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	bool bFaceViewer = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	bool bReceiveHardwareInput = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VR UI")
+	bool bEnableComfortFeatures = true;
+};
+
+/**
+ * VR UI panel types for common interfaces
+ */
+UENUM(BlueprintType)
+enum class EVRUIPanelType : uint8
+{
+	Cockpit UMETA(DisplayName = "Cockpit HUD"),
+	Menu UMETA(DisplayName = "Menu Panel"),
+	Holographic UMETA(DisplayName = "Holographic Display"),
+	WorldSpace UMETA(DisplayName = "World Space UI"),
+	Attached UMETA(DisplayName = "Attached to Object"),
+	Floating UMETA(DisplayName = "Floating Panel")
+};
+
+/**
+ * Blueprint function library for VR-friendly UI creation and management
+ */
+UCLASS()
+class ALEXANDER_API UVRUILibrary : public UBlueprintFunctionLibrary
+{
+	GENERATED_BODY()
+
+public:
+	/**
+	 * Create VR-friendly widget in world space
+	 * @param Owner - Actor that owns the widget
+	 * @param WidgetClass - Widget class to create
+	 * @param RelativeTransform - Transform relative to owner
+	 * @param Size - Widget size in pixels
+	 * @return Created widget component
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static UWidgetComponent* CreateVRWidget(
+		AActor* Owner,
+		TSubclassOf<UUserWidget> WidgetClass,
+		FTransform RelativeTransform,
+		FVector2D Size = FVector2D(800.0f, 600.0f)
+	);
+
+	/**
+	 * Create VR widget with full configuration
+	 * @param Owner - Actor that owns the widget
+	 * @param WidgetClass - Widget class to create
+	 * @param Config - VR widget configuration
+	 * @param RelativeTransform - Transform relative to owner
+	 * @return Created widget component
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static UWidgetComponent* CreateVRWidgetWithConfig(
+		AActor* Owner,
+		TSubclassOf<UUserWidget> WidgetClass,
+		const FVRWidgetConfig& Config,
+		FTransform RelativeTransform
+	);
+
+	/**
+	 * Update widget with distance-based scaling
+	 * @param Widget - Widget to update
+	 * @param Viewer - Viewer pawn (usually VR camera)
+	 * @param MinScale - Minimum scale factor
+	 * @param MaxScale - Maximum scale factor
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static void UpdateVRWidgetScale(
+		UWidgetComponent* Widget,
+		APawn* Viewer,
+		float MinScale = 1.0f,
+		float MaxScale = 3.0f
+	);
+
+	/**
+	 * Make widget interactable with VR controllers
+	 * @param Widget - Widget to enable interaction on
+	 * @param bEnablePointerEvents - Enable pointer events
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static void EnableVRInteraction(
+		UWidgetComponent* Widget,
+		bool bEnablePointerEvents = true
+	);
+
+	/**
+	 * Create common VR UI panel (cockpit HUD, menu, etc.)
+	 * @param Owner - Actor that owns the panel
+	 * @param PanelType - Type of panel to create
+	 * @param WidgetClass - Widget class for the panel
+	 * @param RelativeTransform - Transform relative to owner
+	 * @return Created panel widget component
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static UWidgetComponent* CreateVRPanel(
+		AActor* Owner,
+		EVRUIPanelType PanelType,
+		TSubclassOf<UUserWidget> WidgetClass,
+		FTransform RelativeTransform
+	);
+
+	/**
+	 * Make widget always face the viewer (billboard effect)
+	 * @param Widget - Widget to update
+	 * @param Viewer - Viewer to face
+	 * @param bLockYaw - Lock to yaw rotation only
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static void MakeWidgetFaceViewer(
+		UWidgetComponent* Widget,
+		APawn* Viewer,
+		bool bLockYaw = true
+	);
+
+	/**
+	 * Set VR comfort features (reduce motion sickness)
+	 * @param Widget - Widget to configure
+	 * @param bEnableFeatures - Enable comfort features
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static void SetVRComfortFeatures(
+		UWidgetComponent* Widget,
+		bool bEnableFeatures = true
+	);
+
+	/**
+	 * Create holographic-style widget with glow effect
+	 * @param Owner - Actor that owns the widget
+	 * @param WidgetClass - Widget class to create
+	 * @param RelativeTransform - Transform relative to owner
+	 * @param HoloColor - Holographic color tint
+	 * @return Created widget component
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static UWidgetComponent* CreateHolographicWidget(
+		AActor* Owner,
+		TSubclassOf<UUserWidget> WidgetClass,
+		FTransform RelativeTransform,
+		FLinearColor HoloColor = FLinearColor(0.0f, 0.8f, 1.0f, 0.7f)
+	);
+
+	/**
+	 * Attach widget to VR controller
+	 * @param Widget - Widget to attach
+	 * @param ControllerComponent - Controller component to attach to
+	 * @param Offset - Offset from controller
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static void AttachWidgetToController(
+		UWidgetComponent* Widget,
+		USceneComponent* ControllerComponent,
+		FVector Offset = FVector(10.0f, 0.0f, 0.0f)
+	);
+
+	/**
+	 * Get default VR widget configuration for panel type
+	 * @param PanelType - Type of panel
+	 * @return Default configuration
+	 */
+	UFUNCTION(BlueprintPure, Category = "UI|VR")
+	static FVRWidgetConfig GetDefaultVRConfig(EVRUIPanelType PanelType);
+
+	/**
+	 * Calculate optimal widget size for VR based on viewing distance
+	 * @param ViewingDistance - Expected viewing distance in cm
+	 * @param ContentComplexity - Complexity of content (0-1)
+	 * @return Recommended widget size
+	 */
+	UFUNCTION(BlueprintPure, Category = "UI|VR")
+	static FVector2D CalculateOptimalVRWidgetSize(
+		float ViewingDistance,
+		float ContentComplexity = 0.5f
+	);
+
+	/**
+	 * Check if widget is in comfortable viewing position for VR
+	 * @param Widget - Widget to check
+	 * @param Viewer - VR viewer
+	 * @param OutReason - Reason if not comfortable
+	 * @return True if comfortable
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static bool IsWidgetInComfortablePosition(
+		UWidgetComponent* Widget,
+		APawn* Viewer,
+		FText& OutReason
+	);
+
+	/**
+	 * Animate widget entrance for VR (smooth fade/scale in)
+	 * @param Widget - Widget to animate
+	 * @param Duration - Animation duration in seconds
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static void AnimateVRWidgetEntrance(
+		UWidgetComponent* Widget,
+		float Duration = 0.3f
+	);
+
+	/**
+	 * Create curved widget for better VR ergonomics
+	 * @param Owner - Actor that owns the widget
+	 * @param WidgetClass - Widget class to create
+	 * @param RelativeTransform - Transform relative to owner
+	 * @param CurvatureRadius - Radius of curvature
+	 * @return Created widget component
+	 */
+	UFUNCTION(BlueprintCallable, Category = "UI|VR")
+	static UWidgetComponent* CreateCurvedVRWidget(
+		AActor* Owner,
+		TSubclassOf<UUserWidget> WidgetClass,
+		FTransform RelativeTransform,
+		float CurvatureRadius = 150.0f
+	);
+
+private:
+	// Helper functions
+	static void ApplyVRWidgetSettings(UWidgetComponent* Widget, const FVRWidgetConfig& Config);
+	static FVector2D GetPanelSizeForType(EVRUIPanelType PanelType);
+	static float CalculateDistanceBasedScale(float Distance, float MinScale, float MaxScale, float OptimalDistance);
+};

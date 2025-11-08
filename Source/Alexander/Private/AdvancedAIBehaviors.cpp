@@ -77,12 +77,14 @@ void UAdvancedAIBehaviors::InitializeAI(AActor* AIActor, UBehaviorTree* Behavior
         // Initialize empty memory and relationship maps
         if (!AIMemories.Contains(AIActor))
         {
-            AIMemories.Add(AIActor, TArray<FAIMemoryEntry>());
+            FAIMemoryArray EmptyMemories;
+            AIMemories.Add(AIActor, EmptyMemories);
         }
 
         if (!AIRelationships.Contains(AIActor))
         {
-            AIRelationships.Add(AIActor, TMap<AActor*, FAIRelationship>());
+            FAIRelationshipMap EmptyRelationships;
+            AIRelationships.Add(AIActor, EmptyRelationships);
         }
 
         UE_LOG(LogTemp, Log, TEXT("AI Initialized: %s"), *AIActor->GetName());
@@ -568,14 +570,15 @@ void UAdvancedAIBehaviors::AddMemory(AActor* AIActor, const FAIMemoryEntry& Memo
 {
     if (!AIActor) return;
 
-    TArray<FAIMemoryEntry>& Memories = AIMemories.FindOrAdd(AIActor);
-    
+    FAIMemoryArray& MemoryArray = AIMemories.FindOrAdd(AIActor);
+    TArray<FAIMemoryEntry>& Memories = MemoryArray.Memories;
+
     // Create memory with timestamp
     FAIMemoryEntry NewMemory = Memory;
     NewMemory.Timestamp = GetWorld()->GetTimeSeconds();
-    
+
     Memories.Add(NewMemory);
-    
+
     // Limit memory count to prevent memory bloat
     if (Memories.Num() > 100)
     {
@@ -587,11 +590,11 @@ TArray<FAIMemoryEntry> UAdvancedAIBehaviors::GetMemories(AActor* AIActor, const 
 {
     if (!AIActor || !AIMemories.Contains(AIActor)) return TArray<FAIMemoryEntry>();
 
-    const TArray<FAIMemoryEntry>& Memories = AIMemories[AIActor];
-    
+    const TArray<FAIMemoryEntry>& Memories = AIMemories[AIActor].Memories;
+
     if (MemoryType.IsEmpty())
         return Memories;
-    
+
     TArray<FAIMemoryEntry> FilteredMemories;
     for (const FAIMemoryEntry& Memory : Memories)
     {
@@ -600,7 +603,7 @@ TArray<FAIMemoryEntry> UAdvancedAIBehaviors::GetMemories(AActor* AIActor, const 
             FilteredMemories.Add(Memory);
         }
     }
-    
+
     return FilteredMemories;
 }
 
@@ -608,9 +611,9 @@ void UAdvancedAIBehaviors::ForgetOldMemories(AActor* AIActor, float MaxAge)
 {
     if (!AIActor || !AIMemories.Contains(AIActor)) return;
 
-    TArray<FAIMemoryEntry>& Memories = AIMemories[AIActor];
+    TArray<FAIMemoryEntry>& Memories = AIMemories[AIActor].Memories;
     float CurrentTime = GetWorld()->GetTimeSeconds();
-    
+
     for (int32 i = Memories.Num() - 1; i >= 0; i--)
     {
         if (CurrentTime - Memories[i].Timestamp > MaxAge)
@@ -622,16 +625,16 @@ void UAdvancedAIBehaviors::ForgetOldMemories(AActor* AIActor, float MaxAge)
 
 FAIMemoryEntry UAdvancedAIBehaviors::GetMostImportantMemory(AActor* AIActor) const
 {
-    if (!AIActor || !AIMemories.Contains(AIActor)) 
+    if (!AIActor || !AIMemories.Contains(AIActor))
     {
         FAIMemoryEntry EmptyMemory;
         return EmptyMemory;
     }
 
-    const TArray<FAIMemoryEntry>& Memories = AIMemories[AIActor];
+    const TArray<FAIMemoryEntry>& Memories = AIMemories[AIActor].Memories;
     FAIMemoryEntry MostImportant;
     float HighestImportance = 0.0f;
-    
+
     for (const FAIMemoryEntry& Memory : Memories)
     {
         if (Memory.Importance > HighestImportance)
@@ -640,7 +643,7 @@ FAIMemoryEntry UAdvancedAIBehaviors::GetMostImportantMemory(AActor* AIActor) con
             MostImportant = Memory;
         }
     }
-    
+
     return MostImportant;
 }
 
@@ -648,32 +651,33 @@ void UAdvancedAIBehaviors::UpdateRelationship(AActor* AIActor, AActor* TargetAct
 {
     if (!AIActor || !TargetActor) return;
 
-    TMap<AActor*, FAIRelationship>& Relationships = AIRelationships.FindOrAdd(AIActor);
+    FAIRelationshipMap& RelationshipMap = AIRelationships.FindOrAdd(AIActor);
+    TMap<AActor*, FAIRelationship>& Relationships = RelationshipMap.Relationships;
     FAIRelationship& Relationship = Relationships.FindOrAdd(TargetActor);
-    
+
     Relationship.TargetActor = TargetActor;
     Relationship.Affection = FMath::Clamp(Relationship.Affection + AffectionDelta, -1.0f, 1.0f);
     Relationship.Respect = FMath::Clamp(Relationship.Respect + RespectDelta, -1.0f, 1.0f);
     Relationship.InteractionCount++;
     Relationship.LastInteractionTime = GetWorld()->GetTimeSeconds();
-    
+
     OnAIRelationshipChanged.Broadcast(AIActor, TargetActor);
 }
 
 FAIRelationship UAdvancedAIBehaviors::GetRelationship(AActor* AIActor, AActor* TargetActor) const
 {
-    if (!AIActor || !TargetActor || !AIRelationships.Contains(AIActor)) 
+    if (!AIActor || !TargetActor || !AIRelationships.Contains(AIActor))
     {
         FAIRelationship EmptyRelationship;
         return EmptyRelationship;
     }
 
-    const TMap<AActor*, FAIRelationship>& Relationships = AIRelationships[AIActor];
+    const TMap<AActor*, FAIRelationship>& Relationships = AIRelationships[AIActor].Relationships;
     if (Relationships.Contains(TargetActor))
     {
         return Relationships[TargetActor];
     }
-    
+
     FAIRelationship DefaultRelationship;
     return DefaultRelationship;
 }
@@ -681,10 +685,10 @@ FAIRelationship UAdvancedAIBehaviors::GetRelationship(AActor* AIActor, AActor* T
 TArray<AActor*> UAdvancedAIBehaviors::GetFriends(AActor* AIActor, float Threshold) const
 {
     TArray<AActor*> Friends;
-    
+
     if (!AIActor || !AIRelationships.Contains(AIActor)) return Friends;
 
-    const TMap<AActor*, FAIRelationship>& Relationships = AIRelationships[AIActor];
+    const TMap<AActor*, FAIRelationship>& Relationships = AIRelationships[AIActor].Relationships;
     for (const auto& RelationshipPair : Relationships)
     {
         if (RelationshipPair.Value.Affection >= Threshold)
@@ -692,17 +696,17 @@ TArray<AActor*> UAdvancedAIBehaviors::GetFriends(AActor* AIActor, float Threshol
             Friends.Add(RelationshipPair.Key);
         }
     }
-    
+
     return Friends;
 }
 
 TArray<AActor*> UAdvancedAIBehaviors::GetEnemies(AActor* AIActor, float Threshold) const
 {
     TArray<AActor*> Enemies;
-    
+
     if (!AIActor || !AIRelationships.Contains(AIActor)) return Enemies;
 
-    const TMap<AActor*, FAIRelationship>& Relationships = AIRelationships[AIActor];
+    const TMap<AActor*, FAIRelationship>& Relationships = AIRelationships[AIActor].Relationships;
     for (const auto& RelationshipPair : Relationships)
     {
         if (RelationshipPair.Value.Affection <= Threshold)
@@ -710,7 +714,7 @@ TArray<AActor*> UAdvancedAIBehaviors::GetEnemies(AActor* AIActor, float Threshol
             Enemies.Add(RelationshipPair.Key);
         }
     }
-    
+
     return Enemies;
 }
 
@@ -1298,9 +1302,9 @@ void UAdvancedAIBehaviors::DecayMemories(AActor* AIActor, float DeltaTime)
 {
     if (!AIActor || !AIMemories.Contains(AIActor)) return;
 
-    TArray<FAIMemoryEntry>& Memories = AIMemories[AIActor];
+    TArray<FAIMemoryEntry>& Memories = AIMemories[AIActor].Memories;
     float CurrentTime = GetWorld()->GetTimeSeconds();
-    
+
     for (int32 i = Memories.Num() - 1; i >= 0; i--)
     {
         float Age = CurrentTime - Memories[i].Timestamp;
@@ -1315,13 +1319,13 @@ void UAdvancedAIBehaviors::DecayRelationships(AActor* AIActor, float DeltaTime)
 {
     if (!AIActor || !AIRelationships.Contains(AIActor)) return;
 
-    TMap<AActor*, FAIRelationship>& Relationships = AIRelationships[AIActor];
+    TMap<AActor*, FAIRelationship>& Relationships = AIRelationships[AIActor].Relationships;
     float CurrentTime = GetWorld()->GetTimeSeconds();
-    
+
     for (auto& RelationshipPair : Relationships)
     {
         FAIRelationship& Relationship = RelationshipPair.Value;
-        
+
         // Decay relationships over time without interaction
         float TimeSinceInteraction = CurrentTime - Relationship.LastInteractionTime;
         if (TimeSinceInteraction > 3600.0f) // 1 hour
