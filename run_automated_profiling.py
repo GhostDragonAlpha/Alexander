@@ -18,7 +18,7 @@ if sys.platform == "win32":
 # Configuration
 EDITOR = r"C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor.exe"
 PROJECT = r"C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject"
-MAP_TO_LOAD = "/Game/SolarSystem"  # Your main game level
+MAP_TO_LOAD = "/Game/FlightTest"  # Primary testing level (SolarSystem needs content - Phase 8)
 PROFILING_DIR = Path(r"C:\Users\allen\Desktop\Alexander\Alexander\Saved\Profiling")
 PROFILE_DURATION = 180  # 3 minutes
 
