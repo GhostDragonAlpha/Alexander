@@ -12,6 +12,7 @@
 #include "Serialization/JsonWriter.h"
 #include "HighResScreenshot.h"
 #include "FlightController.h"
+#include "ShipCustomizationComponent.h"
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 #include "IPAddress.h"
@@ -374,6 +375,24 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 	else if (Method == TEXT("POST") && Endpoint == TEXT("/validate_position"))
 	{
 		OutResponse = HandleValidatePosition(Body);
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/apply_ship_customization"))
+	{
+		OutResponse = HandleApplyShipCustomization(Body);
+	}
+	else if (Method == TEXT("GET") && Endpoint.StartsWith(TEXT("/get_ship_customization/")))
+	{
+		FString ShipID = Endpoint.RightChop(24); // Remove "/get_ship_customization/"
+		OutResponse = HandleGetShipCustomization(ShipID);
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/equip_ship_part"))
+	{
+		OutResponse = HandleEquipShipPart(Body);
+	}
+	else if (Method == TEXT("GET") && Endpoint.StartsWith(TEXT("/get_ship_loadout/")))
+	{
+		FString ShipID = Endpoint.RightChop(18); // Remove "/get_ship_loadout/"
+		OutResponse = HandleGetShipLoadout(ShipID);
 	}
 	else
 	{
@@ -1009,6 +1028,268 @@ FString UAutomationAPIServer::HandleValidatePosition(const FString& RequestBody)
 	return CreateJSONResponse(ValidationResult.bIsValid,
 		ValidationResult.bIsValid ? TEXT("Position validated") : TEXT("Position validation failed"),
 		ResponseData);
+}
+
+FString UAutomationAPIServer::HandleApplyShipCustomization(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleApplyShipCustomization RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Get ship ID
+	FString ShipID = JsonObj->GetStringField(TEXT("ship_id"));
+	AActor* Ship = GetShipByID(ShipID);
+	if (!Ship)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Ship not found: %s"), *ShipID));
+	}
+
+	// Get ShipCustomizationComponent
+	UShipCustomizationComponent* CustomizationComp = Ship->FindComponentByClass<UShipCustomizationComponent>();
+	if (!CustomizationComp)
+	{
+		return CreateJSONResponse(false, TEXT("Ship has no ShipCustomizationComponent"));
+	}
+
+	// Parse customization parameters
+	FShipStats CustomStats;
+	bool bStatsModified = false;
+
+	if (JsonObj->HasField(TEXT("mass")))
+	{
+		CustomStats.Mass = JsonObj->GetNumberField(TEXT("mass"));
+		bStatsModified = true;
+	}
+
+	if (JsonObj->HasField(TEXT("thrust_power")))
+	{
+		CustomStats.ThrustPower = JsonObj->GetNumberField(TEXT("thrust_power"));
+		bStatsModified = true;
+	}
+
+	if (JsonObj->HasField(TEXT("max_velocity")))
+	{
+		CustomStats.MaxVelocity = JsonObj->GetNumberField(TEXT("max_velocity"));
+		bStatsModified = true;
+	}
+
+	if (JsonObj->HasField(TEXT("rotation_speed")))
+	{
+		CustomStats.RotationSpeed = JsonObj->GetNumberField(TEXT("rotation_speed"));
+		bStatsModified = true;
+	}
+
+	if (JsonObj->HasField(TEXT("acceleration")))
+	{
+		CustomStats.Acceleration = JsonObj->GetNumberField(TEXT("acceleration"));
+		bStatsModified = true;
+	}
+
+	if (!bStatsModified)
+	{
+		return CreateJSONResponse(false, TEXT("No customization stats provided"));
+	}
+
+	// Apply stats to the loadout
+	CustomizationComp->CurrentLoadout.TotalStats = CustomStats;
+	CustomizationComp->ApplyStatsToFlightController();
+
+	// Build response with applied stats
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("ship_id"), ShipID);
+	ResponseData->SetNumberField(TEXT("mass"), CustomStats.Mass);
+	ResponseData->SetNumberField(TEXT("thrust_power"), CustomStats.ThrustPower);
+	ResponseData->SetNumberField(TEXT("max_velocity"), CustomStats.MaxVelocity);
+	ResponseData->SetNumberField(TEXT("rotation_speed"), CustomStats.RotationSpeed);
+	ResponseData->SetNumberField(TEXT("acceleration"), CustomStats.Acceleration);
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Applied customization to ship '%s'"), *ShipID);
+
+	return CreateJSONResponse(true, TEXT("Ship customization applied"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleGetShipCustomization(const FString& ShipID)
+{
+	AActor* Ship = GetShipByID(ShipID);
+	if (!Ship)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Ship not found: %s"), *ShipID));
+	}
+
+	// Get ShipCustomizationComponent
+	UShipCustomizationComponent* CustomizationComp = Ship->FindComponentByClass<UShipCustomizationComponent>();
+	if (!CustomizationComp)
+	{
+		return CreateJSONResponse(false, TEXT("Ship has no ShipCustomizationComponent"));
+	}
+
+	// Get current stats
+	FShipStats CurrentStats = CustomizationComp->GetTotalStats();
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("ship_id"), ShipID);
+	ResponseData->SetNumberField(TEXT("mass"), CurrentStats.Mass);
+	ResponseData->SetNumberField(TEXT("thrust_power"), CurrentStats.ThrustPower);
+	ResponseData->SetNumberField(TEXT("max_velocity"), CurrentStats.MaxVelocity);
+	ResponseData->SetNumberField(TEXT("rotation_speed"), CurrentStats.RotationSpeed);
+	ResponseData->SetNumberField(TEXT("acceleration"), CurrentStats.Acceleration);
+	ResponseData->SetNumberField(TEXT("hull_integrity"), CurrentStats.HullIntegrity);
+	ResponseData->SetNumberField(TEXT("shield_strength"), CurrentStats.ShieldStrength);
+	ResponseData->SetNumberField(TEXT("weapon_damage"), CurrentStats.WeaponDamage);
+	ResponseData->SetNumberField(TEXT("energy_capacity"), CurrentStats.EnergyCapacity);
+	ResponseData->SetNumberField(TEXT("energy_regen_rate"), CurrentStats.EnergyRegenRate);
+
+	return CreateJSONResponse(true, TEXT("Ship customization retrieved"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleEquipShipPart(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleEquipShipPart RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Get ship ID
+	FString ShipID = JsonObj->GetStringField(TEXT("ship_id"));
+	AActor* Ship = GetShipByID(ShipID);
+	if (!Ship)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Ship not found: %s"), *ShipID));
+	}
+
+	// Get ShipCustomizationComponent
+	UShipCustomizationComponent* CustomizationComp = Ship->FindComponentByClass<UShipCustomizationComponent>();
+	if (!CustomizationComp)
+	{
+		return CreateJSONResponse(false, TEXT("Ship has no ShipCustomizationComponent"));
+	}
+
+	// Parse parameters
+	int32 CategoryInt = JsonObj->GetIntegerField(TEXT("part_category"));
+	EShipPartCategory Category = static_cast<EShipPartCategory>(CategoryInt);
+	FString PartIDString = JsonObj->GetStringField(TEXT("part_id"));
+	FName PartID = FName(*PartIDString);
+
+	// Equip the part
+	bool bSuccess = CustomizationComp->EquipPart(Category, PartID);
+	if (!bSuccess)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Failed to equip part: %s"), *PartIDString));
+	}
+
+	// Get updated loadout
+	FShipLoadout CurrentLoadout = CustomizationComp->CurrentLoadout;
+
+	// Build response with updated loadout
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("ship_id"), ShipID);
+	ResponseData->SetStringField(TEXT("equipped_part_id"), PartIDString);
+	ResponseData->SetNumberField(TEXT("part_category"), CategoryInt);
+
+	// Add equipped parts map
+	TSharedPtr<FJsonObject> EquippedPartsObj = MakeShareable(new FJsonObject);
+	for (const auto& Pair : CurrentLoadout.EquippedParts)
+	{
+		FString CategoryName;
+		switch (Pair.Key)
+		{
+			case EShipPartCategory::Engine: CategoryName = TEXT("Engine"); break;
+			case EShipPartCategory::Thrusters: CategoryName = TEXT("Thrusters"); break;
+			case EShipPartCategory::Hull: CategoryName = TEXT("Hull"); break;
+			case EShipPartCategory::Wings: CategoryName = TEXT("Wings"); break;
+			case EShipPartCategory::Cockpit: CategoryName = TEXT("Cockpit"); break;
+			case EShipPartCategory::Weapon: CategoryName = TEXT("Weapon"); break;
+			case EShipPartCategory::Shield: CategoryName = TEXT("Shield"); break;
+			case EShipPartCategory::Utility: CategoryName = TEXT("Utility"); break;
+			default: CategoryName = TEXT("Unknown"); break;
+		}
+		EquippedPartsObj->SetStringField(CategoryName, Pair.Value.ToString());
+	}
+	ResponseData->SetObjectField(TEXT("equipped_parts"), EquippedPartsObj);
+
+	// Add total stats
+	FShipStats TotalStats = CurrentLoadout.TotalStats;
+	TSharedPtr<FJsonObject> StatsObj = MakeShareable(new FJsonObject);
+	StatsObj->SetNumberField(TEXT("mass"), TotalStats.Mass);
+	StatsObj->SetNumberField(TEXT("thrust_power"), TotalStats.ThrustPower);
+	StatsObj->SetNumberField(TEXT("max_velocity"), TotalStats.MaxVelocity);
+	StatsObj->SetNumberField(TEXT("rotation_speed"), TotalStats.RotationSpeed);
+	ResponseData->SetObjectField(TEXT("total_stats"), StatsObj);
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Equipped part '%s' to ship '%s'"), *PartIDString, *ShipID);
+
+	return CreateJSONResponse(true, TEXT("Ship part equipped"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleGetShipLoadout(const FString& ShipID)
+{
+	AActor* Ship = GetShipByID(ShipID);
+	if (!Ship)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Ship not found: %s"), *ShipID));
+	}
+
+	// Get ShipCustomizationComponent
+	UShipCustomizationComponent* CustomizationComp = Ship->FindComponentByClass<UShipCustomizationComponent>();
+	if (!CustomizationComp)
+	{
+		return CreateJSONResponse(false, TEXT("Ship has no ShipCustomizationComponent"));
+	}
+
+	// Get current loadout
+	FShipLoadout CurrentLoadout = CustomizationComp->CurrentLoadout;
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("ship_id"), ShipID);
+	ResponseData->SetStringField(TEXT("loadout_name"), CurrentLoadout.LoadoutName.ToString());
+	ResponseData->SetStringField(TEXT("equipped_skin"), CurrentLoadout.EquippedSkin.ToString());
+
+	// Add equipped parts map
+	TSharedPtr<FJsonObject> EquippedPartsObj = MakeShareable(new FJsonObject);
+	for (const auto& Pair : CurrentLoadout.EquippedParts)
+	{
+		FString CategoryName;
+		switch (Pair.Key)
+		{
+			case EShipPartCategory::Engine: CategoryName = TEXT("Engine"); break;
+			case EShipPartCategory::Thrusters: CategoryName = TEXT("Thrusters"); break;
+			case EShipPartCategory::Hull: CategoryName = TEXT("Hull"); break;
+			case EShipPartCategory::Wings: CategoryName = TEXT("Wings"); break;
+			case EShipPartCategory::Cockpit: CategoryName = TEXT("Cockpit"); break;
+			case EShipPartCategory::Weapon: CategoryName = TEXT("Weapon"); break;
+			case EShipPartCategory::Shield: CategoryName = TEXT("Shield"); break;
+			case EShipPartCategory::Utility: CategoryName = TEXT("Utility"); break;
+			default: CategoryName = TEXT("Unknown"); break;
+		}
+		EquippedPartsObj->SetStringField(CategoryName, Pair.Value.ToString());
+	}
+	ResponseData->SetObjectField(TEXT("equipped_parts"), EquippedPartsObj);
+
+	// Add total stats
+	FShipStats TotalStats = CurrentLoadout.TotalStats;
+	TSharedPtr<FJsonObject> StatsObj = MakeShareable(new FJsonObject);
+	StatsObj->SetNumberField(TEXT("mass"), TotalStats.Mass);
+	StatsObj->SetNumberField(TEXT("thrust_power"), TotalStats.ThrustPower);
+	StatsObj->SetNumberField(TEXT("max_velocity"), TotalStats.MaxVelocity);
+	StatsObj->SetNumberField(TEXT("rotation_speed"), TotalStats.RotationSpeed);
+	StatsObj->SetNumberField(TEXT("acceleration"), TotalStats.Acceleration);
+	StatsObj->SetNumberField(TEXT("hull_integrity"), TotalStats.HullIntegrity);
+	StatsObj->SetNumberField(TEXT("shield_strength"), TotalStats.ShieldStrength);
+	StatsObj->SetNumberField(TEXT("weapon_damage"), TotalStats.WeaponDamage);
+	StatsObj->SetNumberField(TEXT("energy_capacity"), TotalStats.EnergyCapacity);
+	StatsObj->SetNumberField(TEXT("energy_regen_rate"), TotalStats.EnergyRegenRate);
+	ResponseData->SetObjectField(TEXT("total_stats"), StatsObj);
+
+	return CreateJSONResponse(true, TEXT("Ship loadout retrieved"), ResponseData);
 }
 
 void UAutomationAPIServer::RegisterShip(AActor* Ship, const FString& ShipID)

@@ -19,6 +19,13 @@ static const double KM_TO_CM = 100000.0;  // 1 km = 100,000 cm
 static const double CM_TO_KM = 1.0 / KM_TO_CM;
 static const double GRAVITATIONAL_CONSTANT = 6.67430e-11;  // m³/(kg·s²)
 
+void AOrbitalBody::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AOrbitalBody, ThrustPower);
+}
+
 AOrbitalBody::AOrbitalBody()
 {
     PrimaryActorTick.bCanEverTick = true;

@@ -118,6 +118,18 @@ public:
 	// POST /validate_position - Validate position using multi-sphere triangulation
 	FString HandleValidatePosition(const FString& RequestBody);
 
+	// POST /apply_ship_customization - Apply customization stats to ship
+	FString HandleApplyShipCustomization(const FString& RequestBody);
+
+	// GET /get_ship_customization/{ship_id} - Get ship customization stats
+	FString HandleGetShipCustomization(const FString& ShipID);
+
+	// POST /equip_ship_part - Equip a part to a ship
+	FString HandleEquipShipPart(const FString& RequestBody);
+
+	// GET /get_ship_loadout/{ship_id} - Get complete ship loadout
+	FString HandleGetShipLoadout(const FString& ShipID);
+
 	// ============================================================================
 	// SHIP TRACKING
 	// ============================================================================

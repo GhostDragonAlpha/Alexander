@@ -98,6 +98,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Physics")
 	float Mass;
 
+	// Thrust power in Newtons (N) - affects ship acceleration
+	// Modified by ship customization parts (engines, thrusters, etc.)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Replicated, Category = "Physics")
+	float ThrustPower = 100000.0f; // Default: 100kN
+
 	// Body radius in km
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Physics")
 	float Radius;

@@ -226,6 +226,223 @@ At 20 Hz: 106 × 20 = 2,120 bytes/sec = 2.07 KB/s = 17.0 kbps per client
 
 ---
 
+## Ship Customization Replication
+
+The Ship Customization System integrates with the network replication layer to ensure all players see the same ship configurations and experience consistent physics simulations.
+
+### Customization Stats Replication
+
+**Problem Statement:**
+Ship customization affects physics (mass, thrust), so all clients must have the same stat values or their simulations will diverge. A client that thinks Ship A has 1000 kg will calculate different gravity than a server that knows it has 1200 kg.
+
+**Solution: Server Authority + Replicated Loadout**
+
+```cpp
+// In ASpaceship class
+UPROPERTY(BlueprintReadOnly, Replicated, Category = "Customization")
+FShipLoadout CurrentLoadout;
+
+void ASpaceship::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+    Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+    // Replicate current loadout to all clients
+    DOREPLIFETIME(ASpaceship, CurrentLoadout);
+}
+```
+
+**Flow:**
+
+```
+Client                                  Server
+------                                  ------
+  |                                       |
+  | 1. Player equips armor                |
+  |    (local UI update)                  |
+  |                                       |
+  | 2. ServerApplyCustomization() RPC --> |
+  |                                       | 3. Server validates
+  |                                       | 4. Server updates CurrentLoadout
+  |                                       | 5. OnRep_CurrentLoadout() fires
+  |                                       |
+  | <-- CurrentLoadout replicated        |
+  |                                       |
+  | 6. OnRep_CurrentLoadout() fires      |
+  |    (all clients reconcile)           |
+  |                                       |
+```
+
+### ServerApplyCustomization RPC
+
+**Function Signature:**
+```cpp
+UFUNCTION(Server, Reliable, WithValidation)
+void ServerApplyCustomization(const FShipLoadout& NewLoadout);
+
+void ASpaceship::ServerApplyCustomization_Implementation(const FShipLoadout& NewLoadout)
+{
+    // 1. Validate that client has required parts
+    if (!ValidateLoadout(NewLoadout))
+    {
+        ClientRejectCustomization(CurrentLoadout);  // Send rejection back
+        return;
+    }
+
+    // 2. Update server state
+    CurrentLoadout = NewLoadout;
+
+    // 3. Update physics (mass affects gravity)
+    if (OrbitalBody)
+    {
+        OrbitalBody->SetMass(NewLoadout.TotalStats.Mass);
+    }
+
+    // 4. Replicated property automatically sends to all clients
+    // OnRep_CurrentLoadout() will be called on each client
+}
+
+bool ASpaceship::ServerApplyCustomization_Validate(const FShipLoadout& NewLoadout)
+{
+    // Anti-cheat checks:
+    // - Verify player has required level
+    // - Verify player has unlocked all parts
+    // - Verify total mass within reasonable bounds
+    // - Verify total power consumption <= MaxPower
+
+    if (!ValidatePlayerLevel(NewLoadout.TotalStats.Level))
+    {
+        return false;  // Reject RPC
+    }
+
+    return true;
+}
+```
+
+### OnRep_CurrentLoadout Handler
+
+Called on all clients when CurrentLoadout replicates:
+
+```cpp
+void ASpaceship::OnRep_CurrentLoadout()
+{
+    // 1. Update visuals
+    if (UShipCustomizationComponent* CustomComp = FindComponentByClass<UShipCustomizationComponent>())
+    {
+        CustomComp->UpdateShipVisuals();
+    }
+
+    // 2. Update physics (especially mass for gravity calculations)
+    if (OrbitalBody)
+    {
+        OrbitalBody->SetMass(CurrentLoadout.TotalStats.Mass);
+
+        // Notify gravity simulator
+        if (UGameInstance* GI = GetGameInstance())
+        {
+            if (UGravitySimulator* GravSim = GI->GetSubsystem<UGravitySimulator>())
+            {
+                GravSim->UpdateBodyMass(OrbitalBody, CurrentLoadout.TotalStats.Mass);
+            }
+        }
+    }
+
+    // 3. Update flight controller stats
+    if (UFlightController* FC = FindComponentByClass<UFlightController>())
+    {
+        FC->SetThrustMultiplier(CurrentLoadout.TotalStats.ThrustPower);
+        FC->SetMaxVelocity(CurrentLoadout.TotalStats.MaxVelocity * 10000.0f);
+    }
+
+    // 4. Fire event for UI updates
+    OnLoadoutChanged.Broadcast();
+}
+```
+
+### Network Authority Model for Customization
+
+**Authority Rules:**
+1. **Client** owns customization UI and initiates changes
+2. **Server** validates and approves/rejects all changes
+3. **Clients** receive replicated updates and apply them
+
+**Example Scenario - Client Cheat Attempt:**
+
+```
+Attacker Client                         Server
+------                                  ------
+  |                                       |
+  | Hack client code to equip              |
+  | unlimited armor (+1000 kg)             |
+  |                                       |
+  | ServerApplyCustomization() RPC -->    |
+  |     (attempts invalid loadout)        |
+  |                                       | Validate: FAIL
+  |                                       | armor weight > max allowed
+  |                                       |
+  | <-- ClientRejectCustomization()      |
+  |     (revert to old loadout)           |
+  |                                       |
+```
+
+**Server Validation Checks:**
+- Player level >= part requirement level
+- Player currency >= unlock cost
+- Part is unlocked in ProgressionData
+- Total mass <= MaxMass constraint
+- Total power <= MaxPower constraint
+- All required slots are filled
+
+### Customization + Physics Network Bandwidth
+
+**Additional bandwidth for customization:**
+
+```
+Per customization change (~1-2 per gameplay session):
+    ServerApplyCustomization RPC:
+        - FShipLoadout serialized: ~200 bytes
+        - RPC overhead: ~20 bytes
+        - Total: ~220 bytes (one-time, not per frame)
+
+Ongoing replication of stats:
+    In FSpaceshipNetworkState:
+        - TotalMass: 4 bytes
+        - ThrustMultiplier: 4 bytes
+        - Other stats: ~20 bytes
+    Replicated every 50ms (20 Hz):
+        - ~28 bytes * 20 Hz = 560 bytes/sec per ship
+        - For 16 ships: 8.96 KB/sec = ~72 kbps
+
+Cosmetic replication (less frequent):
+    In FShipLoadout:
+        - Paint colors: 16 bytes
+        - Part mesh references: 4 bytes each
+    Replicated every 200ms (5 Hz):
+        - ~50 bytes * 5 Hz = 250 bytes/sec per ship
+        - For 16 ships: 4 KB/sec = ~32 kbps
+```
+
+**Total bandwidth impact: ~100 kbps for 16 players** (acceptable)
+
+### Handling Customization During Network Issues
+
+**High Latency (200ms+):**
+- Client: Apply customization locally immediately (optimistic update)
+- Server: Takes 200ms to receive RPC
+- Client: If server rejects, revert within same frame (smooth)
+
+**Packet Loss (5-10%):**
+- RPC marked as Reliable, so it will be retried
+- Worst case: 3-4 retries over 1-2 seconds
+- Server eventually receives and broadcasts update
+
+**Late Join (player joins after others have customized):**
+- Client requests full state sync on join
+- Server sends all ships' current loadouts
+- Client initializes all gravity/physics with correct masses
+- No desynchronization occurs
+
+---
+
 ## Error Handling & Safety Systems
 
 ### 1. CelestialScalingSafetySystem Features

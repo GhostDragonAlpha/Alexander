@@ -110,6 +110,19 @@ struct FSpaceshipNetworkState
 	// Input state hash (for prediction reconciliation - not exposed to blueprint)
 	uint32 InputStateHash;
 
+	// ============================================================================
+	// SHIP CUSTOMIZATION STATS (Phase 3 - Network Replication)
+	// ============================================================================
+
+	// Replicated ship mass (affects gravity and inertia)
+	float ReplicatedMass = 1000.0f;
+
+	// Replicated thrust power
+	float ReplicatedThrustPower = 100000.0f;
+
+	// Replicated max velocity
+	float ReplicatedMaxVelocity = 1000.0f;
+
 	FSpaceshipNetworkState()
 	{
 		CompressedVelocity = FVector::ZeroVector;
@@ -119,6 +132,9 @@ struct FSpaceshipNetworkState
 		SequenceNumber = 0;
 		ActiveScaleFactor = 1.0f;
 		InputStateHash = 0;
+		ReplicatedMass = 1000.0f;
+		ReplicatedThrustPower = 100000.0f;
+		ReplicatedMaxVelocity = 1000.0f;
 	}
 
 	// Compress velocity for network transmission (16-bit per axis)
@@ -481,6 +497,14 @@ public:
 	// Client RPC: Send full state to late-joining client
 	UFUNCTION(Client, Reliable)
 	void ClientReceiveFullState(FSpaceshipNetworkState FullState, FSpaceshipVirtualPosition Position);
+
+	// ============================================================================
+	// SHIP CUSTOMIZATION NETWORK RPCs (Phase 3)
+	// ============================================================================
+
+	// Server RPC to apply ship customization (authority)
+	UFUNCTION(Server, Reliable, WithValidation)
+	void ServerApplyCustomization(float NewMass, float NewThrustPower, float NewMaxVelocity);
 
 	// ============================================================================
 	// NETWORK PREDICTION & RECONCILIATION

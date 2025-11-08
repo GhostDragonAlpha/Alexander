@@ -5,6 +5,8 @@
 #include "OrbitalBody.h"
 #include "Spaceship.h"
 #include "ShipPhysicsConfig.h"
+#include "ShipCustomizationProfiling.h"
+#include "ShipCustomizationProfiler.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SaveGame.h"
 #include "Kismet/GameplayStatics.h"
@@ -12,6 +14,7 @@
 #include "Materials/MaterialInstance.h"
 #include "Net/UnrealNetwork.h"
 #include "Engine/DataTable.h"
+#include "HAL/PlatformTime.h"
 
 // SaveGame class for persistence (simple internal class, no UCLASS needed)
 class UShipCustomizationSaveGame : public USaveGame
@@ -51,6 +54,8 @@ void UShipCustomizationComponent::GetLifetimeReplicatedProps(TArray<FLifetimePro
 
 void UShipCustomizationComponent::BeginPlay()
 {
+	PROFILE_SHIP_CUSTOMIZATION_SCOPE(BeginPlay);
+
 	Super::BeginPlay();
 
 	// Load saved customization data
@@ -84,6 +89,9 @@ void UShipCustomizationComponent::TickComponent(float DeltaTime, ELevelTick Tick
 
 bool UShipCustomizationComponent::EquipPart(EShipPartCategory Category, FName PartID)
 {
+	SCOPE_CYCLE_COUNTER(STAT_ShipCustomization_EquipPart);
+	double StartTime = FPlatformTime::Seconds();
+
 	// Check if part exists
 	bool bFound = false;
 	FShipPartData PartData = GetPartData(PartID, bFound);
@@ -129,6 +137,17 @@ bool UShipCustomizationComponent::EquipPart(EShipPartCategory Category, FName Pa
 	// Fire events
 	OnPartEquipped.Broadcast(Category, PartID);
 	OnLoadoutChanged.Broadcast();
+
+	// Profile timing
+	double ElapsedSeconds = FPlatformTime::Seconds() - StartTime;
+	float ElapsedMS = static_cast<float>(ElapsedSeconds * 1000.0);
+
+	// Find profiler component and record timing
+	UShipCustomizationProfiler* Profiler = GetOwner() ? GetOwner()->FindComponentByClass<UShipCustomizationProfiler>() : nullptr;
+	if (Profiler)
+	{
+		Profiler->RecordEquipPartTime(ElapsedMS);
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("Equipped part: %s (%s)"),
 		*PartData.DisplayName.ToString(), *PartID.ToString());
@@ -222,6 +241,9 @@ FShipSkinData UShipCustomizationComponent::GetEquippedSkin(bool& bFound)
 
 FShipStats UShipCustomizationComponent::CalculateTotalStats()
 {
+	SCOPE_CYCLE_COUNTER(STAT_ShipCustomization_CalculateStats);
+	double StartTime = FPlatformTime::Seconds();
+
 	FShipStats TotalStats;
 
 	// Start with base stats
@@ -248,11 +270,25 @@ FShipStats UShipCustomizationComponent::CalculateTotalStats()
 		}
 	}
 
+	// Profile timing
+	double ElapsedSeconds = FPlatformTime::Seconds() - StartTime;
+	float ElapsedMS = static_cast<float>(ElapsedSeconds * 1000.0);
+
+	// Find profiler component and record timing
+	UShipCustomizationProfiler* Profiler = GetOwner() ? GetOwner()->FindComponentByClass<UShipCustomizationProfiler>() : nullptr;
+	if (Profiler)
+	{
+		Profiler->RecordCalculateStatsTime(ElapsedMS);
+	}
+
 	return TotalStats;
 }
 
 void UShipCustomizationComponent::ApplyStatsToFlightController()
 {
+	SCOPE_CYCLE_COUNTER(STAT_ShipCustomization_ApplyStats);
+	double StartTime = FPlatformTime::Seconds();
+
 	AOrbitalBody* OrbitalBody = GetOrbitalBody();
 	UFlightController* FlightController = GetFlightController();
 
@@ -340,6 +376,17 @@ void UShipCustomizationComponent::ApplyStatsToFlightController()
 		// Still apply FlightController settings locally for immediate feedback
 		// (server will replicate authoritative values)
 		FlightController->MaxSafeVelocity = Stats.MaxVelocity * 1000.0f;
+	}
+
+	// Profile timing
+	double ElapsedSeconds = FPlatformTime::Seconds() - StartTime;
+	float ElapsedMS = static_cast<float>(ElapsedSeconds * 1000.0);
+
+	// Find profiler component and record timing
+	UShipCustomizationProfiler* Profiler = GetOwner() ? GetOwner()->FindComponentByClass<UShipCustomizationProfiler>() : nullptr;
+	if (Profiler)
+	{
+		Profiler->RecordApplyStatsTime(ElapsedMS);
 	}
 }
 
@@ -541,6 +588,9 @@ void UShipCustomizationComponent::SaveLoadout(const FText& LoadoutName)
 
 bool UShipCustomizationComponent::LoadLoadout(int32 LoadoutIndex)
 {
+	SCOPE_CYCLE_COUNTER(STAT_ShipCustomization_LoadLoadout);
+	double StartTime = FPlatformTime::Seconds();
+
 	if (!ProgressionData.SavedLoadouts.IsValidIndex(LoadoutIndex))
 	{
 		return false;
@@ -558,6 +608,17 @@ bool UShipCustomizationComponent::LoadLoadout(int32 LoadoutIndex)
 
 	// Fire event
 	OnLoadoutChanged.Broadcast();
+
+	// Profile timing
+	double ElapsedSeconds = FPlatformTime::Seconds() - StartTime;
+	float ElapsedMS = static_cast<float>(ElapsedSeconds * 1000.0);
+
+	// Find profiler component and record timing
+	UShipCustomizationProfiler* Profiler = GetOwner() ? GetOwner()->FindComponentByClass<UShipCustomizationProfiler>() : nullptr;
+	if (Profiler)
+	{
+		Profiler->RecordLoadLoadoutTime(ElapsedMS);
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("Loaded loadout: %s"), *CurrentLoadout.LoadoutName.ToString());
 
@@ -591,6 +652,9 @@ bool UShipCustomizationComponent::DeleteLoadout(int32 LoadoutIndex)
 
 void UShipCustomizationComponent::UpdateShipVisuals()
 {
+	SCOPE_CYCLE_COUNTER(STAT_ShipCustomization_UpdateVisuals);
+	double StartTime = FPlatformTime::Seconds();
+
 	// Apply skin material
 	ApplySkinMaterial();
 
@@ -598,6 +662,17 @@ void UShipCustomizationComponent::UpdateShipVisuals()
 	// TODO: Implement part mesh swapping based on equipped parts
 	// This would involve having attachment points on the ship mesh
 	// and swapping out component meshes based on equipped parts
+
+	// Profile timing
+	double ElapsedSeconds = FPlatformTime::Seconds() - StartTime;
+	float ElapsedMS = static_cast<float>(ElapsedSeconds * 1000.0);
+
+	// Find profiler component and record timing
+	UShipCustomizationProfiler* Profiler = GetOwner() ? GetOwner()->FindComponentByClass<UShipCustomizationProfiler>() : nullptr;
+	if (Profiler)
+	{
+		Profiler->RecordUpdateVisualsTime(ElapsedMS);
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("Updated ship visuals"));
 }

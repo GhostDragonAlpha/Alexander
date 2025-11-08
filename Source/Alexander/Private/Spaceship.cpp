@@ -1029,6 +1029,12 @@ FSpaceshipNetworkState ASpaceship::BuildNetworkState() const
 	State.SequenceNumber = NetworkSequenceCounter;
 	State.ActiveScaleFactor = CurrentScaleFactor;
 	State.InputStateHash = CalculateInputHash();
+
+	// Phase 3: Include ship customization stats in network state
+	State.ReplicatedMass = Mass;
+	State.ReplicatedThrustPower = MaxThrust;
+	State.ReplicatedMaxVelocity = ReplicatedNetworkState.ReplicatedMaxVelocity;
+
 	return State;
 }
 
@@ -1040,6 +1046,12 @@ void ASpaceship::ProcessNetworkState(const FSpaceshipNetworkState& State)
 	FVector NewVelocity = FSpaceshipNetworkState::DecompressVelocity(State.CompressedVelocity);
 	SetActorRotation(State.Rotation);
 	CurrentScaleFactor = State.ActiveScaleFactor;
+
+	// Phase 3: Apply replicated ship customization stats on clients
+	Mass = State.ReplicatedMass;
+	MaxThrust = State.ReplicatedThrustPower;
+	// Note: MaxVelocity is handled by FlightController, updated via ShipCustomizationComponent
+
 	if (bEnableServerReconciliation && GetLocalRole() == ROLE_AutonomousProxy)
 	{
 		ReconcileWithServerState(State);
@@ -1169,6 +1181,51 @@ void ASpaceship::ClientReceiveFullState_Implementation(FSpaceshipNetworkState Fu
 	ClientPrediction.PredictionError = FVector::ZeroVector;
 	ClientPrediction.InputHistory.Empty();
 	ClientPrediction.TimestampHistory.Empty();
+}
+
+// ============================================================================
+// SHIP CUSTOMIZATION NETWORK RPC IMPLEMENTATIONS (Phase 3)
+// ============================================================================
+
+bool ASpaceship::ServerApplyCustomization_Validate(float NewMass, float NewThrustPower, float NewMaxVelocity)
+{
+	// Validate ranges to prevent cheating
+	// Mass: 100 kg (tiny ship) to 1,000,000 kg (massive capital ship)
+	// ThrustPower: 1,000 N (weak) to 10,000,000 N (powerful)
+	// MaxVelocity: 100 m/s (slow) to 100,000 m/s (very fast)
+	return NewMass > 0.0f && NewMass < 1000000.0f &&
+	       NewThrustPower > 0.0f && NewThrustPower < 10000000.0f &&
+	       NewMaxVelocity > 0.0f && NewMaxVelocity < 100000.0f;
+}
+
+void ASpaceship::ServerApplyCustomization_Implementation(float NewMass, float NewThrustPower, float NewMaxVelocity)
+{
+	// SERVER AUTHORITY: Apply ship customization stats
+	// This is called by clients via RPC when they change ship customization
+
+	UE_LOG(LogTemp, Log, TEXT("Spaceship '%s': Server applying customization - Mass: %.2f, Thrust: %.2f, MaxVel: %.2f"),
+		*GetName(), NewMass, NewThrustPower, NewMaxVelocity);
+
+	// Apply mass to OrbitalBody (affects gravity calculations)
+	Mass = NewMass;
+
+	// Apply thrust power (NOTE: MaxThrust is used by UpdateFlightPhysics)
+	MaxThrust = NewThrustPower;
+
+	// Apply max velocity (stored in network state for replication)
+	// NOTE: FlightController's MaxSafeVelocity is applied in ShipCustomizationComponent
+	// We store it in network state for replication to all clients
+
+	// Update replicated network state
+	ReplicatedNetworkState.ReplicatedMass = NewMass;
+	ReplicatedNetworkState.ReplicatedThrustPower = NewThrustPower;
+	ReplicatedNetworkState.ReplicatedMaxVelocity = NewMaxVelocity;
+
+	// Force network update to replicate to all clients
+	UpdateNetworkState();
+	SendNetworkUpdate();
+
+	UE_LOG(LogTemp, Log, TEXT("Spaceship '%s': Customization applied and replicated to clients"), *GetName());
 }
 
 // ============================================================================
