@@ -1,0 +1,99 @@
+Traceback (most recent call last):
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\connection.py", line 508, in request
+    self.send(chunk)
+  File "C:\Program Files\Python311\Lib\http\client.py", line 1019, in send
+    self.sock.sendall(data)
+ConnectionAbortedError: [WinError 10053] An established connection was aborted by the software in your host machine
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\requests\adapters.py", line 667, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\connectionpool.py", line 841, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\util\retry.py", line 474, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\util\util.py", line 38, in reraise
+    raise value.with_traceback(tb)
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\connectionpool.py", line 787, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\connectionpool.py", line 493, in _make_request
+    conn.request(
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\urllib3\connection.py", line 508, in request
+    self.send(chunk)
+  File "C:\Program Files\Python311\Lib\http\client.py", line 1019, in send
+    self.sock.sendall(data)
+urllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "c:\Users\allen\Desktop\Alexander\Alexander\simple_4observer_test.py", line 180, in <module>
+    success = main()
+              ^^^^^^
+  File "c:\Users\allen\Desktop\Alexander\Alexander\simple_4observer_test.py", line 110, in main
+    result = submit_observation(
+             ^^^^^^^^^^^^^^^^^^^
+  File "c:\Users\allen\Desktop\Alexander\Alexander\simple_4observer_test.py", line 28, in submit_observation
+    response = requests.post(url, json=payload, timeout=5)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\requests\api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\allen\AppData\Roaming\Python\Python311\site-packages\requests\adapters.py", line 682, in send
+    raise ConnectionError(err, request=request)
+requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))
+
+============================================================
+4-OBSERVER TETRAHEDRON VALIDATION TEST
+============================================================
+
+Target Position: [1000.0, 2000.0, 500.0]
+Target ID: 1
+
+CALCULATING OBSERVATIONS
+============================================================
+
+Observer 1 at [0.0, 0.0, 0.0]:
+  Direction: [0.4364, 0.8729, 0.2182]
+  Distance: 2291.29 units
+
+Observer 2 at [2000.0, 0.0, 0.0]:
+  Direction: [-0.4364, 0.8729, 0.2182]
+  Distance: 2291.29 units
+
+Observer 3 at [1000.0, 4000.0, 0.0]:
+  Direction: [0.0000, -0.9701, 0.2425]
+  Distance: 2061.55 units
+
+Observer 4 at [1000.0, 2000.0, 1000.0]:
+  Direction: [0.0000, 0.0000, -1.0000]
+  Distance: 500.00 units
+
+============================================================
+SUBMITTING OBSERVATIONS TO SERVER
+============================================================
+[OK] Observer 1: Observation recorded
+[OK] Observer 2: Observation recorded
+[OK] Observer 3: Observation recorded
+
+[ERROR] ('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))

@@ -1,0 +1,54 @@
+{
+  "skins": [
+    {
+      "SkinID": "skin_default",
+      "DisplayName": "Default",
+      "Description": "Standard factory appearance",
+      "Rarity": "Common",
+      "SkinMaterialPath": "/Game/ShipCustomization/Materials/Instances/MI_Ship_Default",
+      "IconPath": "/Game/ShipCustomization/Icons/T_Icon_Skin_Default",
+      "UnlockCost": 0,
+      "UnlockedByDefault": true
+    },
+    {
+      "SkinID": "skin_racing_red",
+      "DisplayName": "Racing Red",
+      "Description": "Bold red paint scheme for competitive pilots",
+      "Rarity": "Uncommon",
+      "SkinMaterialPath": "/Game/ShipCustomization/Materials/Instances/MI_Ship_Racing_Red",
+      "IconPath": "/Game/ShipCustomization/Icons/T_Icon_Skin_RacingRed",
+      "UnlockCost": 1000,
+      "UnlockedByDefault": false
+    },
+    {
+      "SkinID": "skin_military_camo",
+      "DisplayName": "Military Camo",
+      "Description": "Tactical camouflage pattern",
+      "Rarity": "Rare",
+      "SkinMaterialPath": "/Game/ShipCustomization/Materials/Instances/MI_Ship_Military_Camo",
+      "IconPath": "/Game/ShipCustomization/Icons/T_Icon_Skin_MilitaryCamo",
+      "UnlockCost": 3000,
+      "UnlockedByDefault": false
+    },
+    {
+      "SkinID": "skin_neon_racer",
+      "DisplayName": "Neon Racer",
+      "Description": "Glowing neon accents for night racing",
+      "Rarity": "Epic",
+      "SkinMaterialPath": "/Game/ShipCustomization/Materials/Instances/MI_Ship_Neon_Racer",
+      "IconPath": "/Game/ShipCustomization/Icons/T_Icon_Skin_NeonRacer",
+      "UnlockCost": 7000,
+      "UnlockedByDefault": false
+    },
+    {
+      "SkinID": "skin_golden_ace",
+      "DisplayName": "Golden Ace",
+      "Description": "Prestigious gold finish for elite pilots",
+      "Rarity": "Legendary",
+      "SkinMaterialPath": "/Game/ShipCustomization/Materials/Instances/MI_Ship_Golden_Ace",
+      "IconPath": "/Game/ShipCustomization/Icons/T_Icon_Skin_GoldenAce",
+      "UnlockCost": 15000,
+      "UnlockedByDefault": false
+    }
+  ]
+}

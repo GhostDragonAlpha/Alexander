@@ -1,0 +1,9 @@
+{
+  "ConfigName": "Balanced",
+  "ThrustForce": 50000.0,
+  "RotationTorque": 20000.0,
+  "MaxSpeed": 1000.0,
+  "Mass": 10000.0,
+  "Drag": 0.1,
+  "AngularDrag": 0.05
+}
