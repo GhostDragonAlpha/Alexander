@@ -309,8 +309,9 @@ Comprehensive testing and validation framework has been implemented and executed
 
 **Procedure:**
 1. Open Unreal Editor
-2. Load `Content/SolarSystem.umap`
+2. Load `Content/FlightTest.umap` (primary testing map)
 3. Follow screenshot capture procedures in `VISUAL_QUALITY_VALIDATION.md`
+4. Note: SolarSystem content will be populated during Phase 8
 4. Capture screenshots for:
    - Planetary environments (Earth, Moon, Mars)
    - Space environments (void, nebulae, star systems)

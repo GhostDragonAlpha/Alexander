@@ -10,8 +10,9 @@
 Open `Alexander.uproject` in Unreal Editor 5.6
 
 ### Step 2: Load Your Test Level
-- Open your main gameplay level (e.g., `SolarSystem` map)
+- Open your primary testing level (e.g., `FlightTest` map)
 - Or any level with active gameplay
+- Note: SolarSystem will be populated with content during Phase 8
 
 ### Step 3: Enter Play-In-Editor (PIE)
 - Press the **Play** button (or Alt+P)

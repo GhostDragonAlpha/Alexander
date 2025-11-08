@@ -17,7 +17,7 @@ python run_automated_profiling.py
 ```
 
 **What it does:**
-1. Launches game with SolarSystem map
+1. Launches game with FlightTest map
 2. Profiles for 3 minutes automatically
 3. Closes game and exports profiling data
 4. Analyzes results and displays bottlenecks
@@ -145,7 +145,7 @@ Edit `run_automated_profiling.py`:
 
 ```python
 # Line 21: Change map to profile
-MAP_TO_LOAD = "/Game/SolarSystem"  # or "/Game/FlightTest", "/Game/SpaceStation"
+MAP_TO_LOAD = "/Game/FlightTest"  # Primary testing map, or "/Game/SolarSystem" (Phase 8 content)
 
 # Line 23: Change profiling duration
 PROFILE_DURATION = 180  # seconds (default: 3 minutes)
@@ -173,7 +173,7 @@ PROJECT = r"C:\Users\allen\Desktop\Alexander\Alexander\Alexander.uproject"
 
 **Steps:**
 1. Open `Alexander.uproject` in Unreal Editor
-2. Load your test map (e.g., SolarSystem)
+2. Load your test map (e.g., FlightTest - primary testing map)
 3. Click Play (Alt+P) or Play in Standalone Game
 4. Perform gameplay actions you want to profile
 5. Close PIE (Escape or Stop)
@@ -421,10 +421,11 @@ python compare_profiling.py baseline.json current.json
 3. Profiler subsystem didn't initialize
 
 **Solutions:**
-- Change map to `/Game/FlightTest` (line 21 in script)
-- Increase duration to 300 seconds (line 23)
+- Map is already set to `/Game/FlightTest` (primary testing map)
+- Try increasing duration to 300 seconds (line 23)
 - Check `Saved/Logs/Alexander.log` for errors
 - Verify profiled systems exist in the map
+- Ensure actors are spawned in the map during gameplay
 
 ### Game Exits Early
 
@@ -449,7 +450,8 @@ python compare_profiling.py baseline.json current.json
 - Test actors spawned for testing
 
 **Solutions:**
-- Use map with actual game content (SolarSystem, FlightTest)
+- Use FlightTest map (primary testing map with content)
+- Or use SolarSystem map (Phase 8 content, currently under development)
 - Increase profiling duration
 - Check that map has spaceships or profiled actors
 

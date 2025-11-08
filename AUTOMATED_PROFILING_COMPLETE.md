@@ -12,7 +12,7 @@ python run_automated_profiling.py
 ```
 
 **That's it!** The script will:
-1. Launch the game with SolarSystem map
+1. Launch the game with FlightTest map (primary testing map)
 2. Profile for 3 minutes automatically
 3. Close the game automatically
 4. Analyze and display results
@@ -47,7 +47,7 @@ python run_automated_profiling.py
 
 ### Production Automation
 **`run_automated_profiling.py`** - Main automation script (use this!)
-- Loads SolarSystem map
+- Loads FlightTest map (primary testing map)
 - Runs for 3 minutes
 - Automatically analyzes results
 - Zero manual intervention
@@ -68,11 +68,11 @@ python run_automated_profiling.py
 
 ### Step 1: Launch Game
 ```bash
-UnrealEditor.exe Alexander.uproject /Game/SolarSystem -game -windowed
+UnrealEditor.exe Alexander.uproject /Game/FlightTest -game -windowed
 ```
 
 Launches standalone game with:
-- SolarSystem map loaded
+- FlightTest map loaded (primary testing map)
 - 1280x720 windowed mode
 - Unattended mode (no prompts)
 
@@ -101,7 +101,7 @@ Script parses JSON and displays:
 
 ```
 ================================================================================
-PROFILING RESULTS - /Game/SolarSystem
+PROFILING RESULTS - /Game/FlightTest
 ================================================================================
 Total Frames: 10800
 Average FPS: 60.00
@@ -158,13 +158,14 @@ Based on 90 FPS VR target (11.1ms frame budget):
 ### "No profiling samples collected"
 
 **Possible causes:**
-1. SolarSystem map doesn't have instrumented actors
+1. FlightTest map doesn't have instrumented actors
 2. Game crashed during profiling
 3. Profiler didn't initialize
 
 **Solutions:**
-- Check that SolarSystem map has spaceships or profiled actors
-- Try FlightTest map instead: Edit line 7 in script to `/Game/FlightTest`
+- FlightTest is the primary testing map
+- Ensure test actors are placed in FlightTest
+- Try SolarSystem map instead: Edit line 200 in script to `/Game/SolarSystem` (Phase 8 content)
 - Check `Saved/Logs/Alexander.log` for errors
 
 ### "Game exited early"
@@ -197,7 +198,7 @@ Edit `run_automated_profiling.py`:
 
 ```python
 # Line 16-18: Basic config
-MAP_TO_LOAD = "/Game/SolarSystem"  # Change map here
+MAP_TO_LOAD = "/Game/FlightTest"  # Primary testing map (or "/Game/SolarSystem" for Phase 8 content)
 PROFILE_DURATION = 180  # Change duration (seconds)
 
 # Line 12-13: Editor location

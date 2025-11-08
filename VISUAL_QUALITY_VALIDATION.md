@@ -449,7 +449,7 @@ python Content/Python/mission_screenshot_verification.py
 
 #### In Unreal Editor:
 1. Open Alexander.uproject
-2. Load desired level (SolarSystem.umap or mission level)
+2. Load desired level (FlightTest.umap as primary test level, or mission level)
 3. Position camera using viewport controls
 4. Set graphics quality: Epic settings
 5. Disable UI for clean shots (if needed)

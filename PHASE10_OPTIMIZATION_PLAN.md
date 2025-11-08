@@ -59,11 +59,12 @@ Phase 10 will focus on identifying and optimizing performance bottlenecks in the
 
 #### Tasks:
 1. **PIE Mode Profiling Session** (30 min)
-   - Launch SolarSystem level in PIE
+   - Launch FlightTest level in PIE (primary testing map)
    - Play for 5 minutes with typical gameplay
    - Fly spaceship, activate systems, stress test
    - Exit PIE to trigger JSON export
    - Analyze ProfileReport for bottlenecks
+   - Note: SolarSystem will have content in Phase 8
 
 2. **VR Profiling Session** (45 min)
    - If VR headset available, profile in VR mode

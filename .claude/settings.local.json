@@ -23,7 +23,9 @@
       "Bash(cat:*)",
       "Bash(python:*)",
       "Bash(tee:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(tasklist:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []

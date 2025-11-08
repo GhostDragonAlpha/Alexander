@@ -114,7 +114,7 @@ python build_and_test.py --shipping
 
 1. Open `Alexander.uproject` in Unreal Editor
 2. Click Play button (Alt+P)
-3. Default map: Content/Maps/SolarSystem
+3. Default map: Content/Maps/FlightTest
 
 ### Standalone Build
 
@@ -123,7 +123,7 @@ python build_and_test.py --shipping
 "C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor.exe" Alexander.uproject -game
 
 # Launch with specific map
-"C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor.exe" Alexander.uproject /Game/SolarSystem -game
+"C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor.exe" Alexander.uproject /Game/FlightTest -game
 ```
 
 ### VR Mode

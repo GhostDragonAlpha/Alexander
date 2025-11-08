@@ -12,7 +12,7 @@ python run_automated_profiling.py
 ```
 
 **That's it!** The script will:
-1. Launch game with SolarSystem map
+1. Launch game with FlightTest map (primary testing map)
 2. Profile for 3 minutes automatically
 3. Close game and analyze results
 4. Display bottlenecks and recommendations
@@ -50,8 +50,8 @@ Based on 90 FPS VR target (11.1ms frame budget):
 Edit `run_automated_profiling.py` to customize:
 
 ```python
-# Line 21: Change map
-MAP_TO_LOAD = "/Game/SolarSystem"  # or "/Game/FlightTest"
+# Line 21: Change map (FlightTest is the primary testing map)
+MAP_TO_LOAD = "/Game/FlightTest"  # Primary testing map, or "/Game/SolarSystem" (Phase 8 content)
 
 # Line 23: Change duration
 PROFILE_DURATION = 180  # seconds (default: 3 minutes)
@@ -75,9 +75,10 @@ Currently instrumented systems:
 ### No profiling samples collected
 
 **Try:**
-1. Change map to `/Game/FlightTest` (line 21)
+1. FlightTest map is already selected (line 21)
 2. Increase duration to 300 seconds (line 23)
 3. Check `Saved/Logs/Alexander.log` for errors
+4. Verify actors exist in the map
 
 ### Game exits early
 
