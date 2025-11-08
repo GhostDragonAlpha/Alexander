@@ -1,0 +1,209 @@
+{
+  "version": "1.0",
+  "economyPhilosophy": "Players should feel progression but not grind. Average 30-40 hours to unlock most content, 60-80 hours to unlock everything.",
+  "creditEarnRates": {
+    "raceComplete": {
+      "base": 250,
+      "medalBonus": {
+        "gold": 200,
+        "silver": 100,
+        "bronze": 50
+      },
+      "difficultyMultiplier": {
+        "tutorial": 0.5,
+        "easy": 1.0,
+        "medium": 1.5,
+        "hard": 2.0,
+        "expert": 3.0
+      },
+      "firstTimeBonus": 1.5,
+      "description": "Base: 250cr, Gold medal on Hard = 250 + 200 + (450 * 2.0) = 1350cr first time, 900cr repeat"
+    },
+    "asteroidDestroyed": {
+      "small": 5,
+      "medium": 15,
+      "large": 35,
+      "bonus_10_combo": 50,
+      "bonus_25_combo": 150,
+      "description": "Combat scenario earnings"
+    },
+    "missionComplete": {
+      "story": 1000,
+      "side": 500,
+      "daily": 200,
+      "description": "Mission rewards"
+    },
+    "discovery": {
+      "location": 100,
+      "secret": 300,
+      "collectible": 75
+    },
+    "achievement": {
+      "common": 200,
+      "uncommon": 500,
+      "rare": 1000,
+      "epic": 2500,
+      "legendary": 5000
+    },
+    "dailyLogin": 100,
+    "firstWinOfDay": 500,
+    "perfectRun": 750,
+    "noCollisionRun": 300,
+    "timeTrialRecord": 1000
+  },
+  "partCosts": {
+    "baseCostsByRarity": {
+      "Common": 500,
+      "Uncommon": 1500,
+      "Rare": 4000,
+      "Epic": 10000,
+      "Legendary": 25000
+    },
+    "categoryMultipliers": {
+      "Engine": 1.5,
+      "Thrusters": 1.2,
+      "Hull": 1.3,
+      "Wings": 1.1,
+      "Cockpit": 1.0,
+      "Weapon": 1.4,
+      "Shield": 1.3,
+      "Utility": 1.0
+    },
+    "statImpactMultiplier": {
+      "description": "Parts with higher total stat bonuses cost more",
+      "formula": "baseCost * (1 + totalStatBonus * 0.1)",
+      "example": "Rare Engine (4000cr base) with +50% total stats = 4000 * 1.5 = 6000cr"
+    },
+    "upgradeCosts": {
+      "level1": {
+        "multiplier": 0.5,
+        "description": "First upgrade is 50% of part base cost"
+      },
+      "level2": {
+        "multiplier": 0.75,
+        "description": "Second upgrade is 75% of part base cost"
+      },
+      "level3": {
+        "multiplier": 1.0,
+        "description": "Third upgrade equals part base cost"
+      },
+      "level4": {
+        "multiplier": 1.5,
+        "description": "Fourth upgrade is 150% of part base cost"
+      },
+      "level5": {
+        "multiplier": 2.0,
+        "description": "Max upgrade is 200% of part base cost"
+      },
+      "totalCostMultiplier": 5.75,
+      "description": "Fully upgrading a part costs 575% of base cost (expensive but powerful)"
+    }
+  },
+  "skinCosts": {
+    "baseCostsByRarity": {
+      "Common": 300,
+      "Uncommon": 800,
+      "Rare": 2000,
+      "Epic": 5000,
+      "Legendary": 12000
+    },
+    "themeMultipliers": {
+      "solid_color": 0.8,
+      "pattern": 1.0,
+      "animated": 1.5,
+      "holographic": 2.0,
+      "particle_effects": 2.5
+    },
+    "description": "Skins are cosmetic so generally cheaper than parts"
+  },
+  "maintenanceCosts": {
+    "enabled": false,
+    "repairCost": {
+      "formula": "maxHealth * 0.1 * (1 - currentHealthPercent)",
+      "description": "Optional repair costs after crashes - currently disabled for better player experience"
+    },
+    "description": "Maintenance disabled to avoid punishing new players"
+  },
+  "loadoutCosts": {
+    "slot1": 0,
+    "slot2": 5000,
+    "slot3": 10000,
+    "slot4": 20000,
+    "slot5": 35000,
+    "slot6": 50000,
+    "description": "Cost to unlock additional loadout slots (first is free)"
+  },
+  "costScalingFormulas": {
+    "partCost": {
+      "formula": "baseRarityCost * categoryMultiplier * (1 + statImpactMultiplier)",
+      "example": "Epic Engine with +60% stats = 10000 * 1.5 * (1 + 0.6*0.1) = 15900cr"
+    },
+    "skinCost": {
+      "formula": "baseRarityCost * themeMultiplier",
+      "example": "Rare Holographic = 2000 * 2.0 = 4000cr"
+    },
+    "upgradeCost": {
+      "formula": "partBaseCost * upgradeLevelMultiplier",
+      "example": "Level 3 upgrade of 6000cr part = 6000 * 1.0 = 6000cr"
+    }
+  },
+  "economyTargets": {
+    "creditsPerHour": {
+      "casual": 2000,
+      "average": 4000,
+      "skilled": 8000,
+      "expert": 15000,
+      "description": "Expected earning rates for different skill levels"
+    },
+    "hoursToUnlock": {
+      "firstCustomization": 0.25,
+      "fullBasicLoadout": 2,
+      "firstRareItem": 5,
+      "competitiveLoadout": 15,
+      "mostContent": 40,
+      "everythingMaxed": 80,
+      "description": "Target progression pace"
+    },
+    "totalContentValue": {
+      "allParts": 450000,
+      "allSkins": 150000,
+      "allUpgrades": 600000,
+      "allLoadoutSlots": 120000,
+      "grandTotal": 1320000,
+      "description": "Total credits needed to unlock everything"
+    }
+  },
+  "balancingNotes": {
+    "earlyGame": "Players earn 500-1000cr per race, can afford Common/Uncommon parts quickly",
+    "midGame": "Level 20-30 players earn 2000-4000cr per race, saving for Epic parts",
+    "lateGame": "Level 40+ players earn 5000+ per race, can afford Legendary and max upgrades",
+    "catchUpMechanics": "Daily bonuses, achievements, and first-time bonuses help new players progress faster",
+    "avoidGrind": "Players should never feel stuck. Always multiple paths to earn credits."
+  },
+  "monetizationConsiderations": {
+    "premiumCurrency": false,
+    "description": "Currently single-currency (credits) earned through gameplay only. Can add premium currency later if needed.",
+    "accelerators": {
+      "xpBoost": "Optional +50% XP for 24 hours",
+      "creditBoost": "Optional +50% Credits for 24 hours",
+      "description": "Optional accelerators, not required for progression"
+    }
+  },
+  "specialBundles": {
+    "starterPack": {
+      "cost": 2500,
+      "contains": ["engine_race", "thruster_vector", "skin_racing_stripes"],
+      "description": "Good value bundle for new players"
+    },
+    "combatPack": {
+      "cost": 8000,
+      "contains": ["weapon_plasma", "shield_enhanced", "hull_armored", "skin_military_camo"],
+      "description": "Combat-focused bundle"
+    },
+    "legendaryPack": {
+      "cost": 40000,
+      "contains": ["engine_legendary", "hull_ultimate", "skin_champion_gold"],
+      "description": "Endgame bundle - expensive but complete"
+    }
+  }
+}

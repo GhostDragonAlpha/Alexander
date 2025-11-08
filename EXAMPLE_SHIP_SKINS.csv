@@ -1,0 +1,16 @@
+Row Name,SkinID,DisplayName,Description,Rarity,UnlockCost,bUnlockedByDefault
+Skin_Default,Skin_Default,Standard White,Classic white and blue colorway with metallic accents.,Common,0,TRUE
+Skin_Racing,Skin_Racing,Racing Stripe,Sleek black with neon racing stripes and aerodynamic lines.,Uncommon,200,FALSE
+Skin_Combat,Skin_Combat,Combat Black,Military-grade black coating with tactical markings and grid pattern.,Rare,500,FALSE
+Skin_Chrome,Skin_Chrome,Chrome Luxury,Polished chrome finish with elegant design and premium appearance.,Epic,1500,FALSE
+Skin_Neon,Skin_Neon,Neon Cyberpunk,Futuristic neon colors with glowing neon accents and circuit patterns.,Legendary,3000,FALSE
+Skin_Forest,Skin_Forest,Forest Camo,Forest camouflage pattern with green and brown tones for stealth.,Rare,400,FALSE
+Skin_Ocean,Skin_Ocean,Ocean Blue,Deep ocean blue gradient with water ripple patterns and bioluminescence.,Uncommon,250,FALSE
+Skin_Sunset,Skin_Sunset,Sunset Orange,Warm sunset orange and purple gradient with silhouette effects.,Uncommon,250,FALSE
+Skin_Gold,Skin_Gold,Gold Prestige,Luxurious gold plating with diamond inlays for ultra-premium appearance.,Legendary,4000,FALSE
+Skin_RedDragon,Skin_RedDragon,Red Dragon,Aggressive red paint with dragon scale patterns and gold trim.,Epic,1200,FALSE
+Skin_FrostWhite,Skin_FrostWhite,Frost White,Pure white with crystalline frost patterns and cool blue highlights.,Rare,450,FALSE
+Skin_VoidBlack,Skin_VoidBlack,Void Black,Absolute black void finish with subtle quantum distortion effects.,Epic,1400,FALSE
+Skin_SteelGrey,Skin_SteelGrey,Steel Grey,Industrial steel grey with weathered surface and battle scars.,Common,100,FALSE
+Skin_ElectricBlue,Skin_ElectricBlue,Electric Blue,Bright electric blue with lightning effect overlays and energy patterns.,Uncommon,300,FALSE
+Skin_CrimsonRed,Skin_CrimsonRed,Crimson Red,Deep crimson red with black shadows for aggressive appearance.,Uncommon,280,FALSE

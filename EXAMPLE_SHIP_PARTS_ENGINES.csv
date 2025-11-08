@@ -1,0 +1,9 @@
+Row Name,PartID,DisplayName,Description,Category,Rarity,LevelRequirement,UnlockCost,bUnlockedByDefault,ThrustPower,MaxVelocity,RotationSpeed,Acceleration,HullIntegrity,ShieldStrength,WeaponDamage,EnergyCapacity,EnergyRegenRate,Mass,ParentPartID,bCanBeUpgraded,UpgradeLevel
+Engine_Basic,Engine_Basic,Basic Engine,Standard propulsion system for light spacecraft. Reliable and affordable.,Engine,Common,1,0,TRUE,1.0,1.0,1.0,1.0,100.0,0.0,1.0,100.0,10.0,1000.0,,TRUE,0
+Engine_Advanced,Engine_Advanced,Advanced Engine,High-performance engine with improved thrust and reliability. 50% more power than basic.,Engine,Uncommon,5,500,FALSE,1.5,1.2,1.0,1.3,100.0,0.0,1.0,100.0,10.0,1100.0,Engine_Basic,TRUE,1
+Engine_Racing,Engine_Racing,Racing Engine,Lightweight engine optimized for extreme speed. 80% thrust increase but 20% less durable.,Engine,Rare,10,1500,FALSE,1.8,1.6,1.4,1.6,80.0,0.0,1.0,100.0,10.0,800.0,Engine_Advanced,TRUE,2
+Engine_Freighter,Engine_Freighter,Freighter Engine,Heavy-duty engine designed for hauling cargo. Lower speed but much more durable.,Engine,Common,3,300,FALSE,0.8,0.9,0.8,0.7,200.0,0.0,1.0,150.0,15.0,2000.0,,FALSE,0
+Engine_Military,Engine_Military,Military Engine,Combat-grade engine with high reliability and power delivery.,Engine,Epic,15,3000,FALSE,2.0,1.4,1.2,1.8,100.0,0.0,1.0,120.0,20.0,1200.0,Engine_Advanced,TRUE,3
+Engine_Stable,Engine_Stable,Stable Engine,Reliable engine with good balance between power and efficiency.,Engine,Uncommon,2,100,FALSE,1.1,1.0,1.0,1.0,100.0,0.0,1.0,100.0,10.0,950.0,Engine_Basic,TRUE,0
+Engine_Scout,Engine_Scout,Scout Engine,Balanced propulsion system optimized for exploration.,Engine,Uncommon,6,400,FALSE,1.3,1.3,1.1,1.2,100.0,0.0,1.0,110.0,12.0,900.0,Engine_Advanced,TRUE,1
+Engine_Experimental,Engine_Experimental,Experimental Engine,Prototype high-performance engine. Unstable but powerful.,Engine,Epic,18,4000,FALSE,2.1,1.5,1.3,1.9,90.0,0.0,1.0,110.0,22.0,1150.0,Engine_Military,TRUE,4

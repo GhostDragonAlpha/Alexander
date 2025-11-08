@@ -1,0 +1,525 @@
+{
+  "Parts": [
+    {
+      "PartID": "Engine_Starter_Basic",
+      "DisplayName": "Mk1 Ion Drive",
+      "Description": "Standard-issue ion engine. Reliable and efficient, perfect for beginners.",
+      "Category": "Engine",
+      "Rarity": "Common",
+      "LevelRequirement": 1,
+      "UnlockCost": 0,
+      "bUnlockedByDefault": true,
+      "StatModifiers": {
+        "ThrustPower": 1.0,
+        "MaxVelocity": 1.0,
+        "Acceleration": 1.0,
+        "Mass": 100.0,
+        "EnergyCapacity": 0.0,
+        "EnergyRegenRate": 0.0
+      }
+    },
+    {
+      "PartID": "Engine_Speed_Racer",
+      "DisplayName": "Velocity V3 Engine",
+      "Description": "High-velocity engine optimized for speed. Light but fragile construction.",
+      "Category": "Engine",
+      "Rarity": "Uncommon",
+      "LevelRequirement": 3,
+      "UnlockCost": 2500,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "ThrustPower": 0.85,
+        "MaxVelocity": 1.4,
+        "Acceleration": 1.2,
+        "Mass": 75.0,
+        "EnergyCapacity": 0.0,
+        "EnergyRegenRate": -2.0
+      }
+    },
+    {
+      "PartID": "Engine_Power_Heavy",
+      "DisplayName": "Titan Mk2 Thruster",
+      "Description": "Massive thrust output for heavy loads. Excellent acceleration, but velocity limited.",
+      "Category": "Engine",
+      "Rarity": "Rare",
+      "LevelRequirement": 5,
+      "UnlockCost": 5000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "ThrustPower": 1.6,
+        "MaxVelocity": 0.8,
+        "Acceleration": 1.5,
+        "Mass": 180.0,
+        "EnergyCapacity": 0.0,
+        "EnergyRegenRate": -3.0
+      }
+    },
+    {
+      "PartID": "Engine_Balanced_Pro",
+      "DisplayName": "Quantum Balance Drive",
+      "Description": "Military-grade balanced performance. No weaknesses, no extremes.",
+      "Category": "Engine",
+      "Rarity": "Epic",
+      "LevelRequirement": 8,
+      "UnlockCost": 10000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "ThrustPower": 1.25,
+        "MaxVelocity": 1.25,
+        "Acceleration": 1.25,
+        "Mass": 110.0,
+        "EnergyCapacity": 20.0,
+        "EnergyRegenRate": 1.0
+      }
+    },
+    {
+      "PartID": "Engine_Legendary_Phantom",
+      "DisplayName": "Phantom Drive X-7",
+      "Description": "Experimental zero-point energy engine. Unmatched speed and efficiency.",
+      "Category": "Engine",
+      "Rarity": "Legendary",
+      "LevelRequirement": 15,
+      "UnlockCost": 25000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "ThrustPower": 1.5,
+        "MaxVelocity": 1.6,
+        "Acceleration": 1.4,
+        "Mass": 80.0,
+        "EnergyCapacity": 30.0,
+        "EnergyRegenRate": 3.0
+      }
+    },
+    {
+      "PartID": "Thrusters_Standard",
+      "DisplayName": "Standard RCS Array",
+      "Description": "Baseline reaction control system for 6DOF maneuvering.",
+      "Category": "Thrusters",
+      "Rarity": "Common",
+      "LevelRequirement": 1,
+      "UnlockCost": 0,
+      "bUnlockedByDefault": true,
+      "StatModifiers": {
+        "RotationSpeed": 1.0,
+        "Acceleration": 1.0,
+        "Mass": 50.0,
+        "EnergyCapacity": 0.0,
+        "EnergyRegenRate": 0.0
+      }
+    },
+    {
+      "PartID": "Thrusters_Agility_Light",
+      "DisplayName": "Mongoose Agility Pack",
+      "Description": "Ultra-responsive vectored thrusters. Perfect for tight maneuvers.",
+      "Category": "Thrusters",
+      "Rarity": "Uncommon",
+      "LevelRequirement": 4,
+      "UnlockCost": 3000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "RotationSpeed": 1.5,
+        "Acceleration": 1.1,
+        "Mass": 35.0,
+        "EnergyCapacity": 0.0,
+        "EnergyRegenRate": -1.5
+      }
+    },
+    {
+      "PartID": "Thrusters_Heavy_Precise",
+      "DisplayName": "Precision Control Matrix",
+      "Description": "Industrial-grade thrusters with exceptional precision. Heavier but stable.",
+      "Category": "Thrusters",
+      "Rarity": "Rare",
+      "LevelRequirement": 6,
+      "UnlockCost": 6000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "RotationSpeed": 0.9,
+        "Acceleration": 1.3,
+        "Mass": 90.0,
+        "EnergyCapacity": 10.0,
+        "EnergyRegenRate": 0.5
+      }
+    },
+    {
+      "PartID": "Thrusters_Racing_Elite",
+      "DisplayName": "Eclipse Racing System",
+      "Description": "Tournament-spec thrusters for competitive racing. Maximum agility.",
+      "Category": "Thrusters",
+      "Rarity": "Epic",
+      "LevelRequirement": 10,
+      "UnlockCost": 12000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "RotationSpeed": 1.8,
+        "Acceleration": 1.2,
+        "Mass": 40.0,
+        "EnergyCapacity": 15.0,
+        "EnergyRegenRate": -2.0
+      }
+    },
+    {
+      "PartID": "Hull_Basic_Light",
+      "DisplayName": "Aluminum Composite Frame",
+      "Description": "Lightweight civilian hull. Minimal protection, maximum efficiency.",
+      "Category": "Hull",
+      "Rarity": "Common",
+      "LevelRequirement": 1,
+      "UnlockCost": 0,
+      "bUnlockedByDefault": true,
+      "StatModifiers": {
+        "HullIntegrity": 100.0,
+        "Mass": 200.0,
+        "Acceleration": 1.0,
+        "EnergyCapacity": 0.0
+      }
+    },
+    {
+      "PartID": "Hull_Reinforced_Medium",
+      "DisplayName": "Reinforced Titanium Hull",
+      "Description": "Military-grade armor plating. Better protection at the cost of mass.",
+      "Category": "Hull",
+      "Rarity": "Uncommon",
+      "LevelRequirement": 3,
+      "UnlockCost": 3500,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "HullIntegrity": 180.0,
+        "Mass": 350.0,
+        "Acceleration": 0.85,
+        "EnergyCapacity": 0.0
+      }
+    },
+    {
+      "PartID": "Hull_Heavy_Tank",
+      "DisplayName": "Dreadnought Armor Plating",
+      "Description": "Maximum armor for combat scenarios. Exceptional durability.",
+      "Category": "Hull",
+      "Rarity": "Rare",
+      "LevelRequirement": 7,
+      "UnlockCost": 7000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "HullIntegrity": 300.0,
+        "Mass": 500.0,
+        "Acceleration": 0.7,
+        "ThrustPower": 0.9,
+        "EnergyCapacity": 0.0
+      }
+    },
+    {
+      "PartID": "Hull_Carbon_Racing",
+      "DisplayName": "Carbon Nanoweave Shell",
+      "Description": "Ultra-light racing hull. Strong but brittle under sustained fire.",
+      "Category": "Hull",
+      "Rarity": "Epic",
+      "LevelRequirement": 9,
+      "UnlockCost": 11000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "HullIntegrity": 120.0,
+        "Mass": 120.0,
+        "Acceleration": 1.15,
+        "MaxVelocity": 1.1,
+        "EnergyCapacity": 10.0
+      }
+    },
+    {
+      "PartID": "Shield_None",
+      "DisplayName": "No Shield Generator",
+      "Description": "No shield installed. Maximum performance, zero protection.",
+      "Category": "Shield",
+      "Rarity": "Common",
+      "LevelRequirement": 1,
+      "UnlockCost": 0,
+      "bUnlockedByDefault": true,
+      "StatModifiers": {
+        "ShieldStrength": 0.0,
+        "Mass": 0.0,
+        "EnergyCapacity": 0.0,
+        "EnergyRegenRate": 0.0
+      }
+    },
+    {
+      "PartID": "Shield_Basic_Light",
+      "DisplayName": "Mk1 Shield Projector",
+      "Description": "Basic energy shield. Modest protection with low energy draw.",
+      "Category": "Shield",
+      "Rarity": "Uncommon",
+      "LevelRequirement": 4,
+      "UnlockCost": 4000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "ShieldStrength": 100.0,
+        "Mass": 80.0,
+        "EnergyCapacity": 50.0,
+        "EnergyRegenRate": 5.0
+      }
+    },
+    {
+      "PartID": "Shield_Heavy_Fortress",
+      "DisplayName": "Fortress Shield Array",
+      "Description": "Heavy-duty shielding for combat. Excellent capacity, slow recharge.",
+      "Category": "Shield",
+      "Rarity": "Rare",
+      "LevelRequirement": 8,
+      "UnlockCost": 8000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "ShieldStrength": 250.0,
+        "Mass": 150.0,
+        "EnergyCapacity": 100.0,
+        "EnergyRegenRate": 3.0
+      }
+    },
+    {
+      "PartID": "Shield_Regen_Fast",
+      "DisplayName": "Adaptive Regenerator",
+      "Description": "Quick-recharge shield system. Lower capacity but rapid recovery.",
+      "Category": "Shield",
+      "Rarity": "Epic",
+      "LevelRequirement": 11,
+      "UnlockCost": 13000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "ShieldStrength": 150.0,
+        "Mass": 100.0,
+        "EnergyCapacity": 80.0,
+        "EnergyRegenRate": 12.0
+      }
+    },
+    {
+      "PartID": "Weapon_None",
+      "DisplayName": "No Weapons",
+      "Description": "Unarmed configuration. Maximum cargo and performance.",
+      "Category": "Weapon",
+      "Rarity": "Common",
+      "LevelRequirement": 1,
+      "UnlockCost": 0,
+      "bUnlockedByDefault": true,
+      "StatModifiers": {
+        "WeaponDamage": 0.0,
+        "Mass": 0.0,
+        "EnergyCapacity": 0.0,
+        "EnergyRegenRate": 0.0
+      }
+    },
+    {
+      "PartID": "Weapon_Laser_Basic",
+      "DisplayName": "Pulse Laser Mk2",
+      "Description": "Standard energy weapon. Continuous beam, moderate damage.",
+      "Category": "Weapon",
+      "Rarity": "Uncommon",
+      "LevelRequirement": 5,
+      "UnlockCost": 5000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "WeaponDamage": 1.0,
+        "Mass": 60.0,
+        "EnergyCapacity": 40.0,
+        "EnergyRegenRate": -4.0
+      }
+    },
+    {
+      "PartID": "Weapon_Cannon_Heavy",
+      "DisplayName": "Railgun Mk5",
+      "Description": "Kinetic projectile weapon. High damage, low fire rate.",
+      "Category": "Weapon",
+      "Rarity": "Rare",
+      "LevelRequirement": 9,
+      "UnlockCost": 9000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "WeaponDamage": 2.0,
+        "Mass": 140.0,
+        "EnergyCapacity": 30.0,
+        "EnergyRegenRate": -2.0,
+        "Acceleration": 0.95
+      }
+    },
+    {
+      "PartID": "Weapon_Plasma_Advanced",
+      "DisplayName": "Plasma Accelerator",
+      "Description": "Experimental plasma weapon. Devastating damage, extreme energy cost.",
+      "Category": "Weapon",
+      "Rarity": "Epic",
+      "LevelRequirement": 12,
+      "UnlockCost": 15000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "WeaponDamage": 3.0,
+        "Mass": 110.0,
+        "EnergyCapacity": 60.0,
+        "EnergyRegenRate": -8.0
+      }
+    },
+    {
+      "PartID": "Weapon_Missile_Guided",
+      "DisplayName": "Seeker Missile Array",
+      "Description": "Guided missile system. Tracking projectiles, limited ammo.",
+      "Category": "Weapon",
+      "Rarity": "Legendary",
+      "LevelRequirement": 14,
+      "UnlockCost": 20000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "WeaponDamage": 2.5,
+        "Mass": 95.0,
+        "EnergyCapacity": 50.0,
+        "EnergyRegenRate": -3.0
+      }
+    },
+    {
+      "PartID": "Utility_Scanner_Basic",
+      "DisplayName": "Standard Scanner",
+      "Description": "Basic scanning suite. Standard detection range.",
+      "Category": "Utility",
+      "Rarity": "Common",
+      "LevelRequirement": 1,
+      "UnlockCost": 0,
+      "bUnlockedByDefault": true,
+      "StatModifiers": {
+        "Mass": 30.0,
+        "EnergyCapacity": 20.0,
+        "EnergyRegenRate": 0.0
+      }
+    },
+    {
+      "PartID": "Utility_Scanner_Long",
+      "DisplayName": "Long-Range Sensors",
+      "Description": "Extended detection radius. Perfect for exploration.",
+      "Category": "Utility",
+      "Rarity": "Uncommon",
+      "LevelRequirement": 6,
+      "UnlockCost": 4500,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "Mass": 55.0,
+        "EnergyCapacity": 40.0,
+        "EnergyRegenRate": -1.0
+      }
+    },
+    {
+      "PartID": "Utility_ECM_Stealth",
+      "DisplayName": "Stealth ECM Suite",
+      "Description": "Electronic countermeasures for stealth operations.",
+      "Category": "Utility",
+      "Rarity": "Rare",
+      "LevelRequirement": 10,
+      "UnlockCost": 10000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "Mass": 70.0,
+        "EnergyCapacity": 60.0,
+        "EnergyRegenRate": -2.5
+      }
+    },
+    {
+      "PartID": "Utility_Repair_Auto",
+      "DisplayName": "Auto-Repair Nanobots",
+      "Description": "Self-repairing hull system. Restores integrity over time.",
+      "Category": "Utility",
+      "Rarity": "Epic",
+      "LevelRequirement": 13,
+      "UnlockCost": 16000,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "Mass": 85.0,
+        "HullIntegrity": 50.0,
+        "EnergyCapacity": 80.0,
+        "EnergyRegenRate": -3.0
+      }
+    },
+    {
+      "PartID": "Wings_Standard",
+      "DisplayName": "Standard Wing Config",
+      "Description": "Baseline wing configuration for atmospheric flight.",
+      "Category": "Wings",
+      "Rarity": "Common",
+      "LevelRequirement": 1,
+      "UnlockCost": 0,
+      "bUnlockedByDefault": true,
+      "StatModifiers": {
+        "Mass": 80.0,
+        "RotationSpeed": 1.0,
+        "Acceleration": 1.0
+      }
+    },
+    {
+      "PartID": "Wings_Racing_Delta",
+      "DisplayName": "Delta Wing Package",
+      "Description": "Aerodynamic racing wings. Enhanced speed and maneuverability.",
+      "Category": "Wings",
+      "Rarity": "Uncommon",
+      "LevelRequirement": 5,
+      "UnlockCost": 3500,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "Mass": 60.0,
+        "RotationSpeed": 1.2,
+        "MaxVelocity": 1.15,
+        "Acceleration": 1.05
+      }
+    },
+    {
+      "PartID": "Wings_Heavy_Cargo",
+      "DisplayName": "Cargo Lift Wings",
+      "Description": "Heavy-duty wings for cargo hauling. Increased stability.",
+      "Category": "Wings",
+      "Rarity": "Rare",
+      "LevelRequirement": 7,
+      "UnlockCost": 6500,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "Mass": 140.0,
+        "RotationSpeed": 0.85,
+        "Acceleration": 1.1,
+        "HullIntegrity": 30.0
+      }
+    },
+    {
+      "PartID": "Cockpit_Standard",
+      "DisplayName": "Standard Cockpit",
+      "Description": "Basic pilot compartment. Functional and reliable.",
+      "Category": "Cockpit",
+      "Rarity": "Common",
+      "LevelRequirement": 1,
+      "UnlockCost": 0,
+      "bUnlockedByDefault": true,
+      "StatModifiers": {
+        "Mass": 120.0,
+        "EnergyCapacity": 30.0
+      }
+    },
+    {
+      "PartID": "Cockpit_Fighter_Advanced",
+      "DisplayName": "Fighter Cockpit",
+      "Description": "Enhanced visibility and control systems for combat.",
+      "Category": "Cockpit",
+      "Rarity": "Uncommon",
+      "LevelRequirement": 6,
+      "UnlockCost": 5500,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "Mass": 100.0,
+        "RotationSpeed": 1.1,
+        "EnergyCapacity": 50.0
+      }
+    },
+    {
+      "PartID": "Cockpit_Explorer_Panoramic",
+      "DisplayName": "Explorer Panoramic Dome",
+      "Description": "360-degree visibility for exploration and scanning.",
+      "Category": "Cockpit",
+      "Rarity": "Rare",
+      "LevelRequirement": 8,
+      "UnlockCost": 7500,
+      "bUnlockedByDefault": false,
+      "StatModifiers": {
+        "Mass": 90.0,
+        "EnergyCapacity": 70.0,
+        "EnergyRegenRate": 1.0
+      }
+    }
+  ]
+}

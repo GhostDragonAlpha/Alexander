@@ -1,0 +1,9 @@
+Row Name,PartID,DisplayName,Description,Category,Rarity,LevelRequirement,UnlockCost,bUnlockedByDefault,ThrustPower,MaxVelocity,RotationSpeed,Acceleration,HullIntegrity,ShieldStrength,WeaponDamage,EnergyCapacity,EnergyRegenRate,Mass,ParentPartID,bCanBeUpgraded,UpgradeLevel
+Thruster_Basic,Thruster_Basic,Basic Thruster,Standard maneuvering thrusters for light rotational control.,Thrusters,Common,1,0,TRUE,1.0,1.0,1.0,1.0,100.0,0.0,1.0,100.0,10.0,500.0,,TRUE,0
+Thruster_Agile,Thruster_Agile,Agile Thruster,High-response maneuvering system for combat and racing. 50% faster rotation.,Thrusters,Uncommon,6,600,FALSE,1.0,1.0,1.5,1.0,100.0,0.0,1.0,100.0,10.0,600.0,Thruster_Basic,TRUE,1
+Thruster_Heavy,Thruster_Heavy,Heavy Thruster,Stable maneuvering for large cargo vessels. Slower but more reliable.,Thrusters,Common,4,400,FALSE,1.0,1.0,0.8,1.0,100.0,0.0,1.0,100.0,10.0,1000.0,,FALSE,0
+Thruster_Military,Thruster_Military,Military Thruster,Combat-optimized with rapid response and enhanced reliability.,Thrusters,Epic,16,2500,FALSE,1.2,1.0,1.4,1.1,100.0,0.0,1.0,110.0,12.0,700.0,Thruster_Agile,TRUE,2
+Thruster_Responsive,Thruster_Responsive,Responsive Thruster,Quick reaction thrusters for precise maneuvering. 30% faster than basic.,Thrusters,Uncommon,5,500,FALSE,1.0,1.0,1.3,1.0,100.0,0.0,1.0,100.0,10.0,550.0,Thruster_Basic,TRUE,0
+Thruster_Racing,Thruster_Racing,Racing Thruster,Lightweight racing thrusters for extreme agility. 80% faster rotation.,Thrusters,Rare,11,1200,FALSE,1.0,1.0,1.8,1.0,80.0,0.0,1.0,100.0,10.0,400.0,Thruster_Agile,TRUE,2
+Thruster_Balanced,Thruster_Balanced,Balanced Thruster,Steady performance thruster suitable for all ship types.,Thrusters,Common,3,300,FALSE,1.0,1.0,1.1,1.0,100.0,0.0,1.0,100.0,10.0,520.0,,TRUE,0
+Thruster_Prototype,Thruster_Prototype,Prototype Thruster,Experimental thruster design with enhanced response characteristics.,Thrusters,Epic,17,3000,FALSE,1.3,1.0,1.6,1.2,100.0,0.0,1.0,120.0,15.0,650.0,Thruster_Military,TRUE,3

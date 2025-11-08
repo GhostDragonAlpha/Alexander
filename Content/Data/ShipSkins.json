@@ -1,0 +1,104 @@
+{
+  "Skins": [
+    {
+      "SkinID": "Skin_Default",
+      "DisplayName": "Factory Default",
+      "Description": "Standard ship livery. Clean and professional.",
+      "Rarity": "Common",
+      "UnlockCost": 0,
+      "LevelRequirement": 1,
+      "bUnlockedByDefault": true,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_Default"
+    },
+    {
+      "SkinID": "Skin_Military_Gray",
+      "DisplayName": "Military Gray",
+      "Description": "Tactical military camo pattern. Low visibility in deep space.",
+      "Rarity": "Common",
+      "UnlockCost": 500,
+      "LevelRequirement": 1,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_MilitaryGray"
+    },
+    {
+      "SkinID": "Skin_Racing_Red",
+      "DisplayName": "Racing Red",
+      "Description": "High-visibility racing livery. Stand out from the competition.",
+      "Rarity": "Uncommon",
+      "UnlockCost": 1500,
+      "LevelRequirement": 3,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_RacingRed"
+    },
+    {
+      "SkinID": "Skin_Stealth_Black",
+      "DisplayName": "Stealth Black",
+      "Description": "Matte black tactical coating. Minimal sensor signature.",
+      "Rarity": "Rare",
+      "UnlockCost": 3000,
+      "LevelRequirement": 5,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_StealthBlack"
+    },
+    {
+      "SkinID": "Skin_Corporate_Blue",
+      "DisplayName": "Corporate Blue",
+      "Description": "Executive-class finish. Premium metallic blue with gold accents.",
+      "Rarity": "Rare",
+      "UnlockCost": 3500,
+      "LevelRequirement": 6,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_CorporateBlue"
+    },
+    {
+      "SkinID": "Skin_Pirate_Gold",
+      "DisplayName": "Pirate Gold",
+      "Description": "Flashy gold plating with skull insignia. For the boldest pilots.",
+      "Rarity": "Epic",
+      "UnlockCost": 7500,
+      "LevelRequirement": 8,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_PirateGold"
+    },
+    {
+      "SkinID": "Skin_Explorer_Green",
+      "DisplayName": "Explorer Green",
+      "Description": "Surveyor Corps standard. Emerald green with exploration markings.",
+      "Rarity": "Epic",
+      "UnlockCost": 8000,
+      "LevelRequirement": 9,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_ExplorerGreen"
+    },
+    {
+      "SkinID": "Skin_Royal_Purple",
+      "DisplayName": "Royal Purple",
+      "Description": "Imperial Navy ceremonial livery. Deep purple with gold trim.",
+      "Rarity": "Legendary",
+      "UnlockCost": 15000,
+      "LevelRequirement": 12,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_RoyalPurple"
+    },
+    {
+      "SkinID": "Skin_Chrome_Mirror",
+      "DisplayName": "Chrome Mirror",
+      "Description": "Reflective chrome finish. Ultimate showpiece for elite pilots.",
+      "Rarity": "Legendary",
+      "UnlockCost": 20000,
+      "LevelRequirement": 15,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_ChromeMirror"
+    },
+    {
+      "SkinID": "Skin_Neon_Racer",
+      "DisplayName": "Neon Circuit",
+      "Description": "Glowing neon circuit pattern. Pulsing RGB lighting effects.",
+      "Rarity": "Legendary",
+      "UnlockCost": 25000,
+      "LevelRequirement": 18,
+      "bUnlockedByDefault": false,
+      "MaterialPath": "/Game/Materials/ShipSkins/M_Ship_NeonCircuit"
+    }
+  ]
+}

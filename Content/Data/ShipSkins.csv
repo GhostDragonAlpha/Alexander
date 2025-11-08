@@ -1,0 +1,11 @@
+Name,SkinID,DisplayName,Description,Rarity,SkinMaterial,Icon,UnlockCost,bUnlockedByDefault
+Skin_Default,Skin_Default,Factory Default,Standard ship livery. Clean and professional.,0,/Game/Materials/ShipSkins/M_Ship_Default,,0,true
+Skin_Military_Gray,Skin_Military_Gray,Military Gray,Tactical military camo pattern. Low visibility in deep space.,0,/Game/Materials/ShipSkins/M_Ship_MilitaryGray,,500,false
+Skin_Racing_Red,Skin_Racing_Red,Racing Red,High-visibility racing livery. Stand out from the competition.,1,/Game/Materials/ShipSkins/M_Ship_RacingRed,,1500,false
+Skin_Stealth_Black,Skin_Stealth_Black,Stealth Black,Matte black tactical coating. Minimal sensor signature.,2,/Game/Materials/ShipSkins/M_Ship_StealthBlack,,3000,false
+Skin_Corporate_Blue,Skin_Corporate_Blue,Corporate Blue,Executive-class finish. Premium metallic blue with gold accents.,2,/Game/Materials/ShipSkins/M_Ship_CorporateBlue,,3500,false
+Skin_Pirate_Gold,Skin_Pirate_Gold,Pirate Gold,Flashy gold plating with skull insignia. For the boldest pilots.,3,/Game/Materials/ShipSkins/M_Ship_PirateGold,,7500,false
+Skin_Explorer_Green,Skin_Explorer_Green,Explorer Green,Surveyor Corps standard. Emerald green with exploration markings.,3,/Game/Materials/ShipSkins/M_Ship_ExplorerGreen,,8000,false
+Skin_Royal_Purple,Skin_Royal_Purple,Royal Purple,Imperial Navy ceremonial livery. Deep purple with gold trim.,4,/Game/Materials/ShipSkins/M_Ship_RoyalPurple,,15000,false
+Skin_Chrome_Mirror,Skin_Chrome_Mirror,Chrome Mirror,Reflective chrome finish. Ultimate showpiece for elite pilots.,4,/Game/Materials/ShipSkins/M_Ship_ChromeMirror,,20000,false
+Skin_Neon_Racer,Skin_Neon_Racer,Neon Circuit,Glowing neon circuit pattern. Pulsing RGB lighting effects.,4,/Game/Materials/ShipSkins/M_Ship_NeonCircuit,,25000,false

@@ -1,0 +1,9 @@
+Row Name,PartID,DisplayName,Description,Category,Rarity,LevelRequirement,UnlockCost,bUnlockedByDefault,ThrustPower,MaxVelocity,RotationSpeed,Acceleration,HullIntegrity,ShieldStrength,WeaponDamage,EnergyCapacity,EnergyRegenRate,Mass,ParentPartID,bCanBeUpgraded,UpgradeLevel
+Shield_Basic,Shield_Basic,Basic Shield,Standard energy shield for light protective coverage.,Shield,Common,5,300,FALSE,1.0,1.0,1.0,1.0,100.0,50.0,1.0,150.0,10.0,200.0,,TRUE,0
+Shield_Advanced,Shield_Advanced,Advanced Shield,Stronger shields with better energy efficiency and recharge rate.,Shield,Uncommon,10,800,FALSE,1.0,1.0,1.0,1.0,100.0,100.0,1.0,180.0,15.0,300.0,Shield_Basic,TRUE,1
+Shield_Military,Shield_Military,Military Shield,Heavy-duty combat shields designed for frontline fighters.,Shield,Epic,17,2500,FALSE,0.95,0.95,0.95,0.95,100.0,150.0,1.0,200.0,20.0,500.0,Shield_Advanced,TRUE,2
+Shield_Reactive,Shield_Reactive,Reactive Shield,Adaptive shield that strengthens in response to incoming damage.,Shield,Rare,12,1500,FALSE,1.0,1.0,1.0,1.0,100.0,80.0,1.0,170.0,18.0,350.0,,FALSE,0
+Shield_Electromagnetic,Shield_Electromagnetic,Electromagnetic Shield,Specialized shield that's particularly effective against energy weapons.,Shield,Rare,14,1800,FALSE,0.98,0.98,0.98,0.98,100.0,90.0,1.1,190.0,14.0,400.0,,FALSE,0
+Shield_Kinetic,Shield_Kinetic,Kinetic Shield,Enhanced protection against kinetic projectiles and ramming damage.,Shield,Uncommon,9,900,FALSE,1.0,1.0,1.0,1.0,120.0,70.0,1.0,150.0,12.0,350.0,,TRUE,0
+Shield_Fortress,Shield_Fortress,Fortress Shield,Maximum capacity shield generator for ultimate defensive capability.,Shield,Legendary,20,5000,FALSE,0.9,0.9,0.9,0.9,100.0,200.0,1.0,250.0,25.0,600.0,Shield_Military,TRUE,3
+Shield_Stealth,Shield_Stealth,Stealth Shield,Low-power shield that prevents detection while sacrificing defense strength.,Shield,Epic,16,2200,FALSE,1.0,1.0,1.0,1.0,100.0,60.0,1.0,140.0,8.0,250.0,,FALSE,0

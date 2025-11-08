@@ -1,0 +1,254 @@
+{
+  "version": "1.0",
+  "maxLevel": 50,
+  "levelCurve": {
+    "type": "exponential",
+    "baseXP": 100,
+    "exponent": 1.15,
+    "smoothingFactor": 50,
+    "description": "XP requirement grows exponentially but smoothly. Level 10 = ~1500 XP, Level 25 = ~12000 XP, Level 50 = ~75000 XP total"
+  },
+  "xpRequirementsByLevel": {
+    "1": 0,
+    "2": 100,
+    "3": 215,
+    "4": 347,
+    "5": 499,
+    "6": 674,
+    "7": 874,
+    "8": 1102,
+    "9": 1361,
+    "10": 1654,
+    "11": 1984,
+    "12": 2355,
+    "13": 2768,
+    "14": 3229,
+    "15": 3740,
+    "16": 4305,
+    "17": 4929,
+    "18": 5616,
+    "19": 6370,
+    "20": 7196,
+    "21": 8099,
+    "22": 9084,
+    "23": 10157,
+    "24": 11323,
+    "25": 12589,
+    "26": 13961,
+    "27": 15446,
+    "28": 17050,
+    "29": 18781,
+    "30": 20646,
+    "31": 22653,
+    "32": 24809,
+    "33": 27123,
+    "34": 29604,
+    "35": 32260,
+    "36": 35101,
+    "37": 38136,
+    "38": 41376,
+    "39": 44831,
+    "40": 48511,
+    "41": 52428,
+    "42": 56592,
+    "43": 61016,
+    "44": 65712,
+    "45": 70692,
+    "46": 75970,
+    "47": 81559,
+    "48": 87474,
+    "49": 93729,
+    "50": 100340
+  },
+  "xpRewards": {
+    "raceComplete": {
+      "base": 150,
+      "timeBonus": {
+        "gold": 100,
+        "silver": 50,
+        "bronze": 25
+      },
+      "difficultyMultiplier": {
+        "tutorial": 0.5,
+        "easy": 1.0,
+        "medium": 1.5,
+        "hard": 2.0,
+        "expert": 3.0
+      },
+      "description": "Base XP for completing race, bonus for medal times, scaled by difficulty"
+    },
+    "asteroidDestroyed": {
+      "small": 10,
+      "medium": 25,
+      "large": 50,
+      "description": "XP for destroying asteroids in combat scenarios"
+    },
+    "missionComplete": {
+      "story": 500,
+      "side": 250,
+      "daily": 100,
+      "description": "Mission completion rewards"
+    },
+    "discovery": {
+      "location": 75,
+      "secret": 150,
+      "collectible": 50,
+      "description": "Exploration rewards"
+    },
+    "achievement": {
+      "common": 100,
+      "uncommon": 250,
+      "rare": 500,
+      "epic": 1000,
+      "legendary": 2500,
+      "description": "Achievement completion rewards"
+    },
+    "dailyLogin": 50,
+    "firstWinOfDay": 200,
+    "perfectRun": 300,
+    "noCollisionRun": 150
+  },
+  "unlockSchedule": {
+    "level1": {
+      "parts": ["engine_basic", "thruster_basic", "hull_basic", "wings_basic"],
+      "skins": ["default"],
+      "features": ["basic_customization"],
+      "description": "Starting equipment"
+    },
+    "level2": {
+      "parts": ["engine_improved"],
+      "description": "First engine upgrade unlocked"
+    },
+    "level3": {
+      "parts": ["thruster_improved", "skin_red"],
+      "skins": ["red_flame"],
+      "description": "Improved thrusters and first color skin"
+    },
+    "level5": {
+      "parts": ["hull_reinforced", "shield_basic"],
+      "features": ["shield_system"],
+      "description": "Defensive options unlock"
+    },
+    "level7": {
+      "parts": ["wings_swept", "weapon_laser_basic"],
+      "features": ["weapon_system"],
+      "description": "Combat capabilities unlock"
+    },
+    "level10": {
+      "parts": ["engine_race", "cockpit_racing"],
+      "skins": ["racing_stripes"],
+      "features": ["loadout_slots_2"],
+      "description": "Racing specialization, second loadout slot"
+    },
+    "level12": {
+      "parts": ["thruster_vector", "hull_lightweight"]
+    },
+    "level15": {
+      "parts": ["engine_heavy", "shield_enhanced"],
+      "skins": ["military_camo"],
+      "features": ["loadout_slots_3"],
+      "description": "Heavy combat build, third loadout slot"
+    },
+    "level18": {
+      "parts": ["wings_delta", "weapon_plasma"],
+      "skins": ["plasma_glow"]
+    },
+    "level20": {
+      "parts": ["engine_balanced", "thruster_boost"],
+      "features": ["part_upgrades"],
+      "description": "Part upgrade system unlocked"
+    },
+    "level22": {
+      "parts": ["hull_armored", "shield_reactive"],
+      "skins": ["stealth_black"]
+    },
+    "level25": {
+      "parts": ["engine_prototype", "cockpit_advanced"],
+      "skins": ["gold_trim"],
+      "features": ["loadout_slots_4"],
+      "description": "Advanced prototypes, fourth loadout slot"
+    },
+    "level28": {
+      "parts": ["thruster_ion", "wings_variable"]
+    },
+    "level30": {
+      "parts": ["weapon_missile", "shield_phase"],
+      "skins": ["holographic"],
+      "features": ["advanced_stats"],
+      "description": "Advanced weaponry and stats dashboard"
+    },
+    "level32": {
+      "parts": ["hull_composite", "engine_turbo"]
+    },
+    "level35": {
+      "parts": ["thruster_quantum", "weapon_railgun"],
+      "skins": ["neon_grid"],
+      "features": ["loadout_slots_5"],
+      "description": "Quantum tech tier, fifth loadout slot"
+    },
+    "level38": {
+      "parts": ["wings_morphing", "shield_adaptive"]
+    },
+    "level40": {
+      "parts": ["engine_legendary", "cockpit_elite"],
+      "skins": ["crystal_prism"],
+      "features": ["stat_tracking"],
+      "description": "Legendary equipment tier"
+    },
+    "level42": {
+      "parts": ["thruster_plasma", "hull_reactive"]
+    },
+    "level45": {
+      "parts": ["weapon_exotic", "shield_legendary"],
+      "skins": ["void_energy"],
+      "features": ["loadout_slots_6"],
+      "description": "Exotic weapons unlock"
+    },
+    "level48": {
+      "parts": ["wings_ultimate", "utility_boost"]
+    },
+    "level50": {
+      "parts": ["engine_ultimate", "cockpit_ultimate", "hull_ultimate"],
+      "skins": ["champion_gold", "champion_platinum"],
+      "features": ["all_features"],
+      "description": "Ultimate endgame equipment"
+    }
+  },
+  "levelRewards": {
+    "every1Level": {
+      "credits": 500,
+      "description": "Base credits per level"
+    },
+    "every5Levels": {
+      "credits": 2500,
+      "bonusXP": 500,
+      "description": "Milestone bonus"
+    },
+    "every10Levels": {
+      "credits": 5000,
+      "guaranteedUnlock": true,
+      "description": "Major milestone - guaranteed rare+ part unlock"
+    },
+    "level25": {
+      "credits": 10000,
+      "specialReward": "exclusive_skin_gold",
+      "description": "Mid-game milestone"
+    },
+    "level50": {
+      "credits": 25000,
+      "specialReward": "ultimate_bundle",
+      "description": "Max level reward"
+    }
+  },
+  "prestigeSystem": {
+    "enabled": true,
+    "minLevel": 50,
+    "rewards": {
+      "prestigeSkin": true,
+      "creditBonus": 1.1,
+      "xpBonus": 1.1,
+      "exclusiveParts": ["prestige_engine", "prestige_hull"]
+    },
+    "description": "Optional prestige system for endgame players"
+  }
+}

@@ -1,0 +1,9 @@
+Row Name,PartID,DisplayName,Description,Category,Rarity,LevelRequirement,UnlockCost,bUnlockedByDefault,ThrustPower,MaxVelocity,RotationSpeed,Acceleration,HullIntegrity,ShieldStrength,WeaponDamage,EnergyCapacity,EnergyRegenRate,Mass,ParentPartID,bCanBeUpgraded,UpgradeLevel
+Hull_Light,Hull_Light,Light Hull,Racing hull with minimal armor for maximum speed potential.,Hull,Rare,9,800,FALSE,1.0,1.0,1.0,1.0,40.0,0.0,1.0,100.0,10.0,400.0,,FALSE,0
+Hull_Standard,Hull_Standard,Standard Hull,Balanced protection and weight distribution for general purpose use.,Hull,Common,1,0,TRUE,1.0,1.0,1.0,1.0,100.0,0.0,1.0,100.0,10.0,1000.0,,TRUE,0
+Hull_Reinforced,Hull_Reinforced,Reinforced Hull,Heavy armor plating for improved protection and durability.,Hull,Uncommon,7,700,FALSE,0.95,0.95,0.95,0.95,150.0,0.0,1.0,100.0,10.0,1500.0,Hull_Standard,TRUE,1
+Hull_Combat,Hull_Combat,Combat Hull,Military-grade armor designed to withstand intense combat and punishment.,Hull,Epic,14,2000,FALSE,0.9,0.9,0.9,0.9,200.0,0.0,1.0,100.0,10.0,2000.0,Hull_Reinforced,TRUE,2
+Hull_Scout,Hull_Scout,Scout Hull,Lightweight hull optimized for exploration and long-distance travel.,Hull,Uncommon,5,500,FALSE,1.0,1.05,1.0,1.0,80.0,0.0,1.0,110.0,12.0,700.0,Hull_Standard,TRUE,0
+Hull_Racing,Hull_Racing,Racing Hull,Extremely lightweight minimalist hull for maximum speed and agility.,Hull,Rare,12,1500,FALSE,1.05,1.1,1.05,1.05,30.0,0.0,1.0,100.0,10.0,300.0,Hull_Light,TRUE,1
+Hull_Freighter,Hull_Freighter,Freighter Hull,Extra-large structural reinforcement for maximum cargo capacity.,Hull,Common,3,400,FALSE,0.85,0.85,0.85,0.85,180.0,0.0,1.0,120.0,15.0,2500.0,,FALSE,0
+Hull_Adaptive,Hull_Adaptive,Adaptive Hull,Smart hull design that adjusts to load conditions dynamically.,Hull,Epic,16,2500,FALSE,0.98,0.98,0.98,0.98,120.0,20.0,1.0,110.0,15.0,1200.0,Hull_Combat,TRUE,3

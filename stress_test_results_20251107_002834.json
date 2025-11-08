@@ -1,0 +1,18 @@
+[
+  {
+    "num_objects": 10,
+    "num_observers": 4,
+    "total_observations": 40,
+    "test_duration_sec": 7.846552610397339,
+    "observations_per_sec": 5.097780131748133,
+    "submit_avg_ms": 196.01381421089172,
+    "submit_median_ms": 200.95109939575195,
+    "submit_p95_ms": 201.6917586326599,
+    "submit_max_ms": 201.72691345214844,
+    "validation_avg_ms": 200.85060596466064,
+    "validation_max_ms": 201.78580284118652,
+    "fps": 261.98590087890625,
+    "fps_ok": true,
+    "response_time_ok": false
+  }
+]

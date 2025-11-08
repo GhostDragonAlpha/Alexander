@@ -1,0 +1,517 @@
+{
+  "version": "1.0",
+  "achievements": [
+    {
+      "id": "first_customization",
+      "name": "Personal Touch",
+      "description": "Equip your first ship part",
+      "category": "customization",
+      "rarity": "Common",
+      "requirements": {
+        "partsEquipped": 1
+      },
+      "rewards": {
+        "xp": 100,
+        "credits": 200,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "color_me_impressed",
+      "name": "Color Me Impressed",
+      "description": "Apply your first ship skin",
+      "category": "customization",
+      "rarity": "Common",
+      "requirements": {
+        "skinsApplied": 1
+      },
+      "rewards": {
+        "xp": 100,
+        "credits": 200,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "fully_loaded",
+      "name": "Fully Loaded",
+      "description": "Fill all equipment slots with parts",
+      "category": "customization",
+      "rarity": "Uncommon",
+      "requirements": {
+        "allSlotsEquipped": true
+      },
+      "rewards": {
+        "xp": 250,
+        "credits": 500,
+        "unlock": "skin_fully_loaded_badge"
+      },
+      "hidden": false
+    },
+    {
+      "id": "speed_demon",
+      "name": "Speed Demon",
+      "description": "Equip a full racing-spec loadout (Engine, Thrusters, Lightweight Hull)",
+      "category": "customization",
+      "rarity": "Uncommon",
+      "requirements": {
+        "loadoutType": "racing"
+      },
+      "rewards": {
+        "xp": 250,
+        "credits": 500,
+        "unlock": "skin_speed_stripes"
+      },
+      "hidden": false
+    },
+    {
+      "id": "tank_build",
+      "name": "Impenetrable",
+      "description": "Equip a full defense loadout (Heavy Hull, Max Shield, Armor)",
+      "category": "customization",
+      "rarity": "Uncommon",
+      "requirements": {
+        "loadoutType": "tank"
+      },
+      "rewards": {
+        "xp": 250,
+        "credits": 500,
+        "unlock": "skin_fortress"
+      },
+      "hidden": false
+    },
+    {
+      "id": "collector",
+      "name": "Collector",
+      "description": "Unlock 10 different ship parts",
+      "category": "progression",
+      "rarity": "Uncommon",
+      "requirements": {
+        "partsUnlocked": 10
+      },
+      "rewards": {
+        "xp": 250,
+        "credits": 1000,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "hoarder",
+      "name": "Hoarder",
+      "description": "Unlock 25 different ship parts",
+      "category": "progression",
+      "rarity": "Rare",
+      "requirements": {
+        "partsUnlocked": 25
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 2500,
+        "unlock": "skin_collector_chrome"
+      },
+      "hidden": false
+    },
+    {
+      "id": "completionist",
+      "name": "Completionist",
+      "description": "Unlock all ship parts",
+      "category": "progression",
+      "rarity": "Legendary",
+      "requirements": {
+        "partsUnlocked": "all"
+      },
+      "rewards": {
+        "xp": 2500,
+        "credits": 10000,
+        "unlock": "skin_completionist_rainbow"
+      },
+      "hidden": false
+    },
+    {
+      "id": "fashionista",
+      "name": "Fashionista",
+      "description": "Unlock 5 different skins",
+      "category": "progression",
+      "rarity": "Uncommon",
+      "requirements": {
+        "skinsUnlocked": 5
+      },
+      "rewards": {
+        "xp": 250,
+        "credits": 800,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "style_icon",
+      "name": "Style Icon",
+      "description": "Unlock 15 different skins",
+      "category": "progression",
+      "rarity": "Rare",
+      "requirements": {
+        "skinsUnlocked": 15
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 2000,
+        "unlock": "skin_style_holographic"
+      },
+      "hidden": false
+    },
+    {
+      "id": "master_of_fashion",
+      "name": "Master of Fashion",
+      "description": "Unlock all skins",
+      "category": "progression",
+      "rarity": "Epic",
+      "requirements": {
+        "skinsUnlocked": "all"
+      },
+      "rewards": {
+        "xp": 1000,
+        "credits": 5000,
+        "unlock": "skin_fashion_master_gold"
+      },
+      "hidden": false
+    },
+    {
+      "id": "loadout_master",
+      "name": "Loadout Master",
+      "description": "Save 5 different loadout configurations",
+      "category": "customization",
+      "rarity": "Uncommon",
+      "requirements": {
+        "savedLoadouts": 5
+      },
+      "rewards": {
+        "xp": 250,
+        "credits": 500,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "every_situation",
+      "name": "Prepared for Everything",
+      "description": "Save the maximum number of loadouts (6)",
+      "category": "customization",
+      "rarity": "Rare",
+      "requirements": {
+        "savedLoadouts": 6
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 1000,
+        "unlock": "skin_prepared"
+      },
+      "hidden": false
+    },
+    {
+      "id": "upgrader",
+      "name": "Upgrader",
+      "description": "Fully upgrade your first part to max level",
+      "category": "progression",
+      "rarity": "Rare",
+      "requirements": {
+        "partsMaxUpgraded": 1
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 2000,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "perfectionist",
+      "name": "Perfectionist",
+      "description": "Fully upgrade 5 different parts",
+      "category": "progression",
+      "rarity": "Epic",
+      "requirements": {
+        "partsMaxUpgraded": 5
+      },
+      "rewards": {
+        "xp": 1000,
+        "credits": 5000,
+        "unlock": "skin_perfectionist_platinum"
+      },
+      "hidden": false
+    },
+    {
+      "id": "ultimate_ship",
+      "name": "Ultimate Ship",
+      "description": "Fully upgrade all parts in a single loadout",
+      "category": "progression",
+      "rarity": "Legendary",
+      "requirements": {
+        "loadoutFullyUpgraded": true
+      },
+      "rewards": {
+        "xp": 2500,
+        "credits": 10000,
+        "unlock": "skin_ultimate_radiant"
+      },
+      "hidden": false
+    },
+    {
+      "id": "rare_find",
+      "name": "Rare Find",
+      "description": "Unlock your first Rare part",
+      "category": "progression",
+      "rarity": "Uncommon",
+      "requirements": {
+        "rarityUnlocked": "Rare"
+      },
+      "rewards": {
+        "xp": 250,
+        "credits": 1000,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "epic_acquisition",
+      "name": "Epic Acquisition",
+      "description": "Unlock your first Epic part",
+      "category": "progression",
+      "rarity": "Rare",
+      "requirements": {
+        "rarityUnlocked": "Epic"
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 2500,
+        "unlock": "skin_epic_purple"
+      },
+      "hidden": false
+    },
+    {
+      "id": "legendary_status",
+      "name": "Legendary Status",
+      "description": "Unlock your first Legendary part",
+      "category": "progression",
+      "rarity": "Epic",
+      "requirements": {
+        "rarityUnlocked": "Legendary"
+      },
+      "rewards": {
+        "xp": 1000,
+        "credits": 5000,
+        "unlock": "skin_legendary_gold"
+      },
+      "hidden": false
+    },
+    {
+      "id": "legend_collector",
+      "name": "Legend Collector",
+      "description": "Unlock all Legendary parts",
+      "category": "progression",
+      "rarity": "Legendary",
+      "requirements": {
+        "legendaryPartsUnlocked": "all"
+      },
+      "rewards": {
+        "xp": 2500,
+        "credits": 15000,
+        "unlock": "skin_legend_collector_cosmos"
+      },
+      "hidden": false
+    },
+    {
+      "id": "wealthy",
+      "name": "Wealthy Pilot",
+      "description": "Accumulate 50,000 credits",
+      "category": "economy",
+      "rarity": "Rare",
+      "requirements": {
+        "creditsEarned": 50000
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 5000,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "tycoon",
+      "name": "Space Tycoon",
+      "description": "Accumulate 250,000 credits",
+      "category": "economy",
+      "rarity": "Epic",
+      "requirements": {
+        "creditsEarned": 250000
+      },
+      "rewards": {
+        "xp": 1000,
+        "credits": 10000,
+        "unlock": "skin_tycoon_gold_leaf"
+      },
+      "hidden": false
+    },
+    {
+      "id": "millionaire",
+      "name": "Millionaire",
+      "description": "Accumulate 1,000,000 credits (total earned)",
+      "category": "economy",
+      "rarity": "Legendary",
+      "requirements": {
+        "creditsEarned": 1000000
+      },
+      "rewards": {
+        "xp": 2500,
+        "credits": 25000,
+        "unlock": "skin_millionaire_diamond"
+      },
+      "hidden": false
+    },
+    {
+      "id": "efficient_build",
+      "name": "Efficient Engineer",
+      "description": "Create a loadout with 200% total thrust power and mass under 1500kg",
+      "category": "customization",
+      "rarity": "Rare",
+      "requirements": {
+        "customRequirement": "thrust_power >= 2.0 AND mass < 1500"
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 2000,
+        "unlock": "skin_efficiency_blue"
+      },
+      "hidden": false
+    },
+    {
+      "id": "balanced_master",
+      "name": "Balanced Master",
+      "description": "Create a loadout with all stats above 150%",
+      "category": "customization",
+      "rarity": "Epic",
+      "requirements": {
+        "customRequirement": "all_stats >= 1.5"
+      },
+      "rewards": {
+        "xp": 1000,
+        "credits": 5000,
+        "unlock": "skin_balance_yin_yang"
+      },
+      "hidden": false
+    },
+    {
+      "id": "glass_cannon",
+      "name": "Glass Cannon",
+      "description": "Create a loadout with 250% weapon damage but hull under 80",
+      "category": "customization",
+      "rarity": "Rare",
+      "requirements": {
+        "customRequirement": "weapon_damage >= 2.5 AND hull < 80"
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 2000,
+        "unlock": "skin_glass_cannon_fragile"
+      },
+      "hidden": false
+    },
+    {
+      "id": "theorycrafter",
+      "name": "Theorycrafter",
+      "description": "Switch between loadouts 50 times",
+      "category": "customization",
+      "rarity": "Uncommon",
+      "requirements": {
+        "loadoutSwitches": 50
+      },
+      "rewards": {
+        "xp": 250,
+        "credits": 1000,
+        "unlock": null
+      },
+      "hidden": false
+    },
+    {
+      "id": "veteran_pilot",
+      "name": "Veteran Pilot",
+      "description": "Reach level 25",
+      "category": "progression",
+      "rarity": "Rare",
+      "requirements": {
+        "playerLevel": 25
+      },
+      "rewards": {
+        "xp": 500,
+        "credits": 5000,
+        "unlock": "skin_veteran_badge"
+      },
+      "hidden": false
+    },
+    {
+      "id": "master_pilot",
+      "name": "Master Pilot",
+      "description": "Reach level 50",
+      "category": "progression",
+      "rarity": "Legendary",
+      "requirements": {
+        "playerLevel": 50
+      },
+      "rewards": {
+        "xp": 2500,
+        "credits": 25000,
+        "unlock": "skin_master_pilot_crown"
+      },
+      "hidden": false
+    },
+    {
+      "id": "secret_collector",
+      "name": "Secret Collector",
+      "description": "Unlock all hidden achievement skins",
+      "category": "progression",
+      "rarity": "Epic",
+      "requirements": {
+        "achievementSkinsUnlocked": "all_hidden"
+      },
+      "rewards": {
+        "xp": 1000,
+        "credits": 10000,
+        "unlock": "skin_secret_vault"
+      },
+      "hidden": true
+    }
+  ],
+  "categories": {
+    "customization": {
+      "name": "Customization",
+      "description": "Achievements related to ship customization and loadouts",
+      "icon": "wrench"
+    },
+    "progression": {
+      "name": "Progression",
+      "description": "Achievements related to leveling and unlocking content",
+      "icon": "star"
+    },
+    "economy": {
+      "name": "Economy",
+      "description": "Achievements related to earning and spending credits",
+      "icon": "coin"
+    }
+  },
+  "statistics": {
+    "totalAchievements": 30,
+    "byRarity": {
+      "Common": 2,
+      "Uncommon": 8,
+      "Rare": 10,
+      "Epic": 7,
+      "Legendary": 6
+    },
+    "totalRewards": {
+      "xp": 23850,
+      "credits": 128800,
+      "uniqueUnlocks": 20
+    }
+  }
+}

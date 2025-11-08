@@ -1,0 +1,34 @@
+[
+  {
+    "num_objects": 10,
+    "num_observers": 4,
+    "total_observations": 40,
+    "test_duration_sec": 7.846716403961182,
+    "observations_per_sec": 5.097673719902403,
+    "submit_avg_ms": 196.16791009902954,
+    "submit_median_ms": 201.01678371429443,
+    "submit_p95_ms": 201.63986682891846,
+    "submit_max_ms": 201.70235633850098,
+    "validation_avg_ms": 201.17523670196533,
+    "validation_max_ms": 201.4789581298828,
+    "fps": 217.91246032714844,
+    "fps_ok": true,
+    "response_time_ok": true
+  },
+  {
+    "num_objects": 25,
+    "num_observers": 4,
+    "total_observations": 100,
+    "test_duration_sec": 19.896541595458984,
+    "observations_per_sec": 5.025999092366039,
+    "submit_avg_ms": 198.96541595458984,
+    "submit_median_ms": 200.91331005096436,
+    "submit_p95_ms": 201.53011083602905,
+    "submit_max_ms": 201.68328285217285,
+    "validation_avg_ms": 200.8941888809204,
+    "validation_max_ms": 201.37739181518555,
+    "fps": null,
+    "fps_ok": null,
+    "response_time_ok": true
+  }
+]
