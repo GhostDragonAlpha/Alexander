@@ -19,6 +19,14 @@
 #include "Networking.h"
 #include "Async/Async.h"
 
+#if WITH_EDITOR
+#include "Materials/Material.h"
+#include "Materials/MaterialInstance.h"
+#include "Engine/Texture2D.h"
+#include "AssetRegistry/AssetRegistryModule.h"
+#include "AssetRegistry/IAssetRegistry.h"
+#endif
+
 UAutomationAPIServer::UAutomationAPIServer()
 {
 	PrimaryComponentTick.bCanEverTick = true;
@@ -394,6 +402,24 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 		FString ShipID = Endpoint.RightChop(18); // Remove "/get_ship_loadout/"
 		OutResponse = HandleGetShipLoadout(ShipID);
 	}
+#if WITH_EDITOR
+	// ============================================================================
+	// MATERIAL & TEXTURE QUERY ROUTING
+	// ============================================================================
+	else if ((Method == TEXT("GET") || Method == TEXT("POST")) && Endpoint == TEXT("/materials/list"))
+	{
+		OutResponse = HandleMaterialsList(Body);
+	}
+	else if (Method == TEXT("GET") && Endpoint.StartsWith(TEXT("/materials/get_properties/")))
+	{
+		FString MaterialPath = Endpoint.RightChop(26); // Remove "/materials/get_properties/"
+		OutResponse = HandleGetMaterialProperties(MaterialPath);
+	}
+	else if ((Method == TEXT("GET") || Method == TEXT("POST")) && Endpoint == TEXT("/textures/list"))
+	{
+		OutResponse = HandleTexturesList(Body);
+	}
+#endif // WITH_EDITOR
 	else
 	{
 		OutResponse = CreateJSONResponse(false, FString::Printf(TEXT("Unknown endpoint: %s %s"), *Method, *Endpoint));
@@ -1332,6 +1358,7 @@ TArray<AActor*> UAutomationAPIServer::GetAllShips()
 	return Ships;
 }
 
+
 TSharedPtr<FJsonObject> UAutomationAPIServer::ParseJSON(const FString& JSONString)
 {
 	TSharedPtr<FJsonObject> JsonObject;
@@ -1397,3 +1424,208 @@ bool UAutomationAPIServer::ValidateShipClass(UClass* ShipClass)
 {
 	return ShipClass && ShipClass->IsChildOf(AActor::StaticClass());
 }
+
+// ============================================================================
+// MATERIAL & TEXTURE QUERY HANDLERS
+// ============================================================================
+
+#if WITH_EDITOR
+FString UAutomationAPIServer::HandleMaterialsList(const FString& RequestBody)
+{
+	// Get the Asset Registry
+	IAssetRegistry* AssetRegistry = IAssetRegistry::Get();
+	if (!AssetRegistry)
+	{
+		return CreateJSONResponse(false, TEXT("AssetRegistry not available"));
+	}
+
+	// Parse optional filter from request body
+	FString PathFilter = TEXT("");
+	if (!RequestBody.IsEmpty())
+	{
+		TSharedPtr<FJsonObject> RequestJSON = ParseJSON(RequestBody);
+		if (RequestJSON.IsValid() && RequestJSON->HasField(TEXT("path_filter")))
+		{
+			PathFilter = RequestJSON->GetStringField(TEXT("path_filter"));
+		}
+	}
+
+	// Build filter for UMaterial and UMaterialInstance assets
+	FARFilter Filter;
+	Filter.ClassPaths.Add(FTopLevelAssetPath(TEXT("/Script/Engine.Material")));
+	Filter.ClassPaths.Add(FTopLevelAssetPath(TEXT("/Script/Engine.MaterialInstance")));
+	Filter.bRecursiveClasses = true;
+
+	// Get assets
+	TArray<FAssetData> AssetDataList;
+	AssetRegistry->GetAssets(Filter, AssetDataList);
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	TArray<TSharedPtr<FJsonValue>> MaterialsArray;
+
+	for (const FAssetData& AssetData : AssetDataList)
+	{
+		FString AssetPath = AssetData.GetObjectPathString();
+
+		// Apply path filter if specified
+		if (!PathFilter.IsEmpty() && !AssetPath.Contains(PathFilter))
+		{
+			continue;
+		}
+
+		TSharedPtr<FJsonObject> MaterialObj = MakeShareable(new FJsonObject);
+		MaterialObj->SetStringField(TEXT("path"), AssetPath);
+		MaterialObj->SetStringField(TEXT("package"), AssetData.PackageName.ToString());
+		MaterialObj->SetStringField(TEXT("name"), AssetData.AssetName.ToString());
+		MaterialObj->SetStringField(TEXT("class"), AssetData.AssetClassPath.ToString());
+
+		MaterialsArray.Add(MakeShareable(new FJsonValueObject(MaterialObj)));
+	}
+
+	ResponseData->SetArrayField(TEXT("materials"), MaterialsArray);
+	ResponseData->SetNumberField(TEXT("count"), MaterialsArray.Num());
+	if (!PathFilter.IsEmpty())
+	{
+		ResponseData->SetStringField(TEXT("path_filter"), PathFilter);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Found %d materials"), MaterialsArray.Num());
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Found %d materials"), MaterialsArray.Num()), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleGetMaterialProperties(const FString& MaterialPath)
+{
+	// Try to load the material
+	UMaterial* Material = LoadObject<UMaterial>(nullptr, *MaterialPath);
+
+	if (!Material)
+	{
+		// Try loading as MaterialInstance
+		UMaterialInstance* MaterialInstance = LoadObject<UMaterialInstance>(nullptr, *MaterialPath);
+		if (!MaterialInstance)
+		{
+			return CreateJSONResponse(false, FString::Printf(TEXT("Failed to load material: %s"), *MaterialPath));
+		}
+
+		// Get base material from instance
+		Material = MaterialInstance->GetBaseMaterial();
+		if (!Material)
+		{
+			return CreateJSONResponse(false, TEXT("Failed to get base material from instance"));
+		}
+	}
+
+	// Build response with material properties
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("material_path"), MaterialPath);
+	ResponseData->SetStringField(TEXT("material_name"), Material->GetName());
+
+	// Material properties
+	ResponseData->SetBoolField(TEXT("two_sided"), Material->IsTwoSided());
+	ResponseData->SetStringField(TEXT("blend_mode"), StaticEnum<EBlendMode>()->GetNameStringByValue((int64)Material->BlendMode));
+	ResponseData->SetStringField(TEXT("shading_model"), StaticEnum<EMaterialShadingModel>()->GetNameStringByValue((int64)Material->GetShadingModels().GetFirstShadingModel()));
+
+	// Count textures used by this material
+	TArray<UTexture*> OutTextures;
+	Material->GetUsedTextures(OutTextures, EMaterialQualityLevel::High, true, ERHIFeatureLevel::SM5, true);
+	ResponseData->SetNumberField(TEXT("num_textures"), OutTextures.Num());
+
+	// List texture paths
+	TArray<TSharedPtr<FJsonValue>> TexturesArray;
+	for (UTexture* Texture : OutTextures)
+	{
+		if (Texture)
+		{
+			TSharedPtr<FJsonObject> TexObj = MakeShareable(new FJsonObject);
+			TexObj->SetStringField(TEXT("path"), Texture->GetPathName());
+			TexObj->SetStringField(TEXT("name"), Texture->GetName());
+			TexturesArray.Add(MakeShareable(new FJsonValueObject(TexObj)));
+		}
+	}
+	ResponseData->SetArrayField(TEXT("textures"), TexturesArray);
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Retrieved properties for material '%s'"), *MaterialPath);
+
+	return CreateJSONResponse(true, TEXT("Material properties retrieved"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleTexturesList(const FString& RequestBody)
+{
+	// Get the Asset Registry
+	IAssetRegistry* AssetRegistry = IAssetRegistry::Get();
+	if (!AssetRegistry)
+	{
+		return CreateJSONResponse(false, TEXT("AssetRegistry not available"));
+	}
+
+	// Parse optional filter from request body
+	FString PathFilter = TEXT("");
+	if (!RequestBody.IsEmpty())
+	{
+		TSharedPtr<FJsonObject> RequestJSON = ParseJSON(RequestBody);
+		if (RequestJSON.IsValid() && RequestJSON->HasField(TEXT("path_filter")))
+		{
+			PathFilter = RequestJSON->GetStringField(TEXT("path_filter"));
+		}
+	}
+
+	// Build filter for UTexture2D assets
+	FARFilter Filter;
+	Filter.ClassPaths.Add(FTopLevelAssetPath(TEXT("/Script/Engine.Texture2D")));
+	Filter.bRecursiveClasses = true;
+
+	// Get assets
+	TArray<FAssetData> AssetDataList;
+	AssetRegistry->GetAssets(Filter, AssetDataList);
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	TArray<TSharedPtr<FJsonValue>> TexturesArray;
+
+	for (const FAssetData& AssetData : AssetDataList)
+	{
+		FString AssetPath = AssetData.GetObjectPathString();
+
+		// Apply path filter if specified
+		if (!PathFilter.IsEmpty() && !AssetPath.Contains(PathFilter))
+		{
+			continue;
+		}
+
+		TSharedPtr<FJsonObject> TextureObj = MakeShareable(new FJsonObject);
+		TextureObj->SetStringField(TEXT("path"), AssetPath);
+		TextureObj->SetStringField(TEXT("package"), AssetData.PackageName.ToString());
+		TextureObj->SetStringField(TEXT("name"), AssetData.AssetName.ToString());
+
+		// Try to get texture dimensions and format from asset tags
+		FString SizeX, SizeY, Format;
+		if (AssetData.GetTagValue("SizeX", SizeX))
+		{
+			TextureObj->SetNumberField(TEXT("width"), FCString::Atoi(*SizeX));
+		}
+		if (AssetData.GetTagValue("SizeY", SizeY))
+		{
+			TextureObj->SetNumberField(TEXT("height"), FCString::Atoi(*SizeY));
+		}
+		if (AssetData.GetTagValue("Format", Format))
+		{
+			TextureObj->SetStringField(TEXT("format"), Format);
+		}
+
+		TexturesArray.Add(MakeShareable(new FJsonValueObject(TextureObj)));
+	}
+
+	ResponseData->SetArrayField(TEXT("textures"), TexturesArray);
+	ResponseData->SetNumberField(TEXT("count"), TexturesArray.Num());
+	if (!PathFilter.IsEmpty())
+	{
+		ResponseData->SetStringField(TEXT("path_filter"), PathFilter);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Found %d textures"), TexturesArray.Num());
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Found %d textures"), TexturesArray.Num()), ResponseData);
+}
+#endif // WITH_EDITOR

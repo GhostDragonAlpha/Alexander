@@ -5,6 +5,7 @@
 #include "Engine/Engine.h"
 #include "Engine/World.h"
 #include "GameFramework/GameStateBase.h"
+#include "AlexanderSystemAutoStart.h"
 
 // Static member definitions
 UAdvancedAIBehaviors* FAlexanderModule::AISystem = nullptr;
@@ -17,20 +18,30 @@ IMPLEMENT_PRIMARY_GAME_MODULE(FAlexanderModule, Alexander, "Alexander");
 void FAlexanderModule::StartupModule()
 {
     UE_LOG(LogTemp, Log, TEXT("Alexander Module Starting Up - Phase 7 Systems Integration"));
-    
+
+#if WITH_EDITOR
+    // Initialize The Alexander System (auto-starts Automation API Server in editor)
+    FAlexanderSystemAutoStart::Initialize();
+#endif
+
     // Initialize Phase 7 systems
     InitializePhase7Systems();
-    
+
     UE_LOG(LogTemp, Log, TEXT("Alexander Module Startup Complete"));
 }
 
 void FAlexanderModule::ShutdownModule()
 {
     UE_LOG(LogTemp, Log, TEXT("Alexander Module Shutting Down"));
-    
+
     // Shutdown Phase 7 systems
     ShutdownPhase7Systems();
-    
+
+#if WITH_EDITOR
+    // Shutdown The Alexander System
+    FAlexanderSystemAutoStart::Shutdown();
+#endif
+
     UE_LOG(LogTemp, Log, TEXT("Alexander Module Shutdown Complete"));
 }
 

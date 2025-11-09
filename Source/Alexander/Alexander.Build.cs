@@ -15,7 +15,7 @@ public class Alexander : ModuleRules
 			   "Slate", "SlateCore", "UMG", "ToolMenus", "ProceduralMeshComponent",
 			   "GameplayTags", "GameplayTasks", "AIModule", "NavigationSystem",
 			   "AudioMixer", "DeveloperSettings", "EnhancedInput", "HeadMountedDisplay", "CinematicCamera", "XRBase",
-		   "PhysicsCore", "Sockets", "Networking", "LiveLink", "LiveLinkInterface"
+		   "PhysicsCore", "Sockets", "Networking", "LiveLink", "LiveLinkInterface", "Analytics", "AnalyticsET", "AssetRegistry"
 		   });
 
 		// Add public include paths
@@ -28,8 +28,9 @@ public class Alexander : ModuleRules
 // Add editor-only modules when building for editor
 		if (Target.bBuildEditor)
 		{
+
 			PrivateDependencyModuleNames.AddRange(new string[] {
-				"UnrealEd", "EditorWidgets", "ToolMenus", "EditorStyle", "LevelEditor"
+				"UnrealEd", "EditorWidgets", "ToolMenus", "EditorStyle", "LevelEditor", "LevelSequence", "MovieScene", "MessageLog", "Localization"
 			});
 		}
 
