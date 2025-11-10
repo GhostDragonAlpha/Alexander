@@ -224,4 +224,35 @@ The automated testing system transforms development from "does it compile?" to "
 
 ---
 
-**Next Session Goal**: Fix ship tracking so all 4 gameplay tests pass (list, position, velocity, controls)
+## Git Workflow Summary
+
+### Session 1: Iterative Testing & Fixes (2025-11-10)
+**Branch**: `feature/standalone-automation-workflow`
+**Merged to master**: 2025-11-10
+**Next branch**: `feature/fix-pie-actor-lifecycle`
+
+**Commits**:
+1. Iterative Test-Driven Development Session - Fix Automation API Crashes
+   - Fixed spawn_ship crash (PIE world detection)
+   - Implemented PIE control endpoints
+   - Added comprehensive error handling
+   - Created automated test suite
+
+2. Update settings and Alexander.cpp configuration
+   - Updated permissions for git commands
+   - Added editor auto-start configuration
+
+3. Merge feature/standalone-automation-workflow into master
+   - Resolved conflicts in .claude/settings.local.json
+   - Combined permissions from both development branches
+   - Unified Content map versions
+
+**Merge Conflicts Resolved**:
+- `.claude/settings.local.json` - Combined bash permissions from parallel work
+- `Content/FlightTest.umap` - Used feature branch version
+- `Content/SolarSystem.umap` - Used feature branch version
+- `Content/Python/autonomous_baseline_generator.py` - Used feature branch version
+
+---
+
+**Next Session Goal**: Fix PIE actor lifecycle management so all 5 gameplay tests pass
