@@ -26,6 +26,9 @@
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetRegistry/IAssetRegistry.h"
 #include "Editor.h"
+#include "Editor/EditorEngine.h"
+#include "Editor/UnrealEdEngine.h"
+#include "UnrealEdGlobals.h"
 #endif
 
 UAutomationAPIServer::UAutomationAPIServer()
@@ -60,10 +63,22 @@ void UAutomationAPIServer::BeginPlay()
 	{
 		StartServer();
 	}
+
+#if WITH_EDITOR
+	// Register PIE state change callback to clean up ships when PIE ends
+	FEditorDelegates::EndPIE.AddUObject(this, &UAutomationAPIServer::OnPIEEnded);
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Registered PIE end callback"));
+#endif
 }
 
 void UAutomationAPIServer::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+#if WITH_EDITOR
+	// Unregister PIE state change callback
+	FEditorDelegates::EndPIE.RemoveAll(this);
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Unregistered PIE end callback"));
+#endif
+
 	StopServer();
 	Super::EndPlay(EndPlayReason);
 }
@@ -75,22 +90,25 @@ void UAutomationAPIServer::TickComponent(float DeltaTime, ELevelTick TickType, F
 	if (!bIsRunning)
 		return;
 
-	// Clean up destroyed ships
-	TArray<FString> ShipsToRemove;
-	for (const auto& Pair : TrackedShips)
+	// Clean up destroyed ships (thread-safe)
 	{
-		if (!IsValid(Pair.Value))
+		FScopeLock Lock(&TrackedShipsLock);
+		TArray<FString> ShipsToRemove;
+		for (const auto& Pair : TrackedShips)
 		{
-			ShipsToRemove.Add(Pair.Key);
+			if (!IsValid(Pair.Value))
+			{
+				ShipsToRemove.Add(Pair.Key);
+			}
 		}
-	}
 
-	for (const FString& ShipID : ShipsToRemove)
-	{
-		TrackedShips.Remove(ShipID);
-		if (bVerboseLogging)
+		for (const FString& ShipID : ShipsToRemove)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Removed destroyed ship %s"), *ShipID);
+			TrackedShips.Remove(ShipID);
+			if (bVerboseLogging)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Removed destroyed ship %s"), *ShipID);
+			}
 		}
 	}
 }
@@ -737,41 +755,64 @@ FString UAutomationAPIServer::HandleSetInput(const FString& RequestBody)
 
 FString UAutomationAPIServer::HandleGetPosition(const FString& ShipID)
 {
-	AActor* Ship = GetShipByID(ShipID);
-	if (!Ship)
+	// Acquire lock, find ship, get location, release lock (minimize lock time)
+	FVector Location = FVector::ZeroVector;
+	bool bShipFound = false;
+	{
+		FScopeLock Lock(&TrackedShipsLock);
+		AActor** FoundShip = TrackedShips.Find(ShipID);
+		if (FoundShip && IsValid(*FoundShip))
+		{
+			Location = (*FoundShip)->GetActorLocation();
+			bShipFound = true;
+		}
+	}
+	// Lock released here
+
+	if (!bShipFound)
 	{
 		return CreateJSONResponse(false, FString::Printf(TEXT("Ship not found: %s"), *ShipID));
 	}
 
-	FVector Location = Ship->GetActorLocation();
-
 	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	TArray<TSharedPtr<FJsonValue>> LocationArray;
-	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.X)));
-	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Y)));
-	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Z)));
-	ResponseData->SetArrayField(TEXT("position"), LocationArray);
+	TSharedPtr<FJsonObject> PositionObj = MakeShareable(new FJsonObject);
+	PositionObj->SetNumberField(TEXT("x"), Location.X);
+	PositionObj->SetNumberField(TEXT("y"), Location.Y);
+	PositionObj->SetNumberField(TEXT("z"), Location.Z);
+	ResponseData->SetObjectField(TEXT("position"), PositionObj);
 
 	return CreateJSONResponse(true, TEXT("Position retrieved"), ResponseData);
 }
 
 FString UAutomationAPIServer::HandleGetVelocity(const FString& ShipID)
 {
-	AActor* Ship = GetShipByID(ShipID);
-	if (!Ship)
+	// Acquire lock, find ship, get velocity, release lock (minimize lock time)
+	FVector Velocity = FVector::ZeroVector;
+	float Speed = 0.0f;
+	bool bShipFound = false;
+	{
+		FScopeLock Lock(&TrackedShipsLock);
+		AActor** FoundShip = TrackedShips.Find(ShipID);
+		if (FoundShip && IsValid(*FoundShip))
+		{
+			Velocity = (*FoundShip)->GetVelocity();
+			Speed = Velocity.Size();
+			bShipFound = true;
+		}
+	}
+	// Lock released here
+
+	if (!bShipFound)
 	{
 		return CreateJSONResponse(false, FString::Printf(TEXT("Ship not found: %s"), *ShipID));
 	}
 
-	FVector Velocity = Ship->GetVelocity();
-	float Speed = Velocity.Size();
-
 	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	TArray<TSharedPtr<FJsonValue>> VelocityArray;
-	VelocityArray.Add(MakeShareable(new FJsonValueNumber(Velocity.X)));
-	VelocityArray.Add(MakeShareable(new FJsonValueNumber(Velocity.Y)));
-	VelocityArray.Add(MakeShareable(new FJsonValueNumber(Velocity.Z)));
-	ResponseData->SetArrayField(TEXT("velocity"), VelocityArray);
+	TSharedPtr<FJsonObject> VelocityObj = MakeShareable(new FJsonObject);
+	VelocityObj->SetNumberField(TEXT("x"), Velocity.X);
+	VelocityObj->SetNumberField(TEXT("y"), Velocity.Y);
+	VelocityObj->SetNumberField(TEXT("z"), Velocity.Z);
+	ResponseData->SetObjectField(TEXT("velocity"), VelocityObj);
 	ResponseData->SetNumberField(TEXT("speed"), Speed);
 
 	return CreateJSONResponse(true, TEXT("Velocity retrieved"), ResponseData);
@@ -807,14 +848,33 @@ FString UAutomationAPIServer::HandleStatus()
 
 FString UAutomationAPIServer::HandleListShips()
 {
-	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleListShips - TrackedShips.Num() = %d"), TrackedShips.Num());
-
 	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
 	TArray<TSharedPtr<FJsonValue>> ShipsArray;
 
-	for (const auto& Pair : TrackedShips)
+	// Copy TrackedShips map quickly while holding lock
+	TMap<FString, AActor*> ShipsCopy;
 	{
-		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Checking ship %s, IsValid = %d"), *Pair.Key, IsValid(Pair.Value));
+		FScopeLock Lock(&TrackedShipsLock);
+		ShipsCopy = TrackedShips;
+		if (bVerboseLogging)
+		{
+			UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleListShips - Copied %d ships"), ShipsCopy.Num());
+		}
+	}
+	// Lock released here - access ship properties without holding lock
+
+	// Iterate through copy and access ship properties
+	for (const auto& Pair : ShipsCopy)
+	{
+		// Enhanced logging for debugging
+		if (bVerboseLogging)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Ship %s - Actor ptr: %p, IsValid: %d"),
+				*Pair.Key,
+				Pair.Value,
+				IsValid(Pair.Value) ? 1 : 0);
+		}
+
 		if (IsValid(Pair.Value))
 		{
 			try
@@ -824,10 +884,8 @@ FString UAutomationAPIServer::HandleListShips()
 
 				FString ShipName = Pair.Value->GetName();
 				ShipObj->SetStringField(TEXT("ship_name"), ShipName);
-				UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Ship %s name = %s"), *Pair.Key, *ShipName);
 
 				FVector Location = Pair.Value->GetActorLocation();
-				UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Ship %s location = %s"), *Pair.Key, *Location.ToString());
 
 				TArray<TSharedPtr<FJsonValue>> LocationArray;
 				LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.X)));
@@ -836,17 +894,22 @@ FString UAutomationAPIServer::HandleListShips()
 				ShipObj->SetArrayField(TEXT("location"), LocationArray);
 
 				ShipsArray.Add(MakeShareable(new FJsonValueObject(ShipObj)));
-				UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Added ship %s to array"), *Pair.Key);
+
+				if (bVerboseLogging)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Successfully added ship %s to response array"), *Pair.Key);
+				}
 			}
 			catch (...)
 			{
 				UE_LOG(LogTemp, Error, TEXT("AutomationAPI: Exception accessing ship %s"), *Pair.Key);
 			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Ship %s is not valid (nullptr or pending kill)"), *Pair.Key);
-		}
+	}
+
+	if (bVerboseLogging)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleListShips - Final ShipsArray.Num() = %d"), ShipsArray.Num());
 	}
 
 	ResponseData->SetArrayField(TEXT("ships"), ShipsArray);
@@ -1400,6 +1463,7 @@ void UAutomationAPIServer::RegisterShip(AActor* Ship, const FString& ShipID)
 {
 	if (Ship)
 	{
+		FScopeLock Lock(&TrackedShipsLock);
 		TrackedShips.Add(ShipID, Ship);
 		if (bVerboseLogging)
 		{
@@ -1410,6 +1474,7 @@ void UAutomationAPIServer::RegisterShip(AActor* Ship, const FString& ShipID)
 
 void UAutomationAPIServer::UnregisterShip(const FString& ShipID)
 {
+	FScopeLock Lock(&TrackedShipsLock);
 	TrackedShips.Remove(ShipID);
 	if (bVerboseLogging)
 	{
@@ -1419,12 +1484,14 @@ void UAutomationAPIServer::UnregisterShip(const FString& ShipID)
 
 AActor* UAutomationAPIServer::GetShipByID(const FString& ShipID)
 {
+	FScopeLock Lock(&TrackedShipsLock);
 	AActor** FoundShip = TrackedShips.Find(ShipID);
 	return (FoundShip && IsValid(*FoundShip)) ? *FoundShip : nullptr;
 }
 
 TArray<AActor*> UAutomationAPIServer::GetAllShips()
 {
+	FScopeLock Lock(&TrackedShipsLock);
 	TArray<AActor*> Ships;
 	for (const auto& Pair : TrackedShips)
 	{
@@ -1560,6 +1627,19 @@ bool UAutomationAPIServer::ValidateShipClass(UClass* ShipClass)
 {
 	return ShipClass && ShipClass->IsChildOf(AActor::StaticClass());
 }
+
+#if WITH_EDITOR
+void UAutomationAPIServer::OnPIEEnded(bool bIsSimulating)
+{
+	// Thread-safe cleanup of tracked ships when PIE ends
+	FScopeLock Lock(&TrackedShipsLock);
+
+	int32 ShipsCleared = TrackedShips.Num();
+	TrackedShips.Empty();
+
+	UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: PIE ended - cleared %d tracked ships"), ShipsCleared);
+}
+#endif
 
 // ============================================================================
 // MATERIAL & TEXTURE QUERY HANDLERS
