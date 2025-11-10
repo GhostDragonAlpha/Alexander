@@ -866,6 +866,15 @@ FString UAutomationAPIServer::HandleListShips()
 	// Iterate through copy and access ship properties
 	for (const auto& Pair : ShipsCopy)
 	{
+		// Enhanced logging for debugging
+		if (bVerboseLogging)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Ship %s - Actor ptr: %p, IsValid: %d"),
+				*Pair.Key,
+				Pair.Value,
+				IsValid(Pair.Value) ? 1 : 0);
+		}
+
 		if (IsValid(Pair.Value))
 		{
 			try
@@ -885,12 +894,22 @@ FString UAutomationAPIServer::HandleListShips()
 				ShipObj->SetArrayField(TEXT("location"), LocationArray);
 
 				ShipsArray.Add(MakeShareable(new FJsonValueObject(ShipObj)));
+
+				if (bVerboseLogging)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Successfully added ship %s to response array"), *Pair.Key);
+				}
 			}
 			catch (...)
 			{
 				UE_LOG(LogTemp, Error, TEXT("AutomationAPI: Exception accessing ship %s"), *Pair.Key);
 			}
 		}
+	}
+
+	if (bVerboseLogging)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleListShips - Final ShipsArray.Num() = %d"), ShipsArray.Num());
 	}
 
 	ResponseData->SetArrayField(TEXT("ships"), ShipsArray);

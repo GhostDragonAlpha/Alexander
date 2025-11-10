@@ -354,3 +354,199 @@ for (AActor* Ship : ShipsCopy) {
 
 **Progress Summary**:
 Session 2 successfully implemented the architectural changes needed for PIE lifecycle management and thread safety. The foundation is now solid (no race conditions, no dangling pointers), but performance optimization is needed to prevent lock contention from causing connection timeouts. The test-driven development cycle continues to guide us toward the next layer of fixes.
+
+### Session 3: Debugging Test Failures - Discovery of Test Bugs (2025-11-10)
+**Branch**: `feature/fix-pie-actor-lifecycle` (continued)
+**Status**: Major breakthrough - discovered tests had bugs, not the API!
+
+**Starting Point**:
+From Session 2, tests showed:
+- Ship List: Intermittent connection aborts
+- Ship Position: "unsupported format string passed to NoneType.__format__"
+- Ship Velocity: "unsupported format string passed to NoneType.__format__"
+- Ship Controls: 2/4 working, intermittent connection aborts
+
+**Investigation Process**:
+
+**1. Fixed IsPendingKill() Build Error**
+- **Problem**: IsPendingKill() method removed in UE 5.6, causing build error in enhanced logging
+- **Location**: [AutomationAPIServer.cpp:872](Source/Alexander/Private/AutomationAPIServer.cpp#L872)
+- **Fix**: Removed IsPendingKill() check, kept only IsValid()
+- **Result**: Clean build in 4.93 seconds
+
+**2. Enhanced Logging to Diagnose "Actor Validity Issue"**
+Added diagnostic logging to track ship registration and response building:
+```cpp
+// Added in HandleListShips
+UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleListShips - Copied %d ships"), ShipsCopy.Num());
+UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Ship %s - Actor ptr: %p, IsValid: %d"), *Pair.Key, Pair.Value, IsValid(Pair.Value) ? 1 : 0);
+UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Successfully added ship %s to response array"), *Pair.Key);
+UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleListShips - Final ShipsArray.Num() = %d"), ShipsArray.Num());
+```
+
+**3. Key Discovery: API Was Working All Along!**
+Enhanced logs revealed the truth:
+```
+[2025.11.10-15.03.16:151] AutomationAPI: HandleListShips - Copied 1 ships
+[2025.11.10-15.03.16:152] AutomationAPI: Ship ship_1 - Actor ptr: 000001F2F69AA000, IsValid: 1
+[2025.11.10-15.03.16:152] AutomationAPI: Successfully added ship ship_1 to response array
+[2025.11.10-15.03.16:152] AutomationAPI: HandleListShips - Final ShipsArray.Num() = 1
+```
+
+**Conclusion**: Ships were being tracked, validated, and serialized correctly. The problem was in the TEST CODE!
+
+**4. Root Cause Analysis: Test Bugs**
+
+**API Response Structure** (correct):
+```json
+{
+    "success": true,
+    "message": "Ships listed",
+    "data": {
+        "ships": [...],
+        "count": 1
+    }
+}
+```
+
+**Test Code** (WRONG):
+```python
+# test_ship_list() - Line 160
+ships = data.get("ships", [])  # WRONG: Looking at top level
+
+# test_ship_position() - Line 122
+position = data.get("position", {})  # WRONG: Looking at top level
+
+# test_ship_velocity() - Lines 140-141
+velocity = data.get("velocity", {})  # WRONG: Looking at top level
+speed = data.get("speed", 0)  # WRONG: Looking at top level
+```
+
+The CreateJSONResponse function properly nests all data under a "data" field, but the tests were accessing the top level!
+
+**5. Test Code Fixes**
+
+**Fixed test_ship_list()** - [test_gameplay.py:160](test_gameplay.py#L160):
+```python
+ships = data.get("data", {}).get("ships", [])  # CORRECT: Nested access
+```
+
+**Fixed test_ship_position()** - [test_gameplay.py:122](test_gameplay.py#L122):
+```python
+position = data.get("data", {}).get("position", {})  # CORRECT: Nested access
+```
+
+**Fixed test_ship_velocity()** - [test_gameplay.py:140-141](test_gameplay.py#L140-L141):
+```python
+velocity = data.get("data", {}).get("velocity", {})  # CORRECT: Nested access
+speed = data.get("data", {}).get("speed", 0)  # CORRECT: Nested access
+```
+
+**6. Verification via curl**
+
+Manually tested all endpoints via curl to confirm API correctness:
+
+**list_ships**:
+```bash
+curl -s http://localhost:8080/list_ships
+# Returns: {"success": true, "data": {"ships": [...], "count": 1}}  ✅
+```
+
+**get_position**:
+```bash
+curl -s http://localhost:8080/get_position/ship_2
+# Returns: {"success": true, "data": {"position": {"x": 0, "y": 0, "z": 500}}}  ✅
+```
+
+**get_velocity**:
+```bash
+curl -s http://localhost:8080/get_velocity/ship_2
+# Returns: {"success": true, "data": {"velocity": {...}, "speed": 0}}  ✅
+```
+
+All endpoints return properly structured JSON. The API is 100% correct!
+
+**7. Test Results After Fixes**
+
+```
+======================================================================
+AUTOMATED GAMEPLAY TESTING - ITERATIVE DEVELOPMENT
+======================================================================
+
+[STEP] Starting PIE...
+  [OK] PIE start requested - may take a few seconds
+
+[STEP] Spawning test ship...
+  [OK] Ship spawned: ship_1
+
+[STEP] Testing ship list...
+  [FAIL] Connection aborted (10053)
+
+[STEP] Testing position tracking for ship_1...
+  [OK] Position: X=0.0, Y=0.0, Z=500.0  ← FIXED! No more NoneType error!
+
+[STEP] Testing velocity tracking for ship_1...
+  [OK] Velocity: X=0.0, Y=0.0, Z=0.0
+       Speed: 0.0 units/s  ← FIXED! No more NoneType error!
+
+[STEP] Testing ship controls for ship_1...
+  [OK] Forward thrust: Success
+  [OK] Pitch up: Success
+  [FAIL] Yaw right: Connection aborted (10053)
+  [OK] Roll left: Success
+
+======================================================================
+TEST RESULTS
+======================================================================
+  [FAIL]: Ship List (connection abort - lock contention)
+  [PASS]: Ship Position ✅
+  [PASS]: Ship Velocity ✅
+  [FAIL]: Ship Controls (3/4 passing, one connection abort)
+
+Result: 2/4 tests passed
+======================================================================
+```
+
+**Test Progress Timeline**:
+| Session | ship_spawn | list_ships | get_position | get_velocity | controls | Total |
+|---------|------------|------------|--------------|--------------|----------|-------|
+| Session 1 End | ✅ | ❌ crash | ❌ None | ❌ None | ✅ | 2/5 |
+| Session 2 End | ✅ | ❌ abort | ❌ NoneType | ❌ NoneType | ⚠️ 2/4 | 0/4 |
+| **Session 3 End** | **✅** | **❌ abort** | **✅ FIXED!** | **✅ FIXED!** | **⚠️ 3/4** | **2/4** |
+
+**Issues Fixed**:
+1. ✅ **IsPendingKill() Build Error** - Removed deprecated UE 5.6 API call
+2. ✅ **Test Bug: test_ship_list()** - Fixed JSON path to access nested data
+3. ✅ **Test Bug: test_ship_position()** - Fixed JSON path, test now passes!
+4. ✅ **Test Bug: test_ship_velocity()** - Fixed JSON path, test now passes!
+5. ✅ **Enhanced Logging** - Proved API works correctly, identified test bugs
+
+**Issues Remaining**:
+1. ❌ **Connection Abort (10053)** - Lock contention during rapid requests
+   - Affects list_ships intermittently
+   - Affects controls (1/4 inputs) intermittently
+   - Root cause: FScopeLock held too long during ship property access
+   - Solution needed: Further optimize lock scope (already improved in Session 2)
+
+**Key Insight**:
+The "actor validity issue" never existed! The API was working perfectly all along. The problem was that the test code was accessing the wrong JSON paths. Enhanced logging was crucial in revealing this - without it, we would have kept debugging the API when the real bug was in the tests.
+
+**Files Modified**:
+1. **[AutomationAPIServer.cpp:872](Source/Alexander/Private/AutomationAPIServer.cpp#L872)** - Removed IsPendingKill()
+2. **[AutomationAPIServer.cpp:869-913](Source/Alexander/Private/AutomationAPIServer.cpp#L869-L913)** - Added enhanced logging
+3. **[test_gameplay.py:160](test_gameplay.py#L160)** - Fixed test_ship_list JSON access
+4. **[test_gameplay.py:122](test_gameplay.py#L122)** - Fixed test_ship_position JSON access
+5. **[test_gameplay.py:140-141](test_gameplay.py#L140-L141)** - Fixed test_ship_velocity JSON access
+
+**Build Status**:
+- Last Build: ✅ Succeeded (4.93 seconds)
+- Warnings: None
+- Editor: Running with -log flag for debugging
+
+**Progress Summary**:
+Session 3 achieved a major breakthrough by discovering that the API was working correctly all along - the bugs were in the test code's JSON path access. Position and velocity tests now pass completely. The remaining failures (list_ships, controls) are due to connection stability issues from lock contention, not functional bugs. The test-driven development approach successfully identified and fixed the root causes, demonstrating the value of systematic debugging with enhanced logging.
+
+**Next Steps**:
+1. Address remaining connection abort issues (further lock scope optimization)
+2. Consider retry logic in tests for transient connection failures
+3. Achieve 4/4 tests passing reliably

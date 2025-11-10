@@ -119,7 +119,7 @@ def test_ship_position(ship_id):
         data = response.json()
 
         if response.status_code == 200 and data.get("success"):
-            position = data.get("position", {})
+            position = data.get("data", {}).get("position", {})
             print(f"  [OK] Position: X={position.get('x'):.1f}, Y={position.get('y'):.1f}, Z={position.get('z'):.1f}")
             return True
         else:
@@ -137,8 +137,8 @@ def test_ship_velocity(ship_id):
         data = response.json()
 
         if response.status_code == 200 and data.get("success"):
-            velocity = data.get("velocity", {})
-            speed = data.get("speed", 0)
+            velocity = data.get("data", {}).get("velocity", {})
+            speed = data.get("data", {}).get("speed", 0)
             print(f"  [OK] Velocity: X={velocity.get('x'):.1f}, Y={velocity.get('y'):.1f}, Z={velocity.get('z'):.1f}")
             print(f"       Speed: {speed:.1f} units/s")
             return True
@@ -157,7 +157,7 @@ def test_ship_list():
         data = response.json()
 
         if response.status_code == 200 and data.get("success"):
-            ships = data.get("ships", [])
+            ships = data.get("data", {}).get("ships", [])
             print(f"  [OK] Found {len(ships)} ship(s)")
             for ship in ships:
                 print(f"       - {ship.get('ship_id')}: {ship.get('ship_name')}")
