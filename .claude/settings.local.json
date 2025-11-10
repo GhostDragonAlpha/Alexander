@@ -23,7 +23,13 @@
       "Bash(cat:*)",
       "Bash(python:*)",
       "Bash(tee:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git clean:*)",
+      "Bash(for i in {1..20})",
+      "Bash(do echo \"Attempt $i:\")",
+      "Bash(break)",
+      "Bash(start \"\" \"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Binaries\\Win64\\UnrealEditor.exe\" \"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -log)",
+      "Bash(git merge:*)"
     ],
     "deny": [],
     "ask": []

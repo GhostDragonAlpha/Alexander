@@ -20,7 +20,7 @@ void FAlexanderModule::StartupModule()
     UE_LOG(LogTemp, Log, TEXT("Alexander Module Starting Up - Phase 7 Systems Integration"));
 
 #if WITH_EDITOR
-    // Initialize The Alexander System (auto-starts Automation API Server in editor)
+    // Initialize automation server for editor-mode automated testing
     FAlexanderSystemAutoStart::Initialize();
 #endif
 
@@ -38,7 +38,7 @@ void FAlexanderModule::ShutdownModule()
     ShutdownPhase7Systems();
 
 #if WITH_EDITOR
-    // Shutdown The Alexander System
+    // Shutdown automation server
     FAlexanderSystemAutoStart::Shutdown();
 #endif
 
