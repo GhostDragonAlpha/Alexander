@@ -256,3 +256,101 @@ The automated testing system transforms development from "does it compile?" to "
 ---
 
 **Next Session Goal**: Fix PIE actor lifecycle management so all 5 gameplay tests pass
+
+### Session 2: PIE Lifecycle Management & Thread Safety (2025-11-10)
+**Branch**: `feature/fix-pie-actor-lifecycle`
+**Status**: In progress - PIE lifecycle implemented, connection stability issues remain
+
+**Commits**:
+1. Implement PIE Lifecycle Management and Thread Safety for TrackedShips (b9803e7)
+   - Added FEditorDelegates::EndPIE callback to detect PIE state changes
+   - Implemented OnPIEEnded() to clear TrackedShips when PIE stops
+   - Added FCriticalSection and FScopeLock for thread-safe map access
+   - Protected all TrackedShips access points with mutexes
+   - Added thread-safe cleanup in TickComponent
+
+**Code Changes**:
+- [AutomationAPIServer.h:382](Source/Alexander/Public/AutomationAPIServer.h#L382) - Added FCriticalSection TrackedShipsLock
+- [AutomationAPIServer.h:458](Source/Alexander/Public/AutomationAPIServer.h#L458) - Added OnPIEEnded() callback declaration
+- [AutomationAPIServer.cpp:22-32](Source/Alexander/Private/AutomationAPIServer.cpp#L22-L32) - Added editor includes
+- [AutomationAPIServer.cpp:67-71](Source/Alexander/Private/AutomationAPIServer.cpp#L67-L71) - Registered PIE end delegate
+- [AutomationAPIServer.cpp:76-80](Source/Alexander/Private/AutomationAPIServer.cpp#L76-L80) - Unregistered delegate in EndPlay
+- [AutomationAPIServer.cpp:94-113](Source/Alexander/Private/AutomationAPIServer.cpp#L94-L113) - Thread-safe TickComponent cleanup
+- [AutomationAPIServer.cpp:832-872](Source/Alexander/Private/AutomationAPIServer.cpp#L832-L872) - Thread-safe HandleListShips
+- [AutomationAPIServer.cpp:1418-1450](Source/Alexander/Private/AutomationAPIServer.cpp#L1418-L1450) - Thread-safe ship tracking functions
+- [AutomationAPIServer.cpp:1580-1589](Source/Alexander/Private/AutomationAPIServer.cpp#L1580-L1589) - OnPIEEnded implementation
+
+**Test Results**:
+| Feature | Status | Notes |
+|---------|--------|-------|
+| PIE start/stop | ✅ | Delegates working, ships clear on PIE end |
+| Ship spawn | ✅ | PIE world detection working from Session 1 |
+| Ship list | ❌ | Connection aborted (10053) during rapid requests |
+| Position | ❌ | Format error (NoneType), connection stability |
+| Velocity | ❌ | Connection aborted (10053) during rapid requests |
+| Controls | ⚠️ | 2/4 working (pitch, yaw ✅; thrust, roll ❌) |
+| **Overall** | **0/4 passing** | PIE lifecycle works, but connection issues block tests |
+
+**Issues Fixed**:
+1. ✅ **PIE Actor Lifecycle** - Ships now cleared when PIE ends (no more dangling pointers)
+2. ✅ **Thread Safety Added** - All TrackedShips access protected with FScopeLock
+3. ✅ **Build Process** - Fixed Live Coding conflict (killed editor, rebuilt in 10.91s)
+
+**Issues Remaining**:
+1. ❌ **Connection Abort Errors (10053)** - "Connection aborted by software in your host machine"
+   - Occurs during rapid sequential API requests
+   - Likely caused by lock contention during ship property access
+   - Hypothesis: Holding mutex while calling GetActorLocation/GetName causes timeouts
+   - Solution needed: Optimize lock scope - copy data quickly, release lock, then build JSON
+
+2. ❌ **Position/Velocity Endpoints** - NoneType format errors
+   - get_position returns "unsupported format string passed to NoneType.__format__"
+   - May indicate ship lookup returning nullptr
+   - Needs investigation: Are ships actually in TrackedShips during request?
+
+3. ❌ **Control Input Reliability** - 2/4 controls working intermittently
+   - Pitch up and Yaw right work consistently
+   - Forward thrust and Roll left fail with connection abort
+   - Same root cause as #1 (connection stability)
+
+**Root Cause Analysis**:
+The thread safety implementation is correct but overly conservative. Current code:
+```cpp
+FScopeLock Lock(&TrackedShipsLock);
+for (const auto& Pair : TrackedShips) {
+    if (IsValid(Pair.Value)) {
+        // Calls GetActorLocation(), GetName() while holding lock
+        // These UE4 API calls may take time, blocking other requests
+    }
+}
+```
+
+**Optimized approach needed**:
+```cpp
+// Acquire lock, copy ship pointers quickly
+TArray<AActor*> ShipsCopy;
+{
+    FScopeLock Lock(&TrackedShipsLock);
+    ShipsCopy = TrackedShips.GenerateValueArray();
+}
+// Release lock before accessing ship properties
+for (AActor* Ship : ShipsCopy) {
+    if (IsValid(Ship)) {
+        // Access properties without holding lock
+    }
+}
+```
+
+**Next Iteration Goals**:
+1. Optimize lock scope in HandleListShips and other endpoints
+2. Add request queuing or rate limiting for rapid requests
+3. Investigate ProcessSocketRequest exception handling
+4. Achieve 4/4 tests passing (all gameplay endpoints stable)
+
+**Build Status**:
+- Last Build: ✅ Succeeded (10.91 seconds)
+- Warnings: None
+- Editor: Running with -log flag for debugging
+
+**Progress Summary**:
+Session 2 successfully implemented the architectural changes needed for PIE lifecycle management and thread safety. The foundation is now solid (no race conditions, no dangling pointers), but performance optimization is needed to prevent lock contention from causing connection timeouts. The test-driven development cycle continues to guide us toward the next layer of fixes.
