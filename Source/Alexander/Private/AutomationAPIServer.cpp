@@ -25,6 +25,7 @@
 #include "Engine/Texture2D.h"
 #include "AssetRegistry/AssetRegistryModule.h"
 #include "AssetRegistry/IAssetRegistry.h"
+#include "Editor.h"
 #endif
 
 UAutomationAPIServer::UAutomationAPIServer()
@@ -178,111 +179,126 @@ void UAutomationAPIServer::ProcessSocketRequest(FSocket* Socket)
 	if (!Socket)
 		return;
 
-	// Read HTTP request
-	TArray<uint8> ReceivedData;
-	uint8 Buffer[1024];
-	int32 BytesRead = 0;
-
-	// Read data from socket
-	while (Socket->Recv(Buffer, sizeof(Buffer) - 1, BytesRead))
+	try
 	{
-		if (BytesRead > 0)
+		// Read HTTP request
+		TArray<uint8> ReceivedData;
+		uint8 Buffer[1024];
+		int32 BytesRead = 0;
+
+		// Read data from socket
+		while (Socket->Recv(Buffer, sizeof(Buffer) - 1, BytesRead))
 		{
-			ReceivedData.Append(Buffer, BytesRead);
-			// Simple check for end of HTTP headers
-			if (ReceivedData.Num() > 4)
+			if (BytesRead > 0)
 			{
-				bool bFoundEnd = false;
-				for (int32 i = ReceivedData.Num() - 4; i >= 0 && i >= ReceivedData.Num() - 100; i--)
+				ReceivedData.Append(Buffer, BytesRead);
+				// Simple check for end of HTTP headers
+				if (ReceivedData.Num() > 4)
 				{
-					if (ReceivedData[i] == '\r' && ReceivedData[i+1] == '\n' &&
-						ReceivedData[i+2] == '\r' && ReceivedData[i+3] == '\n')
+					bool bFoundEnd = false;
+					for (int32 i = ReceivedData.Num() - 4; i >= 0 && i >= ReceivedData.Num() - 100; i--)
 					{
-						bFoundEnd = true;
-						break;
+						if (ReceivedData[i] == '\r' && ReceivedData[i+1] == '\n' &&
+							ReceivedData[i+2] == '\r' && ReceivedData[i+3] == '\n')
+						{
+							bFoundEnd = true;
+							break;
+						}
 					}
+					if (bFoundEnd) break;
 				}
-				if (bFoundEnd) break;
 			}
+			if (BytesRead == 0) break;
 		}
-		if (BytesRead == 0) break;
-	}
 
-	// Parse HTTP request
-	FString RequestString = FString(UTF8_TO_TCHAR((char*)ReceivedData.GetData()));
-	TArray<FString> Lines;
-	RequestString.ParseIntoArrayLines(Lines);
+		// Add null terminator for safe string conversion
+		ReceivedData.Add(0);
 
-	if (Lines.Num() == 0)
-	{
-		Socket->Close();
-		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
-		return;
-	}
+		// Parse HTTP request
+		FString RequestString = FString(UTF8_TO_TCHAR((char*)ReceivedData.GetData()));
+		TArray<FString> Lines;
+		RequestString.ParseIntoArrayLines(Lines);
 
-	// Parse request line (e.g., "GET /status HTTP/1.1")
-	TArray<FString> RequestParts;
-	Lines[0].ParseIntoArray(RequestParts, TEXT(" "), true);
-
-	if (RequestParts.Num() < 2)
-	{
-		Socket->Close();
-		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
-		return;
-	}
-
-	FString Method = RequestParts[0];
-	FString Endpoint = RequestParts[1];
-
-	// Extract body for POST requests (comes after \r\n\r\n separator)
-	FString Body = TEXT("");
-	int32 HeaderEndIndex = RequestString.Find(TEXT("\r\n\r\n"));
-	if (HeaderEndIndex != INDEX_NONE)
-	{
-		// Parse Content-Length header to know how many bytes to read
-		int32 ContentLength = 0;
-		FString ContentLengthHeader = TEXT("Content-Length:");
-		int32 ContentLengthIndex = RequestString.Find(ContentLengthHeader);
-		if (ContentLengthIndex != INDEX_NONE)
+		if (Lines.Num() == 0)
 		{
-			int32 LineEndIndex = RequestString.Find(TEXT("\r\n"), ESearchCase::IgnoreCase, ESearchDir::FromStart, ContentLengthIndex);
-			if (LineEndIndex != INDEX_NONE)
+			Socket->Close();
+			ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
+			return;
+		}
+
+		// Parse request line (e.g., "GET /status HTTP/1.1")
+		TArray<FString> RequestParts;
+		Lines[0].ParseIntoArray(RequestParts, TEXT(" "), true);
+
+		if (RequestParts.Num() < 2)
+		{
+			Socket->Close();
+			ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
+			return;
+		}
+
+		FString Method = RequestParts[0];
+		FString Endpoint = RequestParts[1];
+
+		// Extract body for POST requests (comes after \r\n\r\n separator)
+		FString Body = TEXT("");
+		int32 HeaderEndIndex = RequestString.Find(TEXT("\r\n\r\n"));
+		if (HeaderEndIndex != INDEX_NONE)
+		{
+			// Parse Content-Length header to know how many bytes to read
+			int32 ContentLength = 0;
+			FString ContentLengthHeader = TEXT("Content-Length:");
+			int32 ContentLengthIndex = RequestString.Find(ContentLengthHeader);
+			if (ContentLengthIndex != INDEX_NONE)
 			{
-				FString LengthValue = RequestString.Mid(ContentLengthIndex + ContentLengthHeader.Len(), LineEndIndex - ContentLengthIndex - ContentLengthHeader.Len());
-				LengthValue.TrimStartAndEndInline();
-				ContentLength = FCString::Atoi(*LengthValue);
+				int32 LineEndIndex = RequestString.Find(TEXT("\r\n"), ESearchCase::IgnoreCase, ESearchDir::FromStart, ContentLengthIndex);
+				if (LineEndIndex != INDEX_NONE)
+				{
+					FString LengthValue = RequestString.Mid(ContentLengthIndex + ContentLengthHeader.Len(), LineEndIndex - ContentLengthIndex - ContentLengthHeader.Len());
+					LengthValue.TrimStartAndEndInline();
+					ContentLength = FCString::Atoi(*LengthValue);
+				}
 			}
+
+			// Extract body (limit to Content-Length if specified)
+			FString FullBody = RequestString.Mid(HeaderEndIndex + 4);
+			if (ContentLength > 0 && ContentLength < FullBody.Len())
+			{
+				Body = FullBody.Left(ContentLength);
+			}
+			else
+			{
+				Body = FullBody;
+			}
+			Body.TrimStartAndEndInline();
 		}
 
-		// Extract body (limit to Content-Length if specified)
-		FString FullBody = RequestString.Mid(HeaderEndIndex + 4);
-		if (ContentLength > 0 && ContentLength < FullBody.Len())
-		{
-			Body = FullBody.Left(ContentLength);
-		}
-		else
-		{
-			Body = FullBody;
-		}
-		Body.TrimStartAndEndInline();
+		// Handle request on game thread (we're already on game thread, so call directly)
+		FString Response;
+		HandleHTTPRequest(Endpoint, Method, Body, Response);
+
+		// Send HTTP response
+		FString HttpResponse = FString::Printf(TEXT("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %d\r\n\r\n%s"),
+			Response.Len(), *Response);
+
+		// Convert to UTF8 for socket transmission
+		FTCHARToUTF8 Converter(*HttpResponse);
+		int32 BytesSent = 0;
+		Socket->Send((uint8*)Converter.Get(), Converter.Length(), BytesSent);
+
+		// Close socket
+		Socket->Close();
+		ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
 	}
-
-	// Handle request on game thread (we're already on game thread, so call directly)
-	FString Response;
-	HandleHTTPRequest(Endpoint, Method, Body, Response);
-
-	// Send HTTP response
-	FString HttpResponse = FString::Printf(TEXT("HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: %d\r\n\r\n%s"),
-		Response.Len(), *Response);
-
-	// Convert to UTF8 for socket transmission
-	FTCHARToUTF8 Converter(*HttpResponse);
-	int32 BytesSent = 0;
-	Socket->Send((uint8*)Converter.Get(), Converter.Length(), BytesSent);
-
-	// Close socket
-	Socket->Close();
-	ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
+	catch (...)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AutomationAPI: Exception in ProcessSocketRequest - closing socket"));
+		if (Socket)
+		{
+			Socket->Close();
+			ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->DestroySocket(Socket);
+		}
+	}
 }
 
 FString UAutomationAPIServer::GetServerStatus() const
@@ -311,6 +327,8 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 	}
 
 	double StartTime = FPlatformTime::Seconds();
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleHTTPRequest called - Method='%s', Endpoint='%s'"), *Method, *Endpoint);
 
 	// Route requests
 	if (Method == TEXT("POST") && Endpoint == TEXT("/spawn_ship"))
@@ -419,6 +437,17 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 	{
 		OutResponse = HandleTexturesList(Body);
 	}
+	// ============================================================================
+	// PIE CONTROL ROUTING
+	// ============================================================================
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/pie/start"))
+	{
+		OutResponse = HandlePlayInEditor(Body);
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/pie/stop"))
+	{
+		OutResponse = HandleStopPlaying();
+	}
 #endif // WITH_EDITOR
 	else
 	{
@@ -513,11 +542,38 @@ FString UAutomationAPIServer::HandleSpawnShip(const FString& RequestBody)
 		return CreateJSONResponse(false, FString::Printf(TEXT("Failed to load ship class: %s"), *ShipClassPath));
 	}
 
+	// Find active game world (PIE world required for spawning)
+	UWorld* World = nullptr;
+
+#if WITH_EDITOR
+	// In editor, look for PIE world only (editor world doesn't support gameplay spawning)
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("PIE not running - start PIE first with POST /pie/start"));
+	}
+#else
+	// In packaged game, use GetWorld()
+	World = GetWorld();
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+#endif
+
 	// Spawn ship
 	FActorSpawnParameters SpawnParams;
 	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	AActor* Ship = GetWorld()->SpawnActor<AActor>(ShipClass, SpawnLocation, SpawnRotation, SpawnParams);
+	AActor* Ship = World->SpawnActor<AActor>(ShipClass, SpawnLocation, SpawnRotation, SpawnParams);
 	if (!Ship)
 	{
 		return CreateJSONResponse(false, TEXT("Failed to spawn ship"));
@@ -525,7 +581,9 @@ FString UAutomationAPIServer::HandleSpawnShip(const FString& RequestBody)
 
 	// Register ship
 	FString ShipID = GenerateShipID();
+	UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: About to register ship %s at %p, TrackedShips.Num() before = %d"), *ShipID, Ship, TrackedShips.Num());
 	RegisterShip(Ship, ShipID);
+	UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: After RegisterShip, TrackedShips.Num() = %d"), TrackedShips.Num());
 
 	// Build response
 	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
@@ -749,25 +807,45 @@ FString UAutomationAPIServer::HandleStatus()
 
 FString UAutomationAPIServer::HandleListShips()
 {
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleListShips - TrackedShips.Num() = %d"), TrackedShips.Num());
+
 	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
 	TArray<TSharedPtr<FJsonValue>> ShipsArray;
 
 	for (const auto& Pair : TrackedShips)
 	{
+		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Checking ship %s, IsValid = %d"), *Pair.Key, IsValid(Pair.Value));
 		if (IsValid(Pair.Value))
 		{
-			TSharedPtr<FJsonObject> ShipObj = MakeShareable(new FJsonObject);
-			ShipObj->SetStringField(TEXT("ship_id"), Pair.Key);
-			ShipObj->SetStringField(TEXT("ship_name"), Pair.Value->GetName());
+			try
+			{
+				TSharedPtr<FJsonObject> ShipObj = MakeShareable(new FJsonObject);
+				ShipObj->SetStringField(TEXT("ship_id"), Pair.Key);
 
-			FVector Location = Pair.Value->GetActorLocation();
-			TArray<TSharedPtr<FJsonValue>> LocationArray;
-			LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.X)));
-			LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Y)));
-			LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Z)));
-			ShipObj->SetArrayField(TEXT("location"), LocationArray);
+				FString ShipName = Pair.Value->GetName();
+				ShipObj->SetStringField(TEXT("ship_name"), ShipName);
+				UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Ship %s name = %s"), *Pair.Key, *ShipName);
 
-			ShipsArray.Add(MakeShareable(new FJsonValueObject(ShipObj)));
+				FVector Location = Pair.Value->GetActorLocation();
+				UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Ship %s location = %s"), *Pair.Key, *Location.ToString());
+
+				TArray<TSharedPtr<FJsonValue>> LocationArray;
+				LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.X)));
+				LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Y)));
+				LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Z)));
+				ShipObj->SetArrayField(TEXT("location"), LocationArray);
+
+				ShipsArray.Add(MakeShareable(new FJsonValueObject(ShipObj)));
+				UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Added ship %s to array"), *Pair.Key);
+			}
+			catch (...)
+			{
+				UE_LOG(LogTemp, Error, TEXT("AutomationAPI: Exception accessing ship %s"), *Pair.Key);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: Ship %s is not valid (nullptr or pending kill)"), *Pair.Key);
 		}
 	}
 
@@ -1358,6 +1436,63 @@ TArray<AActor*> UAutomationAPIServer::GetAllShips()
 	return Ships;
 }
 
+#if WITH_EDITOR
+FString UAutomationAPIServer::HandlePlayInEditor(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandlePlayInEditor - Starting PIE"));
+
+	// Check if already in PIE
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			return CreateJSONResponse(false, TEXT("PIE already running"));
+		}
+	}
+
+	// Request PIE start using GEditor
+	if (GEditor)
+	{
+		FRequestPlaySessionParams Params;
+		GEditor->RequestPlaySession(Params);
+		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: PIE start requested"));
+		return CreateJSONResponse(true, TEXT("PIE start requested - may take a few seconds"));
+	}
+
+	return CreateJSONResponse(false, TEXT("GEditor not available"));
+}
+
+FString UAutomationAPIServer::HandleStopPlaying()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleStopPlaying - Stopping PIE"));
+
+	// Check if PIE is running
+	bool bPIERunning = false;
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			bPIERunning = true;
+			break;
+		}
+	}
+
+	if (!bPIERunning)
+	{
+		return CreateJSONResponse(false, TEXT("PIE not running"));
+	}
+
+	// Request PIE stop using GEditor
+	if (GEditor)
+	{
+		GEditor->RequestEndPlayMap();
+		UE_LOG(LogTemp, Log, TEXT("AutomationAPI: PIE stop requested"));
+		return CreateJSONResponse(true, TEXT("PIE stop requested"));
+	}
+
+	return CreateJSONResponse(false, TEXT("GEditor not available"));
+}
+#endif // WITH_EDITOR
 
 TSharedPtr<FJsonObject> UAutomationAPIServer::ParseJSON(const FString& JSONString)
 {
@@ -1393,7 +1528,8 @@ FString UAutomationAPIServer::CreateJSONResponse(bool bSuccess, const FString& M
 
 bool UAutomationAPIServer::CheckRateLimit()
 {
-	float CurrentTime = GetWorld()->GetTimeSeconds();
+	// Use platform time instead of world time, so this works even without a world context
+	float CurrentTime = static_cast<float>(FPlatformTime::Seconds());
 
 	// Reset counter every second
 	if (CurrentTime - LastRequestTime >= 1.0f)
