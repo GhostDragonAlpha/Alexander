@@ -27,6 +27,9 @@ try:
     import autonomous_station_generator
     import autonomous_vfx_generator
     import autonomous_ui_generator
+    import create_niagara_vfx
+    import create_umg_widgets
+    import populate_maps
 except ImportError as e:
     unreal.log_error(f"Failed to import generation modules: {e}")
     unreal.log("Ensure all generator scripts are in Content/Python/")
@@ -46,10 +49,119 @@ def print_section(title):
     unreal.log("-" * 80)
 
 
+def generate_complete_baseline_with_content():
+    """
+    ENHANCED: Master function to generate complete Phase 8 baseline content
+    Runs all generation steps INCLUDING automatic VFX, UI, and map creation
+    """
+
+    print_header("AUTONOMOUS CONTENT CREATION - PHASE 8 ENHANCED")
+
+    results = {
+        "missions": None,
+        "stations": None,
+        "vfx": None,
+        "vfx_systems": [],
+        "ui": None,
+        "ui_widgets": [],
+        "population": None,
+        "success": True,
+        "errors": []
+    }
+
+    # Step 1: Import Mission Templates
+    print_section("STEP 1/7: Importing Mission Templates")
+    try:
+        unreal.log("Loading 100+ mission templates from JSON...")
+        results["missions"] = load_mission_templates.import_all_mission_templates()
+        unreal.log(f"✓ Imported {len(results['missions'])} mission data assets")
+    except Exception as e:
+        unreal.log_error(f"✗ Mission import failed: {e}")
+        results["errors"].append(f"Mission import: {e}")
+        results["success"] = False
+
+    # Step 2: Generate Space Stations
+    print_section("STEP 2/7: Generating Space Stations")
+    try:
+        unreal.log("Creating 5 space stations from primitives...")
+        results["stations"] = autonomous_station_generator.generate_all_stations()
+        unreal.log(f"✓ Generated {len(results['stations'])} space stations")
+    except Exception as e:
+        unreal.log_error(f"✗ Station generation failed: {e}")
+        results["errors"].append(f"Station generation: {e}")
+        # Continue even if this fails
+
+    # Step 3: Setup VFX Directory Structure
+    print_section("STEP 3/7: Setting Up VFX Directory Structure")
+    try:
+        unreal.log("Creating VFX directory structure and configs...")
+        autonomous_vfx_generator.create_vfx_templates()
+        autonomous_vfx_generator.export_vfx_config()
+        results["vfx"] = "configured"
+        unreal.log("✓ VFX system configuration complete")
+    except Exception as e:
+        unreal.log_error(f"✗ VFX setup failed: {e}")
+        results["errors"].append(f"VFX setup: {e}")
+
+    # Step 4: Create Niagara VFX Systems
+    print_section("STEP 4/7: Creating Niagara VFX Systems")
+    try:
+        unreal.log("Automatically creating Niagara systems...")
+        vfx_systems = create_niagara_vfx.create_all_vfx_systems()
+        results["vfx_systems"] = vfx_systems
+        unreal.log(f"✓ Created {len(vfx_systems)} Niagara VFX systems")
+    except Exception as e:
+        unreal.log_error(f"✗ VFX creation failed: {e}")
+        results["errors"].append(f"VFX creation: {e}")
+
+    # Step 5: Setup UI Directory Structure
+    print_section("STEP 5/7: Setting Up UI Directory Structure")
+    try:
+        unreal.log("Creating UI directory structure and configs...")
+        autonomous_ui_generator.create_ui_templates()
+        autonomous_ui_generator.export_ui_config()
+        results["ui"] = "configured"
+        unreal.log("✓ UI widget configuration complete")
+    except Exception as e:
+        unreal.log_error(f"✗ UI setup failed: {e}")
+        results["errors"].append(f"UI setup: {e}")
+
+    # Step 6: Create UMG Widgets
+    print_section("STEP 6/7: Creating UMG Widgets")
+    try:
+        unreal.log("Automatically creating UMG widgets...")
+        ui_widgets = create_umg_widgets.create_all_widgets()
+        results["ui_widgets"] = ui_widgets
+        unreal.log(f"✓ Created {len(ui_widgets)} UMG widget blueprints")
+
+        # Generate additional widget assets
+        create_umg_widgets.generate_widget_cpp_bindings()
+        create_umg_widgets.create_widget_style_assets()
+    except Exception as e:
+        unreal.log_error(f"✗ UI widget creation failed: {e}")
+        results["errors"].append(f"UI widget creation: {e}")
+
+    # Step 7: Populate Maps
+    print_section("STEP 7/7: Populating Maps")
+    try:
+        unreal.log("Automatically populating maps with content...")
+        results["population"] = populate_maps.populate_all_maps()
+        unreal.log("✓ Map population complete")
+    except Exception as e:
+        unreal.log_error(f"✗ Map population failed: {e}")
+        results["errors"].append(f"Map population: {e}")
+
+    # Final Summary
+    print_enhanced_summary(results)
+
+    return results
+
+
 def generate_complete_baseline():
     """
-    Master function to generate complete Phase 8 baseline content
-    Runs all generation steps in sequence
+    LEGACY: Master function to generate complete Phase 8 baseline content
+    Runs configuration steps (missions, directories, configs)
+    For full autonomous content creation, use generate_complete_baseline_with_content()
     """
 
     print_header("AUTONOMOUS BASELINE GENERATION - PHASE 8")
@@ -229,6 +341,36 @@ def setup_ui_only():
     except Exception as e:
         unreal.log_error(f"UI setup failed: {e}")
         return None
+
+
+def print_enhanced_summary(results):
+    """Print enhanced summary of autonomous content creation"""
+    print_header("AUTONOMOUS CONTENT CREATION SUMMARY")
+
+    unreal.log("Generation Results:")
+    unreal.log(f"  Missions: {len(results.get('missions', []))} data assets")
+    unreal.log(f"  Stations: {len(results.get('stations', {}))} configured")
+    unreal.log(f"  VFX: {results.get('vfx', 'Not started')}")
+    unreal.log(f"  VFX Systems: {len(results.get('vfx_systems', []))} Niagara systems created")
+    unreal.log(f"  UI: {results.get('ui', 'Not started')}")
+    unreal.log(f"  UI Widgets: {len(results.get('ui_widgets', []))} UMG widgets created")
+    unreal.log(f"  Map Population: {results.get('population', 'Not started')}")
+
+    if results["errors"]:
+        unreal.log("\nErrors encountered:")
+        for error in results["errors"]:
+            unreal.log(f"  ✗ {error}")
+    else:
+        unreal.log("\n✓ All generation steps completed successfully")
+
+    unreal.log("\nNext Steps:")
+    unreal.log("  1. Review generated assets in Content Browser")
+    unreal.log("  2. Test Niagara VFX systems (attach to spaceships)")
+    unreal.log("  3. Customize UMG widgets (add specific components)")
+    unreal.log("  4. Test gameplay in FlightTest and SolarSystem maps")
+    unreal.log("  5. Run performance profiling: python run_automated_profiling.py")
+
+    print_header("AUTONOMOUS CONTENT CREATION COMPLETE")
 
 
 def validate_baseline():
