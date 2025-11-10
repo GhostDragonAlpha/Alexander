@@ -378,6 +378,9 @@ protected:
 	UPROPERTY()
 	TMap<FString, AActor*> TrackedShips;
 
+	// Thread safety for TrackedShips access
+	mutable FCriticalSection TrackedShipsLock;
+
 	// Request rate limiting
 	float LastRequestTime = 0.0f;
 	int32 RequestsThisSecond = 0;
@@ -449,4 +452,9 @@ protected:
 
 	// Validate ship class
 	bool ValidateShipClass(UClass* ShipClass);
+
+#if WITH_EDITOR
+	// PIE state change callback - clears tracked ships when PIE ends
+	void OnPIEEnded(bool bIsSimulating);
+#endif
 };
