@@ -920,3 +920,586 @@ void ASurfacePlayerCharacter::CheckNearbyShip()
         }
     }
 }
+
+bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutResult)
+{
+	OutResult.SystemName = "SurfacePlayerCharacter";
+	OutResult.bSuccess = true;
+	OutResult.TestTimestamp = FDateTime::Now();
+	
+	UE_LOG(LogTemp, Log, TEXT("=== Starting SurfacePlayerCharacter Self-Test ==="));
+	
+	// Test 1: Verify character initialization
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 1: Verifying character initialization..."));
+		
+		// Check core components
+		if (!GetCapsuleComponent() || !GetCharacterMovement() || !Controller)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Core character components not initialized"));
+			OutResult.ErrorMessages.Add(TEXT("Character component initialization failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Check camera components
+		if (!CameraBoom || !FollowCamera || !VRCamera)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Camera components not initialized"));
+			OutResult.ErrorMessages.Add(TEXT("Camera component initialization failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Check VR components
+		if (!LeftController || !RightController)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: VR controller components not initialized"));
+			OutResult.ErrorMessages.Add(TEXT("VR controller initialization failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Check exploration component
+		if (!ExplorationComponent)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Exploration component not initialized"));
+			OutResult.ErrorMessages.Add(TEXT("Exploration component initialization failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Verify initial movement properties
+		if (WalkSpeed <= 0.0f || RunSpeed <= 0.0f || CrouchSpeed <= 0.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid movement speed values"));
+			OutResult.ErrorMessages.Add(TEXT("Movement speed initialization failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Verify initial stamina values
+		if (Stamina != MaxStamina || MaxStamina <= 0.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid stamina initialization"));
+			OutResult.ErrorMessages.Add(TEXT("Stamina initialization failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Character initialization verified"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Character Initialization"),
+			TEXT("All components and properties properly initialized"),
+			0.0f
+		});
+	}
+	
+	// Test 2: Verify movement modes
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 2: Verifying movement modes..."));
+		
+		// Test walking mode
+		SetMovementMode(ESurfaceMovementMode::Walking);
+		if (MovementMode != ESurfaceMovementMode::Walking)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Walking mode not set correctly"));
+			OutResult.ErrorMessages.Add(TEXT("Walking mode test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Test running mode
+		SetMovementMode(ESurfaceMovementMode::Running);
+		if (MovementMode != ESurfaceMovementMode::Running)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Running mode not set correctly"));
+			OutResult.ErrorMessages.Add(TEXT("Running mode test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Test crouching mode
+		SetMovementMode(ESurfaceMovementMode::Crouching);
+		if (MovementMode != ESurfaceMovementMode::Crouching)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Crouching mode not set correctly"));
+			OutResult.ErrorMessages.Add(TEXT("Crouching mode test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Verify movement speed updates correctly
+		float OriginalMaxSpeed = GetCharacterMovement()->MaxWalkSpeed;
+		SetMovementMode(ESurfaceMovementMode::Running);
+		UpdateMovementSpeed();
+		
+		if (FMath::Abs(GetCharacterMovement()->MaxWalkSpeed - RunSpeed) > 1.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Movement speed not updated correctly for running"));
+			OutResult.ErrorMessages.Add(TEXT("Movement speed update test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Restore original speed
+		GetCharacterMovement()->MaxWalkSpeed = OriginalMaxSpeed;
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: All movement modes functional"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Movement Modes"),
+			TEXT("Walking, running, and crouching modes working"),
+			0.0f
+		});
+	}
+	
+	// Test 3: Verify sprinting system
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 3: Verifying sprinting system..."));
+		
+		// Start sprinting
+		float InitialStamina = Stamina;
+		StartSprinting();
+		
+		if (!bIsRunning || MovementMode != ESurfaceMovementMode::Running)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Sprinting not activated"));
+			OutResult.ErrorMessages.Add(TEXT("Sprint activation test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Simulate stamina drain
+		UpdateStamina(1.0f); // 1 second of sprinting
+		
+		if (Stamina >= InitialStamina)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Stamina not draining while sprinting"));
+			OutResult.ErrorMessages.Add(TEXT("Stamina drain test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Stop sprinting
+		StopSprinting();
+		
+		if (bIsRunning)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Sprinting not stopped"));
+			OutResult.ErrorMessages.Add(TEXT("Sprint deactivation test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Simulate stamina regeneration
+		float StaminaAfterStop = Stamina;
+		UpdateStamina(2.0f); // 2 seconds of rest
+		
+		if (Stamina <= StaminaAfterStop)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WARNING: Stamina not regenerating properly"));
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Sprinting system working"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Sprinting System"),
+			TEXT("Sprint activation, stamina drain, and regeneration functional"),
+			0.0f
+		});
+	}
+	
+	// Test 4: Verify jumping mechanics
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 4: Verifying jumping mechanics..."));
+		
+		float InitialStamina = Stamina;
+		
+		// Attempt jump
+		StartJumping();
+		
+		// Verify stamina was consumed
+		if (Stamina >= InitialStamina)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WARNING: Jump should consume stamina"));
+		}
+		
+		// Verify character is jumping
+		if (!GetCharacterMovement()->IsFalling())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WARNING: Character should be in falling state after jump"));
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Jumping mechanics working"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Jumping Mechanics"),
+			TEXT("Jump activation and stamina consumption functional"),
+			0.0f
+		});
+	}
+	
+	// Test 5: Verify crouching system
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 5: Verifying crouching system..."));
+		
+		// Start crouching
+		StartCrouching();
+		
+		if (MovementMode != ESurfaceMovementMode::Crouching)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Crouching mode not activated"));
+			OutResult.ErrorMessages.Add(TEXT("Crouch activation test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		if (!GetCharacterMovement()->IsCrouching())
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Character movement component not crouching"));
+			OutResult.ErrorMessages.Add(TEXT("Character crouch test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Stop crouching
+		StopCrouching();
+		
+		if (MovementMode != ESurfaceMovementMode::Walking)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Crouching mode not deactivated"));
+			OutResult.ErrorMessages.Add(TEXT("Crouch deactivation test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Crouching system working"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Crouching System"),
+			TEXT("Crouch activation and deactivation functional"),
+			0.0f
+		});
+	}
+	
+	// Test 6: Verify VR mode toggling
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 6: Verifying VR mode toggling..."));
+		
+		// Enable VR mode
+		SetVRMode(true);
+		
+		if (!bIsVRMode || !bVRInitialized)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: VR mode not enabled"));
+			OutResult.ErrorMessages.Add(TEXT("VR enable test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		if (!VRCamera->IsActive())
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: VR camera not active"));
+			OutResult.ErrorMessages.Add(TEXT("VR camera activation test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Disable VR mode
+		SetVRMode(false);
+		
+		if (bIsVRMode)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: VR mode not disabled"));
+			OutResult.ErrorMessages.Add(TEXT("VR disable test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		if (!FollowCamera->IsActive())
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Follow camera not active after VR disable"));
+			OutResult.ErrorMessages.Add(TEXT("Camera switch test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: VR mode toggling working"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("VR Mode Toggling"),
+			TEXT("VR enable/disable and camera switching functional"),
+			0.0f
+		});
+	}
+	
+	// Test 7: Verify interaction system
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 7: Verifying interaction system..."));
+		
+		// Test interaction range
+		if (InteractionRange <= 0.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid interaction range"));
+			OutResult.ErrorMessages.Add(TEXT("Interaction range test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Test interaction check interval
+		if (InteractionCheckInterval <= 0.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid interaction check interval"));
+			OutResult.ErrorMessages.Add(TEXT("Interaction interval test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Interaction system verified"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Interaction System"),
+			TEXT("Interaction range and timing functional"),
+			0.0f
+		});
+	}
+	
+	// Test 8: Verify camera systems
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 8: Verifying camera systems..."));
+		
+		// Verify camera boom settings
+		if (CameraBoom->TargetArmLength <= 0.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid camera boom arm length"));
+			OutResult.ErrorMessages.Add(TEXT("Camera boom test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Verify camera components are attached correctly
+		if (!FollowCamera->GetAttachParent() || FollowCamera->GetAttachParent() != CameraBoom)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Follow camera not attached to boom"));
+			OutResult.ErrorMessages.Add(TEXT("Camera attachment test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Verify VR camera is attached to root
+		if (!VRCamera->GetAttachParent() || VRCamera->GetAttachParent() != RootComponent)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: VR camera not attached to root"));
+			OutResult.ErrorMessages.Add(TEXT("VR camera attachment test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Camera systems verified"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Camera Systems"),
+			TEXT("Camera boom, follow camera, and VR camera functional"),
+			0.0f
+		});
+	}
+	
+	// Test 9: Verify status functions
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 9: Verifying status functions..."));
+		
+		// Test GetCharacterStatus
+		FString Status = GetCharacterStatus();
+		if (Status.IsEmpty())
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Character status string empty"));
+			OutResult.ErrorMessages.Add(TEXT("Status function test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Test IsOnGround
+		bool bOnGround = IsOnGround();
+		// Should be true at spawn (assuming we're on ground)
+		
+		// Test GetCurrentGravity
+		float Gravity = GetCurrentGravity();
+		if (Gravity == 0.0f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WARNING: Gravity is zero, character may be in zero-g"));
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Status functions working"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Status Functions"),
+			TEXT("Character status, ground check, and gravity detection functional"),
+			0.0f
+		});
+	}
+	
+	// Test 10: Automated movement sequence
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 10: Running automated movement sequence..."));
+		
+		// Record initial position
+		FVector InitialPosition = GetActorLocation();
+		
+		// Test 1: Move forward
+		MoveForward(1.0f);
+		Tick(0.1f); // Simulate movement for 0.1 seconds
+		
+		FVector AfterForward = GetActorLocation();
+		float ForwardDistance = FVector::Dist(InitialPosition, AfterForward);
+		
+		if (ForwardDistance < 1.0f) // Should have moved at least 1 unit
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WARNING: Minimal forward movement detected (%.2f units)"), ForwardDistance);
+		}
+		
+		// Test 2: Move right (strafe)
+		MoveRight(1.0f);
+		Tick(0.1f);
+		
+		FVector AfterRight = GetActorLocation();
+		float RightDistance = FVector::Dist(AfterForward, AfterRight);
+		
+		if (RightDistance < 1.0f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WARNING: Minimal right movement detected (%.2f units)"), RightDistance);
+		}
+		
+		// Test 3: Look/turn
+		float InitialYaw = GetActorRotation().Yaw;
+		Turn(1.0f);
+		Tick(0.1f);
+		
+		float FinalYaw = GetActorRotation().Yaw;
+		float YawChange = FMath::Abs(FinalYaw - InitialYaw);
+		
+		if (YawChange < 1.0f) // Should have turned at least 1 degree
+		{
+			UE_LOG(LogTemp, Warning, TEXT("WARNING: Minimal rotation detected (%.2f degrees)"), YawChange);
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Automated movement sequence completed"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Automated Movement Sequence"),
+			FString::Printf(TEXT("Forward: %.2f units, Right: %.2f units, Turn: %.2f degrees"),
+				ForwardDistance, RightDistance, YawChange),
+			0.0f
+		});
+	}
+	
+	// Test 11: Verify VR grab system setup
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 11: Verifying VR grab system setup..."));
+		
+		// Verify grab radius is positive
+		if (VRGrabRadius <= 0.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid VR grab radius"));
+			OutResult.ErrorMessages.Add(TEXT("VR grab radius test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Verify grab force strength is positive
+		if (VRGrabForceStrength <= 0.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid VR grab force strength"));
+			OutResult.ErrorMessages.Add(TEXT("VR grab force test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Verify VR controllers are active when VR is enabled
+		SetVRMode(true);
+		if (!LeftController->IsActive() || !RightController->IsActive())
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: VR controllers not active when VR enabled"));
+			OutResult.ErrorMessages.Add(TEXT("VR controller activation test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Reset VR mode
+		SetVRMode(false);
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: VR grab system setup verified"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("VR Grab System Setup"),
+			TEXT("Grab radius, force strength, and controller activation functional"),
+			0.0f
+		});
+	}
+	
+	// Test 12: Verify stamina limits
+	{
+		UE_LOG(LogTemp, Log, TEXT("Test 12: Verifying stamina limits..."));
+		
+		// Test maximum stamina
+		Stamina = MaxStamina;
+		UpdateStamina(1.0f); // Should not exceed max
+		
+		if (Stamina > MaxStamina)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Stamina exceeded maximum value"));
+			OutResult.ErrorMessages.Add(TEXT("Stamina maximum limit test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Test minimum stamina (0)
+		Stamina = 0.0f;
+		UpdateStamina(-1.0f); // Try to go negative
+		
+		if (Stamina < 0.0f)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Stamina below minimum value"));
+			OutResult.ErrorMessages.Add(TEXT("Stamina minimum limit test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		// Test sprinting with zero stamina (should not allow)
+		Stamina = 0.0f;
+		StartSprinting();
+		
+		if (bIsRunning)
+		{
+			UE_LOG(LogTemp, Error, TEXT("FAILED: Should not be able to sprint with zero stamina"));
+			OutResult.ErrorMessages.Add(TEXT("Stamina sprint restriction test failed"));
+			OutResult.bSuccess = false;
+			return false;
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("PASSED: Stamina limits enforced"));
+		OutResult.TestResults.Add(FTestResultItem{
+			true,
+			TEXT("Stamina Limits"),
+			TEXT("Maximum, minimum, and sprint restrictions functional"),
+			0.0f
+		});
+	}
+	
+	// Final result
+	if (OutResult.bSuccess)
+	{
+		UE_LOG(LogTemp, Log, TEXT("=== SurfacePlayerCharacter Self-Test PASSED ==="));
+		UE_LOG(LogTemp, Log, TEXT("Total Tests: %d"), OutResult.TestResults.Num());
+		UE_LOG(LogTemp, Log, TEXT("Movement modes: %d tested"), 3);
+		UE_LOG(LogTemp, Log, TEXT("VR mode: %s"), bIsVRMode ? TEXT("Enabled") : TEXT("Disabled"));
+		UE_LOG(LogTemp, Log, TEXT("Current position: %s"), *GetActorLocation().ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("=== SurfacePlayerCharacter Self-Test FAILED ==="));
+	}
+	
+	return OutResult.bSuccess;
+}

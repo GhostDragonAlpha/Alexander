@@ -1,0 +1,82 @@
+
+======================================================================
+                  VISUAL PLAYTEST - PLANET GAMEPLAY                   
+======================================================================
+
+This test will:
+  1. Start PIE in VISUAL mode (non-headless)
+  2. Spawn character on planet surface
+  3. Test character movement with gravity
+  4. Spawn ship nearby
+  5. Walk character to ship
+  6. Enter ship (possession transfer)
+  7. Fly ship away from planet
+  8. Take screenshots at each step
+
+Screenshots will be saved to: screenshots_visual_playtest
+
+[STEP] Checking API status...
+  ✅ API online
+     Running: True
+     Port: 8080
+
+[STEP] Starting PIE (visual mode)...
+  ✅ PIE started
+
+[SCREENSHOT] 01_pie_start
+  Description: PIE just started
+  ✅ Screenshot saved: screenshots_visual_playtest/20251110_130518_01_pie_start.png
+
+[STEP] Getting player pawn...
+  ✅ Player pawn: BP_VRSpaceshipPlayer_C_1
+     Class: BP_VRSpaceshipPlayer_C
+     Location: [-200, 0, 100]
+     Has FlightController: False
+
+[SCREENSHOT] 02_player_spawn
+  Description: Player spawned on planet
+  ✅ Screenshot saved: screenshots_visual_playtest/20251110_130518_02_player_spawn.png
+
+======================================================================
+                       CHARACTER MOVEMENT TEST                        
+======================================================================
+
+Testing WASD movement with gravity...
+
+Initial position: X=-200.0, Y=0.0, Z=100.0
+
+[STEP] Moving character forward for 3.0s...
+  ✅ Character moving forward
+
+⏱️  Waiting 1s...
+
+[SCREENSHOT] 03_move_forward
+  Description: Character moved forward
+  ✅ Screenshot saved: screenshots_visual_playtest/20251110_130522_03_move_forward.png
+
+[STEP] Moving character left for 2.0s...
+  ❌ Error: ('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))
+
+⏱️  Waiting 1s...
+
+[SCREENSHOT] 04_move_left
+  Description: Character moved left
+  ✅ Screenshot saved: screenshots_visual_playtest/20251110_130524_04_move_left.png
+
+[STEP] Moving character right for 2.0s...
+  ✅ Character moving right
+
+⏱️  Waiting 1s...
+
+[SCREENSHOT] 05_move_right
+  Description: Character moved right
+  ✅ Screenshot saved: screenshots_visual_playtest/20251110_130527_05_move_right.png
+
+======================================================================
+                        SHIP INTERACTION TEST                         
+======================================================================
+
+[STEP] Spawning ship 100m from player...
+  ❌ Error: ('Connection aborted.', ConnectionAbortedError(10053, 'An established connection was aborted by the software in your host machine', None, 10053, None))
+
+❌ Cannot proceed without ship

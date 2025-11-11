@@ -1,0 +1,60 @@
+{
+  "goal": "Analyze the current codebase for any compilation issues in the Source/Alexander directory and create a plan to fix them",
+  "parsed_goal_id": "goal_1762831820",
+  "total_tasks": 5,
+  "safety_summary": {
+    "safe": 0,
+    "low_risk": 2,
+    "medium_risk": 3,
+    "high_risk": 0,
+    "critical": 0
+  },
+  "estimated_duration": 270,
+  "tasks": [
+    {
+      "task_id": "task_goal_1762831820_research_0",
+      "title": "Implement code changes",
+      "type": "research",
+      "priority": "HIGH",
+      "safety_level": "low_risk",
+      "duration": 60,
+      "execution_steps": 4
+    },
+    {
+      "task_id": "task_goal_1762831820_code_implementation_1",
+      "title": "Implement code changes",
+      "type": "code_implementation",
+      "priority": "MEDIUM",
+      "safety_level": "medium_risk",
+      "duration": 60,
+      "execution_steps": 4
+    },
+    {
+      "task_id": "task_goal_1762831820_testing_2",
+      "title": "Execute tests",
+      "type": "testing",
+      "priority": "MEDIUM",
+      "safety_level": "medium_risk",
+      "duration": 30,
+      "execution_steps": 3
+    },
+    {
+      "task_id": "task_goal_1762831820_validation_3",
+      "title": "Implement code changes",
+      "type": "validation",
+      "priority": "MEDIUM",
+      "safety_level": "medium_risk",
+      "duration": 60,
+      "execution_steps": 4
+    },
+    {
+      "task_id": "task_goal_1762831820_documentation_4",
+      "title": "Implement code changes",
+      "type": "documentation",
+      "priority": "HIGH",
+      "safety_level": "low_risk",
+      "duration": 60,
+      "execution_steps": 4
+    }
+  ]
+}

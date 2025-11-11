@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "SystemSelfTestInterface.h"
 #include "PersistentUniverseManager.generated.h"
 
 // Forward declarations
@@ -188,7 +189,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnAutoSaveTriggered, float, Elapse
  * Manages data persistence, world state, and save/load operations
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class ALEXANDER_API UPersistentUniverseManager : public UActorComponent
+class ALEXANDER_API UPersistentUniverseManager : public UActorComponent, public ISystemSelfTestInterface
 {
     GENERATED_BODY()
 
@@ -200,6 +201,13 @@ protected:
 
 public:
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+    //~ Begin ISystemSelfTestInterface interface
+    virtual bool RunSelfTest_Implementation(FSystemTestResult& OutResult) override;
+    virtual FString GetSystemName_Implementation() const override;
+    virtual FString GetTestDescription_Implementation() const override;
+    virtual bool IsReadyForTesting_Implementation() const override;
+    //~ End ISystemSelfTestInterface interface
 
     // Save Operations
     UFUNCTION(BlueprintCallable, Category = "Persistence")
