@@ -1,0 +1,54 @@
+{
+  "NPCID": "CommodityTrader_001",
+  "Name": "Mira Chen",
+  "Archetype": "CommodityTrader",
+  "Faction": "Trade_Guild",
+  "Location": {
+    "System": "Vega",
+    "Station": "Commerce_Hub"
+  },
+  "Appearance": {
+    "Model": "Human_Female_02",
+    "Outfit": "Trader_Casual",
+    "Accessories": ["Data_Slate", "Trade_Badge"]
+  },
+  "Personality": {
+    "Trait": "Shrewd",
+    "Disposition": "Neutral",
+    "Greeting": "Looking to trade? I've got the best prices for raw materials.",
+    "SpeechPattern": "Business-focused with market knowledge"
+  },
+  "Shop": {
+    "Sells": ["Minerals", "Metals", "Gases", "Crystals", "Food", "Water"],
+    "Buys": ["Raw_Materials", "Processed_Goods", "Rare_Elements"],
+    "PriceModifier": 0.95,
+    "SpecialOffers": ["Bulk_Trade", "Market_Specials", "Trade_Contracts"]
+  },
+  "Missions": {
+    "Offers": ["Supply_Run", "Resource_Gathering", "Trade_Delivery"],
+    "Weight": 0.4,
+    "Cooldown": 180
+  },
+  "Dialogue": {
+    "Greeting": "commodity_trader_greeting_01",
+    "Shop": "commodity_trader_shop_01",
+    "Missions": "commodity_trader_missions_01",
+    "Farewell": "commodity_trader_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 0,
+    "Likes": ["Traders", "Miners", "Haulers"],
+    "Dislikes": ["Price_Fixers", "Smugglers", "Monopolies"],
+    "ReputationModifiers": {
+      "Trade_Completed": 4,
+      "Contract_Fulfilled": 7,
+      "Price_Haggled": 2
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Market_Analysis", "Trade_Negotiations", "Inventory_Management", "Price_Updates"],
+    "InteractionRadius": 180,
+    "WanderRadius": 40,
+    "ConversationDuration": 20
+  }
+}

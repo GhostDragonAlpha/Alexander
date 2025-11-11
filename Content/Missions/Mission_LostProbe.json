@@ -1,0 +1,106 @@
+{
+  "MissionID": "LostProbe_001",
+  "MissionName": "Lost Probe",
+  "MissionType": "Exploration",
+  "Description": "A scientific probe sent to investigate an anomaly in the Proxima B system has gone silent. Find the probe, retrieve its data, and determine what happened to it.",
+  "Briefing": "Doctor Vance here. We've lost contact with Probe Theta-7, one of our most advanced scientific probes. It was investigating unusual energy readings near Proxima B when it suddenly went dark. The last transmission contained some... interesting data that we need to recover. This could be a major scientific discovery, or it could be a simple malfunction. Your job is to find the probe, download its data core, and bring it back safely. Be prepared for anything - space is full of surprises, and those energy readings were definitely unusual.",
+  "Objectives": [
+    {
+      "ID": "NavigateToLastKnown",
+      "Type": "Navigate",
+      "Description": "Travel to Probe Theta-7's last known coordinates",
+      "Target": "Probe_Theta7_LastLocation",
+      "SuccessCondition": "LocationReached",
+      "ProgressTrack": "DistanceToTarget",
+      "RequiredValue": 100,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "LocateProbe",
+      "Type": "Scan",
+      "Description": "Scan the area to locate the missing probe",
+      "Target": "Probe_Theta7",
+      "SuccessCondition": "TargetLocated",
+      "ProgressTrack": "ScanProgress",
+      "RequiredValue": 100,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "RetrieveDataCore",
+      "Type": "Collect",
+      "Description": "Retrieve the probe's data core",
+      "Target": "Probe_DataCore",
+      "SuccessCondition": "ItemCollected",
+      "ProgressTrack": "DataCoreStatus",
+      "RequiredValue": "Retrieved",
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "InvestigateAnomaly",
+      "Type": "Investigate",
+      "Description": "Investigate the unusual energy anomaly",
+      "Target": "Energy_Anomaly_Theta7",
+      "SuccessCondition": "AnomalyScanned",
+      "ProgressTrack": "AnomalyResearch",
+      "RequiredValue": 100,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Scientific_Breakthrough_Data"
+    }
+  ],
+  "Rewards": {
+    "Credits": 3500,
+    "XP": 280,
+    "Reputation": {
+      "Faction": "Scientific",
+      "Amount": 25
+    },
+    "Items": ["Probe_DataCore", "Research_Grant", "Scanner_Enhancement_Module"],
+    "BonusRewards": {
+      "AnomalyInvestigation": {
+        "Credits": 2000,
+        "XP": 150,
+        "Reputation": 15,
+        "Items": ["Scientific_Breakthrough_Data"]
+      }
+    }
+  },
+  "Location": {
+    "System": "ProximaB",
+    "Coordinates": {"X": -2000, "Y": 3000, "Z": -1500},
+    "Sector": "ResearchZone_Theta",
+    "Environment": "Space_Anomaly"
+  },
+  "Difficulty": "Medium",
+  "LevelRequirement": 4,
+  "TimeLimit": 1200,
+  "MissionGiver": "Dr_Elena_Vance",
+  "Prerequisites": [],
+  "Faction": "Scientific",
+  "SpecialConfig": {
+    "AnomalyType": "Energy_Fluctuation",
+    "ScanDifficulty": "Medium",
+    "EnvironmentalEffects": ["Sensor_Interference", "Energy_Discharge"]
+  },
+  "Atmosphere": {
+    "Music": "Exploration_Mysterious",
+    "AmbientSounds": "Space_Anomaly",
+    "VFX": ["Energy_Patterns", "Distortion_Waves", "Scanner_Effects"]
+  },
+  "Dialogue": {
+    "Briefing": "VANCE_LOST_PROBE_BRIEFING",
+    "Start": "VANCE_LOST_PROBE_START",
+    "Update": "VANCE_LOST_PROBE_UPDATE",
+    "Success": "VANCE_LOST_PROBE_SUCCESS",
+    "Failure": "VANCE_LOST_PROBE_FAILURE"
+  },
+  "SpecialMechanics": {
+    "ScannerPuzzle": true,
+    "EnvironmentalHazards": ["Energy_Discharge", "Sensor_Jamming"],
+    "DynamicDifficulty": false,
+    "ScientificDiscovery": true
+  }
+}

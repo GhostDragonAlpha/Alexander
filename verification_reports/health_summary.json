@@ -1,0 +1,15 @@
+{
+  "timestamp": "2025-11-10T19:02:54.505610",
+  "status": "critical",
+  "services": {
+    "game": "healthy",
+    "analysis": "down",
+    "dashboard": "down"
+  },
+  "system": {
+    "cpu_percent": 19.1,
+    "memory_percent": 36.5,
+    "disk_percent": 60.5
+  },
+  "alert_count": 2
+}

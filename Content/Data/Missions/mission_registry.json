@@ -1,0 +1,140 @@
+{
+  "registry_version": "1.0",
+  "total_missions": 10,
+  "validation_status": "valid",
+  "validation_errors": [],
+  "missions": [
+    {
+      "mission_id": "AncientRuins_001",
+      "mission_name": "Ancient Ruins",
+      "mission_type": "Exploration",
+      "difficulty": "Hard",
+      "level_requirement": 7,
+      "time_limit": 1800,
+      "mission_giver": "Dr_Elena_Vance",
+      "prerequisites": [
+        "LostProbe_001"
+      ],
+      "location": "Kepler442",
+      "filename": "Mission_AncientRuins.json"
+    },
+    {
+      "mission_id": "BountyHunter_001",
+      "mission_name": "Bounty Hunter",
+      "mission_type": "Combat",
+      "difficulty": "Hard",
+      "level_requirement": 8,
+      "time_limit": 900,
+      "mission_giver": "Admiral_Kross",
+      "prerequisites": [
+        "PirateAmbush_001"
+      ],
+      "location": "Kepler442",
+      "filename": "Mission_BountyHunter.json"
+    },
+    {
+      "mission_id": "DistressSignal_001",
+      "mission_name": "Distress Signal",
+      "mission_type": "SearchAndRescue",
+      "difficulty": "Medium",
+      "level_requirement": 4,
+      "time_limit": 900,
+      "mission_giver": "Admiral_Kross",
+      "prerequisites": [],
+      "location": "NebulaZone_Alpha",
+      "filename": "Mission_DistressSignal.json"
+    },
+    {
+      "mission_id": "LostProbe_001",
+      "mission_name": "Lost Probe",
+      "mission_type": "Exploration",
+      "difficulty": "Medium",
+      "level_requirement": 4,
+      "time_limit": 1200,
+      "mission_giver": "Dr_Elena_Vance",
+      "prerequisites": [],
+      "location": "ProximaB",
+      "filename": "Mission_LostProbe.json"
+    },
+    {
+      "mission_id": "MarketManipulation_001",
+      "mission_name": "Market Manipulation",
+      "mission_type": "Trading",
+      "difficulty": "Medium",
+      "level_requirement": 5,
+      "time_limit": 1800,
+      "mission_giver": "Captain_Marcus_Steel",
+      "prerequisites": [
+        "SupplyRun_001"
+      ],
+      "location": "MultiSystem",
+      "filename": "Mission_MarketManipulation.json"
+    },
+    {
+      "mission_id": "MissingColonists_001",
+      "mission_name": "Missing Colonists",
+      "mission_type": "SearchAndRescue",
+      "difficulty": "Hard",
+      "level_requirement": 6,
+      "time_limit": 2400,
+      "mission_giver": "Dr_Elena_Vance",
+      "prerequisites": [
+        "DistressSignal_001"
+      ],
+      "location": "Kepler442",
+      "filename": "Mission_MissingColonists.json"
+    },
+    {
+      "mission_id": "PirateAmbush_001",
+      "mission_name": "Pirate Ambush",
+      "mission_type": "Combat",
+      "difficulty": "Medium",
+      "level_requirement": 5,
+      "time_limit": 600,
+      "mission_giver": "Commander_Rhodes",
+      "prerequisites": [],
+      "location": "AlphaCentauri",
+      "filename": "Mission_PirateAmbush.json"
+    },
+    {
+      "mission_id": "ScienceVessel_001",
+      "mission_name": "Science Vessel",
+      "mission_type": "Escort",
+      "difficulty": "VeryHard",
+      "level_requirement": 10,
+      "time_limit": 1800,
+      "mission_giver": "Dr_Elena_Vance",
+      "prerequisites": [
+        "VIPTransport_001"
+      ],
+      "location": "Kepler442",
+      "filename": "Mission_ScienceVessel.json"
+    },
+    {
+      "mission_id": "SupplyRun_001",
+      "mission_name": "Supply Run",
+      "mission_type": "Trading",
+      "difficulty": "Medium",
+      "level_requirement": 3,
+      "time_limit": 1200,
+      "mission_giver": "Captain_Marcus_Steel",
+      "prerequisites": [],
+      "location": "Kepler442",
+      "filename": "Mission_SupplyRun.json"
+    },
+    {
+      "mission_id": "VIPTransport_001",
+      "mission_name": "VIP Transport",
+      "mission_type": "Escort",
+      "difficulty": "Hard",
+      "level_requirement": 8,
+      "time_limit": 1500,
+      "mission_giver": "Commander_Rhodes",
+      "prerequisites": [
+        "PirateAmbush_001"
+      ],
+      "location": "MultiSystem",
+      "filename": "Mission_VIPTransport.json"
+    }
+  ]
+}

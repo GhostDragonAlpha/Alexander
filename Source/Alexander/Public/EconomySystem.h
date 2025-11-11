@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataTable.h"
+#include "PerformanceProfiler.h"
 #include "EconomySystem.generated.h"
 
 // Forward declarations

@@ -1,0 +1,128 @@
+{
+  "MissionID": "MissingColonists_001",
+  "MissionName": "Missing Colonists",
+  "MissionType": "SearchAndRescue",
+  "Description": "Investigate a failing mining outpost on Kepler-442b where 24 colonists have gone missing. Find the missing colonists and uncover what happened to the outpost.",
+  "Briefing": "Commander, we have a disturbing situation. Mining Outpost Gamma on Kepler-442b has gone silent. Last scheduled check-in was 48 hours ago, and all attempts to contact them have failed. There are 24 colonists stationed there, and we're getting some strange readings from the area. Life support appears to be failing, but there are also unusual energy signatures that don't match any known equipment. We need you to investigate, find our people, and get them out safely. Something about this doesn't feel right - be prepared for anything. The colonists' lives are in your hands, and we need answers about what happened down there.",
+  "Objectives": [
+    {
+      "ID": "InvestigateOutpost",
+      "Type": "Investigate",
+      "Description": "Investigate the silent mining outpost on Kepler-442b",
+      "Target": "Outpost_Gamma",
+      "SuccessCondition": "LocationReached",
+      "ProgressTrack": "InvestigationProgress",
+      "RequiredValue": 100,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "AssessDamage",
+      "Type": "Scan",
+      "Description": "Assess the outpost's damage and life support status",
+      "Target": "Outpost_Systems",
+      "SuccessCondition": "ScanComplete",
+      "ProgressTrack": "AssessmentProgress",
+      "RequiredValue": 100,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "FindSurvivors",
+      "Type": "Rescue",
+      "Description": "Locate and account for all 24 missing colonists",
+      "Target": "Missing_Colonists",
+      "SuccessCondition": "AllSurvivorsLocated",
+      "ProgressTrack": "ColonistsFound",
+      "RequiredValue": 24,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "RescueColonists",
+      "Type": "Rescue",
+      "Description": "Rescue the surviving colonists",
+      "Target": "Surviving_Colonists",
+      "SuccessCondition": "AllSurvivorsRescued",
+      "ProgressTrack": "ColonistsRescued",
+      "RequiredValue": 24,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "UncoverMystery",
+      "Type": "Investigate",
+      "Description": "Investigate the cause of the outpost's failure",
+      "Target": "Outpost_Mystery",
+      "SuccessCondition": "MysterySolved",
+      "ProgressTrack": "MysteryInvestigation",
+      "RequiredValue": 100,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Xenobiology_Research_Data"
+    }
+  ],
+  "Rewards": {
+    "Credits": 10000,
+    "XP": 600,
+    "Reputation": {
+      "Faction": "Colonial",
+      "Amount": 40
+    },
+    "Reputation": {
+      "Faction": "Scientific",
+      "Amount": 25
+    },
+    "Items": ["Rescue_Commendation", "Colonial_Hero_Medal", "Emergency_Supplies", "Mining_Outpost_Data"],
+    "BonusRewards": {
+      "MysterySolved": {
+        "Credits": 3000,
+        "XP": 250,
+        "Reputation": 20,
+        "Items": ["Xenobiology_Research_Data", "Ancient_Alien_Artifact"]
+      },
+      "AllColonistsSaved": {
+        "Credits": 2000,
+        "Reputation": 15,
+        "Items": ["Perfect_Rescue_Bonus"]
+      }
+    }
+  },
+  "Location": {
+    "System": "Kepler442",
+    "Coordinates": {"X": 5000, "Y": -1000, "Z": 2000},
+    "Sector": "Mining_Outpost_Gamma",
+    "Environment": "Planetary_Outpost"
+  },
+  "Difficulty": "Hard",
+  "LevelRequirement": 6,
+  "TimeLimit": 2400,
+  "MissionGiver": "Dr_Elena_Vance",
+  "Prerequisites": ["DistressSignal_001"],
+  "Faction": "Colonial",
+  "RescueConfig": {
+    "SurvivorCount": 24,
+    "RescueMethod": "Multi_Location",
+    "TimePressure": "Moderate",
+    "EnvironmentalHazards": ["LifeSupport_Failure", "Structural_Damage", "Unknown_Anomaly"]
+  },
+  "Atmosphere": {
+    "Music": "Exploration_Mysterious",
+    "AmbientSounds": "Abandoned_Outpost",
+    "VFX": ["Damaged_Facility", "Emergency_Lights", "Mystery_Anomaly"]
+  },
+  "Dialogue": {
+    "Briefing": "VANCE_MISSING_COLONISTS_BRIEFING",
+    "Start": "VANCE_MISSING_COLONISTS_START",
+    "Update": "VANCE_MISSING_COLONISTS_UPDATE",
+    "Success": "VANCE_MISSING_COLONISTS_SUCCESS",
+    "Failure": "VANCE_MISSING_COLONISTS_FAILURE"
+  },
+  "SpecialMechanics": {
+    "Investigation": true,
+    "MultipleRescueLocations": true,
+    "EnvironmentalHazards": true,
+    "MysterySolving": true,
+    "StoryDriven": true
+  }
+}

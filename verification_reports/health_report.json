@@ -1,0 +1,87 @@
+{
+  "timestamp": "2025-11-10T19:02:54.505610",
+  "status": "critical",
+  "services": {
+    "game": {
+      "name": "game",
+      "status": "healthy",
+      "response_time": 0.11679911613464355,
+      "uptime": 0,
+      "last_check": "2025-11-10T19:02:43.393141",
+      "errors": []
+    },
+    "analysis": {
+      "name": "analysis",
+      "status": "down",
+      "response_time": 0,
+      "uptime": 0,
+      "last_check": "2025-11-10T19:02:43.509941",
+      "errors": [
+        "Connection refused"
+      ]
+    },
+    "dashboard": {
+      "name": "dashboard",
+      "status": "down",
+      "response_time": 0,
+      "uptime": 0,
+      "last_check": "2025-11-10T19:02:47.601396",
+      "errors": [
+        "Connection refused"
+      ]
+    }
+  },
+  "system": {
+    "timestamp": "2025-11-10T19:02:51.691897",
+    "cpu": {
+      "usage_percent": 19.1,
+      "core_count": 32,
+      "frequency": {
+        "current": 3000.0,
+        "min": 0.0,
+        "max": 3000.0
+      }
+    },
+    "memory": {
+      "usage_percent": 36.5,
+      "total_gb": 127.77661514282227,
+      "available_gb": 81.08600997924805,
+      "used_gb": 46.69060516357422
+    },
+    "disk": {
+      "usage_percent": 60.5,
+      "total_gb": 1860.5966758728027,
+      "free_gb": 735.4202156066895,
+      "used_gb": 1125.1764602661133
+    },
+    "network": {
+      "connections": 454,
+      "interfaces": 7
+    }
+  },
+  "alerts": [
+    {
+      "level": "critical",
+      "category": "service",
+      "service": "analysis",
+      "message": "analysis service is down",
+      "timestamp": "2025-11-10T19:02:54.504609"
+    },
+    {
+      "level": "critical",
+      "category": "service",
+      "service": "dashboard",
+      "message": "dashboard service is down",
+      "timestamp": "2025-11-10T19:02:54.505610"
+    }
+  ],
+  "history": [
+    {
+      "timestamp": "2025-11-10T19:02:54.505610",
+      "status": "critical",
+      "service_count": 3,
+      "alert_count": 2
+    }
+  ],
+  "processes": {}
+}

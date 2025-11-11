@@ -13,6 +13,7 @@
 #include "PhysicsEngine/BodySetup.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Net/UnrealNetwork.h"  // For replication macros, bReplicates, bReplicateMovement
+#include "SystemValidation.h"  // For validation framework
 
 // Conversion factors
 static const double KM_TO_CM = 100000.0;  // 1 km = 100,000 cm
@@ -146,6 +147,9 @@ void AOrbitalBody::BeginPlay()
 
 void AOrbitalBody::Tick(float DeltaTime)
 {
+    // Validate DeltaTime to prevent division by zero and invalid physics calculations
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(DeltaTime, TEXT("DeltaTime"), TEXT("OrbitalBody::Tick")), { return; });
+
     Super::Tick(DeltaTime);
 
     // Skip if we're not the authority
@@ -212,14 +216,19 @@ void AOrbitalBody::Tick(float DeltaTime)
 
 void AOrbitalBody::UpdateOrbitalPosition(float DeltaTime)
 {
-    if (!OrbitTarget.IsValid() || !OrbitalMechanics)
-    {
-        return;
-    }
+    // Validate inputs and critical pointers
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(DeltaTime, TEXT("DeltaTime"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidateNotNull(OrbitTarget.Get(), TEXT("OrbitTarget"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidateNotNull(OrbitalMechanics, TEXT("OrbitalMechanics"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
 
     // Get current orbital elements
     const FOrbitalElements& Elements = OrbitalMechanics->GetCurrentOrbitalElements();
     
+    // Validate orbital elements before calculations
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(Elements.SemiMajorAxis, TEXT("SemiMajorAxis"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidateRange(Elements.Eccentricity, 0.0f, 0.999f, TEXT("Eccentricity"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(Elements.StandardGravitationalParameter, TEXT("StandardGravitationalParameter"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
+
     // Update time since periapsis
     TimeSincePeriapsis += DeltaTime * TimeWarpFactor;
     
@@ -234,7 +243,7 @@ void AOrbitalBody::UpdateOrbitalPosition(float DeltaTime)
     
     for (int32 i = 0; i < 10; ++i) // Limit iterations for stability
     {
-        double DeltaE = (MeanAnomaly - (EccentricAnomaly - Eccentricity * FMath::Sin(EccentricAnomaly))) / 
+        double DeltaE = (MeanAnomaly - (EccentricAnomaly - Eccentricity * FMath::Sin(EccentricAnomaly))) /
                        (1.0 - Eccentricity * FMath::Cos(EccentricAnomaly));
         
         EccentricAnomaly += DeltaE;

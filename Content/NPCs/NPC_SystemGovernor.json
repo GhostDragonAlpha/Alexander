@@ -1,0 +1,56 @@
+{
+  "NPCID": "SystemGovernor_001",
+  "Name": "Governor Marcus Thorne",
+  "Archetype": "SystemGovernor",
+  "Faction": "United_Federation",
+  "Location": {
+    "System": "Sol",
+    "Station": "Governors_Mansion"
+  },
+  "Appearance": {
+    "Model": "Human_Male_09",
+    "Outfit": "Governor_Regalia",
+    "Accessories": ["Governor_Seal", "Political_Pad", "Ceremonial_Insignia"]
+  },
+  "Personality": {
+    "Trait": "Political",
+    "Disposition": "Diplomatic",
+    "Greeting": "Welcome to our system. I hope you find our governance to your satisfaction.",
+    "SpeechPattern": "Political, diplomatic, system-wide perspective"
+  },
+  "Shop": {
+    "Sells": ["System_Permits", "Political_Access", "Governance_Services", "Diplomatic_Immunity"],
+    "Buys": ["Political_Support", "System_Data", "Faction_Intel"],
+    "PriceModifier": 1.2,
+    "SpecialOffers": ["System_Citizenship", "Political_Favors", "Governance_Contracts"]
+  },
+  "Missions": {
+    "Offers": ["Diplomatic_Mission", "System_Development", "Political_Campaign", "Governance_Tasks"],
+    "Weight": 0.4,
+    "Cooldown": 400,
+    "InfluenceRequired": 20
+  },
+  "Dialogue": {
+    "Greeting": "system_governor_greeting_01",
+    "Shop": "system_governor_shop_01",
+    "Missions": "system_governor_missions_01",
+    "Farewell": "system_governor_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 15,
+    "Likes": ["Diplomats", "Leaders", "Influential"],
+    "Dislikes": ["Rebels", "Anarchists", "Corruption"],
+    "ReputationModifiers": {
+      "Political_Support": 10,
+      "Diplomatic_Success": 15,
+      "System_Development": 12
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Governance_Duties", "Diplomatic_Meetings", "System_Management", "Policy_Review"],
+    "InteractionRadius": 100,
+    "WanderRadius": 15,
+    "ConversationDuration": 45,
+    "PoliticalProtocol": true
+  }
+}

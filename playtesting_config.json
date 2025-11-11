@@ -1,0 +1,151 @@
+{
+  "continuous_playtesting": {
+    "enabled": true,
+    "max_iterations": 0,
+    "iteration_delay_seconds": 30,
+    "max_consecutive_failures": 3,
+    "session_timeout_minutes": 60,
+    "auto_restart_on_crash": true,
+    "randomize_test_order": false,
+    "test_scenario_weights": {
+      "first_mission": 1.0,
+      "trading_system": 0.8,
+      "combat_scenario": 1.2,
+      "free_exploration": 1.0
+    }
+  },
+  
+  "performance_collection": {
+    "enabled": true,
+    "collection_interval_seconds": 5,
+    "max_history_size": 10000,
+    "save_to_csv": true,
+    "save_to_json": true,
+    "generate_graphs": true,
+    "alert_on_threshold_violation": true,
+    "baseline_comparison_enabled": true
+  },
+  
+  "performance_thresholds": {
+    "fps_min": 30,
+    "frame_time_max_ms": 33.3,
+    "memory_max_mb": 4096,
+    "cpu_max_percent": 80,
+    "gpu_max_percent": 90,
+    "draw_calls_max": 5000,
+    "triangle_count_max": 1000000,
+    "actor_count_max": 10000,
+    "component_count_max": 50000
+  },
+  
+  "issue_detection": {
+    "enabled": true,
+    "auto_classify_issues": true,
+    "create_github_tickets": false,
+    "severity_threshold": "medium",
+    "min_frequency_for_pattern": 3,
+    "correlate_with_performance": true,
+    "save_screenshots_with_issues": true
+  },
+  
+  "screenshot_capture": {
+    "enabled": true,
+    "capture_interval_seconds": 3,
+    "jpeg_quality": 85,
+    "max_screenshots_per_session": 1000,
+    "auto_cleanup_old_screenshots": true,
+    "send_to_analysis": true,
+    "capture_region": null,
+    "resize_to": [1280, 720],
+    "enable_compression": true
+  },
+  
+  "test_scenarios": {
+    "enabled": true,
+    "timeout_seconds": 300,
+    "max_attempts": 3,
+    "required_screenshots_per_scenario": 5,
+    "randomize_scenario_parameters": true,
+    "sequential_execution": true,
+    "scenario_timeout_minutes": {
+      "first_mission": 3,
+      "trading_system": 4,
+      "combat_scenario": 5,
+      "free_exploration": 10
+    }
+  },
+  
+  "dashboard": {
+    "enabled": true,
+    "port": 8082,
+    "host": "localhost",
+    "refresh_interval_seconds": 5,
+    "max_displayed_issues": 50,
+    "show_performance_graphs": true,
+    "show_screenshot_preview": true,
+    "enable_test_controls": true,
+    "theme": "dark"
+  },
+  
+  "code_recommendations": {
+    "enabled": true,
+    "analyze_issue_patterns": true,
+    "suggest_performance_optimizations": true,
+    "suggest_bug_fixes": true,
+    "suggest_ui_improvements": true,
+    "min_confidence_threshold": 0.7,
+    "max_recommendations_per_run": 10,
+    "learn_from_previous_fixes": true
+  },
+  
+  "data_management": {
+    "data_retention_days": 30,
+    "compress_old_data": true,
+    "backup_critical_findings": true,
+    "export_format": "json",
+    "aggregate_statistics_enabled": true,
+    "cleanup_interval_hours": 24
+  },
+  
+  "notifications": {
+    "enabled": false,
+    "webhook_url": "",
+    "email_enabled": false,
+    "email_recipients": [],
+    "notify_on_critical_issues": true,
+    "notify_on_performance_regression": true,
+    "notify_on_test_completion": false
+  },
+  
+  "ci_integration": {
+    "enabled": false,
+    "git_repository_path": "",
+    "run_on_commit": true,
+    "run_on_pull_request": true,
+    "fail_build_on_critical_issues": true,
+    "generate_reports_for_pr": true,
+    "baseline_comparison_branch": "main"
+  },
+  
+  "logging": {
+    "level": "INFO",
+    "log_to_file": true,
+    "log_rotation_enabled": true,
+    "max_log_size_mb": 100,
+    "max_log_files": 10,
+    "log_directory": "automation_config/logs"
+  },
+  
+  "game_launcher": {
+    "unreal_editor_path": "C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
+    "project_file": "C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject",
+    "default_map": "VRTemplateMap",
+    "game_mode": "/Script/Alexander.AutomationGameMode",
+    "default_resolution": "1280x720",
+    "default_quality": "medium",
+    "enable_console": true,
+    "enable_debug": true,
+    "http_api_port": 8080,
+    "max_restarts": 3
+  }
+}

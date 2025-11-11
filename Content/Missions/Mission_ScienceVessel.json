@@ -1,0 +1,114 @@
+{
+  "MissionID": "ScienceVessel_001",
+  "MissionName": "Science Vessel",
+  "MissionType": "Escort",
+  "Description": "Protect the research vessel 'Discovery' during a dangerous experiment near a black hole. Defend against pirate scavengers and ensure the scientific data is secured.",
+  "Briefing": "Commander, we have a delicate situation. The research vessel Discovery is about to conduct a groundbreaking experiment near the Kepler-442 black hole. They're attempting to collect data on Hawking radiation - something that's never been done before at this scale. However, the experiment is dangerous and has attracted the attention of pirate scavengers who think they can steal the valuable equipment and data. Your job is to protect the Discovery during the experiment, which will last approximately 20 minutes. Keep those pirates at bay while the scientists do their work. The data they're collecting could revolutionize our understanding of physics.",
+  "Objectives": [
+    {
+      "ID": "EscortToExperimentSite",
+      "Type": "Escort",
+      "Description": "Escort Discovery to the experiment coordinates near the black hole",
+      "Target": "ScienceVessel_Discovery",
+      "SuccessCondition": "TargetReached",
+      "ProgressTrack": "VesselPosition",
+      "RequiredValue": "ExperimentZone",
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "ProtectDuringExperiment",
+      "Type": "Defend",
+      "Description": "Protect Discovery during the 20-minute experiment",
+      "Target": "ScienceVessel_Discovery",
+      "SuccessCondition": "TargetHealth > 60%",
+      "FailureCondition": "TargetDestroyed",
+      "ProgressTrack": "ExperimentProgress",
+      "RequiredValue": 100,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "DefendFromScavengers",
+      "Type": "Eliminate",
+      "Description": "Defeat pirate scavenger waves attempting to steal equipment",
+      "Target": "Pirate_Scavengers",
+      "SuccessCondition": "AllEnemiesDefeated",
+      "ProgressTrack": "ScavengersDestroyed",
+      "RequiredValue": 10,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "SecureData",
+      "Type": "Defend",
+      "Description": "Ensure scientific data is successfully transmitted",
+      "Target": "Experiment_Data",
+      "SuccessCondition": "DataTransmissionComplete",
+      "ProgressTrack": "DataTransfer",
+      "RequiredValue": 100,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Scientific_Breakthrough_Data"
+    }
+  ],
+  "Rewards": {
+    "Credits": 10000,
+    "XP": 550,
+    "Reputation": {
+      "Faction": "Scientific",
+      "Amount": 35
+    },
+    "Reputation": {
+      "Faction": "MerchantGuild",
+      "Amount": 15
+    },
+    "Items": ["Scientific_Commendation", "Research_Grant", "Advanced_Sensor_Array", "Black_Hole_Data_Core"],
+    "BonusRewards": {
+      "PerfectExperiment": {
+        "Credits": 4000,
+        "Reputation": 20,
+        "Items": ["Scientific_Breakthrough_Data", "Nobel_Prize_Nomination"]
+      }
+    }
+  },
+  "Location": {
+    "System": "Kepler442",
+    "Coordinates": {"X": 5000, "Y": -1000, "Z": 2000},
+    "Sector": "BlackHole_Experiment_Zone",
+    "Environment": "Space_Anomaly"
+  },
+  "Difficulty": "VeryHard",
+  "LevelRequirement": 10,
+  "TimeLimit": 1800,
+  "MissionGiver": "Dr_Elena_Vance",
+  "Prerequisites": ["VIPTransport_001"],
+  "Faction": "Scientific",
+  "EscortConfig": {
+    "VIPType": "ScienceVessel",
+    "VIPShip": "Research_Vessel_Discovery",
+    "VIPHealth": 800,
+    "ExperimentDuration": 1200,
+    "AttackWaveCount": 4,
+    "AttackersPerWave": 3
+  },
+  "Atmosphere": {
+    "Music": "Escort_Scientific",
+    "AmbientSounds": "Black_Hole_Experiment",
+    "VFX": ["Black_Hole", "Scientific_Equipment", "Energy_Fields"]
+  },
+  "Dialogue": {
+    "Briefing": "VANCE_SCIENCE_VESSEL_BRIEFING",
+    "Start": "VANCE_SCIENCE_VESSEL_START",
+    "Update": "VANCE_SCIENCE_VESSEL_UPDATE",
+    "Success": "VANCE_SCIENCE_VESSEL_SUCCESS",
+    "Failure": "VANCE_SCIENCE_VESSEL_FAILURE"
+  },
+  "SpecialMechanics": {
+    "VIPProtection": true,
+    "ScientificExperiment": true,
+    "MultipleAttackWaves": true,
+    "EnvironmentalHazards": ["Black_Hole_Gravity", "Radiation", "Temporal_Anomalies"],
+    "DataProtection": true
+  }
+}

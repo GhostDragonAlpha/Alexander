@@ -52,6 +52,33 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tick|Settings")
     float DistanceThreshold;
 
+    // Distance-based culling settings
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tick|Distance")
+    float HighPriorityDistance;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tick|Distance")
+    float MediumPriorityDistance;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tick|Distance")
+    float LowPriorityDistance;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tick|Distance")
+    float CullDistance;
+
+    // Performance targets
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tick|Performance")
+    float TargetFPS;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tick|Performance")
+    float MinFPS;
+
+    // Tick groups by priority
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tick|Groups")
+    TMap<AActor*, ETickPriority> ActorTickPriorities;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Tick|Groups")
+    TMap<UActorComponent*, ETickPriority> ComponentTickPriorities;
+
     // Events (delegated to optimization component)
     UPROPERTY(BlueprintAssignable, Category = "Tick|Events")
     FOnTickOptimizationComplete OnOptimizationComplete;
@@ -148,9 +175,51 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Tick|Utility")
     void LoadTickConfiguration(const FString& ConfigName) { if (ReportingComponent && AnalysisComponent) ReportingComponent->LoadTickConfiguration(ConfigName, AnalysisComponent); }
 
+    // New optimization functions
+    UFUNCTION(BlueprintCallable, Category = "Tick|Optimization")
+    void UpdateActorTickStates();
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|Optimization")
+    void UpdateComponentTickStates();
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|Optimization")
+    void ReduceTickRates();
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|Optimization")
+    void RestoreTickRates();
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|Optimization")
+    ETickPriority CalculateTickPriority(AActor* Actor, float Distance) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|Optimization")
+    void ApplyTickOptimization(AActor* Actor, ETickPriority Priority);
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|Optimization")
+    bool IsActorVisible(AActor* Actor) const;
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|Optimization")
+    bool IsActorInFrustum(AActor* Actor) const;
+
+    // HTTP API functions
+    UFUNCTION(BlueprintCallable, Category = "Tick|API")
+    FString GetTickStats() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|API")
+    void SetActorPriority(AActor* Actor, ETickPriority Priority);
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|API")
+    TArray<AActor*> GetDormantActors() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Tick|API")
+    void ResetTickOptimization();
+
 private:
     // Internal state
     float TimeSinceLastOptimization;
+    float CurrentFPS;
+    float LastFPSTime;
+    int32 FrameCount;
+    bool bIsPerformanceDegraded;
     
     // Delegate handlers
     UFUNCTION()
@@ -166,4 +235,6 @@ private:
     void UpdateTickBudget(float DeltaTime);
     FString GetComponentCategory(UActorComponent* Component) const;
     bool IsPlayerNearby(AActor* Actor) const;
+    void MonitorPerformance(float DeltaTime);
+    void UpdateComponentTickState(UActorComponent* Component);
 };

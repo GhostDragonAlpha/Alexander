@@ -1,0 +1,131 @@
+{
+  "timestamp": "2025-11-10T19:00:14.511076",
+  "status": "completed",
+  "smoke_tests": {
+    "python_version": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:14.511076"
+    },
+    "dependencies": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:14.915970"
+    },
+    "configuration_files": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:14.916969"
+    },
+    "directory_structure": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:14.916969"
+    },
+    "network_ports": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:18.946048"
+    },
+    "service_endpoints": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:27.329115"
+    }
+  },
+  "integration_tests": {
+    "game_to_analysis": {
+      "status": "fail",
+      "timestamp": "2025-11-10T19:00:31.418593"
+    },
+    "analysis_to_dashboard": {
+      "status": "fail",
+      "timestamp": "2025-11-10T19:00:35.514022"
+    },
+    "data_flow_complete": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:35.514022"
+    },
+    "api_consistency": {
+      "status": "fail",
+      "timestamp": "2025-11-10T19:00:39.931994"
+    }
+  },
+  "configuration_tests": {
+    "config_syntax": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:39.932535"
+    },
+    "config_values": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:39.932535"
+    },
+    "config_completeness": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:39.932535"
+    }
+  },
+  "data_flow_tests": {
+    "screenshot_flow": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:39.932535"
+    },
+    "performance_flow": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:39.932535"
+    },
+    "analysis_flow": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:39.932535"
+    },
+    "report_flow": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:39.932535"
+    }
+  },
+  "error_handling_tests": {
+    "invalid_requests": {
+      "status": "fail",
+      "timestamp": "2025-11-10T19:00:40.153162"
+    },
+    "service_unavailability": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:44.163559"
+    },
+    "timeout_handling": {
+      "status": "pass",
+      "timestamp": "2025-11-10T19:00:44.178522"
+    }
+  },
+  "errors": [],
+  "certificate": {
+    "timestamp": "2025-11-10T19:00:44.178522",
+    "validation_status": "passed",
+    "total_tests": 20,
+    "passed_tests": 16,
+    "success_rate": 0.8,
+    "system_ready": true,
+    "certificate_issued": true,
+    "test_summary": {
+      "smoke_tests": {
+        "total": 6,
+        "passed": 6,
+        "failed": 0
+      },
+      "integration_tests": {
+        "total": 4,
+        "passed": 1,
+        "failed": 3
+      },
+      "configuration_tests": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0
+      },
+      "data_flow_tests": {
+        "total": 4,
+        "passed": 4,
+        "failed": 0
+      },
+      "error_handling_tests": {
+        "total": 3,
+        "passed": 2,
+        "failed": 1
+      }
+    }
+  }
+}

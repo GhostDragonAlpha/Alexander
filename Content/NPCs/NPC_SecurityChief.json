@@ -1,0 +1,56 @@
+{
+  "NPCID": "SecurityChief_001",
+  "Name": "Chief Elena Rodriguez",
+  "Archetype": "SecurityChief",
+  "Faction": "Security_Force",
+  "Location": {
+    "System": "Sol",
+    "Station": "Security_Headquarters"
+  },
+  "Appearance": {
+    "Model": "Human_Female_06",
+    "Outfit": "Security_Armor",
+    "Accessories": ["Security_Badge", "Tactical_Gear", "Enforcement_Tool"]
+  },
+  "Personality": {
+    "Trait": "Strict",
+    "Disposition": "Professional",
+    "Greeting": "This is a secure area. State your business.",
+    "SpeechPattern": "Law enforcement, authoritative, security-focused"
+  },
+  "Shop": {
+    "Sells": ["Security_Services", "Protection_Detail", "Law_Enforcement", "Crime_Info"],
+    "Buys": ["Crime_Reports", "Security_Data", "Law_Intel"],
+    "PriceModifier": 1.0,
+    "SpecialOffers": ["Security_Contracts", "Protection_Services", "Law_Enforcement"]
+  },
+  "Missions": {
+    "Offers": ["Security_Detail", "Crime_Investigation", "Law_Enforcement", "Protection_Mission"],
+    "Weight": 0.5,
+    "Cooldown": 250,
+    "LawfulRequired": true
+  },
+  "Dialogue": {
+    "Greeting": "security_chief_greeting_01",
+    "Shop": "security_chief_shop_01",
+    "Missions": "security_chief_missions_01",
+    "Farewell": "security_chief_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 10,
+    "Likes": ["Lawful", "Security", "Order"],
+    "Dislikes": ["Criminals", "Lawbreakers", "Chaos"],
+    "ReputationModifiers": {
+      "Crime_Prevented": 10,
+      "Law_Helped": 8,
+      "Criminal_Activity": -20
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Security_Patrol", "Crime_Monitoring", "Law_Enforcement", "Briefings"],
+    "InteractionRadius": 140,
+    "WanderRadius": 25,
+    "ConversationDuration": 20,
+    "LawEnforcement": true
+  }
+}

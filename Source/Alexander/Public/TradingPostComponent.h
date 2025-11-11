@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "GameFramework/PlayerState.h"
 #include "EconomySystem.h"
+#include "PerformanceProfiler.h"
 #include "TradingPostComponent.generated.h"
 
 UENUM(BlueprintType)
@@ -503,6 +504,10 @@ private:
 
     UPROPERTY()
     FTimerHandle PriceUpdateTimer;
+
+    // Performance Profiler
+    UPROPERTY()
+    UPerformanceProfiler* PerformanceProfiler;
 
     // Constants
     static constexpr float DEFAULT_MARKET_UPDATE_INTERVAL = 60.0f; // 1 minute

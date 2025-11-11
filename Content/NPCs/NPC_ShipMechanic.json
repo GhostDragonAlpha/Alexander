@@ -1,0 +1,54 @@
+{
+  "NPCID": "ShipMechanic_001",
+  "Name": "Rusty Malone",
+  "Archetype": "ShipMechanic",
+  "Faction": "Independent",
+  "Location": {
+    "System": "Omega",
+    "Station": "Junkyard_Station"
+  },
+  "Appearance": {
+    "Model": "Human_Male_05",
+    "Outfit": "Mechanic_Overalls",
+    "Accessories": ["Tool_Belt", "Welding_Goggles", "Grease_Rag"]
+  },
+  "Personality": {
+    "Trait": "Gruff",
+    "Disposition": "Neutral",
+    "Greeting": "What broke this time? I can fix anything with enough credits.",
+    "SpeechPattern": "Direct, technical, no-nonsense mechanic speak"
+  },
+  "Shop": {
+    "Sells": ["Repairs", "Upgrades", "Custom_Modifications", "Spare_Parts"],
+    "Buys": ["Damaged_Components", "Scrap_Metal", "Broken_Ships"],
+    "PriceModifier": 0.9,
+    "SpecialOffers": ["Emergency_Repairs", "Performance_Tuning", "Custom_Builds"]
+  },
+  "Missions": {
+    "Offers": ["Repair_Job", "Salvage_Operation", "Custom_Build", "Emergency_Fix"],
+    "Weight": 0.3,
+    "Cooldown": 200
+  },
+  "Dialogue": {
+    "Greeting": "ship_mechanic_greeting_01",
+    "Shop": "ship_mechanic_shop_01",
+    "Missions": "ship_mechanic_missions_01",
+    "Farewell": "ship_mechanic_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 5,
+    "Likes": ["Ships", "Mechanics", "Engineering"],
+    "Dislikes": ["Careless_Pilots", "Cheap_Skates", "Know_it_Alls"],
+    "ReputationModifiers": {
+      "Repair_Completed": 6,
+      "Custom_Job": 10,
+      "Payment_Delayed": -5
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Repair_Work", "Custom_Jobs", "Inventory_Sorting", "Tool_Maintenance"],
+    "InteractionRadius": 180,
+    "WanderRadius": 40,
+    "ConversationDuration": 20
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "NPCID": "BlackMarketDealer_001",
+  "Name": "Vex Shadow",
+  "Archetype": "BlackMarketDealer",
+  "Faction": "Syndicate",
+  "Location": {
+    "System": "Nebula_Outpost",
+    "Station": "Shadow_Dock"
+  },
+  "Appearance": {
+    "Model": "Human_Male_02",
+    "Outfit": "Cloaked_Robes",
+    "Accessories": ["Concealed_Weapons", "Encrypted_Comms", "Holo_Mask"]
+  },
+  "Personality": {
+    "Trait": "Secretive",
+    "Disposition": "Suspicious",
+    "Greeting": "Psst... looking for something the authorities wouldn't approve of?",
+    "SpeechPattern": "Whispered, cautious, uses coded language"
+  },
+  "Shop": {
+    "Sells": ["Illegal_Weapons", "Stolen_Goods", "Contraband", "Forged_Documents", "Black_Market_Tech"],
+    "Buys": ["Stolen_Cargo", "Illegal_Materials", "Pirate_Loot"],
+    "PriceModifier": 1.5,
+    "SpecialOffers": ["Rare_Contraband", "Military_Secrets", "Stolen_Ships"],
+    "RiskLevel": "High"
+  },
+  "Missions": {
+    "Offers": ["Smuggling", "Theft", "Assassination", "Illegal_Delivery"],
+    "Weight": 0.2,
+    "Cooldown": 600,
+    "ReputationRequirement": -10
+  },
+  "Dialogue": {
+    "Greeting": "black_market_greeting_01",
+    "Shop": "black_market_shop_01",
+    "Missions": "black_market_missions_01",
+    "Farewell": "black_market_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": -20,
+    "Likes": ["Criminals", "Pirates", "Smugglers"],
+    "Dislikes": ["Law_Enforcement", "Authorities", "Snitches"],
+    "ReputationModifiers": {
+      "Illegal_Deal": 8,
+      "Smuggling_Success": 15,
+      "Authority_Contact": -20
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Secret_Meetings", "Black_Market_Deals", "Security_Evasion", "Inventory_Hiding"],
+    "InteractionRadius": 100,
+    "WanderRadius": 20,
+    "ConversationDuration": 15,
+    "AlertRadius": 300
+  }
+}

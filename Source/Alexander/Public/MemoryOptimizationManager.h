@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/TextureStreamingManager.h"
+#include "Engine/StaticMeshStreamingManager.h"
+#include "Engine/AssetManager.h"
+#include "Engine/StreamableManager.h"
 #include "MemoryOptimizationManager.generated.h"
 
 /**
@@ -151,12 +155,32 @@ struct FAlexanderStreamingConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Streaming")
     bool bEnableAsyncLoading;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Streaming")
+    int32 MaxAsyncLoadConcurrency;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Streaming")
+    float CriticalMemoryMipBias;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Streaming")
+    float CriticalMemoryLODBias;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Streaming")
+    bool bEnableLevelStreaming;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Streaming")
+    float LevelStreamingMemoryLimitMB;
+
     FAlexanderStreamingConfig()
         : bEnableTextureStreaming(true)
         , bEnableMeshLODStreaming(true)
         , StreamingDistanceScale(1.0f)
         , TexturePoolSizeMB(2048)
         , bEnableAsyncLoading(true)
+        , MaxAsyncLoadConcurrency(5)
+        , CriticalMemoryMipBias(2.0f)
+        , CriticalMemoryLODBias(2.0f)
+        , bEnableLevelStreaming(true)
+        , LevelStreamingMemoryLimitMB(512.0f)
     {}
 };
 
@@ -306,6 +330,52 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Memory|Debugging")
     FString GenerateMemoryReport() const;
 
+    // Streaming Integration
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void InitializeStreamingIntegration();
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void ShutdownStreamingIntegration();
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void OnTextureMemoryLimit(float CurrentMemoryMB, float ThresholdMB);
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void OnMeshMemoryLimit(float CurrentMemoryMB, float ThresholdMB);
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void OnAssetLoadPriorityChanged(const FSoftObjectPath& AssetPath, int32 NewPriority);
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void OnLevelStreamingMemoryImpact(float MemoryImpactMB);
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void UpdateStreamingSettings();
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void ForceLowerTextureMips();
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void ForceLowerMeshLODs();
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void CancelLowPriorityAssetLoads();
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void UnloadDistantLevels();
+
+    UFUNCTION(BlueprintCallable, Category = "Memory|Streaming")
+    void OptimizeMaterialInstances();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Memory|Streaming")
+    FMemoryStats GetStreamingMemoryStats() const;
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Memory|Streaming")
+    int32 GetActiveAsyncLoads() const;
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Memory|Streaming")
+    int32 GetStreamingLevelsCount() const;
+
 private:
     // Object pools
     UPROPERTY()
@@ -342,4 +412,42 @@ private:
     void InitializePool(UClass* PoolClass, int32 InitialSize);
     AActor* CreatePooledActor(UClass* PoolClass);
     void ResetPooledActor(AActor* Actor);
+    
+    // Streaming integration
+    void RegisterTextureStreamingCallbacks();
+    void RegisterMeshStreamingCallbacks();
+    void RegisterAssetManagerCallbacks();
+    void RegisterLevelStreamingCallbacks();
+    void UnregisterAllStreamingCallbacks();
+    void UpdateTextureStreamingSettings();
+    void UpdateMeshStreamingSettings();
+    void UpdateAsyncLoadingSettings();
+    void UpdateLevelStreamingSettings();
+    void TrackMaterialInstanceCreation(UMaterialInstanceDynamic* MaterialInstance);
+    void OptimizeMaterialInstancePool();
+    
+    // Streaming state
+    UPROPERTY()
+    TMap<FString, int32> MaterialInstanceCountByMaterial;
+    
+    UPROPERTY()
+    TArray<UMaterialInstanceDynamic*> TrackedMaterialInstances;
+    
+    UPROPERTY()
+    TArray<FSoftObjectPath> ActiveAsyncLoads;
+    
+    UPROPERTY()
+    TArray<FName> StreamingLevelNames;
+    
+    // Callback handles
+    FDelegateHandle TextureStreamingHandle;
+    FDelegateHandle MeshStreamingHandle;
+    FDelegateHandle AssetManagerHandle;
+    FDelegateHandle LevelStreamingHandle;
+    
+    // Streaming metrics
+    float LastTextureMemoryUsage;
+    float LastMeshMemoryUsage;
+    int32 LastActiveAsyncLoadCount;
+    int32 LastStreamingLevelCount;
 };

@@ -1,0 +1,113 @@
+{
+  "MissionID": "AncientRuins_001",
+  "MissionName": "Ancient Ruins",
+  "MissionType": "Exploration",
+  "Description": "Investigate mysterious alien ruins discovered on a moon orbiting Kepler-442. Collect artifacts and data while uncovering the secrets of a long-lost civilization.",
+  "Briefing": "This is incredible, Commander. Our long-range scanners have detected what appears to be artificial structures on Kepler-442's third moon. These aren't just rocks - we're talking about potentially the discovery of the century. Preliminary scans show energy signatures consistent with advanced technology, but the moon's atmosphere is interfering with our sensors. We need boots - or rather, landing gear - on the ground. Your mission is to land on the moon, investigate these ruins, and collect any artifacts or data you can find. This could rewrite our understanding of the galaxy's history. But be careful - we have no idea what security systems or hazards might still be active after all this time.",
+  "Objectives": [
+    {
+      "ID": "LandOnMoon",
+      "Type": "Land",
+      "Description": "Land safely on Kepler-442's third moon",
+      "Target": "Moon_Kepler442_3",
+      "SuccessCondition": "LandingSuccessful",
+      "ProgressTrack": "LandingStatus",
+      "RequiredValue": "Complete",
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "ExploreRuins",
+      "Type": "Explore",
+      "Description": "Investigate the alien ruin complex",
+      "Target": "Alien_Ruins_Alpha",
+      "SuccessCondition": "AreaSurveyed",
+      "ProgressTrack": "ExplorationProgress",
+      "RequiredValue": 100,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "CollectArtifacts",
+      "Type": "Collect",
+      "Description": "Recover 3 alien artifacts from the ruins",
+      "Target": "Alien_Artifacts",
+      "SuccessCondition": "ItemsCollected",
+      "ProgressTrack": "ArtifactsCollected",
+      "RequiredValue": 3,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "ScanEnergySource",
+      "Type": "Scan",
+      "Description": "Investigate the mysterious energy source at the ruins' core",
+      "Target": "Energy_Core_Ruins",
+      "SuccessCondition": "AnomalyScanned",
+      "ProgressTrack": "EnergyResearch",
+      "RequiredValue": 100,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Ancient_Technology_Schematic"
+    }
+  ],
+  "Rewards": {
+    "Credits": 8000,
+    "XP": 450,
+    "Reputation": {
+      "Faction": "Scientific",
+      "Amount": 40
+    },
+    "Reputation": {
+      "Faction": "Archaeological",
+      "Amount": 35
+    },
+    "Items": ["Alien_Artifact_1", "Alien_Artifact_2", "Alien_Artifact_3", "Research_Grant_Large", "Advanced_Scanner_Blueprint"],
+    "BonusRewards": {
+      "EnergySourceInvestigation": {
+        "Credits": 3000,
+        "XP": 200,
+        "Reputation": 20,
+        "Items": ["Ancient_Technology_Schematic", "Precursor_Energy_Cell"]
+      }
+    }
+  },
+  "Location": {
+    "System": "Kepler442",
+    "Coordinates": {"X": 5000, "Y": -1000, "Z": 2000},
+    "Sector": "Moon_Surface_3",
+    "Environment": "Planetary_Ruins"
+  },
+  "Difficulty": "Hard",
+  "LevelRequirement": 7,
+  "TimeLimit": 1800,
+  "MissionGiver": "Dr_Elena_Vance",
+  "Prerequisites": ["LostProbe_001"],
+  "Faction": "Scientific",
+  "SpecialConfig": {
+    "AtmosphereType": "Thin_Atmosphere",
+    "Gravity": 0.3,
+    "EnvironmentalHazards": ["Ancient_Defense_Systems", "Unstable_Structures", "Radiation_Leaks"],
+    "ArtifactCount": 5,
+    "DiscoveryEvents": true
+  },
+  "Atmosphere": {
+    "Music": "Exploration_Ancient",
+    "AmbientSounds": "Alien_Ruins",
+    "VFX": ["Energy_Patterns", "Ancient_Technology", "Atmospheric_Dust"]
+  },
+  "Dialogue": {
+    "Briefing": "VANCE_ANCIENT_RUINS_BRIEFING",
+    "Start": "VANCE_ANCIENT_RUINS_START",
+    "Update": "VANCE_ANCIENT_RUINS_UPDATE",
+    "Success": "VANCE_ANCIENT_RUINS_SUCCESS",
+    "Failure": "VANCE_ANCIENT_RUINS_FAILURE"
+  },
+  "SpecialMechanics": {
+    "ArchaeologicalPuzzle": true,
+    "AncientTechnology": true,
+    "EnvironmentalHazards": ["Defense_Systems", "Structural_Collapse", "Energy_Discharge"],
+    "DynamicDifficulty": true,
+    "MultipleSolutions": true
+  }
+}

@@ -3,6 +3,7 @@
 #include "AutomationAPIServer.h"
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
+#include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
@@ -18,6 +19,9 @@
 #include "IPAddress.h"
 #include "Networking.h"
 #include "Async/Async.h"
+#include "HAL/PlatformFileManager.h"
+#include "HAL/FileManager.h"
+#include "Misc/Paths.h"
 
 #if WITH_EDITOR
 #include "Materials/Material.h"
@@ -336,6 +340,7 @@ FString UAutomationAPIServer::GetServerStatus() const
 	return OutputString;
 }
 
+<<< SEARCH
 void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FString& Method, const FString& Body, FString& OutResponse)
 {
 	if (!CheckRateLimit())
@@ -407,6 +412,10 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 	{
 		OutResponse = HandleGetPlayerPawn();
 	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/possess"))
+	{
+		OutResponse = HandlePossess(Body);
+	}
 	else if (Method == TEXT("DELETE") && Endpoint.StartsWith(TEXT("/destroy_ship/")))
 	{
 		FString ShipID = Endpoint.RightChop(14); // Remove "/destroy_ship/"
@@ -437,6 +446,65 @@ void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FStr
 	{
 		FString ShipID = Endpoint.RightChop(18); // Remove "/get_ship_loadout/"
 		OutResponse = HandleGetShipLoadout(ShipID);
+	}
+	// NEW ENDPOINTS FOR AUTONOMOUS PLAYTESTING
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/receive_screenshot"))
+	{
+		OutResponse = HandleReceiveScreenshot(Body);
+	}
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/game_state"))
+	{
+		OutResponse = HandleGetGameState();
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/execute_command"))
+	{
+		OutResponse = HandleExecuteCommand(Body);
+	}
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/performance_metrics"))
+	{
+		OutResponse = HandlePerformanceMetrics();
+	}
+	// STREAMING OPTIMIZATION ENDPOINTS
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/streaming_metrics"))
+	{
+		OutResponse = HandleStreamingMetrics();
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/set_streaming_strategy"))
+	{
+		OutResponse = HandleSetStreamingStrategy(Body);
+	}
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/asset_loading_status"))
+	{
+		OutResponse = HandleAssetLoadingStatus();
+	}
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/texture_memory_stats"))
+	{
+		OutResponse = HandleTextureMemoryStats();
+	}
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/mesh_memory_stats"))
+	{
+		OutResponse = HandleMeshMemoryStats();
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/force_memory_optimization"))
+	{
+		OutResponse = HandleForceMemoryOptimization(Body);
+	}
+	// TICK OPTIMIZATION ENDPOINTS
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/tick_stats"))
+	{
+		OutResponse = HandleTickStats();
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/set_actor_priority"))
+	{
+		OutResponse = HandleSetActorPriority(Body);
+	}
+	else if (Method == TEXT("GET") && Endpoint == TEXT("/dormant_actors"))
+	{
+		OutResponse = HandleDormantActors();
+	}
+	else if (Method == TEXT("POST") && Endpoint == TEXT("/reset_tick_optimization"))
+	{
+		OutResponse = HandleResetTickOptimization(Body);
 	}
 #if WITH_EDITOR
 	// ============================================================================
@@ -832,13 +900,51 @@ FString UAutomationAPIServer::HandleScreenshot(const FString& RequestBody)
 		Filename = FString::Printf(TEXT("automation_screenshot_%s"), *FDateTime::Now().ToString());
 	}
 
+	// Extract just the base filename (Unreal ignores directory paths in screenshot requests)
+	FString BaseFilename = FPaths::GetBaseFilename(Filename);
+
 	// Request screenshot
-	FScreenshotRequest::RequestScreenshot(Filename, false, false);
+	FScreenshotRequest::RequestScreenshot(BaseFilename, false, false);
+
+	// Build expected file path where Unreal will save it
+	FString ProjectDir = FPaths::ProjectDir();
+	FString ScreenshotDir = FPaths::Combine(ProjectDir, TEXT("Saved"), TEXT("Screenshots"));
+
+#if WITH_EDITOR
+	ScreenshotDir = FPaths::Combine(ScreenshotDir, TEXT("WindowsEditor"));
+#else
+	ScreenshotDir = FPaths::Combine(ScreenshotDir, TEXT("Windows"));
+#endif
+
+	FString ExpectedPath = FPaths::Combine(ScreenshotDir, BaseFilename + TEXT(".png"));
+
+	// Poll for file existence (screenshot is asynchronous)
+	IFileManager& FileManager = IFileManager::Get();
+	int32 MaxAttempts = 50; // 5 seconds total (50 * 100ms)
+	bool bFileExists = false;
+
+	for (int32 i = 0; i < MaxAttempts; ++i)
+	{
+		if (FileManager.FileExists(*ExpectedPath))
+		{
+			bFileExists = true;
+			break;
+		}
+		FPlatformProcess::Sleep(0.1f); // Wait 100ms between checks
+	}
+
+	if (!bFileExists)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Screenshot file not found after 5s: %s"), *ExpectedPath);
+		return CreateJSONResponse(false, FString::Printf(TEXT("Screenshot timeout - file not created: %s"), *ExpectedPath));
+	}
 
 	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	ResponseData->SetStringField(TEXT("filename"), Filename);
+	ResponseData->SetStringField(TEXT("filename"), BaseFilename);
+	ResponseData->SetStringField(TEXT("full_path"), ExpectedPath);
+	ResponseData->SetBoolField(TEXT("file_exists"), true);
 
-	return CreateJSONResponse(true, TEXT("Screenshot requested"), ResponseData);
+	return CreateJSONResponse(true, TEXT("Screenshot captured and verified"), ResponseData);
 }
 
 FString UAutomationAPIServer::HandleStatus()
@@ -920,8 +1026,31 @@ FString UAutomationAPIServer::HandleListShips()
 
 FString UAutomationAPIServer::HandleGetPlayerPawn()
 {
+	// Find PIE world (same pattern as HandleSpawnShip)
+	UWorld* World = nullptr;
+
+#if WITH_EDITOR
+	// In editor, look for PIE world
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	// In packaged builds
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("PIE world not found - start PIE first"));
+	}
+
 	// Get the first player controller
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	APlayerController* PC = World->GetFirstPlayerController();
 	if (!PC)
 	{
 		return CreateJSONResponse(false, TEXT("No player controller found"));
@@ -981,6 +1110,77 @@ FString UAutomationAPIServer::HandleGetPlayerPawn()
 	ResponseData->SetArrayField(TEXT("location"), LocationArray);
 
 	return CreateJSONResponse(true, TEXT("Player pawn retrieved"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandlePossess(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandlePossess RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Get target pawn ID
+	FString TargetID = JsonObj->GetStringField(TEXT("target_id"));
+
+	// Get the target pawn/ship from tracked ships
+	AActor* TargetActor = GetShipByID(TargetID);
+	if (!TargetActor)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Target not found: %s"), *TargetID));
+	}
+
+	// Cast to Pawn (since we need APawn for possession)
+	APawn* TargetPawn = Cast<APawn>(TargetActor);
+	if (!TargetPawn)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Target '%s' is not a Pawn (class: %s)"), *TargetID, *TargetActor->GetClass()->GetName()));
+	}
+
+	// Get the first player controller
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC)
+	{
+		return CreateJSONResponse(false, TEXT("No player controller found"));
+	}
+
+	// Get current pawn before possession
+	APawn* OldPawn = PC->GetPawn();
+	FString OldPawnName = OldPawn ? OldPawn->GetName() : TEXT("None");
+
+	// Perform possession
+	PC->Possess(TargetPawn);
+
+	// Give it a frame to take effect
+	FPlatformProcess::Sleep(0.1f);
+
+	// Verify possession succeeded
+	APawn* NewPawn = PC->GetPawn();
+	if (NewPawn != TargetPawn)
+	{
+		return CreateJSONResponse(false, TEXT("Possession failed - controller did not possess target"));
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Player controller possessed '%s' (was: '%s')"), *TargetPawn->GetName(), *OldPawnName);
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("target_id"), TargetID);
+	ResponseData->SetStringField(TEXT("target_name"), TargetPawn->GetName());
+	ResponseData->SetStringField(TEXT("old_pawn_name"), OldPawnName);
+	ResponseData->SetStringField(TEXT("target_class"), TargetPawn->GetClass()->GetName());
+
+	// Get new position
+	FVector Location = TargetPawn->GetActorLocation();
+	TArray<TSharedPtr<FJsonValue>> LocationArray;
+	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.X)));
+	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Y)));
+	LocationArray.Add(MakeShareable(new FJsonValueNumber(Location.Z)));
+	ResponseData->SetArrayField(TEXT("location"), LocationArray);
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Possessed '%s'"), *TargetPawn->GetName()), ResponseData);
 }
 
 FString UAutomationAPIServer::HandleApplyThrust(const FString& RequestBody)
@@ -1845,3 +2045,975 @@ FString UAutomationAPIServer::HandleTexturesList(const FString& RequestBody)
 	return CreateJSONResponse(true, FString::Printf(TEXT("Found %d textures"), TexturesArray.Num()), ResponseData);
 }
 #endif // WITH_EDITOR
+
+// ============================================================================
+// AUTONOMOUS PLAYTESTING ENDPOINTS
+// ============================================================================
+
+FString UAutomationAPIServer::HandleReceiveScreenshot(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleReceiveScreenshot RequestBody size: %d bytes"), RequestBody.Len());
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AutomationAPI: HandleReceiveScreenshot - Invalid JSON"));
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Extract base64 image data
+	FString Base64Image = JsonObj->GetStringField(TEXT("image_base64"));
+	if (Base64Image.IsEmpty())
+	{
+		return CreateJSONResponse(false, TEXT("No image data provided"));
+	}
+
+	// Extract metadata
+	TSharedPtr<FJsonObject> MetadataObj;
+	if (JsonObj->HasField(TEXT("metadata")))
+	{
+		const TSharedPtr<FJsonObject>* MetadataPtr;
+		if (JsonObj->TryGetObjectField(TEXT("metadata"), MetadataPtr))
+		{
+			MetadataObj = *MetadataPtr;
+		}
+	}
+
+	// Process the screenshot (store for analysis, trigger AI processing, etc.)
+	FString ScreenshotID = FString::Printf(TEXT("screenshot_%d"), FDateTime::Now().ToUnixTimestamp());
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Received screenshot %s (%d bytes)"), *ScreenshotID, Base64Image.Len());
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("screenshot_id"), ScreenshotID);
+	ResponseData->SetNumberField(TEXT("image_size"), Base64Image.Len());
+	ResponseData->SetStringField(TEXT("status"), TEXT("received"));
+
+	if (MetadataObj.IsValid())
+	{
+		ResponseData->SetObjectField(TEXT("metadata"), MetadataObj);
+	}
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Screenshot received: %s"), *ScreenshotID), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleGetGameState()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleGetGameState"));
+
+	// Find active game world
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	// Get player controller and pawn
+	APlayerController* PC = World->GetFirstPlayerController();
+	APawn* PlayerPawn = PC ? PC->GetPawn() : nullptr;
+
+	// Build comprehensive game state
+	TSharedPtr<FJsonObject> GameState = MakeShareable(new FJsonObject);
+
+	// Player state
+	TSharedPtr<FJsonObject> PlayerState = MakeShareable(new FJsonObject);
+	if (PlayerPawn)
+	{
+		FVector Location = PlayerPawn->GetActorLocation();
+		FRotator Rotation = PlayerPawn->GetActorRotation();
+
+		TSharedPtr<FJsonObject> PositionObj = MakeShareable(new FJsonObject);
+		PositionObj->SetNumberField(TEXT("x"), Location.X);
+		PositionObj->SetNumberField(TEXT("y"), Location.Y);
+		PositionObj->SetNumberField(TEXT("z"), Location.Z);
+		PlayerState->SetObjectField(TEXT("position"), PositionObj);
+
+		TSharedPtr<FJsonObject> RotationObj = MakeShareable(new FJsonObject);
+		RotationObj->SetNumberField(TEXT("pitch"), Rotation.Pitch);
+		RotationObj->SetNumberField(TEXT("yaw"), Rotation.Yaw);
+		RotationObj->SetNumberField(TEXT("roll"), Rotation.Roll);
+		PlayerState->SetObjectField(TEXT("rotation"), RotationObj);
+
+		PlayerState->SetStringField(TEXT("pawn_name"), PlayerPawn->GetName());
+		PlayerState->SetStringField(TEXT("pawn_class"), PlayerPawn->GetClass()->GetName());
+
+		// Check for FlightController
+		UFlightController* FlightController = PlayerPawn->FindComponentByClass<UFlightController>();
+		PlayerState->SetBoolField(TEXT("has_flight_controller"), FlightController != nullptr);
+	}
+
+	GameState->SetObjectField(TEXT("player"), PlayerState);
+
+	// World state
+	TSharedPtr<FJsonObject> WorldState = MakeShareable(new FJsonObject);
+	WorldState->SetNumberField(TEXT("time_seconds"), World->GetTimeSeconds());
+	WorldState->SetNumberField(TEXT("real_time_seconds"), World->GetRealTimeSeconds());
+	WorldState->SetNumberField(TEXT("delta_time_seconds"), World->GetDeltaSeconds());
+	WorldState->SetStringField(TEXT("map_name"), World->GetMapName());
+
+	GameState->SetObjectField(TEXT("world"), WorldState);
+
+	// Game mode state
+	AGameModeBase* GameMode = World->GetAuthGameMode();
+	if (GameMode)
+	{
+		TSharedPtr<FJsonObject> GameModeState = MakeShareable(new FJsonObject);
+		GameModeState->SetStringField(TEXT("game_mode_name"), GameMode->GetName());
+		GameModeState->SetStringField(TEXT("game_mode_class"), GameMode->GetClass()->GetName());
+		GameState->SetObjectField(TEXT("game_mode"), GameModeState);
+	}
+
+	// Performance metrics
+	TSharedPtr<FJsonObject> Performance = MakeShareable(new FJsonObject);
+	Performance->SetNumberField(TEXT("fps"), 1.0f / World->GetDeltaSeconds());
+	Performance->SetNumberField(TEXT("delta_ms"), World->GetDeltaSeconds() * 1000.0f);
+
+	GameState->SetObjectField(TEXT("performance"), Performance);
+
+	return CreateJSONResponse(true, TEXT("Game state retrieved"), GameState);
+}
+
+FString UAutomationAPIServer::HandleExecuteCommand(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleExecuteCommand RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	FString Command = JsonObj->GetStringField(TEXT("command"));
+	if (Command.IsEmpty())
+	{
+		return CreateJSONResponse(false, TEXT("No command provided"));
+	}
+
+	// Find active game world
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	// Get player controller to execute command
+	APlayerController* PC = World->GetFirstPlayerController();
+	if (!PC)
+	{
+		return CreateJSONResponse(false, TEXT("No player controller found"));
+	}
+
+	// Execute console command
+	PC->ConsoleCommand(Command);
+
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Executed console command: %s"), *Command);
+
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("command"), Command);
+	ResponseData->SetStringField(TEXT("status"), TEXT("executed"));
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Command executed: %s"), *Command), ResponseData);
+}
+
+FString UAutomationAPIServer::HandlePerformanceMetrics()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandlePerformanceMetrics"));
+
+	// Find active game world
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	// Build performance metrics
+	TSharedPtr<FJsonObject> Metrics = MakeShareable(new FJsonObject);
+
+	// Frame time metrics
+	float DeltaTime = World->GetDeltaSeconds();
+	float FPS = 1.0f / DeltaTime;
+
+	TSharedPtr<FJsonObject> FrameMetrics = MakeShareable(new FJsonObject);
+	FrameMetrics->SetNumberField(TEXT("fps"), FPS);
+	FrameMetrics->SetNumberField(TEXT("delta_time_ms"), DeltaTime * 1000.0f);
+	FrameMetrics->SetNumberField(TEXT("real_time_seconds"), World->GetRealTimeSeconds());
+	FrameMetrics->SetNumberField(TEXT("time_seconds"), World->GetTimeSeconds());
+
+	Metrics->SetObjectField(TEXT("frame"), FrameMetrics);
+
+	// Memory metrics (if platform supports it)
+	TSharedPtr<FJsonObject> MemoryMetrics = MakeShareable(new FJsonObject);
+	MemoryMetrics->SetNumberField(TEXT("physical_memory_mb"), FPlatformMemory::GetStats().UsedPhysical / 1024.0f / 1024.0f);
+	MemoryMetrics->SetNumberField(TEXT("virtual_memory_mb"), FPlatformMemory::GetStats().UsedVirtual / 1024.0f / 1024.0f);
+	MemoryMetrics->SetNumberField(TEXT("available_physical_mb"), FPlatformMemory::GetStats().AvailablePhysical / 1024.0f / 1024.0f);
+
+	Metrics->SetObjectField(TEXT("memory"), MemoryMetrics);
+
+	// Hardware metrics
+	TSharedPtr<FJsonObject> HardwareMetrics = MakeShareable(new FJsonObject);
+	HardwareMetrics->SetNumberField(TEXT("num_cores"), FPlatformMisc::NumberOfCores());
+	HardwareMetrics->SetNumberField(TEXT("num_cores_including_hyperthreads"), FPlatformMisc::NumberOfCoresIncludingHyperthreads());
+
+	Metrics->SetObjectField(TEXT("hardware"), HardwareMetrics);
+
+	// Unreal specific metrics
+	TSharedPtr<FJsonObject> UnrealMetrics = MakeShareable(new FJsonObject);
+	UnrealMetrics->SetNumberField(TEXT("num_actors"), World->GetActorCount());
+	UnrealMetrics->SetNumberField(TEXT("num_pawns"), World->GetPawnCount());
+
+	Metrics->SetObjectField(TEXT("unreal"), UnrealMetrics);
+
+	return CreateJSONResponse(true, TEXT("Performance metrics retrieved"), Metrics);
+}
+
+FString UAutomationAPIServer::HandleStreamingMetrics()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleStreamingMetrics"));
+
+	// Find MemoryOptimizationManager in the world
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	// Find MemoryOptimizationManager
+	UMemoryOptimizationManager* MemoryManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
+		if (MemoryManager)
+		{
+			break;
+		}
+	}
+
+	if (!MemoryManager)
+	{
+		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
+	}
+
+	// Get streaming metrics
+	FMemoryStats StreamingStats = MemoryManager->GetStreamingMemoryStats();
+	int32 ActiveAsyncLoads = MemoryManager->GetActiveAsyncLoads();
+	int32 StreamingLevelsCount = MemoryManager->GetStreamingLevelsCount();
+
+	// Build streaming metrics response
+	TSharedPtr<FJsonObject> Metrics = MakeShareable(new FJsonObject);
+
+	// Memory usage
+	TSharedPtr<FJsonObject> MemoryUsage = MakeShareable(new FJsonObject);
+	MemoryUsage->SetNumberField(TEXT("total_allocated_mb"), StreamingStats.TotalAllocatedMB);
+	MemoryUsage->SetNumberField(TEXT("used_physical_mb"), StreamingStats.UsedPhysicalMB);
+	MemoryUsage->SetNumberField(TEXT("used_virtual_mb"), StreamingStats.UsedVirtualMB);
+	MemoryUsage->SetNumberField(TEXT("texture_memory_mb"), StreamingStats.TextureMemoryMB);
+	MemoryUsage->SetNumberField(TEXT("mesh_memory_mb"), StreamingStats.MeshMemoryMB);
+	MemoryUsage->SetNumberField(TEXT("audio_memory_mb"), StreamingStats.AudioMemoryMB);
+
+	Metrics->SetObjectField(TEXT("memory_usage"), MemoryUsage);
+
+	// Streaming stats
+	TSharedPtr<FJsonObject> StreamingStatsObj = MakeShareable(new FJsonObject);
+	StreamingStatsObj->SetNumberField(TEXT("active_async_loads"), ActiveAsyncLoads);
+	StreamingStatsObj->SetNumberField(TEXT("streaming_levels_count"), StreamingLevelsCount);
+	StreamingStatsObj->SetNumberField(TEXT("object_count"), StreamingStats.ObjectCount);
+	StreamingStatsObj->SetNumberField(TEXT("actor_count"), StreamingStats.ActorCount);
+
+	Metrics->SetObjectField(TEXT("streaming_stats"), StreamingStatsObj);
+
+	// Current optimization strategy
+	TSharedPtr<FJsonObject> OptimizationSettings = MakeShareable(new FJsonObject);
+	OptimizationSettings->SetStringField(TEXT("current_strategy"), UEnum::GetValueAsString(MemoryManager->OptimizationStrategy));
+	OptimizationSettings->SetBoolField(TEXT("texture_streaming_enabled"), MemoryManager->StreamingConfig.bEnableTextureStreaming);
+	OptimizationSettings->SetBoolField(TEXT("mesh_lod_streaming_enabled"), MemoryManager->StreamingConfig.bEnableMeshLODStreaming);
+	OptimizationSettings->SetNumberField(TEXT("streaming_distance_scale"), MemoryManager->StreamingConfig.StreamingDistanceScale);
+	OptimizationSettings->SetNumberField(TEXT("texture_pool_size_mb"), MemoryManager->StreamingConfig.TexturePoolSizeMB);
+	OptimizationSettings->SetNumberField(TEXT("max_async_load_concurrency"), MemoryManager->StreamingConfig.MaxAsyncLoadConcurrency);
+
+	Metrics->SetObjectField(TEXT("optimization_settings"), OptimizationSettings);
+
+	return CreateJSONResponse(true, TEXT("Streaming metrics retrieved"), Metrics);
+}
+
+FString UAutomationAPIServer::HandleSetStreamingStrategy(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetStreamingStrategy RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Find MemoryOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UMemoryOptimizationManager* MemoryManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
+		if (MemoryManager)
+		{
+			break;
+		}
+	}
+
+	if (!MemoryManager)
+	{
+		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
+	}
+
+	// Parse strategy from request
+	FString StrategyStr = JsonObj->GetStringField(TEXT("strategy"));
+	EMemoryOptimizationStrategy NewStrategy = EMemoryOptimizationStrategy::Balanced;
+
+	if (StrategyStr == TEXT("Aggressive"))
+	{
+		NewStrategy = EMemoryOptimizationStrategy::Aggressive;
+	}
+	else if (StrategyStr == TEXT("Balanced"))
+	{
+		NewStrategy = EMemoryOptimizationStrategy::Balanced;
+	}
+	else if (StrategyStr == TEXT("Conservative"))
+	{
+		NewStrategy = EMemoryOptimizationStrategy::Conservative;
+	}
+	else if (StrategyStr == TEXT("Disabled"))
+	{
+		NewStrategy = EMemoryOptimizationStrategy::Disabled;
+	}
+	else
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Invalid strategy: %s"), *StrategyStr));
+	}
+
+	// Set new strategy
+	MemoryManager->SetOptimizationStrategy(NewStrategy);
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("strategy"), StrategyStr);
+	ResponseData->SetStringField(TEXT("status"), TEXT("applied"));
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Streaming strategy set to: %s"), *StrategyStr), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleAssetLoadingStatus()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleAssetLoadingStatus"));
+
+	// Find MemoryOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UMemoryOptimizationManager* MemoryManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
+		if (MemoryManager)
+		{
+			break;
+		}
+	}
+
+	if (!MemoryManager)
+	{
+		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
+	}
+
+	// Get asset loading status
+	int32 ActiveAsyncLoads = MemoryManager->GetActiveAsyncLoads();
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetNumberField(TEXT("active_async_loads"), ActiveAsyncLoads);
+	ResponseData->SetNumberField(TEXT("max_concurrency"), MemoryManager->StreamingConfig.MaxAsyncLoadConcurrency);
+	ResponseData->SetBoolField(TEXT("async_loading_enabled"), MemoryManager->StreamingConfig.bEnableAsyncLoading);
+
+	return CreateJSONResponse(true, TEXT("Asset loading status retrieved"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleTextureMemoryStats()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleTextureMemoryStats"));
+
+	// Find MemoryOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UMemoryOptimizationManager* MemoryManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
+		if (MemoryManager)
+		{
+			break;
+		}
+	}
+
+	if (!MemoryManager)
+	{
+		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
+	}
+
+	// Get memory stats
+	FMemoryStats Stats = MemoryManager->GetCurrentMemoryStats();
+
+	// Build texture memory response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetNumberField(TEXT("texture_memory_mb"), Stats.TextureMemoryMB);
+	ResponseData->SetNumberField(TEXT("texture_pool_size_mb"), MemoryManager->StreamingConfig.TexturePoolSizeMB);
+	ResponseData->SetBoolField(TEXT("texture_streaming_enabled"), MemoryManager->StreamingConfig.bEnableTextureStreaming);
+	ResponseData->SetNumberField(TEXT("critical_memory_mip_bias"), MemoryManager->StreamingConfig.CriticalMemoryMipBias);
+
+	return CreateJSONResponse(true, TEXT("Texture memory stats retrieved"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleMeshMemoryStats()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleMeshMemoryStats"));
+
+	// Find MemoryOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UMemoryOptimizationManager* MemoryManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
+		if (MemoryManager)
+		{
+			break;
+		}
+	}
+
+	if (!MemoryManager)
+	{
+		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
+	}
+
+	// Get memory stats
+	FMemoryStats Stats = MemoryManager->GetCurrentMemoryStats();
+
+	// Build mesh memory response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetNumberField(TEXT("mesh_memory_mb"), Stats.MeshMemoryMB);
+	ResponseData->SetBoolField(TEXT("mesh_lod_streaming_enabled"), MemoryManager->StreamingConfig.bEnableMeshLODStreaming);
+	ResponseData->SetNumberField(TEXT("streaming_distance_scale"), MemoryManager->StreamingConfig.StreamingDistanceScale);
+	ResponseData->SetNumberField(TEXT("critical_memory_lod_bias"), MemoryManager->StreamingConfig.CriticalMemoryLODBias);
+
+	return CreateJSONResponse(true, TEXT("Mesh memory stats retrieved"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleForceMemoryOptimization(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleForceMemoryOptimization"));
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Find MemoryOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UMemoryOptimizationManager* MemoryManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
+		if (MemoryManager)
+		{
+			break;
+		}
+	}
+
+	if (!MemoryManager)
+	{
+		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
+	}
+
+	// Parse optimization type
+	FString OptimizationType = JsonObj->GetStringField(TEXT("optimization_type"));
+	bool bSuccess = false;
+
+	if (OptimizationType == TEXT("full"))
+	{
+		MemoryManager->OptimizeMemoryUsage();
+		bSuccess = true;
+	}
+	else if (OptimizationType == TEXT("textures"))
+	{
+		MemoryManager->ForceLowerTextureMips();
+		bSuccess = true;
+	}
+	else if (OptimizationType == TEXT("meshes"))
+	{
+		MemoryManager->ForceLowerMeshLODs();
+		bSuccess = true;
+	}
+	else if (OptimizationType == TEXT("garbage_collection"))
+	{
+		MemoryManager->ForceGarbageCollection(true);
+		bSuccess = true;
+	}
+	else if (OptimizationType == TEXT("unload_assets"))
+	{
+		MemoryManager->UnloadUnusedAssets();
+		bSuccess = true;
+	}
+	else
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Invalid optimization type: %s"), *OptimizationType));
+	}
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("optimization_type"), OptimizationType);
+	ResponseData->SetBoolField(TEXT("success"), bSuccess);
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Memory optimization executed: %s"), *OptimizationType), ResponseData);
+}
+
+// ============================================================================
+// TICK OPTIMIZATION ENDPOINTS
+// ============================================================================
+
+FString UAutomationAPIServer::HandleTickStats()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleTickStats"));
+
+	// Find TickOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UTickOptimizationManager* TickManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		TickManager = It->FindComponentByClass<UTickOptimizationManager>();
+		if (TickManager)
+		{
+			break;
+		}
+	}
+
+	if (!TickManager)
+	{
+		return CreateJSONResponse(false, TEXT("TickOptimizationManager not found"));
+	}
+
+	// Get tick stats from manager
+	FString StatsString = TickManager->GetTickStats();
+
+	// Parse the stats string into JSON
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	
+	// Extract key metrics from the stats string
+	TArray<FString> Lines;
+	StatsString.ParseIntoArrayLines(Lines);
+	
+	for (const FString& Line : Lines)
+	{
+		if (Line.Contains(TEXT("Current FPS:")))
+		{
+			float FPS = FCString::Atof(*Line.RightChop(13));
+			ResponseData->SetNumberField(TEXT("current_fps"), FPS);
+		}
+		else if (Line.Contains(TEXT("Target FPS:")))
+		{
+			float TargetFPS = FCString::Atof(*Line.RightChop(12));
+			ResponseData->SetNumberField(TEXT("target_fps"), TargetFPS);
+		}
+		else if (Line.Contains(TEXT("Min FPS:")))
+		{
+			float MinFPS = FCString::Atof(*Line.RightChop(9));
+			ResponseData->SetNumberField(TEXT("min_fps"), MinFPS);
+		}
+		else if (Line.Contains(TEXT("Performance Degraded:")))
+		{
+			bool bDegraded = Line.Contains(TEXT("Yes"));
+			ResponseData->SetBoolField(TEXT("performance_degraded"), bDegraded);
+		}
+		else if (Line.Contains(TEXT("Total Actors:")))
+		{
+			int32 TotalActors = FCString::Atoi(*Line.RightChop(14));
+			ResponseData->SetNumberField(TEXT("total_actors"), TotalActors);
+		}
+		else if (Line.Contains(TEXT("Total Components:")))
+		{
+			int32 TotalComponents = FCString::Atoi(*Line.RightChop(18));
+			ResponseData->SetNumberField(TEXT("total_components"), TotalComponents);
+		}
+	}
+
+	return CreateJSONResponse(true, TEXT("Tick stats retrieved"), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleSetActorPriority(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleSetActorPriority RequestBody: '%s'"), *RequestBody);
+
+	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
+	if (!JsonObj.IsValid())
+	{
+		return CreateJSONResponse(false, TEXT("Invalid JSON"));
+	}
+
+	// Find TickOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UTickOptimizationManager* TickManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		TickManager = It->FindComponentByClass<UTickOptimizationManager>();
+		if (TickManager)
+		{
+			break;
+		}
+	}
+
+	if (!TickManager)
+	{
+		return CreateJSONResponse(false, TEXT("TickOptimizationManager not found"));
+	}
+
+	// Parse actor ID and priority from request
+	FString ActorID = JsonObj->GetStringField(TEXT("actor_id"));
+	FString PriorityStr = JsonObj->GetStringField(TEXT("priority"));
+
+	if (ActorID.IsEmpty() || PriorityStr.IsEmpty())
+	{
+		return CreateJSONResponse(false, TEXT("Missing actor_id or priority"));
+	}
+
+	// Find actor by ID (search all actors in world)
+	AActor* TargetActor = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		if (It->GetName() == ActorID)
+		{
+			TargetActor = *It;
+			break;
+		}
+	}
+
+	if (!TargetActor)
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Actor not found: %s"), *ActorID));
+	}
+
+	// Parse priority
+	ETickPriority Priority = ETickPriority::Medium;
+	if (PriorityStr == TEXT("Critical")) Priority = ETickPriority::Critical;
+	else if (PriorityStr == TEXT("High")) Priority = ETickPriority::High;
+	else if (PriorityStr == TEXT("Medium")) Priority = ETickPriority::Medium;
+	else if (PriorityStr == TEXT("Low")) Priority = ETickPriority::Low;
+	else if (PriorityStr == TEXT("VeryLow")) Priority = ETickPriority::VeryLow;
+	else if (PriorityStr == TEXT("Dormant")) Priority = ETickPriority::Dormant;
+	else
+	{
+		return CreateJSONResponse(false, FString::Printf(TEXT("Invalid priority: %s"), *PriorityStr));
+	}
+
+	// Set actor priority
+	TickManager->SetActorPriority(TargetActor, Priority);
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("actor_id"), ActorID);
+	ResponseData->SetStringField(TEXT("actor_name"), TargetActor->GetName());
+	ResponseData->SetStringField(TEXT("priority"), PriorityStr);
+	ResponseData->SetStringField(TEXT("status"), TEXT("applied"));
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Actor priority set: %s -> %s"), *ActorID, *PriorityStr), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleDormantActors()
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleDormantActors"));
+
+	// Find TickOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UTickOptimizationManager* TickManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		TickManager = It->FindComponentByClass<UTickOptimizationManager>();
+		if (TickManager)
+		{
+			break;
+		}
+	}
+
+	if (!TickManager)
+	{
+		return CreateJSONResponse(false, TEXT("TickOptimizationManager not found"));
+	}
+
+	// Get dormant actors
+	TArray<AActor*> DormantActors = TickManager->GetDormantActors();
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	TArray<TSharedPtr<FJsonValue>> DormantActorsArray;
+
+	for (AActor* Actor : DormantActors)
+	{
+		if (Actor)
+		{
+			TSharedPtr<FJsonObject> ActorObj = MakeShareable(new FJsonObject);
+			ActorObj->SetStringField(TEXT("actor_id"), Actor->GetName());
+			ActorObj->SetStringField(TEXT("actor_class"), Actor->GetClass()->GetName());
+			
+			FVector Location = Actor->GetActorLocation();
+			TSharedPtr<FJsonObject> LocationObj = MakeShareable(new FJsonObject);
+			LocationObj->SetNumberField(TEXT("x"), Location.X);
+			LocationObj->SetNumberField(TEXT("y"), Location.Y);
+			LocationObj->SetNumberField(TEXT("z"), Location.Z);
+			ActorObj->SetObjectField(TEXT("location"), LocationObj);
+			
+			DormantActorsArray.Add(MakeShareable(new FJsonValueObject(ActorObj)));
+		}
+	}
+
+	ResponseData->SetArrayField(TEXT("dormant_actors"), DormantActorsArray);
+	ResponseData->SetNumberField(TEXT("count"), DormantActorsArray.Num());
+
+	return CreateJSONResponse(true, FString::Printf(TEXT("Found %d dormant actors"), DormantActorsArray.Num()), ResponseData);
+}
+
+FString UAutomationAPIServer::HandleResetTickOptimization(const FString& RequestBody)
+{
+	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleResetTickOptimization"));
+
+	// Find TickOptimizationManager
+	UWorld* World = nullptr;
+#if WITH_EDITOR
+	for (const FWorldContext& Context : GEngine->GetWorldContexts())
+	{
+		if (Context.WorldType == EWorldType::PIE)
+		{
+			World = Context.World();
+			break;
+		}
+	}
+#else
+	World = GetWorld();
+#endif
+
+	if (!World)
+	{
+		return CreateJSONResponse(false, TEXT("No active game world"));
+	}
+
+	UTickOptimizationManager* TickManager = nullptr;
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		TickManager = It->FindComponentByClass<UTickOptimizationManager>();
+		if (TickManager)
+		{
+			break;
+		}
+	}
+
+	if (!TickManager)
+	{
+		return CreateJSONResponse(false, TEXT("TickOptimizationManager not found"));
+	}
+
+	// Reset tick optimization
+	TickManager->ResetTickOptimization();
+
+	// Build response
+	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
+	ResponseData->SetStringField(TEXT("status"), TEXT("reset"));
+	ResponseData->SetStringField(TEXT("message"), TEXT("All tick rates reset to default"));
+
+	return CreateJSONResponse(true, TEXT("Tick optimization reset"), ResponseData);
+}

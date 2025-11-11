@@ -1,0 +1,55 @@
+{
+  "NPCID": "ScienceOfficer_001",
+  "Name": "Dr. Elena Vasquez",
+  "Archetype": "ScienceOfficer",
+  "Faction": "Science_Corps",
+  "Location": {
+    "System": "Kepler",
+    "Station": "Research_Outpost"
+  },
+  "Appearance": {
+    "Model": "Human_Female_04",
+    "Outfit": "Lab_Coat",
+    "Accessories": ["Science_Pad", "Scanner_Goggles", "Sample_Containers"]
+  },
+  "Personality": {
+    "Trait": "Curious",
+    "Disposition": "Friendly",
+    "Greeting": "Fascinating! Another explorer! What discoveries have you made?",
+    "SpeechPattern": "Academic, enthusiastic about science and discovery"
+  },
+  "Shop": {
+    "Sells": ["Research_Data", "Scanning_Equipment", "Scientific_Samples", "Analysis_Tools"],
+    "Buys": ["Alien_Samples", "Anomaly_Data", "Rare_Minerals", "Biological_Specimens"],
+    "PriceModifier": 1.1,
+    "SpecialOffers": ["Research_Contracts", "Discovery_Bonuses", "Scientific_Equipment"]
+  },
+  "Missions": {
+    "Offers": ["Scientific_Survey", "Anomaly_Investigation", "Sample_Collection", "Research_Assistance"],
+    "Weight": 0.5,
+    "Cooldown": 300,
+    "ScienceSkillRequired": 10
+  },
+  "Dialogue": {
+    "Greeting": "science_officer_greeting_01",
+    "Shop": "science_officer_shop_01",
+    "Missions": "science_officer_missions_01",
+    "Farewell": "science_officer_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 5,
+    "Likes": ["Scientists", "Explorers", "Discovery"],
+    "Dislikes": ["Ignorance", "Data_Falsification", "Carelessness"],
+    "ReputationModifiers": {
+      "Discovery_Made": 12,
+      "Data_Shared": 8,
+      "Research_Help": 10
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Research_Analysis", "Experimentation", "Data_Review", "Peer_Discussion"],
+    "InteractionRadius": 160,
+    "WanderRadius": 35,
+    "ConversationDuration": 40
+  }
+}

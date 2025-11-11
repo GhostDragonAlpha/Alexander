@@ -1,0 +1,54 @@
+{
+  "NPCID": "RefuelTechnician_001",
+  "Name": "Sparky Jones",
+  "Archetype": "RefuelTechnician",
+  "Faction": "Fuel_Corp",
+  "Location": {
+    "System": "Proxima",
+    "Station": "Fuel_Depot_Alpha"
+  },
+  "Appearance": {
+    "Model": "Human_Male_06",
+    "Outfit": "Technician_Suit",
+    "Accessories": ["Fuel_Hose", "Safety_Goggles", "Fuel_Gauge"]
+  },
+  "Personality": {
+    "Trait": "Energetic",
+    "Disposition": "Friendly",
+    "Greeting": "Need fuel? I'll get you topped up and ready to fly!",
+    "SpeechPattern": "Fast-paced, safety-conscious, energetic"
+  },
+  "Shop": {
+    "Sells": ["Fuel", "Energy_Cells", "Power_Cores", "Emergency_Fuel"],
+    "Buys": ["Fuel_Surplus", "Energy_Reserves", "Power_Modules"],
+    "PriceModifier": 1.0,
+    "SpecialOffers": ["Bulk_Fuel", "Emergency_Refuel", "Fuel_Contracts"]
+  },
+  "Missions": {
+    "Offers": ["Fuel_Delivery", "Energy_Transport", "Emergency_Resupply"],
+    "Weight": 0.2,
+    "Cooldown": 150
+  },
+  "Dialogue": {
+    "Greeting": "refuel_tech_greeting_01",
+    "Shop": "refuel_tech_shop_01",
+    "Missions": "refuel_tech_missions_01",
+    "Farewell": "refuel_tech_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 10,
+    "Likes": ["Pilots", "Travelers", "Explorers"],
+    "Dislikes": ["Fuel_Wasters", "Safety_Violators", "Deadbeats"],
+    "ReputationModifiers": {
+      "Refuel_Completed": 3,
+      "Contract_Fulfilled": 6,
+      "Payment_Prompt": 2
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Fuel_Refilling", "Equipment_Check", "Safety_Inspection", "Customer_Service"],
+    "InteractionRadius": 200,
+    "WanderRadius": 50,
+    "ConversationDuration": 15
+  }
+}

@@ -11,6 +11,7 @@
 #include "Math/Transform.h"
 #include "Components/PrimitiveComponent.h"
 #include "PerformanceProfilerSubsystem.h"
+#include "SystemValidation.h"  // For validation framework
 
 using namespace OrbitalConstants;
 

@@ -1,0 +1,95 @@
+{
+  "timestamp": 1762819632.993966,
+  "tests_run": 25,
+  "tests_passed": 25,
+  "tests_failed": 0,
+  "component_results": {
+    "visual_analyzer": {
+      "tests_run": 8,
+      "tests_passed": 8,
+      "tests_failed": 0,
+      "performance": [
+        0.7121953964233398,
+        0.58038330078125,
+        0.7411541938781738,
+        0.5306973457336426,
+        0.6249608993530273,
+        7.703612804412842,
+        0.8449580669403076,
+        2.3720762729644775
+      ],
+      "average_processing_time": 1.7637547850608826
+    },
+    "text_recognizer": {
+      "tests_run": 3,
+      "tests_passed": 3,
+      "tests_failed": 0,
+      "performance": [
+        0.240189790725708,
+        0.22176527976989746,
+        0.21293377876281738
+      ],
+      "accuracy_scores": [],
+      "average_processing_time": 0.22496294975280762
+    },
+    "object_detector": {
+      "tests_run": 8,
+      "tests_passed": 8,
+      "tests_failed": 0,
+      "performance": [
+        0.00700068473815918,
+        0.007041215896606445,
+        0.007504701614379883,
+        0.008532047271728516,
+        0.006002902984619141,
+        0.007741212844848633,
+        0.006509304046630859,
+        0.009508132934570312
+      ],
+      "detection_rates": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "average_processing_time": 0.007480025291442871,
+      "average_detections": 0.0
+    },
+    "state_comparator": {
+      "tests_run": 4,
+      "tests_passed": 4,
+      "tests_failed": 0,
+      "performance": [
+        0.7738621234893799,
+        0.6837553977966309,
+        0.9515271186828613,
+        0.8291563987731934
+      ],
+      "average_processing_time": 0.8095752596855164
+    },
+    "issue_classifier": {
+      "tests_run": 1,
+      "tests_passed": 1,
+      "tests_failed": 0,
+      "performance": [
+        0.0
+      ],
+      "average_processing_time": 0.0
+    },
+    "integration": {
+      "tests_run": 1,
+      "tests_passed": 1,
+      "tests_failed": 0,
+      "performance": [
+        1.7043490409851074
+      ],
+      "average_processing_time": 1.7043490409851074
+    }
+  },
+  "performance_metrics": {},
+  "completed_at": 1762819653.6975448
+}

@@ -1,0 +1,96 @@
+{
+  "MissionID": "PirateAmbush_001",
+  "MissionName": "Pirate Ambush",
+  "MissionType": "Combat",
+  "Description": "A vital merchant convoy is under attack by pirates in the Alpha Centauri trade route. Defend the convoy from waves of pirate fighters and ensure at least 50% of the convoy ships survive the ambush.",
+  "Briefing": "Commander, we've received an urgent distress call from Convoy Sierra-7. They're under heavy pirate attack in sector 7-G of the Alpha Centauri trade route. Your mission is to jump in and provide immediate combat support. The convoy consists of 6 merchant vessels carrying critical supplies to the outer colonies. Hold off the pirates until the convoy can make it to safety. Remember, these supplies are vital for colony survival - failure is not an option.",
+  "Objectives": [
+    {
+      "ID": "DefendConvoy",
+      "Type": "Defend",
+      "Description": "Defend the merchant convoy from pirate attacks",
+      "Target": "Convoy_Sierra7",
+      "SuccessCondition": "ConvoyHealth > 50%",
+      "FailureCondition": "ConvoyDestroyed",
+      "ProgressTrack": "ConvoyShipsAlive",
+      "RequiredValue": 3,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "EliminatePirateWaves",
+      "Type": "Eliminate",
+      "Description": "Destroy all attacking pirate waves",
+      "Target": "PirateGroup_Alpha",
+      "SuccessCondition": "AllEnemiesDestroyed",
+      "ProgressTrack": "EnemiesDestroyed",
+      "RequiredValue": 12,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "ProtectLeadShip",
+      "Type": "Defend",
+      "Description": "Ensure the lead merchant ship 'Star Hauler' survives",
+      "Target": "LeadShip_StarHauler",
+      "SuccessCondition": "TargetSurvives",
+      "FailureCondition": "TargetDestroyed",
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Shield_Booster_Mk2"
+    }
+  ],
+  "Rewards": {
+    "Credits": 5000,
+    "XP": 250,
+    "Reputation": {
+      "Faction": "MerchantGuild",
+      "Amount": 15
+    },
+    "Items": ["Shield_Booster_Mk2", "Repair_Kit_Advanced", "Pirate_Scrap_Metal"],
+    "BonusRewards": {
+      "PerfectDefense": {
+        "Credits": 2000,
+        "Items": ["Combat_Medal_Bronze"]
+      }
+    }
+  },
+  "Location": {
+    "System": "AlphaCentauri",
+    "Coordinates": {"X": 1000, "Y": 2000, "Z": 3000},
+    "Sector": "TradeRoute_7G",
+    "Environment": "AsteroidField_Light"
+  },
+  "Difficulty": "Medium",
+  "LevelRequirement": 5,
+  "TimeLimit": 600,
+  "MissionGiver": "Commander_Rhodes",
+  "Prerequisites": [],
+  "Faction": "MerchantGuild",
+  "EnemyConfig": {
+    "EnemyType": "Pirate_Fighter",
+    "WaveCount": 3,
+    "EnemiesPerWave": 4,
+    "WaveDelay": 45,
+    "EnemyAI": "Aggressive",
+    "LootTable": "Pirate_Basic"
+  },
+  "Atmosphere": {
+    "Music": "Combat_Tense",
+    "AmbientSounds": "Space_Battle",
+    "VFX": ["Explosions", "Laser_Fire", "Shield_Impacts"]
+  },
+  "Dialogue": {
+    "Briefing": "RHODES_PIRATE_AMBUSH_BRIEFING",
+    "Start": "RHODES_PIRATE_AMBUSH_START",
+    "Update": "RHODES_PIRATE_AMBUSH_UPDATE",
+    "Success": "RHODES_PIRATE_AMBUSH_SUCCESS",
+    "Failure": "RHODES_PIRATE_AMBUSH_FAILURE"
+  },
+  "SpecialMechanics": {
+    "ConvoyMovement": true,
+    "Reinforcements": false,
+    "EnvironmentalHazards": ["Asteroid_Drift"],
+    "DynamicDifficulty": true
+  }
+}

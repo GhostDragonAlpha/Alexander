@@ -1,0 +1,124 @@
+{
+  "MissionID": "SupplyRun_001",
+  "MissionName": "Supply Run",
+  "MissionType": "Trading",
+  "Description": "Deliver critical medical supplies and food to the struggling colony on Kepler-442b. The colony is facing a humanitarian crisis and needs these supplies urgently.",
+  "Briefing": "Captain, we have a critical situation. The colony on Kepler-442b has been hit by a series of equipment failures affecting their life support and food production systems. They're running on emergency reserves, and those won't last long. We've assembled a shipment of medical supplies, food rations, and emergency equipment that needs to get there ASAP. The colony is offering premium payment for fast delivery, but there's a catch - the route takes you through a known pirate corridor. You'll need to be fast and careful. The colonists' lives depend on these supplies.",
+  "Objectives": [
+    {
+      "ID": "LoadSupplies",
+      "Type": "Collect",
+      "Description": "Load medical supplies and food rations at Alpha Centauri station",
+      "Target": "Supply_Cargo_Medical",
+      "SuccessCondition": "CargoLoaded",
+      "ProgressTrack": "CargoStatus",
+      "RequiredValue": "Loaded",
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "DeliverToColony",
+      "Type": "Deliver",
+      "Description": "Deliver supplies to Kepler-442b colony within time limit",
+      "Target": "Colony_Kepler442b",
+      "SuccessCondition": "CargoDeliveredOnTime",
+      "ProgressTrack": "DeliveryTime",
+      "RequiredValue": 1200,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "ProtectCargo",
+      "Type": "Defend",
+      "Description": "Keep cargo intact during transit",
+      "Target": "Supply_Cargo",
+      "SuccessCondition": "CargoIntegrity > 80%",
+      "FailureCondition": "CargoDestroyed",
+      "ProgressTrack": "CargoHealth",
+      "RequiredValue": 80,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "FastDeliveryBonus",
+      "Type": "Deliver",
+      "Description": "Deliver supplies in under 15 minutes for bonus payment",
+      "Target": "Colony_Kepler442b",
+      "SuccessCondition": "DeliveryTime < 900",
+      "ProgressTrack": "FastDelivery",
+      "RequiredValue": 900,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Premium_Payment_Bonus"
+    }
+  ],
+  "Rewards": {
+    "Credits": 8000,
+    "XP": 300,
+    "Reputation": {
+      "Faction": "Colonial",
+      "Amount": 25
+    },
+    "Reputation": {
+      "Faction": "TradingGuild",
+      "Amount": 15
+    },
+    "Items": ["Trade_Certificate", "Colony_Gratitude_Package", "Trade_Route_Map"],
+    "BonusRewards": {
+      "FastDelivery": {
+        "Credits": 3000,
+        "Reputation": 10,
+        "Items": ["Premium_Payment_Bonus"]
+      },
+      "PerfectCondition": {
+        "Credits": 2000,
+        "Reputation": 5,
+        "Items": ["Quality_Bonus_Certificate"]
+      }
+    }
+  },
+  "Location": {
+    "System": "Kepler442",
+    "Coordinates": {"X": 5000, "Y": -1000, "Z": 2000},
+    "Sector": "Colony_Surface",
+    "Environment": "Planetary_Landing"
+  },
+  "Difficulty": "Medium",
+  "LevelRequirement": 3,
+  "TimeLimit": 1200,
+  "MissionGiver": "Captain_Marcus_Steel",
+  "Prerequisites": [],
+  "Faction": "TradingGuild",
+  "CargoConfig": {
+    "CargoType": "Medical_Supplies",
+    "CargoValue": 5000,
+    "CargoQuantity": 50,
+    "CargoFragility": "Medium",
+    "RequiredCargoSpace": 25
+  },
+  "RouteConfig": {
+    "StartLocation": "AlphaCentauri_Station",
+    "EndLocation": "Colony_Kepler442b",
+    "RouteDanger": "Medium",
+    "PirateProbability": 0.4
+  },
+  "Atmosphere": {
+    "Music": "Trading_Urgent",
+    "AmbientSounds": "Ship_Cargo",
+    "VFX": ["Cargo_Bay", "Trade_Route"]
+  },
+  "Dialogue": {
+    "Briefing": "STEEL_SUPPLY_RUN_BRIEFING",
+    "Start": "STEEL_SUPPLY_RUN_START",
+    "Update": "STEEL_SUPPLY_RUN_UPDATE",
+    "Success": "STEEL_SUPPLY_RUN_SUCCESS",
+    "Failure": "STEEL_SUPPLY_RUN_FAILURE"
+  },
+  "SpecialMechanics": {
+    "CargoManagement": true,
+    "TimePressure": true,
+    "PirateEncounters": true,
+    "TradeRoute": true,
+    "DynamicPricing": false
+  }
+}

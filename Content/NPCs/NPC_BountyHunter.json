@@ -1,0 +1,56 @@
+{
+  "NPCID": "BountyHunter_001",
+  "Name": "Kael Drax",
+  "Archetype": "BountyHunter",
+  "Faction": "Bounty_Hunters_Guild",
+  "Location": {
+    "System": "Outlaw_Territory",
+    "Station": "Hunters_Den"
+  },
+  "Appearance": {
+    "Model": "Human_Male_03",
+    "Outfit": "Combat_Armor",
+    "Accessories": ["Bounty_Pad", "Wanted_Posters", "Combat_Gear"]
+  },
+  "Personality": {
+    "Trait": "Ruthless",
+    "Disposition": "Aggressive",
+    "Greeting": "Got a target that needs eliminating? I guarantee results.",
+    "SpeechPattern": "Direct, professional, mission-focused"
+  },
+  "Shop": {
+    "Sells": ["Bounty_Information", "Target_Locations", "Combat_Intel"],
+    "Buys": ["Bounty_Proof", "Target_Data", "Criminal_Intel"],
+    "PriceModifier": 1.1,
+    "SpecialOffers": ["High_Value_Targets", "Wanted_List", "Bounty_Contracts"]
+  },
+  "Missions": {
+    "Offers": ["Assassination", "Target_Elimination", "Criminal_Hunt", "Wanted_Capture"],
+    "Weight": 0.6,
+    "Cooldown": 120,
+    "CombatRequired": true
+  },
+  "Dialogue": {
+    "Greeting": "bounty_hunter_greeting_01",
+    "Shop": "bounty_hunter_shop_01",
+    "Missions": "bounty_hunter_missions_01",
+    "Farewell": "bounty_hunter_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 10,
+    "Likes": ["Combat", "Bounties", "Justice"],
+    "Dislikes": ["Criminals", "Targets", "Interference"],
+    "ReputationModifiers": {
+      "Bounty_Completed": 12,
+      "Target_Eliminated": 15,
+      "Mission_Failed": -8
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Bounty_Review", "Target_Research", "Combat_Prep", "Mission_Briefing"],
+    "InteractionRadius": 120,
+    "WanderRadius": 25,
+    "ConversationDuration": 20,
+    "CombatReady": true
+  }
+}

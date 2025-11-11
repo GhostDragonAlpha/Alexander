@@ -1,0 +1,91 @@
+{
+  "timestamp": "2025-11-10T18:56:30.234616",
+  "status": "success",
+  "prerequisites": {
+    "python_version": {
+      "status": "pass",
+      "version": "3.11.9"
+    },
+    "tesseract": {
+      "status": "warning",
+      "error": "Tesseract OCR not found. Install from https://github.com/UB-Mannheim/tesseract/wiki",
+      "note": "Tesseract is required for text recognition in screenshots. Some features will be limited without it."
+    },
+    "dependencies": {
+      "status": "pass",
+      "installed": [
+        "pillow",
+        "opencv-python"
+      ]
+    },
+    "unreal_engine": {
+      "status": "warning",
+      "message": "Unreal Engine not found in standard locations"
+    },
+    "project": {
+      "status": "pass",
+      "projects": [
+        "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject"
+      ]
+    }
+  },
+  "directories": {
+    "screenshots_visual_playtest": {
+      "status": "created",
+      "path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\screenshots_visual_playtest"
+    },
+    "analysis_results": {
+      "status": "created",
+      "path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\analysis_results"
+    },
+    "verification_reports": {
+      "status": "created",
+      "path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\verification_reports"
+    },
+    "automation_config": {
+      "status": "created",
+      "path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\automation_config"
+    },
+    "capture_output": {
+      "status": "created",
+      "path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\capture_output"
+    }
+  },
+  "configuration": {
+    "playtesting_config.json": {
+      "status": "valid",
+      "path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\playtesting_config.json"
+    },
+    "flight_physics_presets.json": {
+      "status": "valid",
+      "path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\flight_physics_presets.json"
+    },
+    "deployment_config.json": {
+      "status": "valid",
+      "path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\deployment_config.json"
+    },
+    "environment": {
+      "status": "configured",
+      "variables": [
+        "TESSDATA_PREFIX"
+      ]
+    }
+  },
+  "services": {
+    "ports": {
+      "8080": {
+        "status": "in_use",
+        "message": "Port 8080 is already in use"
+      },
+      "8081": {
+        "status": "available",
+        "message": "Port 8081 is available"
+      },
+      "8082": {
+        "status": "available",
+        "message": "Port 8082 is available"
+      }
+    }
+  },
+  "errors": []
+}

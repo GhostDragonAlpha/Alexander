@@ -1,0 +1,85 @@
+{
+  "system": {
+    "name": "Autonomous Playtesting System",
+    "version": "1.0.0",
+    "description": "Complete autonomous playtesting system for Unreal Engine games"
+  },
+  
+  "services": {
+    "game": {
+      "port": 8080,
+      "host": "localhost",
+      "name": "Game Service",
+      "description": "Captures screenshots and performance data from the game"
+    },
+    "analysis": {
+      "port": 8081,
+      "host": "localhost", 
+      "name": "Analysis Service",
+      "description": "Analyzes gameplay screenshots and performance data using AI/ML"
+    },
+    "dashboard": {
+      "port": 8082,
+      "host": "localhost",
+      "name": "Dashboard Service",
+      "description": "Real-time dashboard for monitoring playtesting results"
+    }
+  },
+  
+  "paths": {
+    "screenshots": "screenshots_visual_playtest",
+    "analysis_results": "analysis_results",
+    "verification_reports": "verification_reports",
+    "automation_config": "automation_config",
+    "capture_output": "capture_output"
+  },
+  
+  "monitoring": {
+    "health_check_interval": 10,
+    "performance_sample_interval": 5,
+    "screenshot_capture_interval": 30,
+    "analysis_interval": 60,
+    "dashboard_refresh_interval": 5
+  },
+  
+  "resource_limits": {
+    "cpu_usage_threshold": 85.0,
+    "memory_usage_threshold": 80.0,
+    "disk_usage_threshold": 85.0,
+    "max_screenshot_storage_gb": 10.0,
+    "max_log_file_size_mb": 100.0
+  },
+  
+  "alerts": {
+    "critical_cpu_threshold": 90.0,
+    "critical_memory_threshold": 85.0,
+    "critical_disk_threshold": 90.0,
+    "service_timeout_seconds": 30,
+    "max_consecutive_failures": 3
+  },
+  
+  "backup": {
+    "enabled": true,
+    "interval_hours": 24,
+    "retention_days": 7,
+    "directories": [
+      "analysis_results",
+      "verification_reports",
+      "screenshots_visual_playtest"
+    ]
+  },
+  
+  "logging": {
+    "level": "INFO",
+    "file_rotation": true,
+    "max_file_size_mb": 50,
+    "backup_count": 5,
+    "log_directory": "capture_output"
+  },
+  
+  "testing": {
+    "test_timeout_seconds": 60,
+    "max_test_iterations": 3,
+    "test_data_retention_days": 30
+  }
+}

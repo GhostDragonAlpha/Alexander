@@ -1,0 +1,115 @@
+{
+  "MissionID": "DistressSignal_001",
+  "MissionName": "Distress Signal",
+  "MissionType": "SearchAndRescue",
+  "Description": "Respond to an urgent distress signal from the cargo vessel 'Star Runner' which has suffered critical engine failure in the Nebula Zone Alpha.",
+  "Briefing": "Emergency broadcast, Commander! We've picked up a priority distress signal from the cargo vessel Star Runner. They've suffered catastrophic engine failure in Nebula Zone Alpha and are drifting toward a dangerous radiation field. Life support is failing, and they have a crew of 12 on board. The nebula is interfering with our long-range transporters, so you'll need to get in close for a manual rescue. Time is critical - they estimate maybe 15 minutes of life support remaining. Get there fast, get them out safely, and watch out for the radiation. This is what being a spacer is all about.",
+  "Objectives": [
+    {
+      "ID": "NavigateToDistress",
+      "Type": "Navigate",
+      "Description": "Reach the Star Runner's location in Nebula Zone Alpha",
+      "Target": "DistressSignal_StarRunner",
+      "SuccessCondition": "LocationReached",
+      "ProgressTrack": "DistanceToTarget",
+      "RequiredValue": 50,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "AssessSituation",
+      "Type": "Scan",
+      "Description": "Assess the Star Runner's damage and crew status",
+      "Target": "StarRunner_Status",
+      "SuccessCondition": "ScanComplete",
+      "ProgressTrack": "AssessmentProgress",
+      "RequiredValue": 100,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "RescueCrew",
+      "Type": "Rescue",
+      "Description": "Rescue all 12 crew members from the damaged vessel",
+      "Target": "StarRunner_Crew",
+      "SuccessCondition": "AllSurvivorsRescued",
+      "ProgressTrack": "CrewRescued",
+      "RequiredValue": 12,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "AvoidRadiation",
+      "Type": "Survive",
+      "Description": "Complete rescue while avoiding dangerous radiation exposure",
+      "Target": "Radiation_Field",
+      "SuccessCondition": "RadiationExposure < 30%",
+      "ProgressTrack": "RadiationLevel",
+      "RequiredValue": 30,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Radiation_Shielding_Upgrade"
+    }
+  ],
+  "Rewards": {
+    "Credits": 6000,
+    "XP": 350,
+    "Reputation": {
+      "Faction": "CivilianAlliance",
+      "Amount": 30
+    },
+    "Reputation": {
+      "Faction": "MerchantGuild",
+      "Amount": 15
+    },
+    "Items": ["Rescue_Commendation", "Life_Saver_Medal", "Emergency_Repair_Kit"],
+    "BonusRewards": {
+      "PerfectRescue": {
+        "Credits": 2500,
+        "Reputation": 15,
+        "Items": ["Radiation_Shielding_Upgrade"]
+      },
+      "SpeedBonus": {
+        "Credits": 1500,
+        "Items": ["Swift_Response_Award"]
+      }
+    }
+  },
+  "Location": {
+    "System": "NebulaZone_Alpha",
+    "Coordinates": {"X": 8000, "Y": 5000, "Z": 4000},
+    "Sector": "Distress_Zone_7",
+    "Environment": "Nebula_Hazard"
+  },
+  "Difficulty": "Medium",
+  "LevelRequirement": 4,
+  "TimeLimit": 900,
+  "MissionGiver": "Admiral_Kross",
+  "Prerequisites": [],
+  "Faction": "CivilianAlliance",
+  "RescueConfig": {
+    "SurvivorCount": 12,
+    "RescueMethod": "Manual_Transfer",
+    "TimePressure": "Critical",
+    "EnvironmentalHazards": ["Radiation", "Nebula_Interference", "Debris_Field"]
+  },
+  "Atmosphere": {
+    "Music": "Rescue_Urgent",
+    "AmbientSounds": "Distress_Signal",
+    "VFX": ["Nebula_Clouds", "Damaged_Ship", "Rescue_Operations"]
+  },
+  "Dialogue": {
+    "Briefing": "KROSS_DISTRESS_SIGNAL_BRIEFING",
+    "Start": "KROSS_DISTRESS_SIGNAL_START",
+    "Update": "KROSS_DISTRESS_SIGNAL_UPDATE",
+    "Success": "KROSS_DISTRESS_SIGNAL_SUCCESS",
+    "Failure": "KROSS_DISTRESS_SIGNAL_FAILURE"
+  },
+  "SpecialMechanics": {
+    "TimeCritical": true,
+    "EnvironmentalHazards": true,
+    "MultipleSurvivors": true,
+    "ManualRescue": true,
+    "RadiationManagement": true
+  }
+}

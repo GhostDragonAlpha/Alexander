@@ -1,0 +1,387 @@
+{
+  "NPCSystem": {
+    "Version": "1.0",
+    "Enabled": true,
+    "MaxNPCsPerStation": 10,
+    "NPCRespawnTime": 300,
+    "InteractionDistance": 200,
+    "ConversationTimeout": 30
+  },
+  "ArchetypeDefinitions": {
+    "ShipDealer": {
+      "BaseWeight": 0.3,
+      "ShopCategories": ["Ships", "Engines", "Shields", "Weapons", "Components"],
+      "MissionTypes": ["Ship_Purchase", "Component_Upgrade", "Ship_Recovery"],
+      "DialogueStyle": "Enthusiastic_Salesman",
+      "ReputationModifiers": {
+        "Trade_Completed": 5,
+        "Ship_Purchased": 10,
+        "Mission_Failed": -5
+      }
+    },
+    "EquipmentVendor": {
+      "BaseWeight": 0.25,
+      "ShopCategories": ["Weapons", "Shields", "Armor", "Gadgets", "Ammo"],
+      "MissionTypes": ["Equipment_Test", "Weapon_Recovery", "Tech_Salvage"],
+      "DialogueStyle": "Corporate_Professional",
+      "ReputationModifiers": {
+        "Purchase_Made": 3,
+        "Tech_Provided": 8,
+        "Equipment_Damaged": -3
+      }
+    },
+    "CommodityTrader": {
+      "BaseWeight": 0.4,
+      "ShopCategories": ["Minerals", "Metals", "Gases", "Crystals", "Food", "Water"],
+      "MissionTypes": ["Supply_Run", "Resource_Gathering", "Trade_Delivery"],
+      "DialogueStyle": "Business_Focused",
+      "ReputationModifiers": {
+        "Trade_Completed": 4,
+        "Contract_Fulfilled": 7,
+        "Price_Haggled": 2
+      }
+    },
+    "BlackMarketDealer": {
+      "BaseWeight": 0.2,
+      "ShopCategories": ["Illegal_Weapons", "Stolen_Goods", "Contraband", "Forged_Documents"],
+      "MissionTypes": ["Smuggling", "Theft", "Assassination", "Illegal_Delivery"],
+      "DialogueStyle": "Secretive_Coded",
+      "ReputationRequirement": -10,
+      "RiskLevel": "High",
+      "ReputationModifiers": {
+        "Illegal_Deal": 8,
+        "Smuggling_Success": 15,
+        "Authority_Contact": -20
+      }
+    },
+    "BountyHunter": {
+      "BaseWeight": 0.6,
+      "ShopCategories": ["Bounty_Information", "Target_Locations", "Combat_Intel"],
+      "MissionTypes": ["Assassination", "Target_Elimination", "Criminal_Hunt", "Wanted_Capture"],
+      "DialogueStyle": "Direct_Professional",
+      "CombatRequired": true,
+      "ReputationModifiers": {
+        "Bounty_Completed": 12,
+        "Target_Eliminated": 15,
+        "Mission_Failed": -8
+      }
+    },
+    "MissionCommander": {
+      "BaseWeight": 0.7,
+      "ShopCategories": ["Military_Intel", "Mission_Briefings", "Strategic_Data"],
+      "MissionTypes": ["Patrol_Mission", "Defense_Operation", "Strategic_Strike", "Fleet_Support"],
+      "DialogueStyle": "Military_Protocol",
+      "RankRequirement": "Ensign",
+      "ReputationModifiers": {
+        "Mission_Success": 10,
+        "Rank_Promotion": 20,
+        "Mission_Failed": -15
+      }
+    },
+    "ScienceOfficer": {
+      "BaseWeight": 0.5,
+      "ShopCategories": ["Research_Data", "Scanning_Equipment", "Scientific_Samples", "Analysis_Tools"],
+      "MissionTypes": ["Scientific_Survey", "Anomaly_Investigation", "Sample_Collection", "Research_Assistance"],
+      "DialogueStyle": "Academic_Enthusiastic",
+      "ScienceSkillRequired": 10,
+      "ReputationModifiers": {
+        "Discovery_Made": 12,
+        "Data_Shared": 8,
+        "Research_Help": 10
+      }
+    },
+    "RescueCoordinator": {
+      "BaseWeight": 0.4,
+      "ShopCategories": ["Rescue_Equipment", "Emergency_Supplies", "Survival_Gear", "Medical_Supplies"],
+      "MissionTypes": ["Search_Rescue", "Distress_Response", "Salvage_Operation", "Medical_Evacuation"],
+      "DialogueStyle": "Calm_Professional",
+      "RescueSkillBonus": true,
+      "AlwaysAvailable": true,
+      "ReputationModifiers": {
+        "Rescue_Success": 15,
+        "Life_Saved": 20,
+        "False_Distress": -10
+      }
+    },
+    "ShipMechanic": {
+      "BaseWeight": 0.3,
+      "ShopCategories": ["Repairs", "Upgrades", "Custom_Modifications", "Spare_Parts"],
+      "MissionTypes": ["Repair_Job", "Salvage_Operation", "Custom_Build", "Emergency_Fix"],
+      "DialogueStyle": "Technical_Direct",
+      "ReputationModifiers": {
+        "Repair_Completed": 6,
+        "Custom_Job": 10,
+        "Payment_Delayed": -5
+      }
+    },
+    "RefuelTechnician": {
+      "BaseWeight": 0.2,
+      "ShopCategories": ["Fuel", "Energy_Cells", "Power_Cores", "Emergency_Fuel"],
+      "MissionTypes": ["Fuel_Delivery", "Energy_Transport", "Emergency_Resupply"],
+      "DialogueStyle": "Energetic_Fast",
+      "ReputationModifiers": {
+        "Refuel_Completed": 3,
+        "Contract_Fulfilled": 6,
+        "Payment_Prompt": 2
+      }
+    },
+    "MedicalOfficer": {
+      "BaseWeight": 0.3,
+      "ShopCategories": ["Medical_Supplies", "Healing_Kits", "Crew_Recovery", "Medical_Equipment"],
+      "MissionTypes": ["Medical_Evacuation", "Disease_Control", "Rescue_Operation", "Medical_Supply"],
+      "DialogueStyle": "Medical_Professional",
+      "ReputationModifiers": {
+        "Crew_Healed": 8,
+        "Medical_Supply": 5,
+        "Emergency_Response": 12
+      }
+    },
+    "InformationBroker": {
+      "BaseWeight": 0.4,
+      "ShopCategories": ["Star_Maps", "System_Data", "Faction_Intel", "Hidden_Locations", "Market_Info"],
+      "MissionTypes": ["Information_Gathering", "Surveillance", "Data_Retrieval", "Intel_Delivery"],
+      "DialogueStyle": "Cryptic_Knowledgeable",
+      "ReputationModifiers": {
+        "Info_Provided": 6,
+        "Data_Verified": 10,
+        "Intel_Shared": 8
+      }
+    },
+    "StationCommander": {
+      "BaseWeight": 0.5,
+      "ShopCategories": ["Station_Services", "Docking_Permits", "Station_Intel", "Authority_Access"],
+      "MissionTypes": ["Station_Defense", "Security_Detail", "Administrative_Tasks", "Diplomatic_Missions"],
+      "DialogueStyle": "Commanding_Administrative",
+      "AuthorityRequired": true,
+      "CommandPresence": true,
+      "ReputationModifiers": {
+        "Station_Services": 5,
+        "Security_Help": 8,
+        "Rule_Breaking": -15
+      }
+    },
+    "SystemGovernor": {
+      "BaseWeight": 0.4,
+      "ShopCategories": ["System_Permits", "Political_Access", "Governance_Services", "Diplomatic_Immunity"],
+      "MissionTypes": ["Diplomatic_Mission", "System_Development", "Political_Campaign", "Governance_Tasks"],
+      "DialogueStyle": "Political_Diplomatic",
+      "InfluenceRequired": 20,
+      "PoliticalProtocol": true,
+      "ReputationModifiers": {
+        "Political_Support": 10,
+        "Diplomatic_Success": 15,
+        "System_Development": 12
+      }
+    },
+    "SecurityChief": {
+      "BaseWeight": 0.5,
+      "ShopCategories": ["Security_Services", "Protection_Detail", "Law_Enforcement", "Crime_Info"],
+      "MissionTypes": ["Security_Detail", "Crime_Investigation", "Law_Enforcement", "Protection_Mission"],
+      "DialogueStyle": "Law_Enforcement_Authoritative",
+      "LawfulRequired": true,
+      "LawEnforcement": true,
+      "ReputationModifiers": {
+        "Crime_Prevented": 10,
+        "Law_Helped": 8,
+        "Criminal_Activity": -20
+      }
+    },
+    "CustomsOfficer": {
+      "BaseWeight": 0.3,
+      "ShopCategories": ["Trade_Permits", "Customs_Clearance", "Import_Licenses", "Tariff_Info"],
+      "MissionTypes": ["Cargo_Inspection", "Smuggling_Investigation", "Trade_Regulation", "Customs_Enforcement"],
+      "DialogueStyle": "Official_Thorough",
+      "CustomsAuthority": true,
+      "ReputationModifiers": {
+        "Proper_Declaration": 5,
+        "Smuggling_Prevented": 12,
+        "Contraband_Found": -15
+      }
+    },
+    "Miner": {
+      "BaseWeight": 0.4,
+      "ShopCategories": ["Raw_Minerals", "Processed_Ore", "Mining_Equipment", "Asteroid_Maps"],
+      "MissionTypes": ["Mining_Operation", "Prospecting_Mission", "Ore_Delivery", "Equipment_Recovery"],
+      "DialogueStyle": "Direct_Experienced",
+      "ReputationModifiers": {
+        "Ore_Sold": 4,
+        "Mining_Help": 8,
+        "Equipment_Maintained": 6
+      }
+    },
+    "Explorer": {
+      "BaseWeight": 0.5,
+      "ShopCategories": ["Exploration_Data", "Star_Maps", "Discovery_Logs", "Survey_Equipment"],
+      "MissionTypes": ["Survey_Mission", "Exploration_Voyage", "Discovery_Assignment", "Mapping_Project"],
+      "DialogueStyle": "Enthusiastic_Discovery",
+      "ExplorationBonus": true,
+      "ReputationModifiers": {
+        "Discovery_Shared": 10,
+        "Exploration_Help": 8,
+        "New_System_Found": 15
+      }
+    },
+    "Gambler": {
+      "BaseWeight": 0.3,
+      "ShopCategories": ["Gambling_Games", "Betting_Services", "Lucky_Items", "Gaming_Tokens"],
+      "MissionTypes": ["Gambling_Challenge", "High_Stakes_Mission", "Lucky_Find", "Risk_Assessment"],
+      "DialogueStyle": "Excited_Risk_Oriented",
+      "GamblingBonus": true,
+      "ReputationModifiers": {
+        "Game_Won": 5,
+        "High_Stakes_Won": 10,
+        "Cheating_Caught": -20
+      }
+    },
+    "Storyteller": {
+      "BaseWeight": 0.2,
+      "ShopCategories": ["Lore_Books", "Historical_Data", "Ancient_Stories", "Mythical_Tales"],
+      "MissionTypes": ["Lore_Gathering", "Artifact_Recovery", "Historical_Research", "Story_Collection"],
+      "DialogueStyle": "Storytelling_Wise",
+      "LoreBonus": true,
+      "ReputationModifiers": {
+        "Story_Shared": 8,
+        "Artifact_Recovered": 12,
+        "Lore_Preserved": 10
+      }
+    }
+  },
+  "DialogueTemplates": {
+    "Greeting": {
+      "Friendly": "Welcome! It's good to see you.",
+      "Neutral": "Greetings. What can I do for you?",
+      "Suspicious": "What do you want?",
+      "Professional": "State your business.",
+      "Enthusiastic": "Hey there! Ready for some action?"
+    },
+    "Shop": {
+      "Browse": "Take a look at my wares.",
+      "Buy": "Excellent choice!",
+      "Sell": "I'll take that off your hands.",
+      "Haggle": "Let's negotiate.",
+      "Refuse": "I can't accept that price."
+    },
+    "Missions": {
+      "Offer": "I have a job for you.",
+      "Accept": "Excellent! You won't regret this.",
+      "Decline": "Perhaps another time.",
+      "Complete": "Well done! Here's your reward.",
+      "Failed": "I'm disappointed. This was important."
+    },
+    "Farewell": {
+      "Friendly": "Safe travels, friend!",
+      "Neutral": "Goodbye.",
+      "Suspicious": "Don't cause trouble.",
+      "Professional": "Dismissed.",
+      "Enthusiastic": "See you soon!"
+    }
+  },
+  "ShopInventory": {
+    "CommonItems": {
+      "Ships": ["Scout_Fighter", "Transport_Shuttle", "Mining_Vessel"],
+      "Weapons": ["Laser_Cannon", "Missile_Launcher", "Plasma_Gun"],
+      "Shields": ["Basic_Shield", "Reinforced_Shield", "Energy_Shield"],
+      "Fuel": ["Standard_Fuel", "Premium_Fuel", "Emergency_Fuel"],
+      "Medical": ["Medkit", "Stimpack", "Antidote"],
+      "Minerals": ["Iron_Ore", "Copper_Ore", "Silicon_Crystals"]
+    },
+    "RareItems": {
+      "Ships": ["Stealth_Fighter", "Capital_Ship", "Alien_Technology"],
+      "Weapons": ["Quantum_Gun", "Antimatter_Missile", "Disruptor_Cannon"],
+      "Shields": ["Phase_Shield", "Temporal_Shield", "Dimensional_Barrier"],
+      "Fuel": ["Quantum_Fuel", "Zero_Point_Energy", "Dark_Matter_Fuel"],
+      "Medical": ["Nanite_Healer", "Regeneration_Field", "Life_Extender"],
+      "Minerals": ["Quantum_Crystals", "Dark_Matter_Ore", "Exotic_Materials"]
+    },
+    "IllegalItems": {
+      "Weapons": ["Black_Market_Guns", "Stolen_Military_Grade", "Experimental_Weapons"],
+      "Contraband": ["Illegal_Drugs", "Endangered_Species", "Stolen_Artifacts"],
+      "Forged": ["Fake_IDs", "Counterfeit_Credits", "Forged_Documents"]
+    }
+  },
+  "MissionTemplates": {
+    "Combat": {
+      "Duration": "Short",
+      "Difficulty": "Medium",
+      "Rewards": ["Credits", "Reputation", "Combat_Gear"]
+    },
+    "Trade": {
+      "Duration": "Medium",
+      "Difficulty": "Easy",
+      "Rewards": ["Credits", "Trade_Goods", "Reputation"]
+    },
+    "Exploration": {
+      "Duration": "Long",
+      "Difficulty": "Hard",
+      "Rewards": ["Discovery_Data", "Rare_Items", "Exploration_Reputation"]
+    },
+    "Diplomatic": {
+      "Duration": "Medium",
+      "Difficulty": "Medium",
+      "Rewards": ["Political_Influence", "Faction_Reputation", "Diplomatic_Access"]
+    },
+    "Illegal": {
+      "Duration": "Short",
+      "Difficulty": "Hard",
+      "Rewards": ["High_Credits", "Black_Market_Access", "Criminal_Reputation"]
+    }
+  },
+  "RelationshipSystem": {
+    "StandingLevels": {
+      "-100": "Hated",
+      "-50": "Hostile",
+      "-25": "Unfriendly",
+      "0": "Neutral",
+      "25": "Friendly",
+      "50": "Respected",
+      "75": "Honored",
+      "100": "Revered"
+    },
+    "FactionModifiers": {
+      "United_Federation": {
+        "Likes": ["Lawful", "Military", "Order"],
+        "Dislikes": ["Criminals", "Pirates", "Chaos"]
+      },
+      "Trade_Guild": {
+        "Likes": ["Traders", "Merchants", "Profit"],
+        "Dislikes": ["Thieves", "Price_Fixers", "Smugglers"]
+      },
+      "Science_Corps": {
+        "Likes": ["Scientists", "Explorers", "Discovery"],
+        "Dislikes": ["Ignorance", "Data_Falsification", "Carelessness"]
+      },
+      "Syndicate": {
+        "Likes": ["Criminals", "Smugglers", "Black_Market"],
+        "Dislikes": ["Law_Enforcement", "Authorities", "Snitches"]
+      }
+    },
+    "GlobalReputation": {
+      "Criminal_Activity": -10,
+      "Mission_Success": 5,
+      "Trade_Completed": 2,
+      "Discovery_Made": 8,
+      "Rescue_Success": 15
+    }
+  },
+  "SpawnConfiguration": {
+    "StationTypes": {
+      "Trading_Post": ["CommodityTrader", "EquipmentVendor", "InformationBroker"],
+      "Military_Base": ["MissionCommander", "SecurityChief", "BountyHunter"],
+      "Science_Station": ["ScienceOfficer", "Explorer", "MedicalOfficer"],
+      "Mining_Facility": ["Miner", "ShipMechanic", "RefuelTechnician"],
+      "Civilian_Station": ["ShipDealer", "Storyteller", "RescueCoordinator"],
+      "Black_Market": ["BlackMarketDealer", "Gambler", "CustomsOfficer"],
+      "Government_Hub": ["SystemGovernor", "StationCommander", "CustomsOfficer"]
+    },
+    "SpawnChances": {
+      "Common": 0.7,
+      "Uncommon": 0.25,
+      "Rare": 0.05
+    },
+    "TimeBasedSpawning": {
+      "Daytime_NPCs": ["Traders", "Officials", "Service_Providers"],
+      "Nighttime_NPCs": ["Black_Market", "Criminals", "Emergency_Services"],
+      "Always_Available": ["Medical", "Rescue", "Security"]
+    }
+  }
+}

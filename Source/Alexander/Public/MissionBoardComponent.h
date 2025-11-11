@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "GameFramework/PlayerState.h"
+#include "PerformanceProfiler.h"
 #include "MissionBoardComponent.generated.h"
 
 UENUM(BlueprintType)

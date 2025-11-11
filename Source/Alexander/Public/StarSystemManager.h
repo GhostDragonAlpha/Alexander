@@ -5,11 +5,72 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/DataTable.h"
+#include "Async/Async.h"
+#include "Templates/SharedPointer.h"
 #include "StarSystemManager.generated.h"
 
 // Forward declarations
 class AActor;
 class UStaticMeshComponent;
+class USpatialPartitioningComponent;
+class UAsyncLoadingComponent;
+
+// Async loading states
+UENUM(BlueprintType)
+enum class ESystemLoadState : uint8
+{
+    Unloaded        UMETA(DisplayName = "Unloaded"),
+    Loading         UMETA(DisplayName = "Loading"),
+    Loaded          UMETA(DisplayName = "Loaded"),
+    Unloading       UMETA(DisplayName = "Unloading"),
+    Failed          UMETA(DisplayName = "Failed")
+};
+
+// Memory usage tracking
+USTRUCT(BlueprintType)
+struct FSystemMemoryInfo
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly, Category = "Memory")
+    int64 SystemDataSize;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Memory")
+    int64 CelestialBodiesSize;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Memory")
+    int64 StationsSize;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Memory")
+    int64 TotalSize;
+
+    FSystemMemoryInfo()
+        : SystemDataSize(0)
+        , CelestialBodiesSize(0)
+        , StationsSize(0)
+        , TotalSize(0)
+    {}
+};
+
+// Spatial query result
+USTRUCT(BlueprintType)
+struct FSpatialQueryResult
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly, Category = "Spatial")
+    FString SystemID;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Spatial")
+    FVector Position;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Spatial")
+    float Distance;
+
+    FSpatialQueryResult()
+        : Distance(0.0f)
+    {}
+};
 
 /**
  * Celestial body types
@@ -489,6 +550,59 @@ public:
     UFUNCTION(BlueprintCallable, Category = "StarSystem")
     FString GenerateBodyName(ECelestialBodyType BodyType) const;
 
+    // Async System Loading
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Async")
+    void LoadSystemAsync(const FString& SystemID);
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Async")
+    ESystemLoadState GetSystemLoadState(const FString& SystemID) const;
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Async")
+    void UnloadSystemAsync(const FString& SystemID);
+
+    // Spatial Queries
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Spatial")
+    TArray<FSpatialQueryResult> FindSystemsInRadius(const FVector& Position, float Radius) const;
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Spatial")
+    TArray<FSpatialQueryResult> FindNearestSystems(const FVector& Position, int32 MaxCount) const;
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Spatial")
+    TArray<FSpatialQueryResult> FindSystemsInBox(const FVector& Center, const FVector& Extent) const;
+
+    // Memory Management
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Memory")
+    FSystemMemoryInfo GetSystemMemoryInfo(const FString& SystemID) const;
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Memory")
+    int64 GetTotalMemoryUsage() const;
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Memory")
+    void UnloadDistantSystems(float MaxDistance);
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Memory")
+    void SetMaxLoadedSystems(int32 MaxSystems);
+
+    // Batch Operations
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Batch")
+    void PreloadSystemsInRadius(const FVector& Position, float Radius);
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Batch")
+    void UnloadAllSystems();
+
+    // Statistics
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Stats")
+    int32 GetTotalSystemCount() const;
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Stats")
+    int32 GetLoadedSystemCount() const;
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Stats")
+    int32 GetDiscoveredSystemCount() const;
+
+    UFUNCTION(BlueprintCallable, Category = "StarSystem|Stats")
+    float GetAverageSystemLoadTime() const;
+
     // Events
     UPROPERTY(BlueprintAssignable, Category = "StarSystem")
     FOnSystemGenerated OnSystemGenerated;
@@ -517,6 +631,18 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StarSystem")
     float MaxConnectionDistance; // Light years
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StarSystem|Optimization")
+    float SystemUnloadDistance; // Distance threshold for unloading systems
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StarSystem|Optimization")
+    int32 SpatialPartitioningDepth; // Octree depth for spatial queries
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StarSystem|Optimization")
+    bool bEnableAsyncLoading; // Enable async system loading
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "StarSystem|Optimization")
+    int32 AsyncLoadingThreadPoolSize; // Thread pool size for async operations
 
 private:
     UPROPERTY()

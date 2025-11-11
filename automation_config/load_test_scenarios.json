@@ -1,0 +1,128 @@
+{
+  "load_test_scenarios": {
+    "8_player": {
+      "player_count": 8,
+      "duration_seconds": 300,
+      "ramp_up_seconds": 30,
+      "network_conditions": {
+        "latency_ms": 50,
+        "packet_loss_percent": 0.5,
+        "jitter_ms": 10
+      },
+      "action_distribution": {
+        "combat": 0.3,
+        "trading": 0.2,
+        "exploration": 0.3,
+        "mission": 0.2
+      },
+      "pass_criteria": {
+        "min_fps": 30,
+        "max_memory_mb": 4096,
+        "max_latency_ms": 100,
+        "server_stability": true
+      }
+    },
+    "16_player": {
+      "player_count": 16,
+      "duration_seconds": 600,
+      "ramp_up_seconds": 60,
+      "network_conditions": {
+        "latency_ms": 75,
+        "packet_loss_percent": 1.0,
+        "jitter_ms": 15
+      },
+      "action_distribution": {
+        "combat": 0.35,
+        "trading": 0.15,
+        "exploration": 0.25,
+        "mission": 0.25
+      },
+      "pass_criteria": {
+        "min_fps": 25,
+        "max_memory_mb": 5120,
+        "max_latency_ms": 150,
+        "server_stability": true
+      }
+    },
+    "32_player": {
+      "player_count": 32,
+      "duration_seconds": 900,
+      "ramp_up_seconds": 120,
+      "network_conditions": {
+        "latency_ms": 100,
+        "packet_loss_percent": 2.0,
+        "jitter_ms": 20
+      },
+      "action_distribution": {
+        "combat": 0.4,
+        "trading": 0.1,
+        "exploration": 0.3,
+        "mission": 0.2
+      },
+      "pass_criteria": {
+        "min_fps": 20,
+        "max_memory_mb": 6144,
+        "max_latency_ms": 200,
+        "server_stability": true
+      }
+    },
+    "64_player": {
+      "player_count": 64,
+      "duration_seconds": 1200,
+      "ramp_up_seconds": 180,
+      "network_conditions": {
+        "latency_ms": 150,
+        "packet_loss_percent": 3.0,
+        "jitter_ms": 30
+      },
+      "action_distribution": {
+        "combat": 0.45,
+        "trading": 0.05,
+        "exploration": 0.25,
+        "mission": 0.25
+      },
+      "pass_criteria": {
+        "min_fps": 15,
+        "max_memory_mb": 8192,
+        "max_latency_ms": 300,
+        "server_stability": true
+      }
+    },
+    "quick": {
+      "player_count": 4,
+      "duration_seconds": 120,
+      "ramp_up_seconds": 15,
+      "network_conditions": {
+        "latency_ms": 25,
+        "packet_loss_percent": 0.1,
+        "jitter_ms": 5
+      },
+      "action_distribution": {
+        "combat": 0.25,
+        "trading": 0.25,
+        "exploration": 0.25,
+        "mission": 0.25
+      },
+      "pass_criteria": {
+        "min_fps": 35,
+        "max_memory_mb": 3072,
+        "max_latency_ms": 75,
+        "server_stability": true
+      }
+    }
+  },
+  "server_health_check": {
+    "endpoint": "/health",
+    "timeout_seconds": 5,
+    "retry_attempts": 3,
+    "retry_delay_seconds": 2
+  },
+  "client_settings": {
+    "action_interval_seconds": 2.0,
+    "movement_speed": 500.0,
+    "combat_range": 2000.0,
+    "trading_range": 1000.0,
+    "exploration_radius": 10000.0,
+    "http_timeout_seconds": 10
+  }
+}

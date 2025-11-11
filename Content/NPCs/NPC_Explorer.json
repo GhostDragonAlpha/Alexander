@@ -1,0 +1,55 @@
+{
+  "NPCID": "Explorer_001",
+  "Name": "Starla Voyager",
+  "Archetype": "Explorer",
+  "Faction": "Explorers_League",
+  "Location": {
+    "System": "Frontier",
+    "Station": "Exploration_Outpost"
+  },
+  "Appearance": {
+    "Model": "Human_Female_07",
+    "Outfit": "Explorer_Gear",
+    "Accessories": ["Exploration_Log", "Star_Charts", "Discovery_Badge"]
+  },
+  "Personality": {
+    "Trait": "Adventurous",
+    "Disposition": "Enthusiastic",
+    "Greeting": "The stars are calling! What wonders have you discovered?",
+    "SpeechPattern": "Enthusiastic, discovery-focused, adventurous"
+  },
+  "Shop": {
+    "Sells": ["Exploration_Data", "Star_Maps", "Discovery_Logs", "Survey_Equipment"],
+    "Buys": ["Survey_Data", "Anomaly_Reports", "New_Discoveries", "Exploration_Finds"],
+    "PriceModifier": 1.2,
+    "SpecialOffers": ["Rare_Discoveries", "Uncharted_Systems", "Exploration_Contracts"]
+  },
+  "Missions": {
+    "Offers": ["Survey_Mission", "Exploration_Voyage", "Discovery_Assignment", "Mapping_Project"],
+    "Weight": 0.5,
+    "Cooldown": 250,
+    "ExplorationBonus": true
+  },
+  "Dialogue": {
+    "Greeting": "explorer_greeting_01",
+    "Shop": "explorer_shop_01",
+    "Missions": "explorer_missions_01",
+    "Farewell": "explorer_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 5,
+    "Likes": ["Explorers", "Discoverers", "Adventurers"],
+    "Dislikes": ["Fear", "Hesitation", "Closed_Minds"],
+    "ReputationModifiers": {
+      "Discovery_Shared": 10,
+      "Exploration_Help": 8,
+      "New_System_Found": 15
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Data_Analysis", "Route_Planning", "Discovery_Review", "Expedition_Prep"],
+    "InteractionRadius": 180,
+    "WanderRadius": 40,
+    "ConversationDuration": 35
+  }
+}

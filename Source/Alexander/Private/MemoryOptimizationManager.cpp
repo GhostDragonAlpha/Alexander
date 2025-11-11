@@ -12,6 +12,11 @@
 #include "Sound/SoundWave.h"
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
+#include "Engine/TextureStreamingManager.h"
+#include "Engine/StaticMeshStreamingManager.h"
+#include "Materials/MaterialInstanceDynamic.h"
+#include "Engine/LevelStreaming.h"
+#include "Engine/LevelStreamingDynamic.h"
 
 UMemoryOptimizationManager::UMemoryOptimizationManager()
 {
@@ -43,12 +48,18 @@ void UMemoryOptimizationManager::BeginPlay()
     // Apply optimization strategy
     ApplyOptimizationStrategy();
     
+    // Initialize streaming integration
+    InitializeStreamingIntegration();
+    
     UE_LOG(LogTemp, Log, TEXT("Memory Optimization Manager: Initialized with %s strategy"),
         *UEnum::GetValueAsString(OptimizationStrategy));
 }
 
 void UMemoryOptimizationManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    // Shutdown streaming integration
+    ShutdownStreamingIntegration();
+    
     // Clean up object pools
     ClearAllObjectPools();
     
@@ -646,6 +657,9 @@ void UMemoryOptimizationManager::ApplyOptimizationStrategy()
         default:
             break;
     }
+    
+    // Update streaming settings based on new strategy
+    UpdateStreamingSettings();
 }
 
 void UMemoryOptimizationManager::OptimizeTextures()
@@ -749,4 +763,396 @@ void UMemoryOptimizationManager::ResetPooledActor(AActor* Actor)
     // Reset actor to default state
     Actor->SetActorRotation(FRotator::ZeroRotator);
     Actor->SetActorScale3D(FVector(1, 1, 1));
+}
+
+void UMemoryOptimizationManager::InitializeStreamingIntegration()
+{
+    UE_LOG(LogTemp, Log, TEXT("Memory Manager: Initializing streaming integration"));
+    
+    // Register callbacks with streaming managers
+    RegisterTextureStreamingCallbacks();
+    RegisterMeshStreamingCallbacks();
+    RegisterAssetManagerCallbacks();
+    RegisterLevelStreamingCallbacks();
+    
+    // Initialize streaming metrics
+    LastTextureMemoryUsage = 0.0f;
+    LastMeshMemoryUsage = 0.0f;
+    LastActiveAsyncLoadCount = 0;
+    LastStreamingLevelCount = 0;
+    
+    // Apply initial streaming settings
+    UpdateStreamingSettings();
+}
+
+void UMemoryOptimizationManager::ShutdownStreamingIntegration()
+{
+    UE_LOG(LogTemp, Log, TEXT("Memory Manager: Shutting down streaming integration"));
+    
+    // Unregister all streaming callbacks
+    UnregisterAllStreamingCallbacks();
+    
+    // Clear streaming state
+    ActiveAsyncLoads.Empty();
+    StreamingLevelNames.Empty();
+    TrackedMaterialInstances.Empty();
+    MaterialInstanceCountByMaterial.Empty();
+}
+
+void UMemoryOptimizationManager::RegisterTextureStreamingCallbacks()
+{
+    if (GEngine && GEngine->TextureStreamingManager)
+    {
+        // Register texture memory limit callback
+        TextureStreamingHandle = GEngine->TextureStreamingManager->SetMemoryLimitCallback(
+            FMemoryLimitCallback::CreateUObject(this, &UMemoryOptimizationManager::OnTextureMemoryLimit)
+        );
+        
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Registered texture streaming callbacks"));
+    }
+}
+
+void UMemoryOptimizationManager::RegisterMeshStreamingCallbacks()
+{
+    if (GEngine && GEngine->StaticMeshStreamingManager)
+    {
+        // Register mesh memory limit callback
+        MeshStreamingHandle = GEngine->StaticMeshStreamingManager->SetMemoryLimitCallback(
+            FMemoryLimitCallback::CreateUObject(this, &UMemoryOptimizationManager::OnMeshMemoryLimit)
+        );
+        
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Registered mesh streaming callbacks"));
+    }
+}
+
+void UMemoryOptimizationManager::RegisterAssetManagerCallbacks()
+{
+    if (UAssetManager* AssetManager = UAssetManager::GetIfInitialized())
+    {
+        // Register asset load priority changed callback
+        AssetManagerHandle = AssetManager->OnAssetLoadPriorityChanged.AddUObject(
+            this, &UMemoryOptimizationManager::OnAssetLoadPriorityChanged
+        );
+        
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Registered asset manager callbacks"));
+    }
+}
+
+void UMemoryOptimizationManager::RegisterLevelStreamingCallbacks()
+{
+    if (UWorld* World = GetWorld())
+    {
+        // Register level streaming callbacks
+        LevelStreamingHandle = World->OnLevelAddedToWorld.AddUObject(
+            this, &UMemoryOptimizationManager::OnLevelStreamingMemoryImpact
+        );
+        
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Registered level streaming callbacks"));
+    }
+}
+
+void UMemoryOptimizationManager::UnregisterAllStreamingCallbacks()
+{
+    if (GEngine && GEngine->TextureStreamingManager && TextureStreamingHandle.IsValid())
+    {
+        GEngine->TextureStreamingManager->RemoveMemoryLimitCallback(TextureStreamingHandle);
+    }
+    
+    if (GEngine && GEngine->StaticMeshStreamingManager && MeshStreamingHandle.IsValid())
+    {
+        GEngine->StaticMeshStreamingManager->RemoveMemoryLimitCallback(MeshStreamingHandle);
+    }
+    
+    if (UAssetManager* AssetManager = UAssetManager::GetIfInitialized())
+    {
+        AssetManager->OnAssetLoadPriorityChanged.Remove(AssetManagerHandle);
+    }
+    
+    if (UWorld* World = GetWorld())
+    {
+        World->OnLevelAddedToWorld.Remove(LevelStreamingHandle);
+    }
+    
+    UE_LOG(LogTemp, Log, TEXT("Memory Manager: Unregistered all streaming callbacks"));
+}
+
+void UMemoryOptimizationManager::OnTextureMemoryLimit(float CurrentMemoryMB, float ThresholdMB)
+{
+    UE_LOG(LogTemp, Warning, TEXT("Memory Manager: Texture memory limit reached (%.1fMB / %.1fMB)"),
+        CurrentMemoryMB, ThresholdMB);
+    
+    // Force lower mip levels when texture memory is critical
+    if (CurrentMemoryMB > ThresholdMB * 0.9f)
+    {
+        ForceLowerTextureMips();
+    }
+    
+    // Update streaming settings based on memory pressure
+    UpdateTextureStreamingSettings();
+}
+
+void UMemoryOptimizationManager::OnMeshMemoryLimit(float CurrentMemoryMB, float ThresholdMB)
+{
+    UE_LOG(LogTemp, Warning, TEXT("Memory Manager: Mesh memory limit reached (%.1fMB / %.1fMB)"),
+        CurrentMemoryMB, ThresholdMB);
+    
+    // Force lower LODs when mesh memory is critical
+    if (CurrentMemoryMB > ThresholdMB * 0.9f)
+    {
+        ForceLowerMeshLODs();
+    }
+    
+    // Update streaming settings based on memory pressure
+    UpdateMeshStreamingSettings();
+}
+
+void UMemoryOptimizationManager::OnAssetLoadPriorityChanged(const FSoftObjectPath& AssetPath, int32 NewPriority)
+{
+    UE_LOG(LogTemp, Verbose, TEXT("Memory Manager: Asset load priority changed for %s (Priority: %d)"),
+        *AssetPath.ToString(), NewPriority);
+    
+    // Track active async loads
+    if (NewPriority > 0)
+    {
+        if (!ActiveAsyncLoads.Contains(AssetPath))
+        {
+            ActiveAsyncLoads.Add(AssetPath);
+        }
+    }
+    else
+    {
+        ActiveAsyncLoads.Remove(AssetPath);
+    }
+}
+
+void UMemoryOptimizationManager::OnLevelStreamingMemoryImpact(float MemoryImpactMB)
+{
+    UE_LOG(LogTemp, Verbose, TEXT("Memory Manager: Level streaming memory impact: %.1fMB"),
+        MemoryImpactMB);
+    
+    // Check if level streaming exceeds memory limits
+    if (MemoryImpactMB > StreamingConfig.LevelStreamingMemoryLimitMB)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Memory Manager: Level streaming memory impact exceeds limit"));
+        UnloadDistantLevels();
+    }
+}
+
+void UMemoryOptimizationManager::UpdateStreamingSettings()
+{
+    UpdateTextureStreamingSettings();
+    UpdateMeshStreamingSettings();
+    UpdateAsyncLoadingSettings();
+    UpdateLevelStreamingSettings();
+}
+
+void UMemoryOptimizationManager::UpdateTextureStreamingSettings()
+{
+    if (GEngine && GEngine->TextureStreamingManager)
+    {
+        // Adjust texture streaming pool size based on optimization strategy
+        int32 NewPoolSize = StreamingConfig.TexturePoolSizeMB;
+        
+        switch (OptimizationStrategy)
+        {
+            case EMemoryOptimizationStrategy::Aggressive:
+                NewPoolSize = FMath::FloorToInt(NewPoolSize * 0.7f);
+                break;
+            case EMemoryOptimizationStrategy::Balanced:
+                NewPoolSize = FMath::FloorToInt(NewPoolSize * 0.85f);
+                break;
+            default:
+                break;
+        }
+        
+        GEngine->TextureStreamingManager->SetPoolSize(NewPoolSize);
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Updated texture pool size to %dMB"), NewPoolSize);
+    }
+}
+
+void UMemoryOptimizationManager::UpdateMeshStreamingSettings()
+{
+    if (GEngine && GEngine->StaticMeshStreamingManager)
+    {
+        // Adjust mesh streaming distance scale based on optimization strategy
+        float NewDistanceScale = StreamingConfig.StreamingDistanceScale;
+        
+        switch (OptimizationStrategy)
+        {
+            case EMemoryOptimizationStrategy::Aggressive:
+                NewDistanceScale *= 0.7f;
+                break;
+            case EMemoryOptimizationStrategy::Balanced:
+                NewDistanceScale *= 0.85f;
+                break;
+            default:
+                break;
+        }
+        
+        GEngine->StaticMeshStreamingManager->SetDistanceScale(NewDistanceScale);
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Updated mesh streaming distance scale to %.2f"), NewDistanceScale);
+    }
+}
+
+void UMemoryOptimizationManager::UpdateAsyncLoadingSettings()
+{
+    if (UAssetManager* AssetManager = UAssetManager::GetIfInitialized())
+    {
+        // Adjust async loading concurrency based on optimization strategy
+        int32 NewConcurrency = StreamingConfig.MaxAsyncLoadConcurrency;
+        
+        switch (OptimizationStrategy)
+        {
+            case EMemoryOptimizationStrategy::Aggressive:
+                NewConcurrency = FMath::Max(1, FMath::FloorToInt(NewConcurrency * 0.5f));
+                break;
+            case EMemoryOptimizationStrategy::Balanced:
+                NewConcurrency = FMath::Max(2, FMath::FloorToInt(NewConcurrency * 0.75f));
+                break;
+            default:
+                break;
+        }
+        
+        AssetManager->GetStreamableManager().SetConcurrencyLimit(NewConcurrency);
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Updated async loading concurrency to %d"), NewConcurrency);
+    }
+}
+
+void UMemoryOptimizationManager::UpdateLevelStreamingSettings()
+{
+    if (UWorld* World = GetWorld())
+    {
+        // Update level streaming memory limit
+        World->SetLevelStreamingMemoryLimit(StreamingConfig.LevelStreamingMemoryLimitMB);
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Updated level streaming memory limit to %.0fMB"),
+            StreamingConfig.LevelStreamingMemoryLimitMB);
+    }
+}
+
+void UMemoryOptimizationManager::ForceLowerTextureMips()
+{
+    UE_LOG(LogTemp, Warning, TEXT("Memory Manager: Forcing lower texture mip levels"));
+    
+    if (GEngine && GEngine->TextureStreamingManager)
+    {
+        // Force lower mip levels for all streaming textures
+        GEngine->TextureStreamingManager->SetGlobalMipBias(StreamingConfig.CriticalMemoryMipBias);
+    }
+}
+
+void UMemoryOptimizationManager::ForceLowerMeshLODs()
+{
+    UE_LOG(LogTemp, Warning, TEXT("Memory Manager: Forcing lower mesh LODs"));
+    
+    if (GEngine && GEngine->StaticMeshStreamingManager)
+    {
+        // Force lower LODs for all streaming meshes
+        GEngine->StaticMeshStreamingManager->SetGlobalLODBias(StreamingConfig.CriticalMemoryLODBias);
+    }
+}
+
+void UMemoryOptimizationManager::CancelLowPriorityAssetLoads()
+{
+    UE_LOG(LogTemp, Log, TEXT("Memory Manager: Canceling low priority asset loads"));
+    
+    if (UAssetManager* AssetManager = UAssetManager::GetIfInitialized())
+    {
+        // Cancel loads with priority below threshold
+        TArray<FSoftObjectPath> LoadsToCancel;
+        for (const FSoftObjectPath& AssetPath : ActiveAsyncLoads)
+        {
+            // This would need actual priority checking logic
+            LoadsToCancel.Add(AssetPath);
+        }
+        
+        for (const FSoftObjectPath& AssetPath : LoadsToCancel)
+        {
+            AssetManager->GetStreamableManager().CancelAsyncLoad(AssetPath);
+            ActiveAsyncLoads.Remove(AssetPath);
+        }
+        
+        UE_LOG(LogTemp, Log, TEXT("Memory Manager: Canceled %d low priority asset loads"), LoadsToCancel.Num());
+    }
+}
+
+void UMemoryOptimizationManager::UnloadDistantLevels()
+{
+    UE_LOG(LogTemp, Log, TEXT("Memory Manager: Unloading distant levels"));
+    
+    if (UWorld* World = GetWorld())
+    {
+        // Unload levels that are far from player
+        for (ULevelStreaming* StreamingLevel : World->GetStreamingLevels())
+        {
+            if (StreamingLevel && StreamingLevel->IsLevelLoaded())
+            {
+                // Check distance from player (simplified logic)
+                bool bShouldUnload = false;
+                
+                // This would need actual distance checking logic
+                if (bShouldUnload)
+                {
+                    StreamingLevel->SetShouldBeLoaded(false);
+                    StreamingLevel->SetShouldBeVisible(false);
+                }
+            }
+        }
+        
+        World->FlushLevelStreaming();
+    }
+}
+
+void UMemoryOptimizationManager::OptimizeMaterialInstances()
+{
+    UE_LOG(LogTemp, Log, TEXT("Memory Manager: Optimizing material instances"));
+    
+    // Remove duplicate material instances
+    TMap<UMaterialInterface*, int32> MaterialUsageCount;
+    
+    for (UMaterialInstanceDynamic* MaterialInstance : TrackedMaterialInstances)
+    {
+        if (MaterialInstance && MaterialInstance->IsValidLowLevel())
+        {
+            UMaterialInterface* ParentMaterial = MaterialInstance->Parent;
+            if (ParentMaterial)
+            {
+                int32& Count = MaterialUsageCount.FindOrAdd(ParentMaterial, 0);
+                Count++;
+            }
+        }
+    }
+    
+    // Clean up unused material instances
+    for (int32 i = TrackedMaterialInstances.Num() - 1; i >= 0; --i)
+    {
+        UMaterialInstanceDynamic* MaterialInstance = TrackedMaterialInstances[i];
+        if (MaterialInstance && !MaterialInstance->IsUsedByAnyPrimitive())
+        {
+            MaterialInstance->ConditionalBeginDestroy();
+            TrackedMaterialInstances.RemoveAt(i);
+        }
+    }
+    
+    UE_LOG(LogTemp, Log, TEXT("Memory Manager: Optimized %d material instances"), TrackedMaterialInstances.Num());
+}
+
+FMemoryStats UMemoryOptimizationManager::GetStreamingMemoryStats() const
+{
+    FMemoryStats Stats = CaptureMemoryStats();
+    
+    // Add streaming-specific metrics
+    Stats.TextureMemoryMB = LastTextureMemoryUsage;
+    Stats.MeshMemoryMB = LastMeshMemoryUsage;
+    
+    return Stats;
+}
+
+int32 UMemoryOptimizationManager::GetActiveAsyncLoads() const
+{
+    return ActiveAsyncLoads.Num();
+}
+
+int32 UMemoryOptimizationManager::GetStreamingLevelsCount() const
+{
+    return StreamingLevelNames.Num();
 }

@@ -1,0 +1,56 @@
+{
+  "NPCID": "MissionCommander_001",
+  "Name": "Admiral Sarah Kane",
+  "Archetype": "MissionCommander",
+  "Faction": "United_Federation",
+  "Location": {
+    "System": "Sol",
+    "Station": "Earth_Spacestation"
+  },
+  "Appearance": {
+    "Model": "Human_Female_03",
+    "Outfit": "Military_Uniform",
+    "Accessories": ["Command_Badge", "Tactical_Pad", "Rank_Insignia"]
+  },
+  "Personality": {
+    "Trait": "Authoritative",
+    "Disposition": "Professional",
+    "Greeting": "Commander. We have critical missions that require your expertise.",
+    "SpeechPattern": "Military protocol, direct orders, strategic thinking"
+  },
+  "Shop": {
+    "Sells": ["Military_Intel", "Mission_Briefings", "Strategic_Data"],
+    "Buys": ["Enemy_Intel", "Combat_Reports", "Recon_Data"],
+    "PriceModifier": 1.0,
+    "SpecialOffers": ["Priority_Missions", "Elite_Assignments", "Special_Operations"]
+  },
+  "Missions": {
+    "Offers": ["Patrol_Mission", "Defense_Operation", "Strategic_Strike", "Fleet_Support"],
+    "Weight": 0.7,
+    "Cooldown": 180,
+    "RankRequirement": "Ensign"
+  },
+  "Dialogue": {
+    "Greeting": "mission_commander_greeting_01",
+    "Shop": "mission_commander_shop_01",
+    "Missions": "mission_commander_missions_01",
+    "Farewell": "mission_commander_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 15,
+    "Likes": ["Military", "Discipline", "Success"],
+    "Dislikes": ["Deserters", "Failure", "Insubordination"],
+    "ReputationModifiers": {
+      "Mission_Success": 10,
+      "Rank_Promotion": 20,
+      "Mission_Failed": -15
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Mission_Briefing", "Strategic_Planning", "Personnel_Review", "Debriefing"],
+    "InteractionRadius": 100,
+    "WanderRadius": 15,
+    "ConversationDuration": 35,
+    "MilitaryProtocol": true
+  }
+}

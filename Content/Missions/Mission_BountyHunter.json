@@ -1,0 +1,119 @@
+{
+  "MissionID": "BountyHunter_001",
+  "MissionName": "Bounty Hunter",
+  "MissionType": "Combat",
+  "Description": "Track down and eliminate the notorious pirate lord 'Blackbeard' who has been terrorizing the Kepler-442 system. Intel suggests he's hiding in an asteroid base with his elite guard.",
+  "Briefing": "Listen up, hunter. There's a big bounty on the head of Blackbeard, one of the most wanted pirates in this sector. He's been hitting our trade routes for months, and the Merchant Guild is offering a substantial reward. Our intel points to a hidden asteroid base in the Kepler-442 system where he's been laying low. This won't be easy - he travels with an elite guard and has fortified his position. Take him down, and you'll be famous... and rich. But be careful - Blackbeard didn't get his reputation by being an easy target.",
+  "Objectives": [
+    {
+      "ID": "LocatePirateBase",
+      "Type": "Investigate",
+      "Description": "Find Blackbeard's hidden asteroid base in Kepler-442",
+      "Target": "PirateBase_Blackbeard",
+      "SuccessCondition": "BaseLocated",
+      "ProgressTrack": "BaseDiscovered",
+      "RequiredValue": 1,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "EliminateEliteGuard",
+      "Type": "Eliminate",
+      "Description": "Destroy Blackbeard's elite guard (4 ships)",
+      "Target": "EliteGuard_Blackbeard",
+      "SuccessCondition": "AllEnemiesDestroyed",
+      "ProgressTrack": "EliteGuardDestroyed",
+      "RequiredValue": 4,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "CaptureOrKillBlackbeard",
+      "Type": "Eliminate",
+      "Description": "Eliminate or capture the pirate lord Blackbeard",
+      "Target": "PirateLord_Blackbeard",
+      "SuccessCondition": "TargetDestroyedOrDisabled",
+      "FailureCondition": "TargetEscapes",
+      "ProgressTrack": "BlackbeardStatus",
+      "RequiredValue": "CapturedOrKilled",
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "RecoverLoot",
+      "Type": "Collect",
+      "Description": "Recover Blackbeard's stolen cargo from the base",
+      "Target": "Blackbeard_Treasure",
+      "SuccessCondition": "ItemsCollected",
+      "ProgressTrack": "CargoRecovered",
+      "RequiredValue": 3,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Rare_Weapon_PlasmaCannon"
+    }
+  ],
+  "Rewards": {
+    "Credits": 15000,
+    "XP": 750,
+    "Reputation": {
+      "Faction": "MerchantGuild",
+      "Amount": 35
+    },
+    "ReputationPenalty": {
+      "Faction": "Pirates",
+      "Amount": -20
+    },
+    "Items": ["Bounty_Credit_Chip", "Pirate_Lord_Cache", "Elite_Combat_Medal", "Rare_Weapon_PlasmaCannon"],
+    "BonusRewards": {
+      "AliveCapture": {
+        "Credits": 5000,
+        "Reputation": 10,
+        "Items": ["Enhanced_Bounty_Reward"]
+      },
+      "PerfectExecution": {
+        "Credits": 3000,
+        "Items": ["Combat_Medal_Silver"]
+      }
+    }
+  },
+  "Location": {
+    "System": "Kepler442",
+    "Coordinates": {"X": 5000, "Y": -1000, "Z": 2000},
+    "Sector": "AsteroidBelt_Gamma",
+    "Environment": "AsteroidField_Dense"
+  },
+  "Difficulty": "Hard",
+  "LevelRequirement": 8,
+  "TimeLimit": 900,
+  "MissionGiver": "Admiral_Kross",
+  "Prerequisites": ["PirateAmbush_001"],
+  "Faction": "MerchantGuild",
+  "EnemyConfig": {
+    "EnemyType": "Pirate_Elite",
+    "WaveCount": 1,
+    "EnemiesPerWave": 4,
+    "BossEnemy": "PirateLord_Blackbeard",
+    "BossHealthMultiplier": 2.5,
+    "EnemyAI": "Tactical",
+    "LootTable": "Pirate_Elite"
+  },
+  "Atmosphere": {
+    "Music": "Combat_Boss",
+    "AmbientSounds": "Pirate_Base",
+    "VFX": ["Explosions", "Laser_Fire", "Shield_Impacts", "Asteroid_Dust"]
+  },
+  "Dialogue": {
+    "Briefing": "KROSS_BOUNTY_HUNTER_BRIEFING",
+    "Start": "KROSS_BOUNTY_HUNTER_START",
+    "Update": "KROSS_BOUNTY_HUNTER_UPDATE",
+    "Success": "KROSS_BOUNTY_HUNTER_SUCCESS",
+    "Failure": "KROSS_BOUNTY_HUNTER_FAILURE"
+  },
+  "SpecialMechanics": {
+    "BossFight": true,
+    "Reinforcements": false,
+    "EnvironmentalHazards": ["Asteroid_Collisions", "Mine_Field"],
+    "DynamicDifficulty": true,
+    "StealthOption": true
+  }
+}

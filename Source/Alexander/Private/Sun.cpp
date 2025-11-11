@@ -201,6 +201,9 @@ void ASun::Tick(float DeltaTime)
 {
 	TRACE_CPUPROFILER_EVENT_SCOPE(ASun::Tick);
 
+	// Validate DeltaTime
+	VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(DeltaTime, TEXT("DeltaTime"), TEXT("ASun::Tick")), { return; });
+
 	// Performance tracking
 	float StartTime = FPlatformTime::Seconds();
 

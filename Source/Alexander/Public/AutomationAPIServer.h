@@ -121,6 +121,9 @@ public:
 	// GET /get_player_pawn - Get the default player pawn
 	FString HandleGetPlayerPawn();
 
+	// POST /possess - Transfer control to a pawn/ship
+	FString HandlePossess(const FString& RequestBody);
+
 	// POST /apply_thrust - Apply thrust forces to a ship
 	FString HandleApplyThrust(const FString& RequestBody);
 
@@ -141,6 +144,60 @@ public:
 
 	// GET /get_ship_loadout/{ship_id} - Get complete ship loadout
 	FString HandleGetShipLoadout(const FString& ShipID);
+
+	// ============================================================================
+	// AUTONOMOUS PLAYTESTING ENDPOINTS
+	// ============================================================================
+
+	// POST /receive_screenshot - Accept base64 encoded screenshots with metadata
+	FString HandleReceiveScreenshot(const FString& RequestBody);
+
+	// GET /game_state - Return current game state (position, health, inventory, etc.)
+	FString HandleGetGameState();
+
+	// POST /execute_command - Execute console commands in the game
+	FString HandleExecuteCommand(const FString& RequestBody);
+
+	// GET /performance_metrics - Return real-time performance data
+	FString HandlePerformanceMetrics();
+	
+	// ============================================================================
+	// STREAMING OPTIMIZATION ENDPOINTS
+	// ============================================================================
+	
+	// GET /streaming_metrics - Return texture/mesh streaming stats
+	FString HandleStreamingMetrics();
+	
+	// POST /set_streaming_strategy - Adjust streaming based on memory strategy
+	FString HandleSetStreamingStrategy(const FString& RequestBody);
+	
+	// GET /asset_loading_status - Show current async loading operations
+	FString HandleAssetLoadingStatus();
+	
+	// GET /texture_memory_stats - Get texture memory statistics
+	FString HandleTextureMemoryStats();
+	
+	// GET /mesh_memory_stats - Get mesh memory statistics
+	FString HandleMeshMemoryStats();
+	
+	// POST /force_memory_optimization - Force memory optimization
+	FString HandleForceMemoryOptimization(const FString& RequestBody);
+
+	// ============================================================================
+	// TICK OPTIMIZATION ENDPOINTS
+	// ============================================================================
+	
+	// GET /tick_stats - Return tick optimization statistics
+	FString HandleTickStats();
+	
+	// POST /set_actor_priority - Manually set actor tick priority
+	FString HandleSetActorPriority(const FString& RequestBody);
+	
+	// GET /dormant_actors - List actors with disabled ticking
+	FString HandleDormantActors();
+	
+	// POST /reset_tick_optimization - Reset all tick rates to default
+	FString HandleResetTickOptimization(const FString& RequestBody);
 
 #if WITH_EDITOR
 	// ============================================================================

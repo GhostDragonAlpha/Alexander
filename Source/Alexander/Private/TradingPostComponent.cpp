@@ -26,11 +26,22 @@ void UTradingPostComponent::BeginPlay()
 {
     Super::BeginPlay();
     
+    // Initialize Performance Profiler
+    PerformanceProfiler = NewObject<UPerformanceProfiler>(this);
+    PerformanceProfiler->RegisterSystem(TEXT("TradingPostComponent"), EPerformanceCategory::Gameplay);
+    PerformanceProfiler->SetProfilingLevel(EProfilingLevel::Detailed);
+    
     InitializeTradingPost();
 }
 
 void UTradingPostComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+    // Begin performance profiling
+    if (PerformanceProfiler)
+    {
+        PerformanceProfiler->BeginSystemTick(TEXT("TradingPostComponent"));
+    }
+    
     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
     
     UpdateTradingPosts(DeltaTime);
@@ -48,6 +59,12 @@ void UTradingPostComponent::TickComponent(float DeltaTime, ELevelTick TickType, 
     if (bEnablePlayerTrading)
     {
         ProcessPlayerTrades(DeltaTime);
+    }
+    
+    // End performance profiling
+    if (PerformanceProfiler)
+    {
+        PerformanceProfiler->EndSystemTick(TEXT("TradingPostComponent"));
     }
 }
 

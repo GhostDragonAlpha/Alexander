@@ -1,0 +1,114 @@
+{
+  "MissionID": "VIPTransport_001",
+  "MissionName": "VIP Transport",
+  "MissionType": "Escort",
+  "Description": "Escort Ambassador Kaelen, a key diplomatic figure, safely from Alpha Centauri to the peace conference at Proxima B. Protect the ambassador from assassination attempts and ensure safe arrival.",
+  "Briefing": "Commander, I have a critical assignment for you. Ambassador Kaelen, one of the most important diplomatic figures in this sector, needs transport from Alpha Centauri to the peace conference at Proxima B. This isn't just a simple ferry job - there are factions that don't want these peace talks to succeed, and we've received credible threats against the ambassador's life. Your ship has been selected for its defensive capabilities and your reputation for getting the job done. You'll need to protect the ambassador's shuttle from any attacks while ensuring a smooth journey. The fate of interstellar relations could literally rest in your hands.",
+  "Objectives": [
+    {
+      "ID": "EscortShuttle",
+      "Type": "Escort",
+      "Description": "Escort Ambassador Kaelen's shuttle safely through space",
+      "Target": "VIP_Shuttle_Kaelen",
+      "SuccessCondition": "TargetHealth > 75%",
+      "FailureCondition": "TargetDestroyed",
+      "ProgressTrack": "ShuttleHealth",
+      "RequiredValue": 75,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "DefendFromAttackers",
+      "Type": "Defend",
+      "Description": "Defend against waves of assassin ships",
+      "Target": "Assassin_Squad",
+      "SuccessCondition": "AllEnemiesDefeated",
+      "ProgressTrack": "AttackersDestroyed",
+      "RequiredValue": 8,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "SafeArrival",
+      "Type": "Escort",
+      "Description": "Ensure the ambassador arrives safely at Proxima B",
+      "Target": "Destination_ProximaB",
+      "SuccessCondition": "TargetDelivered",
+      "ProgressTrack": "DeliveryStatus",
+      "RequiredValue": "Complete",
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "ZeroCasualties",
+      "Type": "Defend",
+      "Description": "Complete mission without any civilian casualties",
+      "Target": "Civilian_Ships",
+      "SuccessCondition": "ZeroCivilianDamage",
+      "ProgressTrack": "CivilianCasualties",
+      "RequiredValue": 0,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Diplomatic_Immunity_Pass"
+    }
+  ],
+  "Rewards": {
+    "Credits": 12000,
+    "XP": 500,
+    "Reputation": {
+      "Faction": "DiplomaticCorps",
+      "Amount": 40
+    },
+    "Reputation": {
+      "Faction": "MerchantGuild",
+      "Amount": 20
+    },
+    "Items": ["Diplomatic_Commendation", "VIP_Security_Certificate", "Advanced_Shield_Booster"],
+    "BonusRewards": {
+      "PerfectEscort": {
+        "Credits": 4000,
+        "Reputation": 15,
+        "Items": ["Diplomatic_Immunity_Pass"]
+      }
+    }
+  },
+  "Location": {
+    "System": "MultiSystem",
+    "Coordinates": {"X": 0, "Y": 0, "Z": 0},
+    "Sector": "Diplomatic_Route_Alpha",
+    "Environment": "Space_Escort"
+  },
+  "Difficulty": "Hard",
+  "LevelRequirement": 8,
+  "TimeLimit": 1500,
+  "MissionGiver": "Commander_Rhodes",
+  "Prerequisites": ["PirateAmbush_001"],
+  "Faction": "DiplomaticCorps",
+  "EscortConfig": {
+    "VIPType": "Ambassador",
+    "VIPShip": "Luxury_Shuttle",
+    "VIPHealth": 500,
+    "EscortRoute": ["AlphaCentauri", "TradeRoute_Beta", "ProximaB"],
+    "AttackWaveCount": 3,
+    "AttackersPerWave": 3
+  },
+  "Atmosphere": {
+    "Music": "Escort_Tense",
+    "AmbientSounds": "Diplomatic_Mission",
+    "VFX": ["VIP_Shuttle", "Escort_Formation", "Defensive_Fire"]
+  },
+  "Dialogue": {
+    "Briefing": "RHODES_VIP_TRANSPORT_BRIEFING",
+    "Start": "RHODES_VIP_TRANSPORT_START",
+    "Update": "RHODES_VIP_TRANSPORT_UPDATE",
+    "Success": "RHODES_VIP_TRANSPORT_SUCCESS",
+    "Failure": "RHODES_VIP_TRANSPORT_FAILURE"
+  },
+  "SpecialMechanics": {
+    "VIPProtection": true,
+    "MultipleAttackWaves": true,
+    "DiplomaticConsequences": true,
+    "RoutePlanning": true,
+    "CivilianTraffic": true
+  }
+}

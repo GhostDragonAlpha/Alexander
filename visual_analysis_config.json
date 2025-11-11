@@ -1,0 +1,166 @@
+{
+  "visual_analyzer": {
+    "ui_detection": {
+      "min_contour_area": 100,
+      "max_contour_area": 100000,
+      "aspect_ratio_tolerance": 0.2,
+      "edge_threshold": 50,
+      "corner_threshold": 0.1,
+      "confidence_threshold": 0.7
+    },
+    "artifact_detection": {
+      "tearing_threshold": 0.15,
+      "flicker_threshold": 30,
+      "brightness_variance_threshold": 50,
+      "color_anomaly_threshold": 0.1,
+      "sharpness_threshold": 100
+    },
+    "transition_detection": {
+      "frame_diff_threshold": 5000,
+      "loading_indicator_keywords": ["loading", "please wait", "connecting"],
+      "fade_threshold": 20,
+      "black_frame_threshold": 10
+    },
+    "color_analysis": {
+      "brightness_bins": 256,
+      "saturation_threshold": 0.1,
+      "dominant_color_count": 5,
+      "color_variance_threshold": 0.3
+    }
+  },
+  "text_recognizer": {
+    "tesseract_config": {
+      "lang": "eng",
+      "oem": 3,
+      "psm": 11,
+      "whitelist_characters": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-:.,$%/",
+      "min_confidence": 60
+    },
+    "text_filters": {
+      "min_text_length": 2,
+      "max_text_length": 100,
+      "numeric_patterns": [
+        "^\\d+$",
+        "^\\d+\\.\\d+$",
+        "^\\d+:\\d+$",
+        "^\\d+\\/\\d+$",
+        "^\\$?\\d+\\.?\\d*$"
+      ],
+      "ui_element_patterns": [
+        "mission",
+        "objective",
+        "health",
+        "shield",
+        "credits",
+        "inventory",
+        "menu",
+        "options",
+        "quit",
+        "resume"
+      ]
+    },
+    "preprocessing": {
+      "denoise": true,
+      "contrast_enhancement": true,
+      "thresholding": true,
+      "deskew": true
+    }
+  },
+  "object_detector": {
+    "model_config": {
+      "model_type": "yolov5",
+      "model_path": "models/game_objects.pt",
+      "confidence_threshold": 0.5,
+      "nms_threshold": 0.4,
+      "input_size": [640, 640]
+    },
+    "object_classes": [
+      "ship_player",
+      "ship_enemy",
+      "ship_ally",
+      "planet_terrestrial",
+      "planet_gas_giant",
+      "asteroid",
+      "station",
+      "debris",
+      "weapon_projectile",
+      "explosion",
+      "ui_element",
+      "hud_component"
+    ],
+    "tracking": {
+      "max_disappeared": 5,
+      "max_distance": 100,
+      "min_tracking_confidence": 0.3
+    }
+  },
+  "state_comparator": {
+    "validation_rules": {
+      "ui_position_tolerance": 10,
+      "text_match_threshold": 0.9,
+      "object_count_tolerance": 0.1,
+      "coordinate_tolerance": 15,
+      "color_tolerance": 20
+    },
+    "critical_elements": [
+      "health_bar",
+      "shield_bar",
+      "minimap",
+      "objective_text",
+      "inventory_grid",
+      "crosshair"
+    ]
+  },
+  "issue_classifier": {
+    "severity_levels": {
+      "critical": {
+        "threshold": 0.9,
+        "examples": ["game_crash", "black_screen", "unresponsive_ui"]
+      },
+      "high": {
+        "threshold": 0.7,
+        "examples": ["missing_objectives", "incorrect_state", "major_artifact"]
+      },
+      "medium": {
+        "threshold": 0.5,
+        "examples": ["minor_ui_misalignment", "text_ocr_error", "temporary_flicker"]
+      },
+      "low": {
+        "threshold": 0.3,
+        "examples": ["slight_color_variance", "minor_position_offset"]
+      }
+    },
+    "issue_categories": {
+      "visual_bug": {
+        "weight": 1.0,
+        "subtypes": ["tearing", "flickering", "texture_issue", "rendering_artifact"]
+      },
+      "ui_problem": {
+        "weight": 0.9,
+        "subtypes": ["misalignment", "missing_text", "wrong_position", "scaling_issue"]
+      },
+      "gameplay_error": {
+        "weight": 1.0,
+        "subtypes": ["incorrect_state", "missing_object", "wrong_count", "invalid_value"]
+      },
+      "performance_issue": {
+        "weight": 0.7,
+        "subtypes": ["low_fps", "stuttering", "loading_delay", "memory_spike"]
+      }
+    }
+  },
+  "analysis_server": {
+    "host": "localhost",
+    "port": 8081,
+    "max_file_size": 10485760,
+    "supported_formats": ["png", "jpg", "jpeg", "bmp"],
+    "timeout": 2.0,
+    "cors_enabled": true
+  },
+  "performance": {
+    "target_processing_time": 2.0,
+    "memory_limit_mb": 512,
+    "enable_gpu": true,
+    "batch_size": 1
+  }
+}

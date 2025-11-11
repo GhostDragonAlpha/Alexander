@@ -1,0 +1,54 @@
+{
+  "NPCID": "ShipDealer_001",
+  "Name": "Rex Calhoun",
+  "Archetype": "ShipDealer",
+  "Faction": "Independent",
+  "Location": {
+    "System": "AlphaCentauri",
+    "Station": "NewHope_Station"
+  },
+  "Appearance": {
+    "Model": "Human_Male_01",
+    "Outfit": "Merchant_Uniform",
+    "Accessories": ["Data_Pad", "Ship_Model_Necklace"]
+  },
+  "Personality": {
+    "Trait": "Friendly",
+    "Disposition": "Neutral",
+    "Greeting": "Welcome to Calhoun's Ships! Best deals in the sector!",
+    "SpeechPattern": "Enthusiastic salesman with technical knowledge"
+  },
+  "Shop": {
+    "Sells": ["Ships", "Engines", "Shields", "Weapons", "Cockpits", "Wings"],
+    "Buys": ["Used_Components", "Salvage", "Damaged_Ships"],
+    "PriceModifier": 1.0,
+    "SpecialOffers": ["Starter_Package", "Racing_Kit", "Combat_Loadout"]
+  },
+  "Missions": {
+    "Offers": ["Ship_Purchase", "Component_Upgrade", "Ship_Recovery"],
+    "Weight": 0.3,
+    "Cooldown": 300
+  },
+  "Dialogue": {
+    "Greeting": "ship_dealer_greeting_01",
+    "Shop": "ship_dealer_shop_01",
+    "Missions": "ship_dealer_missions_01",
+    "Farewell": "ship_dealer_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 0,
+    "Likes": ["Merchants", "Ships", "Trade"],
+    "Dislikes": ["Pirates", "Thieves", "Vandals"],
+    "ReputationModifiers": {
+      "Trade_Completed": 5,
+      "Ship_Purchased": 10,
+      "Mission_Failed": -5
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Open_Shop", "Greet_Customers", "Negotiate_Deals", "Close_Shop"],
+    "InteractionRadius": 200,
+    "WanderRadius": 50,
+    "ConversationDuration": 30
+  }
+}

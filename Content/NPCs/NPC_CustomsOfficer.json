@@ -1,0 +1,55 @@
+{
+  "NPCID": "CustomsOfficer_001",
+  "Name": "Inspector Chen",
+  "Archetype": "CustomsOfficer",
+  "Faction": "Customs_Authority",
+  "Location": {
+    "System": "Trade_Hub",
+    "Station": "Customs_Checkpoint"
+  },
+  "Appearance": {
+    "Model": "Human_Male_10",
+    "Outfit": "Customs_Uniform",
+    "Accessories": ["Inspection_Device", "Customs_Badge", "Scanning_Tool"]
+  },
+  "Personality": {
+    "Trait": "Meticulous",
+    "Disposition": "Professional",
+    "Greeting": "Customs inspection. Please declare all cargo and materials.",
+    "SpeechPattern": "Official, thorough, regulation-focused"
+  },
+  "Shop": {
+    "Sells": ["Trade_Permits", "Customs_Clearance", "Import_Licenses", "Tariff_Info"],
+    "Buys": ["Trade_Data", "Cargo_Manifests", "Import_Records"],
+    "PriceModifier": 1.0,
+    "SpecialOffers": ["Expedited_Clearance", "Trade_Consultation", "Customs_Services"]
+  },
+  "Missions": {
+    "Offers": ["Cargo_Inspection", "Smuggling_Investigation", "Trade_Regulation", "Customs_Enforcement"],
+    "Weight": 0.3,
+    "Cooldown": 220
+  },
+  "Dialogue": {
+    "Greeting": "customs_officer_greeting_01",
+    "Shop": "customs_officer_shop_01",
+    "Missions": "customs_officer_missions_01",
+    "Farewell": "customs_officer_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 5,
+    "Likes": ["Lawful_Traders", "Honest_Declarations", "Regulation_Followers"],
+    "Dislikes": ["Smugglers", "False_Declarations", "Contraband"],
+    "ReputationModifiers": {
+      "Proper_Declaration": 5,
+      "Smuggling_Prevented": 12,
+      "Contraband_Found": -15
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Cargo_Inspection", "Regulation_Enforcement", "Paperwork_Review", "Security_Checks"],
+    "InteractionRadius": 160,
+    "WanderRadius": 30,
+    "ConversationDuration": 25,
+    "CustomsAuthority": true
+  }
+}

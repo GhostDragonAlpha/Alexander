@@ -1,0 +1,56 @@
+{
+  "NPCID": "RescueCoordinator_001",
+  "Name": "Captain Marcus Thorne",
+  "Archetype": "RescueCoordinator",
+  "Faction": "Emergency_Services",
+  "Location": {
+    "System": "Sirius",
+    "Station": "Rescue_Command"
+  },
+  "Appearance": {
+    "Model": "Human_Male_04",
+    "Outfit": "Rescue_Uniform",
+    "Accessories": ["Emergency_Beacon", "Medical_Kit", "Command_Headset"]
+  },
+  "Personality": {
+    "Trait": "Compassionate",
+    "Disposition": "Helpful",
+    "Greeting": "Emergency services here. Who needs help out there?",
+    "SpeechPattern": "Calm, professional, emergency response trained"
+  },
+  "Shop": {
+    "Sells": ["Rescue_Equipment", "Emergency_Supplies", "Survival_Gear", "Medical_Supplies"],
+    "Buys": ["Distress_Signals", "Rescue_Data", "Emergency_Reports"],
+    "PriceModifier": 1.0,
+    "SpecialOffers": ["Rescue_Contracts", "Emergency_Response", "Salvage_Rights"]
+  },
+  "Missions": {
+    "Offers": ["Search_Rescue", "Distress_Response", "Salvage_Operation", "Medical_Evacuation"],
+    "Weight": 0.4,
+    "Cooldown": 240,
+    "RescueSkillBonus": true
+  },
+  "Dialogue": {
+    "Greeting": "rescue_coordinator_greeting_01",
+    "Shop": "rescue_coordinator_shop_01",
+    "Missions": "rescue_coordinator_missions_01",
+    "Farewell": "rescue_coordinator_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 20,
+    "Likes": ["Rescuers", "Medics", "Helpers"],
+    "Dislikes": ["False_Alarms", "Wasters", "Cowards"],
+    "ReputationModifiers": {
+      "Rescue_Success": 15,
+      "Life_Saved": 20,
+      "False_Distress": -10
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Monitor_Distress", "Coordinate_Rescues", "Equipment_Check", "Training_Drills"],
+    "InteractionRadius": 200,
+    "WanderRadius": 30,
+    "ConversationDuration": 25,
+    "AlwaysAvailable": true
+  }
+}

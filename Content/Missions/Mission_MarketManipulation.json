@@ -1,0 +1,123 @@
+{
+  "MissionID": "MarketManipulation_001",
+  "MissionName": "Market Manipulation",
+  "MissionType": "Trading",
+  "Description": "Exploit price differences between systems by buying low in Alpha Centauri and selling high in Proxima B. Time your trades carefully to maximize profit.",
+  "Briefing": "Steel here with a unique opportunity. The markets are showing some interesting fluctuations - there's a significant price gap between Alpha Centauri and Proxima B for certain goods. Medical supplies are cheap in Alpha Centauri due to overproduction, but there's a shortage in Proxima B. Meanwhile, luxury goods are flooding the Proxima B market but are in high demand back in Alpha Centauri. This is a trader's dream - buy low, sell high, and pocket the difference. But timing is everything. These market conditions won't last forever, and you'll be competing with other traders who've spotted the same opportunity. Move fast, trade smart, and you could make a killing.",
+  "Objectives": [
+    {
+      "ID": "BuyMedicalSupplies",
+      "Type": "Trade",
+      "Description": "Purchase medical supplies at low price in Alpha Centauri",
+      "Target": "Market_AlphaCentauri_Medical",
+      "SuccessCondition": "PurchaseComplete",
+      "ProgressTrack": "MedicalSuppliesOwned",
+      "RequiredValue": 30,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "SellMedicalSupplies",
+      "Type": "Trade",
+      "Description": "Sell medical supplies at high price in Proxima B",
+      "Target": "Market_ProximaB_Medical",
+      "SuccessCondition": "SaleComplete",
+      "ProgressTrack": "MedicalSuppliesSold",
+      "RequiredValue": 30,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "BuyLuxuryGoods",
+      "Type": "Trade",
+      "Description": "Purchase luxury goods in Proxima B",
+      "Target": "Market_ProximaB_Luxury",
+      "SuccessCondition": "PurchaseComplete",
+      "ProgressTrack": "LuxuryGoodsOwned",
+      "RequiredValue": 20,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "SellLuxuryGoods",
+      "Type": "Trade",
+      "Description": "Sell luxury goods in Alpha Centauri for profit",
+      "Target": "Market_AlphaCentauri_Luxury",
+      "SuccessCondition": "SaleComplete",
+      "ProgressTrack": "LuxuryGoodsSold",
+      "RequiredValue": 20,
+      "Optional": false,
+      "Hidden": false
+    },
+    {
+      "ID": "ProfitTarget",
+      "Type": "Trade",
+      "Description": "Achieve target profit margin of 5000 credits",
+      "Target": "Profit_Margin",
+      "SuccessCondition": "ProfitAchieved",
+      "ProgressTrack": "TotalProfit",
+      "RequiredValue": 5000,
+      "Optional": true,
+      "Hidden": false,
+      "BonusReward": "Master_Trader_Certificate"
+    }
+  ],
+  "Rewards": {
+    "Credits": 3000,
+    "XP": 250,
+    "Reputation": {
+      "Faction": "TradingGuild",
+      "Amount": 20
+    },
+    "Items": ["Trade_Certificate", "Market_Analysis_Tool", "Trade_Route_Optimizer"],
+    "BonusRewards": {
+      "ProfitAchievement": {
+        "Credits": 2000,
+        "Reputation": 15,
+        "Items": ["Master_Trader_Certificate"]
+      },
+      "SpeedBonus": {
+        "Credits": 1500,
+        "Items": ["Efficiency_Bonus"]
+      }
+    }
+  },
+  "Location": {
+    "System": "MultiSystem",
+    "Coordinates": {"X": 0, "Y": 0, "Z": 0},
+    "Sector": "Trade_Route_Alpha",
+    "Environment": "Space_Trading"
+  },
+  "Difficulty": "Medium",
+  "LevelRequirement": 5,
+  "TimeLimit": 1800,
+  "MissionGiver": "Captain_Marcus_Steel",
+  "Prerequisites": ["SupplyRun_001"],
+  "Faction": "TradingGuild",
+  "TradeConfig": {
+    "StartCapital": 5000,
+    "TargetProfit": 5000,
+    "MarketVolatility": 0.2,
+    "CompetingTraders": 3,
+    "PriceFluctuationRate": 0.1
+  },
+  "Atmosphere": {
+    "Music": "Trading_Intense",
+    "AmbientSounds": "Market_Floor",
+    "VFX": ["Trade_Console", "Market_Data", "Profit_Charts"]
+  },
+  "Dialogue": {
+    "Briefing": "STEEL_MARKET_MANIPULATION_BRIEFING",
+    "Start": "STEEL_MARKET_MANIPULATION_START",
+    "Update": "STEEL_MARKET_MANIPULATION_UPDATE",
+    "Success": "STEEL_MARKET_MANIPULATION_SUCCESS",
+    "Failure": "STEEL_MARKET_MANIPULATION_FAILURE"
+  },
+  "SpecialMechanics": {
+    "DynamicMarket": true,
+    "CompetingTraders": true,
+    "PriceFluctuation": true,
+    "TimePressure": true,
+    "TradeOptimization": true
+  }
+}

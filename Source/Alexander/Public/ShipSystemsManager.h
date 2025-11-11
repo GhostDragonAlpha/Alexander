@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Engine/Engine.h"
+#include "PerformanceProfiler.h"
 #include "ShipSystemsManager.generated.h"
 
 /**
@@ -252,6 +253,10 @@ private:
 	// Performance tracking
 	int32 SystemUpdateCount = 0;
 	float AverageUpdateTime = 0.0f;
+
+	// Performance Profiler
+	UPROPERTY()
+	UPerformanceProfiler* PerformanceProfiler;
 
 	// Helper functions
 	void InitializeDefaultSystems();

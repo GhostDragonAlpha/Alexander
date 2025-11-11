@@ -1,0 +1,56 @@
+{
+  "NPCID": "StationCommander_001",
+  "Name": "Commander James Vance",
+  "Archetype": "StationCommander",
+  "Faction": "United_Federation",
+  "Location": {
+    "System": "Sol",
+    "Station": "Central_Station"
+  },
+  "Appearance": {
+    "Model": "Human_Male_08",
+    "Outfit": "Command_Uniform",
+    "Accessories": ["Command_Badge", "Station_Logs", "Authority_Seal"]
+  },
+  "Personality": {
+    "Trait": "Authoritative",
+    "Disposition": "Professional",
+    "Greeting": "Welcome to Central Station. I trust you'll conduct yourself appropriately.",
+    "SpeechPattern": "Commanding, administrative, station management focused"
+  },
+  "Shop": {
+    "Sells": ["Station_Services", "Docking_Permits", "Station_Intel", "Authority_Access"],
+    "Buys": ["Station_Supplies", "Maintenance_Reports", "Security_Data"],
+    "PriceModifier": 1.0,
+    "SpecialOffers": ["Priority_Docking", "Station_Access", "Administrative_Services"]
+  },
+  "Missions": {
+    "Offers": ["Station_Defense", "Security_Detail", "Administrative_Tasks", "Diplomatic_Missions"],
+    "Weight": 0.5,
+    "Cooldown": 300,
+    "AuthorityRequired": true
+  },
+  "Dialogue": {
+    "Greeting": "station_commander_greeting_01",
+    "Shop": "station_commander_shop_01",
+    "Missions": "station_commander_missions_01",
+    "Farewell": "station_commander_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 10,
+    "Likes": ["Authority", "Order", "Efficiency"],
+    "Dislikes": ["Chaos", "Lawbreakers", "Inefficiency"],
+    "ReputationModifiers": {
+      "Station_Services": 5,
+      "Security_Help": 8,
+      "Rule_Breaking": -15
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Station_Management", "Security_Briefing", "Administrative_Duties", "Inspections"],
+    "InteractionRadius": 120,
+    "WanderRadius": 20,
+    "ConversationDuration": 30,
+    "CommandPresence": true
+  }
+}

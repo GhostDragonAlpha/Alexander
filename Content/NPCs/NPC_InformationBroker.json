@@ -1,0 +1,54 @@
+{
+  "NPCID": "InformationBroker_001",
+  "Name": "Cipher",
+  "Archetype": "InformationBroker",
+  "Faction": "Information_Network",
+  "Location": {
+    "System": "Data_Nexus",
+    "Station": "Info_Hub"
+  },
+  "Appearance": {
+    "Model": "Human_Male_07",
+    "Outfit": "Information_Dealer",
+    "Accessories": ["Data_Glasses", "Encrypted_Pad", "Holo_Display"]
+  },
+  "Personality": {
+    "Trait": "Mysterious",
+    "Disposition": "Neutral",
+    "Greeting": "Information is power. What secrets do you seek?",
+    "SpeechPattern": "Cryptic, knowledgeable, information-focused"
+  },
+  "Shop": {
+    "Sells": ["Star_Maps", "System_Data", "Faction_Intel", "Hidden_Locations", "Market_Info"],
+    "Buys": ["Exploration_Data", "Scan_Results", "Intelligence", "Rumors"],
+    "PriceModifier": 1.3,
+    "SpecialOffers": ["Rare_Maps", "Secret_Locations", "Insider_Info"]
+  },
+  "Missions": {
+    "Offers": ["Information_Gathering", "Surveillance", "Data_Retrieval", "Intel_Delivery"],
+    "Weight": 0.4,
+    "Cooldown": 180
+  },
+  "Dialogue": {
+    "Greeting": "info_broker_greeting_01",
+    "Shop": "info_broker_shop_01",
+    "Missions": "info_broker_missions_01",
+    "Farewell": "info_broker_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 0,
+    "Likes": ["Explorers", "Spies", "Informants"],
+    "Dislikes": ["Leakers", "Double_Agents", "Info_Thieves"],
+    "ReputationModifiers": {
+      "Info_Provided": 6,
+      "Data_Verified": 10,
+      "Intel_Shared": 8
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Data_Analysis", "Network_Monitoring", "Client_Meetings", "Info_Trading"],
+    "InteractionRadius": 130,
+    "WanderRadius": 20,
+    "ConversationDuration": 30
+  }
+}

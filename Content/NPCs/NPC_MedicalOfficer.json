@@ -1,0 +1,54 @@
+{
+  "NPCID": "MedicalOfficer_001",
+  "Name": "Dr. Aria Patel",
+  "Archetype": "MedicalOfficer",
+  "Faction": "Medical_Corps",
+  "Location": {
+    "System": "Sirius",
+    "Station": "Medical_Station_Omega"
+  },
+  "Appearance": {
+    "Model": "Human_Female_05",
+    "Outfit": "Medical_Uniform",
+    "Accessories": ["Medical_Tray", "Diagnostic_Tool", "Healing_Device"]
+  },
+  "Personality": {
+    "Trait": "Caring",
+    "Disposition": "Professional",
+    "Greeting": "Welcome to medical. How can I help you and your crew today?",
+    "SpeechPattern": "Medical professional, concerned, healing-focused"
+  },
+  "Shop": {
+    "Sells": ["Medical_Supplies", "Healing_Kits", "Crew_Recovery", "Medical_Equipment"],
+    "Buys": ["Medical_Data", "Biological_Samples", "Disease_Cures"],
+    "PriceModifier": 1.1,
+    "SpecialOffers": ["Crew_Healing", "Emergency_Treatment", "Medical_Contracts"]
+  },
+  "Missions": {
+    "Offers": ["Medical_Evacuation", "Disease_Control", "Rescue_Operation", "Medical_Supply"],
+    "Weight": 0.3,
+    "Cooldown": 200
+  },
+  "Dialogue": {
+    "Greeting": "medical_officer_greeting_01",
+    "Shop": "medical_officer_shop_01",
+    "Missions": "medical_officer_missions_01",
+    "Farewell": "medical_officer_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 15,
+    "Likes": ["Medics", "Healers", "Helpers"],
+    "Dislikes": ["Injury_Neglect", "Disease_Spread", "Medical_Waste"],
+    "ReputationModifiers": {
+      "Crew_Healed": 8,
+      "Medical_Supply": 5,
+      "Emergency_Response": 12
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Patient_Care", "Medical_Research", "Equipment_Maintenance", "Emergency_Response"],
+    "InteractionRadius": 150,
+    "WanderRadius": 25,
+    "ConversationDuration": 30
+  }
+}

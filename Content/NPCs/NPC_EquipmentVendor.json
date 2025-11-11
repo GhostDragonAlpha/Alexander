@@ -1,0 +1,54 @@
+{
+  "NPCID": "EquipmentVendor_001",
+  "Name": "Zara Vex",
+  "Archetype": "EquipmentVendor",
+  "Faction": "Corporate",
+  "Location": {
+    "System": "Sol",
+    "Station": "Titan_Station"
+  },
+  "Appearance": {
+    "Model": "Human_Female_01",
+    "Outfit": "Corporate_Suit",
+    "Accessories": ["Holo_Display_Gloves", "Inventory_Scanner"]
+  },
+  "Personality": {
+    "Trait": "Professional",
+    "Disposition": "Neutral",
+    "Greeting": "Welcome to Vex Armaments. We provide only the finest equipment.",
+    "SpeechPattern": "Corporate professional with technical expertise"
+  },
+  "Shop": {
+    "Sells": ["Weapons", "Shields", "Armor", "Gadgets", "Ammo", "Repairs"],
+    "Buys": ["Used_Weapons", "Salvage_Parts", "Enemy_Tech"],
+    "PriceModifier": 1.2,
+    "SpecialOffers": ["Military_Grade", "Experimental_Tech", "Bulk_Discounts"]
+  },
+  "Missions": {
+    "Offers": ["Equipment_Test", "Weapon_Recovery", "Tech_Salvage"],
+    "Weight": 0.25,
+    "Cooldown": 240
+  },
+  "Dialogue": {
+    "Greeting": "equipment_vendor_greeting_01",
+    "Shop": "equipment_vendor_shop_01",
+    "Missions": "equipment_vendor_missions_01",
+    "Farewell": "equipment_vendor_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 0,
+    "Likes": ["Military", "Corporate", "Technology"],
+    "Dislikes": ["Pirates", "Black_Market", "Amateurs"],
+    "ReputationModifiers": {
+      "Purchase_Made": 3,
+      "Tech_Provided": 8,
+      "Equipment_Damaged": -3
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Inventory_Check", "Customer_Service", "Equipment_Demo", "Stock_Review"],
+    "InteractionRadius": 150,
+    "WanderRadius": 30,
+    "ConversationDuration": 25
+  }
+}

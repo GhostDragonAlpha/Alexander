@@ -1,0 +1,54 @@
+{
+  "NPCID": "Miner_001",
+  "Name": "Digger McCray",
+  "Archetype": "Miner",
+  "Faction": "Miners_Guild",
+  "Location": {
+    "System": "Asteroid_Belt",
+    "Station": "Mining_Outpost"
+  },
+  "Appearance": {
+    "Model": "Human_Male_11",
+    "Outfit": "Mining_Gear",
+    "Accessories": ["Mining_Helmet", "Ore_Scanner", "Extraction_Tool"]
+  },
+  "Personality": {
+    "Trait": "Hardworking",
+    "Disposition": "Friendly",
+    "Greeting": "Fresh from the asteroids! Got some prime ore here.",
+    "SpeechPattern": "Direct, experienced miner, resource-focused"
+  },
+  "Shop": {
+    "Sells": ["Raw_Minerals", "Processed_Ore", "Mining_Equipment", "Asteroid_Maps"],
+    "Buys": ["Mining_Supplies", "Equipment_Upgrades", "Prospecting_Data"],
+    "PriceModifier": 0.95,
+    "SpecialOffers": ["Bulk_Minerals", "Rare_Ore", "Mining_Contracts"]
+  },
+  "Missions": {
+    "Offers": ["Mining_Operation", "Prospecting_Mission", "Ore_Delivery", "Equipment_Recovery"],
+    "Weight": 0.4,
+    "Cooldown": 200
+  },
+  "Dialogue": {
+    "Greeting": "miner_greeting_01",
+    "Shop": "miner_shop_01",
+    "Missions": "miner_missions_01",
+    "Farewell": "miner_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 5,
+    "Likes": ["Miners", "Hard_Workers", "Resource_Gatherers"],
+    "Dislikes": ["Laziness", "Waste", "Equipment_Abuse"],
+    "ReputationModifiers": {
+      "Ore_Sold": 4,
+      "Mining_Help": 8,
+      "Equipment_Maintained": 6
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Mining_Operations", "Ore_Processing", "Equipment_Maintenance", "Trade_Negotiations"],
+    "InteractionRadius": 170,
+    "WanderRadius": 45,
+    "ConversationDuration": 20
+  }
+}

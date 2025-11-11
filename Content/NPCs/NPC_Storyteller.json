@@ -1,0 +1,55 @@
+{
+  "NPCID": "Storyteller_001",
+  "Name": "Elder Mira",
+  "Archetype": "Storyteller",
+  "Faction": "Lorekeepers",
+  "Location": {
+    "System": "Ancient_Space",
+    "Station": "Lore_Station"
+  },
+  "Appearance": {
+    "Model": "Human_Female_08",
+    "Outfit": "Storyteller_Robes",
+    "Accessories": ["Ancient_Tome", "Story_Crystals", "Lore_Badge"]
+  },
+  "Personality": {
+    "Trait": "Wise",
+    "Disposition": "Friendly",
+    "Greeting": "Come, listen to the tales of the cosmos and those who traverse it.",
+    "SpeechPattern": "Storytelling, wise, lore-focused"
+  },
+  "Shop": {
+    "Sells": ["Lore_Books", "Historical_Data", "Ancient_Stories", "Mythical_Tales"],
+    "Buys": ["Ancient_Artifacts", "Historical_Finds", "Lore_Discoveries"],
+    "PriceModifier": 1.1,
+    "SpecialOffers": ["Rare_Lore", "Ancient_Secrets", "Historical_Records"]
+  },
+  "Missions": {
+    "Offers": ["Lore_Gathering", "Artifact_Recovery", "Historical_Research", "Story_Collection"],
+    "Weight": 0.2,
+    "Cooldown": 300,
+    "LoreBonus": true
+  },
+  "Dialogue": {
+    "Greeting": "storyteller_greeting_01",
+    "Shop": "storyteller_shop_01",
+    "Missions": "storyteller_missions_01",
+    "Farewell": "storyteller_farewell_01"
+  },
+  "Relationships": {
+    "InitialStanding": 10,
+    "Likes": ["Scholars", "Explorers", "Lore_Seekers"],
+    "Dislikes": ["Ignorance", "History_Destroyers", "Lore_Thieves"],
+    "ReputationModifiers": {
+      "Story_Shared": 8,
+      "Artifact_Recovered": 12,
+      "Lore_Preserved": 10
+    }
+  },
+  "AIBehavior": {
+    "DailyRoutine": ["Storytelling", "Lore_Research", "Visitor_Guidance", "Historical_Study"],
+    "InteractionRadius": 150,
+    "WanderRadius": 30,
+    "ConversationDuration": 50
+  }
+}

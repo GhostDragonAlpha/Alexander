@@ -1,0 +1,189 @@
+{
+  "MissionSystem": {
+    "Version": "1.0",
+    "Description": "Mission system configuration for Alexander VR Space Simulation",
+    
+    "DifficultyTiers": {
+      "Easy": {
+        "LevelRange": [1, 5],
+        "EnemyCountMultiplier": 0.7,
+        "EnemyHealthMultiplier": 0.8,
+        "RewardMultiplier": 0.8,
+        "TimeLimitMultiplier": 1.2,
+        "RecommendedShipTier": "Basic"
+      },
+      "Medium": {
+        "LevelRange": [3, 10],
+        "EnemyCountMultiplier": 1.0,
+        "EnemyHealthMultiplier": 1.0,
+        "RewardMultiplier": 1.0,
+        "TimeLimitMultiplier": 1.0,
+        "RecommendedShipTier": "Standard"
+      },
+      "Hard": {
+        "LevelRange": [8, 15],
+        "EnemyCountMultiplier": 1.3,
+        "EnemyHealthMultiplier": 1.2,
+        "RewardMultiplier": 1.5,
+        "TimeLimitMultiplier": 0.9,
+        "RecommendedShipTier": "Advanced"
+      },
+      "VeryHard": {
+        "LevelRange": [12, 20],
+        "EnemyCountMultiplier": 1.6,
+        "EnemyHealthMultiplier": 1.5,
+        "RewardMultiplier": 2.0,
+        "TimeLimitMultiplier": 0.8,
+        "RecommendedShipTier": "Elite"
+      }
+    },
+    
+    "RewardScaling": {
+      "BaseCreditsPerLevel": 500,
+      "CreditScalingFormula": "BaseCredits * Level * DifficultyMultiplier * MissionTypeMultiplier",
+      "XPScalingFormula": "BaseXP * Level * 0.8 * DifficultyMultiplier",
+      
+      "MissionTypeMultipliers": {
+        "Combat": 1.2,
+        "Exploration": 1.0,
+        "Trading": 0.9,
+        "Escort": 1.1,
+        "SearchAndRescue": 1.3
+      },
+      
+      "ReputationRewards": {
+        "BaseReputation": 10,
+        "FactionBonus": 5,
+        "PerfectCompletionBonus": 10
+      }
+    },
+    
+    "MissionTypes": {
+      "Combat": {
+        "SpawnTags": ["Hostile", "CombatZone", "PirateActivity"],
+        "RequiredSystems": ["CombatManager", "EnemySpawner", "LootSystem"],
+        "FailureConditions": ["PlayerDestroyed", "TargetEscaped", "TimeExpired"],
+        "SuccessConditions": ["AllEnemiesDefeated", "TargetDestroyed", "AreaSecured"]
+      },
+      
+      "Exploration": {
+        "SpawnTags": ["Uncharted", "Anomaly", "Discovery"],
+        "RequiredSystems": ["ScannerSystem", "DiscoveryManager", "POISpawner"],
+        "FailureConditions": ["PlayerDestroyed", "CriticalScannerDamaged"],
+        "SuccessConditions": ["LocationScanned", "ArtifactRecovered", "DataCollected"]
+      },
+      
+      "Trading": {
+        "SpawnTags": ["TradeRoute", "Station", "Market"],
+        "RequiredSystems": ["EconomyManager", "CargoSystem", "StationInterface"],
+        "FailureConditions": ["CargoDestroyed", "TimeExpired", "MarketCrash"],
+        "SuccessConditions": ["CargoDelivered", "ProfitAchieved", "ContractCompleted"]
+      },
+      
+      "Escort": {
+        "SpawnTags": ["Convoy", "VIP", "Protected"],
+        "RequiredSystems": ["ConvoyManager", "EscortTargetAI", "ThreatSpawner"],
+        "FailureConditions": ["EscortTargetDestroyed", "PlayerDestroyed", "VIPKilled"],
+        "SuccessConditions": ["TargetSafelyDelivered", "VIPProtected", "ConvoyComplete"]
+      },
+      
+      "SearchAndRescue": {
+        "SpawnTags": ["Distress", "Emergency", "Rescue"],
+        "RequiredSystems": ["DistressSignalManager", "RescueTargetAI", "MedicalSystem"],
+        "FailureConditions": ["RescueTargetDied", "TimeExpired", "PlayerDestroyed"],
+        "SuccessConditions": ["SurvivorsRescued", "MedicalAidDelivered", "EvacuationComplete"]
+      }
+    },
+    
+    "Prerequisites": {
+      "LevelRequirements": true,
+      "FactionStanding": true,
+      "MissionCompletion": true,
+      "EquipmentRequirements": true,
+      "ShipRequirements": true
+    },
+    
+    "MissionGivers": {
+      "Commander_Rhodes": {
+        "Faction": "MerchantGuild",
+        "MissionTypes": ["Combat", "Escort"],
+        "Location": "AlphaCentauri_Station",
+        "DialoguePrefix": "RHODES_"
+      },
+      "Dr_Elena_Vance": {
+        "Faction": "Scientific",
+        "MissionTypes": ["Exploration", "SearchAndRescue"],
+        "Location": "ResearchOutpost_Omega",
+        "DialoguePrefix": "VANCE_"
+      },
+      "Captain_Marcus_Steel": {
+        "Faction": "TradingGuild",
+        "MissionTypes": ["Trading", "Escort"],
+        "Location": "TradeHub_Beta",
+        "DialoguePrefix": "STEEL_"
+      },
+      "Admiral_Kross": {
+        "Faction": "Military",
+        "MissionTypes": ["Combat", "SearchAndRescue"],
+        "Location": "MilitaryBase_Gamma",
+        "DialoguePrefix": "KROSS_"
+      }
+    },
+    
+    "LocationPresets": {
+      "AlphaCentauri": {
+        "SystemName": "Alpha Centauri",
+        "Coordinates": {"X": 1000, "Y": 2000, "Z": 3000},
+        "SecurityLevel": "Medium",
+        "FactionControl": "MerchantGuild"
+      },
+      "Kepler442": {
+        "SystemName": "Kepler-442",
+        "Coordinates": {"X": 5000, "Y": -1000, "Z": 2000},
+        "SecurityLevel": "Low",
+        "FactionControl": "Independent"
+      },
+      "ProximaB": {
+        "SystemName": "Proxima B",
+        "Coordinates": {"X": -2000, "Y": 3000, "Z": -1500},
+        "SecurityLevel": "High",
+        "FactionControl": "Military"
+      },
+      "NebulaZone_Alpha": {
+        "SystemName": "Nebula Zone Alpha",
+        "Coordinates": {"X": 8000, "Y": 5000, "Z": 4000},
+        "SecurityLevel": "Low",
+        "FactionControl": "Pirates"
+      },
+      "TradeRoute_Beta": {
+        "SystemName": "Trade Route Beta",
+        "Coordinates": {"X": 3000, "Y": 4000, "Z": 2500},
+        "SecurityLevel": "Medium",
+        "FactionControl": "TradingGuild"
+      }
+    },
+    
+    "TimeLimits": {
+      "DefaultTimeLimit": 1800,
+      "MinimumTimeLimit": 300,
+      "MaximumTimeLimit": 7200,
+      "TimeLimitScaling": {
+        "BaseTimePerObjective": 300,
+        "DistanceMultiplier": 0.1,
+        "DifficultyAdjustment": {"Easy": 1.2, "Medium": 1.0, "Hard": 0.9, "VeryHard": 0.8}
+      }
+    },
+    
+    "MissionValidation": {
+      "RequiredFields": ["MissionID", "MissionName", "MissionType", "Description", "Objectives", "Rewards", "Location", "Difficulty"],
+      "ObjectiveValidation": {
+        "RequiredFields": ["ID", "Type", "Description", "SuccessCondition"],
+        "ValidTypes": ["Defend", "Eliminate", "Scan", "Collect", "Deliver", "Escort", "Rescue", "Investigate", "Track", "Survive"]
+      },
+      "RewardValidation": {
+        "RequiredFields": ["Credits", "XP"],
+        "OptionalFields": ["Reputation", "Items", "FactionRep"]
+      }
+    }
+  }
+}

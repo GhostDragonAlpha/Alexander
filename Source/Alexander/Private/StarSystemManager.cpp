@@ -5,6 +5,8 @@
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
 #include "PerformanceProfilerSubsystem.h"
+#include "SpatialPartitioningComponent.h"
+#include "AsyncLoadingComponent.h"
 
 UStarSystemManager::UStarSystemManager()
 {
@@ -14,10 +16,16 @@ UStarSystemManager::UStarSystemManager()
     bEnableOrbitalMechanics = true;
     OrbitalSpeedMultiplier = 100.0f; // Speed up orbits for gameplay
     SystemScale = 0.001f; // 1 km = 0.001 UE units (1 meter)
-    MaxLoadedSystems = 3;
+    MaxLoadedSystems = 10; // Increased for better performance
     bAutoGenerateConnections = true;
     MaxConnectionDistance = 50.0f; // Light years
+    SystemUnloadDistance = 100.0f; // Distance threshold for unloading
+    SpatialPartitioningDepth = 5; // Octree depth
+    bEnableAsyncLoading = true; // Enable async loading by default
+    AsyncLoadingThreadPoolSize = 4; // Default thread pool size
     TotalGameTime = 0.0f;
+    TotalSystemsGenerated = 0;
+    TotalLoadTime = 0.0;
 }
 
 void UStarSystemManager::BeginPlay()
@@ -26,7 +34,22 @@ void UStarSystemManager::BeginPlay()
 
     RandomStream.Initialize(FDateTime::Now().GetTicks());
     
-    UE_LOG(LogTemp, Log, TEXT("StarSystemManager initialized"));
+    // Initialize spatial partitioning
+    InitializeSpatialPartitioning();
+    
+    // Initialize async loading
+    InitializeAsyncLoading();
+    
+    UE_LOG(LogTemp, Log, TEXT("StarSystemManager initialized with optimizations: MaxLoadedSystems=%d, AsyncLoading=%s"),
+        MaxLoadedSystems, bEnableAsyncLoading ? TEXT("Enabled") : TEXT("Disabled"));
+}
+
+void UStarSystemManager::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    // Cleanup all systems before destruction
+    UnloadAllSystems();
+    
+    Super::EndPlay(EndPlayReason);
 }
 
 void UStarSystemManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -149,6 +172,8 @@ FStarSystemData UStarSystemManager::GenerateProceduralSystem(const FString& Syst
 
 bool UStarSystemManager::LoadStarSystem(const FString& SystemID)
 {
+    FScopeLock Lock(&SystemDataLock);
+
     if (!StarSystems.Contains(SystemID))
     {
         UE_LOG(LogTemp, Warning, TEXT("System not found: %s"), *SystemID);
@@ -164,12 +189,14 @@ bool UStarSystemManager::LoadStarSystem(const FString& SystemID)
     // Unload distant systems if at capacity
     if (LoadedSystems.Num() >= MaxLoadedSystems)
     {
-        UnloadDistantSystems();
+        UnloadDistantSystems(SystemUnloadDistance);
     }
+
+    double LoadStartTime = FPlatformTime::Seconds();
 
     LoadedSystems.Add(SystemID);
     
-    // Spawn visual representations would go here
+    // Spawn visual representations
     FStarSystemData* System = StarSystems.Find(SystemID);
     if (System)
     {
@@ -180,7 +207,15 @@ bool UStarSystemManager::LoadStarSystem(const FString& SystemID)
         }
     }
 
-    UE_LOG(LogTemp, Log, TEXT("Loaded system: %s"), *SystemID);
+    double LoadEndTime = FPlatformTime::Seconds();
+    double LoadDuration = LoadEndTime - LoadStartTime;
+
+    // Update performance tracking
+    TotalSystemsGenerated++;
+    TotalLoadTime += LoadDuration;
+    SystemLoadTimes.Add(SystemID, LoadDuration);
+
+    UE_LOG(LogTemp, Log, TEXT("Loaded system: %s in %.2f seconds"), *SystemID, LoadDuration);
     return true;
 }
 
@@ -913,4 +948,453 @@ void UStarSystemManager::UnloadDistantSystems()
 FString UStarSystemManager::GenerateUniqueID(const FString& Prefix) const
 {
     return Prefix + TEXT("_") + FString::FromInt(FDateTime::Now().GetTicks()) + TEXT("_") + FString::FromInt(RandomStream.RandRange(1000, 9999));
+}
+
+// Optimization Functions Implementation
+
+void UStarSystemManager::LoadSystemAsync(const FString& SystemID)
+{
+    if (!bEnableAsyncLoading || !AsyncLoader)
+    {
+        // Fallback to synchronous loading
+        LoadStarSystem(SystemID);
+        return;
+    }
+
+    if (SystemLoadStates.Contains(SystemID) &&
+        (SystemLoadStates[SystemID] == ESystemLoadState::Loading ||
+         SystemLoadStates[SystemID] == ESystemLoadState::Loaded))
+    {
+        return; // Already loading or loaded
+    }
+
+    SystemLoadStates.Add(SystemID, ESystemLoadState::Loading);
+
+    // Queue async loading task
+    AsyncLoader->QueueLoadingTask(
+        SystemID,
+        [this, SystemID]() {
+            // Load system data (this runs on background thread)
+            LoadStarSystem(SystemID);
+        },
+        [this, SystemID]() {
+            // Completion callback (runs on game thread)
+            SystemLoadStates.Add(SystemID, ESystemLoadState::Loaded);
+            UpdateMemoryTracking(SystemID);
+        }
+    );
+
+    UE_LOG(LogTemp, Log, TEXT("Queued async load for system: %s"), *SystemID);
+}
+
+ESystemLoadState UStarSystemManager::GetSystemLoadState(const FString& SystemID) const
+{
+    const ESystemLoadState* State = SystemLoadStates.Find(SystemID);
+    return State ? *State : ESystemLoadState::Unloaded;
+}
+
+void UStarSystemManager::UnloadSystemAsync(const FString& SystemID)
+{
+    if (!bEnableAsyncLoading || !AsyncLoader)
+    {
+        // Fallback to synchronous unloading
+        UnloadStarSystem(SystemID);
+        return;
+    }
+
+    if (SystemLoadStates.Contains(SystemID) && SystemLoadStates[SystemID] == ESystemLoadState::Unloaded)
+    {
+        return; // Already unloaded
+    }
+
+    SystemLoadStates.Add(SystemID, ESystemLoadState::Unloading);
+
+    // Queue async unloading task
+    AsyncLoader->QueueUnloadingTask(
+        SystemID,
+        [this, SystemID]() {
+            // Unload system data (this runs on background thread)
+            DespawnSystemActors(SystemID);
+        },
+        [this, SystemID]() {
+            // Completion callback (runs on game thread)
+            LoadedSystems.Remove(SystemID);
+            SystemLoadStates.Add(SystemID, ESystemLoadState::Unloaded);
+            RemoveFromSpatialIndex(SystemID);
+        }
+    );
+
+    UE_LOG(LogTemp, Log, TEXT("Queued async unload for system: %s"), *SystemID);
+}
+
+TArray<FSpatialQueryResult> UStarSystemManager::FindSystemsInRadius(const FVector& Position, float Radius) const
+{
+    TArray<FSpatialQueryResult> Results;
+
+    if (SpatialPartitioning)
+    {
+        TArray<FString> SystemIDs = SpatialPartitioning->FindInRadius(Position, Radius);
+        
+        for (const FString& SystemID : SystemIDs)
+        {
+            const FStarSystemData* System = StarSystems.Find(SystemID);
+            if (System)
+            {
+                FSpatialQueryResult Result;
+                Result.SystemID = SystemID;
+                Result.Position = System->GalacticPosition;
+                Result.Distance = FVector::Dist(Position, System->GalacticPosition);
+                Results.Add(Result);
+            }
+        }
+    }
+    else
+    {
+        // Fallback to linear search
+        for (const auto& Pair : StarSystems)
+        {
+            float Distance = FVector::Dist(Position, Pair.Value.GalacticPosition);
+            if (Distance <= Radius)
+            {
+                FSpatialQueryResult Result;
+                Result.SystemID = Pair.Key;
+                Result.Position = Pair.Value.GalacticPosition;
+                Result.Distance = Distance;
+                Results.Add(Result);
+            }
+        }
+    }
+
+    // Sort by distance
+    Results.Sort([](const FSpatialQueryResult& A, const FSpatialQueryResult& B) {
+        return A.Distance < B.Distance;
+    });
+
+    return Results;
+}
+
+TArray<FSpatialQueryResult> UStarSystemManager::FindNearestSystems(const FVector& Position, int32 MaxCount) const
+{
+    TArray<FSpatialQueryResult> Results;
+
+    if (SpatialPartitioning && MaxCount > 0)
+    {
+        TArray<FString> SystemIDs = SpatialPartitioning->FindNearest(Position, MaxCount);
+        
+        for (const FString& SystemID : SystemIDs)
+        {
+            const FStarSystemData* System = StarSystems.Find(SystemID);
+            if (System)
+            {
+                FSpatialQueryResult Result;
+                Result.SystemID = SystemID;
+                Result.Position = System->GalacticPosition;
+                Result.Distance = FVector::Dist(Position, System->GalacticPosition);
+                Results.Add(Result);
+            }
+        }
+    }
+    else
+    {
+        // Fallback to linear search with sorting
+        for (const auto& Pair : StarSystems)
+        {
+            FSpatialQueryResult Result;
+            Result.SystemID = Pair.Key;
+            Result.Position = Pair.Value.GalacticPosition;
+            Result.Distance = FVector::Dist(Position, Pair.Value.GalacticPosition);
+            Results.Add(Result);
+        }
+
+        // Sort and limit results
+        Results.Sort([](const FSpatialQueryResult& A, const FSpatialQueryResult& B) {
+            return A.Distance < B.Distance;
+        });
+
+        if (MaxCount > 0 && Results.Num() > MaxCount)
+        {
+            Results.SetNum(MaxCount);
+        }
+    }
+
+    return Results;
+}
+
+TArray<FSpatialQueryResult> UStarSystemManager::FindSystemsInBox(const FVector& Center, const FVector& Extent) const
+{
+    TArray<FSpatialQueryResult> Results;
+
+    if (SpatialPartitioning)
+    {
+        TArray<FString> SystemIDs = SpatialPartitioning->FindInBox(Center, Extent);
+        
+        for (const FString& SystemID : SystemIDs)
+        {
+            const FStarSystemData* System = StarSystems.Find(SystemID);
+            if (System)
+            {
+                FSpatialQueryResult Result;
+                Result.SystemID = SystemID;
+                Result.Position = System->GalacticPosition;
+                Result.Distance = FVector::Dist(Center, System->GalacticPosition);
+                Results.Add(Result);
+            }
+        }
+    }
+    else
+    {
+        // Fallback to linear search
+        for (const auto& Pair : StarSystems)
+        {
+            FVector Delta = Pair.Value.GalacticPosition - Center;
+            if (FMath::Abs(Delta.X) <= Extent.X &&
+                FMath::Abs(Delta.Y) <= Extent.Y &&
+                FMath::Abs(Delta.Z) <= Extent.Z)
+            {
+                FSpatialQueryResult Result;
+                Result.SystemID = Pair.Key;
+                Result.Position = Pair.Value.GalacticPosition;
+                Result.Distance = Delta.Size();
+                Results.Add(Result);
+            }
+        }
+    }
+
+    return Results;
+}
+
+FSystemMemoryInfo UStarSystemManager::GetSystemMemoryInfo(const FString& SystemID) const
+{
+    const FSystemMemoryInfo* Info = SystemMemoryTracker.Find(SystemID);
+    return Info ? *Info : FSystemMemoryInfo();
+}
+
+int64 UStarSystemManager::GetTotalMemoryUsage() const
+{
+    int64 TotalMemory = 0;
+    for (const auto& Pair : SystemMemoryTracker)
+    {
+        TotalMemory += Pair.Value.TotalSize;
+    }
+    return TotalMemory;
+}
+
+void UStarSystemManager::UnloadDistantSystems(float MaxDistance)
+{
+    if (CurrentSystemID.IsEmpty())
+    {
+        return;
+    }
+
+    const FStarSystemData* CurrentSystem = StarSystems.Find(CurrentSystemID);
+    if (!CurrentSystem)
+    {
+        return;
+    }
+
+    TArray<FString> SystemsToUnload;
+    
+    for (const FString& SystemID : LoadedSystems)
+    {
+        if (SystemID == CurrentSystemID)
+        {
+            continue;
+        }
+
+        float Distance = CalculateJumpDistance(CurrentSystemID, SystemID);
+        if (Distance > MaxDistance)
+        {
+            SystemsToUnload.Add(SystemID);
+        }
+    }
+
+    for (const FString& SystemID : SystemsToUnload)
+    {
+        if (bEnableAsyncLoading)
+        {
+            UnloadSystemAsync(SystemID);
+        }
+        else
+        {
+            UnloadStarSystem(SystemID);
+        }
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("Unloaded %d distant systems"), SystemsToUnload.Num());
+}
+
+void UStarSystemManager::SetMaxLoadedSystems(int32 MaxSystems)
+{
+    MaxLoadedSystems = FMath::Max(1, MaxSystems);
+    
+    // Unload excess systems if needed
+    while (LoadedSystems.Num() > MaxLoadedSystems)
+    {
+        UnloadDistantSystems(SystemUnloadDistance);
+    }
+}
+
+void UStarSystemManager::PreloadSystemsInRadius(const FVector& Position, float Radius)
+{
+    TArray<FSpatialQueryResult> NearbySystems = FindSystemsInRadius(Position, Radius);
+    
+    for (const FSpatialQueryResult& Result : NearbySystems)
+    {
+        if (!LoadedSystems.Contains(Result.SystemID))
+        {
+            if (bEnableAsyncLoading)
+            {
+                LoadSystemAsync(Result.SystemID);
+            }
+            else
+            {
+                LoadStarSystem(Result.SystemID);
+            }
+        }
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("Preloading %d systems in radius %.2f"), NearbySystems.Num(), Radius);
+}
+
+void UStarSystemManager::UnloadAllSystems()
+{
+    TArray<FString> SystemsToUnload = LoadedSystems;
+    
+    for (const FString& SystemID : SystemsToUnload)
+    {
+        if (bEnableAsyncLoading)
+        {
+            UnloadSystemAsync(SystemID);
+        }
+        else
+        {
+            UnloadStarSystem(SystemID);
+        }
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("Unloaded all %d systems"), SystemsToUnload.Num());
+}
+
+int32 UStarSystemManager::GetTotalSystemCount() const
+{
+    return StarSystems.Num();
+}
+
+int32 UStarSystemManager::GetLoadedSystemCount() const
+{
+    return LoadedSystems.Num();
+}
+
+int32 UStarSystemManager::GetDiscoveredSystemCount() const
+{
+    return DiscoveredSystems.Num();
+}
+
+float UStarSystemManager::GetAverageSystemLoadTime() const
+{
+    if (TotalSystemsGenerated == 0)
+    {
+        return 0.0f;
+    }
+    
+    return static_cast<float>(TotalLoadTime / TotalSystemsGenerated);
+}
+
+// Helper Functions for Optimization
+
+void UStarSystemManager::UpdateSpatialIndex(const FString& SystemID, const FVector& Position)
+{
+    FScopeLock Lock(&SpatialIndexLock);
+    
+    // Remove from any existing position
+    RemoveFromSpatialIndex(SystemID);
+    
+    // Add to new position with coarse grid for fast lookup
+    FVector GridCell(FMath::RoundToInt(Position.X / 1000.0f) * 1000.0f,
+                     FMath::RoundToInt(Position.Y / 1000.0f) * 1000.0f,
+                     FMath::RoundToInt(Position.Z / 1000.0f) * 1000.0f);
+    
+    TArray<FString>& SystemsInCell = SpatialIndex.FindOrAdd(GridCell);
+    SystemsInCell.AddUnique(SystemID);
+}
+
+void UStarSystemManager::RemoveFromSpatialIndex(const FString& SystemID)
+{
+    FScopeLock Lock(&SpatialIndexLock);
+    
+    for (auto& Pair : SpatialIndex)
+    {
+        Pair.Value.Remove(SystemID);
+    }
+}
+
+void UStarSystemManager::InitializeSpatialPartitioning()
+{
+    if (!SpatialPartitioning)
+    {
+        SpatialPartitioning = NewObject<USpatialPartitioningComponent>(this, USpatialPartitioningComponent::StaticClass(), TEXT("SpatialPartitioning"));
+        SpatialPartitioning->RegisterComponent();
+    }
+    
+    // Initialize with galaxy-sized bounds
+    SpatialPartitioning->Initialize(FVector::ZeroVector, 200000.0f, SpatialPartitioningDepth);
+}
+
+void UStarSystemManager::InitializeAsyncLoading()
+{
+    if (!AsyncLoader && bEnableAsyncLoading)
+    {
+        AsyncLoader = NewObject<UAsyncLoadingComponent>(this, UAsyncLoadingComponent::StaticClass(), TEXT("AsyncLoader"));
+        AsyncLoader->RegisterComponent();
+        AsyncLoader->Initialize(AsyncLoadingThreadPoolSize);
+    }
+}
+
+bool UStarSystemManager::ShouldUnloadSystem(const FString& SystemID) const
+{
+    if (SystemID == CurrentSystemID)
+    {
+        return false; // Never unload current system
+    }
+
+    // Check reference count
+    const int32* RefCount = SystemReferenceCount.Find(SystemID);
+    if (RefCount && *RefCount > 0)
+    {
+        return false; // System is still referenced
+    }
+
+    // Check distance from current system
+    float Distance = CalculateJumpDistance(CurrentSystemID, SystemID);
+    return Distance > SystemUnloadDistance;
+}
+
+void UStarSystemManager::UpdateMemoryTracking(const FString& SystemID)
+{
+    FSystemMemoryInfo MemoryInfo;
+    
+    const FStarSystemData* System = StarSystems.Find(SystemID);
+    if (System)
+    {
+        // Estimate memory usage (these are rough estimates)
+        MemoryInfo.SystemDataSize = sizeof(FStarSystemData);
+        MemoryInfo.CelestialBodiesSize = System->CelestialBodies.Num() * sizeof(FCelestialBody);
+        
+        // Count stations in this system
+        int32 StationCount = 0;
+        for (const auto& StationPair : SpaceStations)
+        {
+            if (StationPair.Value.SystemID == SystemID)
+            {
+                StationCount++;
+            }
+        }
+        MemoryInfo.StationsSize = StationCount * sizeof(FSpaceStationData);
+        
+        MemoryInfo.TotalSize = MemoryInfo.SystemDataSize +
+                               MemoryInfo.CelestialBodiesSize +
+                               MemoryInfo.StationsSize;
+    }
+    
+    SystemMemoryTracker.Add(SystemID, MemoryInfo);
 }

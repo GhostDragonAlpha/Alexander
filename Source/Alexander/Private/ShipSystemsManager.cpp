@@ -27,6 +27,11 @@ void UShipSystemsManager::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// Initialize Performance Profiler
+	PerformanceProfiler = NewObject<UPerformanceProfiler>(this);
+	PerformanceProfiler->RegisterSystem(TEXT("ShipSystemsManager"), EPerformanceCategory::Gameplay);
+	PerformanceProfiler->SetProfilingLevel(EProfilingLevel::Detailed);
+	
 	// Initialize all ship systems
 	InitializeSystems();
 	
@@ -36,6 +41,12 @@ void UShipSystemsManager::BeginPlay()
 void UShipSystemsManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	
+	// Begin performance profiling
+	if (PerformanceProfiler)
+	{
+		PerformanceProfiler->BeginSystemTick(TEXT("ShipSystemsManager"));
+	}
 	
 	// Update performance tracking
 	SystemUpdateCount++;
@@ -60,6 +71,12 @@ void UShipSystemsManager::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	
 	// Update system temperatures
 	UpdateSystemTemperatures(DeltaTime);
+	
+	// End performance profiling
+	if (PerformanceProfiler)
+	{
+		PerformanceProfiler->EndSystemTick(TEXT("ShipSystemsManager"));
+	}
 }
 
 void UShipSystemsManager::InitializeSystems()
