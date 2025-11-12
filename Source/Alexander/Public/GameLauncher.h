@@ -153,15 +153,15 @@ protected:
 
 private:
 	// Default configuration
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
+	UPROPERTY(EditAnywhere, Category = "Configuration")
 	FGameLaunchConfig DefaultConfig;
 
 	// Current configuration
-	UPROPERTY(BlueprintReadOnly, Category = "Configuration")
+	UPROPERTY( Category = "Configuration")
 	FGameLaunchConfig CurrentConfig;
 
 	// Process information
-	UPROPERTY(BlueprintReadOnly, Category = "Process")
+	UPROPERTY( Category = "Process")
 	FGameProcessInfo ProcessInfo;
 
 	// Process handle (platform specific)
@@ -174,6 +174,6 @@ private:
 	int32 RestartCount;
 
 	// Maximum restart attempts
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
+	UPROPERTY(EditAnywhere, Category = "Configuration")
 	int32 MaxRestartAttempts;
 };

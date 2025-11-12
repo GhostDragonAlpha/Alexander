@@ -173,45 +173,45 @@ protected:
 
 private:
 	// Error reports
-	UPROPERTY(BlueprintReadOnly, Category = "Errors")
+	UPROPERTY( Category = "Errors")
 	TArray<FErrorReport> ErrorReports;
 
 	// Monitoring active
-	UPROPERTY(BlueprintReadOnly, Category = "State")
+	UPROPERTY( Category = "State")
 	bool bIsMonitoring;
 
 	// Current screenshot path
-	UPROPERTY(BlueprintReadOnly, Category = "State")
+	UPROPERTY( Category = "State")
 	FString CurrentScreenshotPath;
 
 	// Memory threshold for warnings (MB)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thresholds")
+	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float MemoryWarningThresholdMB;
 
 	// Memory threshold for errors (MB)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thresholds")
+	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float MemoryErrorThresholdMB;
 
 	// FPS threshold for warnings
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thresholds")
+	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float FPSWarningThreshold;
 
 	// FPS threshold for errors
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thresholds")
+	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float FPSErrorThreshold;
 
 	// Frame time threshold for warnings (ms)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thresholds")
+	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float FrameTimeWarningThresholdMS;
 
 	// Frame time threshold for errors (ms)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Thresholds")
+	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float FrameTimeErrorThresholdMS;
 
 	// Timer handle for monitoring
 	FTimerHandle MonitorTimer;
 
 	// Monitor interval
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
+	UPROPERTY(EditAnywhere, Category = "Configuration")
 	float MonitorInterval;
 };

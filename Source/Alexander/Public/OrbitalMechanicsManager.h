@@ -19,6 +19,20 @@ class USphereOfInfluenceManager;
 class UProceduralStarSystemGenerator;
 class USpatialPartitioningOctree;
 
+// Gravity calculation mode enum (must be in global scope for UENUM)
+UENUM(BlueprintType)
+enum class EGravityCalculationMode : uint8
+{
+	// Only consider primary body's gravity (faster, less accurate)
+	PrimaryOnly,
+	
+	// Consider multiple bodies within sphere of influence (balanced)
+	PatchedConics,
+	
+	// Full n-body simulation (most accurate, computationally expensive)
+	NBody
+};
+
 /**
  * Main manager class for the Orbital Mechanics system
  * Coordinates all orbital mechanics calculations and manages the universe
@@ -214,19 +228,6 @@ public:
     float MaxTimeStep;
 
     // Gravity calculation mode
-    UENUM(BlueprintType)
-    enum class EGravityCalculationMode : uint8
-    {
-        // Only consider primary body's gravity (faster, less accurate)
-        PrimaryOnly,
-        
-        // Consider multiple bodies within sphere of influence (balanced)
-        PatchedConics,
-        
-        // Full n-body simulation (most accurate, computationally expensive)
-        NBody
-    };
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orbital Mechanics|Settings")
     EGravityCalculationMode GravityCalculationMode;
 
