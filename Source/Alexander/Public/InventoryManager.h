@@ -180,6 +180,31 @@ struct FInventoryFilter
 	}
 };
 
+// Wrapper structs for complex template containers (UHT compatibility)
+USTRUCT(BlueprintType)
+struct FResourceQuantityMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FName, FResourceQuantity> Resources;
+};
+
+USTRUCT(BlueprintType)
+struct FContainerResources
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FGuid, FResourceQuantityMap> OwnerResources;
+};
+
+USTRUCT(BlueprintType)
+struct FGuidArray
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TArray<FGuid> Guids;
+};
+
 // Delegate declarations
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnResourceAdded, FName, ResourceID, int32, Quantity);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnResourceRemoved, FName, ResourceID, int32, Quantity);
@@ -434,7 +459,7 @@ protected:
 
 	// Main inventory database: InventoryType -> OwnerID -> ResourceID -> Quantity/Quality
 	UPROPERTY()
-	TMap<EInventoryType, TMap<FGuid, TMap<FName, FResourceQuantity>>> Inventories;
+	TMap<EInventoryType, FContainerResources> Inventories;
 
 	// Containers database: ContainerID -> Container
 	UPROPERTY()
@@ -442,7 +467,7 @@ protected:
 
 	// Container ownership: OwnerID -> ContainerIDs
 	UPROPERTY()
-	TMap<FGuid, TArray<FGuid>> ContainerOwnership;
+	TMap<FGuid, FGuidArray> ContainerOwnership;
 
 	// Statistics
 	UPROPERTY()

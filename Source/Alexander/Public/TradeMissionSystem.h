@@ -31,6 +31,18 @@ enum class ETradeMissionType : uint8
 	Diplomatic		UMETA(DisplayName = "Diplomatic")
 };
 
+// Mission difficulty enum
+UENUM(BlueprintType)
+enum class EAlexanderMissionDifficulty : uint8
+{
+	Easy		UMETA(DisplayName = "Easy"),
+	Normal		UMETA(DisplayName = "Normal"),
+	Medium		UMETA(DisplayName = "Medium"),
+	Hard		UMETA(DisplayName = "Hard"),
+	VeryHard	UMETA(DisplayName = "Very Hard"),
+	Extreme		UMETA(DisplayName = "Extreme")
+};
+
 // Forward declarations for mission enums (defined in MissionBoardComponent.h)
 enum class EMissionDifficulty : uint8;
 enum class EMissionStatus : uint8;
@@ -226,6 +238,31 @@ struct FMissionTemplate
 		MaxSpawns = 1;
 		SpawnChance = 0.5f;
 	}
+};
+
+// Wrapper structs for complex template containers (UHT compatibility)
+USTRUCT(BlueprintType)
+struct FStringArray
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TArray<FString> Strings;
+};
+
+USTRUCT(BlueprintType)
+struct FTradeMissionMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FString, FTradeMission> Missions;
+};
+
+USTRUCT(BlueprintType)
+struct FStringFloatMapStruct
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FString, float> Values;
 };
 
 // Delegate declarations
@@ -464,11 +501,11 @@ protected:
 
 	// Player mission history: PlayerID -> CompletedMissionIDs
 	UPROPERTY()
-	TMap<FString, TArray<FString>> PlayerMissionHistory;
+	TMap<FString, FStringArray> PlayerMissionHistory;
 
 	// Mission statistics: PlayerID -> Statistics
 	UPROPERTY()
-	TMap<FString, TMap<FString, float>> MissionStatistics;
+	TMap<FString, FStringFloatMapStruct> MissionStatistics;
 
 	// Configuration
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")

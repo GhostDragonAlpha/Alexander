@@ -1,0 +1,151 @@
+{
+  "collector_type": "compilation_errors",
+  "timestamp": "2025-11-12T09:15:30Z",
+  "build_config": {
+    "configuration": "DebugGame",
+    "platform": "Win64",
+    "project_path": "C:\\Users\\allen\\Desktop\\Alexander\\Alexander",
+    "engine_path": "C:\\Program Files\\Epic Games\\UE_5.6"
+  },
+  "execution": {
+    "start_time": "2025-11-12T09:15:30Z",
+    "end_time": "2025-11-12T09:15:32Z",
+    "duration_seconds": 2.0,
+    "exit_code": 1,
+    "command_executed": "\"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Build\\BatchFiles\\Build.bat\" Alexander Win64 DebugGame \"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -waitmutex"
+  },
+  "results": {
+    "success": false,
+    "total_errors": 24,
+    "total_warnings": 0,
+    "errors": [
+      {
+        "file": "Source/Alexander/Public/Testing/TestDataStructures.h",
+        "line": 120,
+        "message": "Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'EAlexanderTestStatus'"
+      },
+      {
+        "file": "Source/Alexander/Public/InventoryManager.h",
+        "line": 437,
+        "message": "The type 'TMap<FName,FResourceQuantity>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/InventoryManager.h",
+        "line": 437,
+        "message": "The type 'TMap<FGuid,TMap<FName,FResourceQuantity>>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/InventoryManager.h",
+        "line": 445,
+        "message": "The type 'TArray<FGuid>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/TestScenarioManager.h",
+        "line": 185,
+        "message": "Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'FTestStepDelegate'"
+      },
+      {
+        "file": "Source/Alexander/Public/SphericalSpacePhysicsManager.h",
+        "line": 272,
+        "message": "Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'TPair'"
+      },
+      {
+        "file": "Source/Alexander/Public/PerformanceTestingSystem.h",
+        "line": 99,
+        "message": "Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'FAlexanderPerformanceMetrics'"
+      },
+      {
+        "file": "Source/Alexander/Public/PlanetaryFarmingSystem.h",
+        "line": 357,
+        "message": "The type 'TArray<AActor*>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/EconomicEventManager.h",
+        "line": 290,
+        "message": "C++ Default parameter not parsed: DelayBetweenEvents 'FTimespan(1, 0, 0, 0)'"
+      },
+      {
+        "file": "Source/Alexander/Public/ResourceGatheringSystem.h",
+        "line": 388,
+        "message": "The type 'TArray<FResourceDeposit>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/ResourceGatheringSystem.h",
+        "line": 392,
+        "message": "The type 'TArray<FResourceDeposit>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/ResourceGatheringSystem.h",
+        "line": 392,
+        "message": "The type 'TMap<FVector,TArray<FResourceDeposit>>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/TradeMissionSystem.h",
+        "line": 53,
+        "message": "Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'EAlexanderMissionDifficulty'"
+      },
+      {
+        "file": "Source/Alexander/Public/TradeMissionSystem.h",
+        "line": 467,
+        "message": "The type 'TArray<FString>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/TradeMissionSystem.h",
+        "line": 471,
+        "message": "The type 'TMap<FString,float>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/DynamicMarketManager.h",
+        "line": 442,
+        "message": "The type 'TArray<FPriceHistoryEntry>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/DynamicMarketManager.h",
+        "line": 442,
+        "message": "The type 'TMap<FName,TArray<FPriceHistoryEntry>>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/DynamicMarketManager.h",
+        "line": 446,
+        "message": "The type 'TArray<FMarketDepthImpact>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/DynamicMarketManager.h",
+        "line": 446,
+        "message": "The type 'TMap<FName,TArray<FMarketDepthImpact>>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/DynamicMarketManager.h",
+        "line": 450,
+        "message": "The type 'TMap<FName,float>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/DynamicMarketManager.h",
+        "line": 458,
+        "message": "The type 'TMap<FString,float>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/DynamicMarketManager.h",
+        "line": 462,
+        "message": "The type 'TMap<FName,int32>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/PlanetaryMiningSystem.h",
+        "line": 398,
+        "message": "Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'TPair'"
+      },
+      {
+        "file": "Source/Alexander/Public/FactionEconomyManager.h",
+        "line": 515,
+        "message": "The type 'TMap<FString,FPlayerFactionReputation>' can not be used as a value in a TMap"
+      },
+      {
+        "file": "Source/Alexander/Public/FactionEconomyManager.h",
+        "line": 527,
+        "message": "The type 'TMap<FString,float>' can not be used as a value in a TMap"
+      }
+    ],
+    "warnings": [],
+    "raw_output": "Using bundled DotNet SDK version: 8.0.300 win-x64\nRunning UnrealBuildTool: dotnet \"..\\..\\Engine\\Binaries\\DotNET\\UnrealBuildTool\\UnrealBuildTool.dll\" Alexander Win64 DebugGame C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject -waitmutex\nLog file: C:\\Users\\allen\\AppData\\Local\\UnrealBuildTool\\Log.txt\nUsing 'git status' to determine working set for adaptive non-unity build (C:\\Users\\allen\\Desktop\\Alexander\\Alexander).\nInvalidating makefile for Alexander (working set of source files changed)\nAvailable x64 toolchains (2):\n * C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\n    (Family=14.44.35207, FamilyRank=1, Version=14.44.35219, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)\n * C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\n    (Family=14.44.35207, FamilyRank=1, Version=14.44.35217, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)\nVisual Studio 2022 compiler version 14.44.35219 is not a preferred version. Please use the latest preferred version 14.38.33130\nParsing headers for Alexander\n  Running Internal UnrealHeaderTool C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Intermediate\\Build\\Win64\\Alexander\\DebugGame\\Alexander.uhtmanifest -WarningsAsErrors -installed\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\Testing\\TestDataStructures.h(120): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'EAlexanderTestStatus'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\InventoryManager.h(437): Error: The type 'TMap<FName,FResourceQuantity>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\InventoryManager.h(437): Error: The type 'TMap<FGuid,TMap<FName,FResourceQuantity>>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\InventoryManager.h(445): Error: The type 'TArray<FGuid>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\TestScenarioManager.h(185): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'FTestStepDelegate'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\SphericalSpacePhysicsManager.h(272): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'TPair'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\PerformanceTestingSystem.h(99): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'FAlexanderPerformanceMetrics'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\PlanetaryFarmingSystem.h(357): Error: The type 'TArray<AActor*>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\EconomicEventManager.h(290): Error: C++ Default parameter not parsed: DelayBetweenEvents 'FTimespan(1, 0, 0, 0)'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\ResourceGatheringSystem.h(388): Error: The type 'TArray<FResourceDeposit>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\ResourceGatheringSystem.h(392): Error: The type 'TArray<FResourceDeposit>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\ResourceGatheringSystem.h(392): Error: The type 'TMap<FVector,TArray<FResourceDeposit>>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\TradeMissionSystem.h(53): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'EAlexanderMissionDifficulty'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\TradeMissionSystem.h(467): Error: The type 'TArray<FString>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\TradeMissionSystem.h(471): Error: The type 'TMap<FString,float>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(442): Error: The type 'TArray<FPriceHistoryEntry>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(442): Error: The type 'TMap<FName,TArray<FPriceHistoryEntry>>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(446): Error: The type 'TArray<FMarketDepthImpact>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(446): Error: The type 'TMap<FName,TArray<FMarketDepthImpact>>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(450): Error: The type 'TMap<FName,float>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(458): Error: The type 'TMap<FString,float>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(462): Error: The type 'TMap<FName,int32>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\PlanetaryMiningSystem.h(398): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'TPair'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\FactionEconomyManager.h(515): Error: The type 'TMap<FString,FPlayerFactionReputation>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\FactionEconomyManager.h(527): Error: The type 'TMap<FString,float>' can not be used as a value in a TMap\nTotal of 0 written\n\nResult: Failed (OtherCompilationError)\nTotal execution time: 1.43 seconds"
+  }
+}

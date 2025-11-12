@@ -177,6 +177,63 @@ struct FSupplyDemandFactors
 	}
 };
 
+// Wrapper structs for complex template containers (UHT compatibility)
+USTRUCT(BlueprintType)
+struct FPriceHistoryArray
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TArray<FPriceHistoryEntry> Entries;
+};
+
+USTRUCT(BlueprintType)
+struct FMarketDepthImpactArray
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TArray<FMarketDepthImpact> Impacts;
+};
+
+USTRUCT(BlueprintType)
+struct FPriceHistoryMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FName, FPriceHistoryArray> CommodityHistory;
+};
+
+USTRUCT(BlueprintType)
+struct FMarketDepthMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FName, FMarketDepthImpactArray> CommodityDepth;
+};
+
+USTRUCT(BlueprintType)
+struct FFloatValueMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FName, float> Values;
+};
+
+USTRUCT(BlueprintType)
+struct FStringFloatMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FString, float> Values;
+};
+
+USTRUCT(BlueprintType)
+struct FMarketInt32ValueMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FName, int32> Values;
+};
+
 // Delegate declarations
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMarketEventStarted, const FActiveMarketEvent&, Event);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMarketEventEnded, const FActiveMarketEvent&, Event);
@@ -439,15 +496,15 @@ protected:
 
 	// Price history database: StationID -> CommodityID -> HistoryEntries
 	UPROPERTY()
-	TMap<FString, TMap<FName, TArray<FPriceHistoryEntry>>> PriceHistoryDatabase;
+	TMap<FString, FPriceHistoryMap> PriceHistoryDatabase;
 
 	// Market depth tracking: StationID -> CommodityID -> RecentOrders
 	UPROPERTY()
-	TMap<FString, TMap<FName, TArray<FMarketDepthImpact>>> MarketDepthTracker;
+	TMap<FString, FMarketDepthMap> MarketDepthTracker;
 
 	// Player trade impact: PlayerID -> CommodityID -> ImpactScore
 	UPROPERTY()
-	TMap<FString, TMap<FName, float>> PlayerTradeImpact;
+	TMap<FString, FFloatValueMap> PlayerTradeImpact;
 
 	// Station market modifiers: StationID -> Modifier
 	UPROPERTY()
@@ -455,11 +512,11 @@ protected:
 
 	// Faction market control: FactionID -> StationID -> ControlLevel
 	UPROPERTY()
-	TMap<FString, TMap<FString, float>> FactionMarketControl;
+	TMap<FString, FStringFloatMap> FactionMarketControl;
 
 	// Daily trade volumes: StationID -> CommodityID -> Volume
 	UPROPERTY()
-	TMap<FString, TMap<FName, int32>> DailyTradeVolumes;
+	TMap<FString, FMarketInt32ValueMap> DailyTradeVolumes;
 
 	// Configuration
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")

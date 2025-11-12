@@ -1,0 +1,25 @@
+{
+  "collector_type": "compilation_errors",
+  "timestamp": "2025-11-12T00:42:57.393226",
+  "build_config": {
+    "configuration": "Development",
+    "platform": "Win64",
+    "project_path": "C:\\Users\\allen\\Desktop\\Alexander\\Alexander",
+    "engine_path": "C:\\Program Files\\Epic Games\\UE_5.6"
+  },
+  "execution": {
+    "start_time": "2025-11-12T00:42:57.393226",
+    "end_time": "2025-11-12T00:42:58.915690",
+    "duration_seconds": 1.522464,
+    "exit_code": 6,
+    "command_executed": "C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Binaries\\DotNET\\UnrealBuildTool\\UnrealBuildTool.exe Alexander Win64 Development -Project=C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject -Progress -Detailed"
+  },
+  "results": {
+    "success": false,
+    "total_errors": 0,
+    "total_warnings": 0,
+    "errors": [],
+    "warnings": [],
+    "raw_output": "Log file: C:\\Users\\allen\\AppData\\Local\\UnrealBuildTool\\Log.txt\nUsing 'git status' to determine working set for adaptive non-unity build (C:\\Users\\allen\\Desktop\\Alexander\\Alexander).\nInvalidating makefile for Alexander (working set of source files changed)\nAvailable x64 toolchains (2):\n * C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\n    (Family=14.44.35207, FamilyRank=1, Version=14.44.35219, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)\n * C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\n    (Family=14.44.35207, FamilyRank=1, Version=14.44.35217, HostArchitecture=x64, ReleaseChannel=Latest, Architecture=x64)\nVisual Studio 2022 compiler version 14.44.35219 is not a preferred version. Please use the latest preferred version 14.38.33130\n@progress push 5%\n@progress 'Generating code...' 0%\n@progress 'Generating code...' 33%\nParsing headers for Alexander\n  Running Internal UnrealHeaderTool C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Intermediate\\Build\\Win64\\Alexander\\Development\\Alexander.uhtmanifest -WarningsAsErrors -installed\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\SphericalSpacePhysicsManager.h(273): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'TPair'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\PerformanceTestingSystem.h(99): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'FAlexanderPerformanceMetrics'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\TestScenarioManager.h(185): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'FTestStepDelegate'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\Testing\\TestDataStructures.h(120): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'EAlexanderTestStatus'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\TradeMissionSystem.h(53): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'EAlexanderMissionDifficulty'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(499): Error: The type 'TArray<FPriceHistoryEntry>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(499): Error: The type 'TMap<FName,TArray<FPriceHistoryEntry>>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(503): Error: The type 'TArray<FMarketDepthImpact>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(503): Error: The type 'TMap<FName,TArray<FMarketDepthImpact>>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(507): Error: The type 'TMap<FName,float>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(515): Error: The type 'TMap<FString,float>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\DynamicMarketManager.h(519): Error: The type 'TMap<FName,int32>' can not be used as a value in a TMap\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\PlanetaryMiningSystem.h(399): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'TPair'\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\FactionEconomyManager.h(552): Error: The type 'TMap<FString,float>' can not be used as a value in a TMap\nTotal of 0 written\n\nResult: Failed (OtherCompilationError)\nTotal execution time: 1.43 seconds\n"
+  }
+}

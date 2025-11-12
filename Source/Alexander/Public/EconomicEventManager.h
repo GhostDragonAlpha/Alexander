@@ -287,8 +287,16 @@ public:
 	FEventChain CreateEventChain(
 		FString ChainName,
 		TArray<FEconomicEventData> Events,
-		bool bIsSequential = true,
-		FTimespan DelayBetweenEvents = FTimespan(1, 0, 0, 0)
+		bool bIsSequential,
+		FTimespan DelayBetweenEvents
+	);
+
+	// Create event chain with default delay (helper function)
+	UFUNCTION(BlueprintCallable, Category = "Events|Chains", meta = (DisplayName = "Create Event Chain (Default Delay)"))
+	FEventChain CreateEventChainWithDefaultDelay(
+		FString ChainName,
+		TArray<FEconomicEventData> Events,
+		bool bIsSequential = true
 	);
 
 	// ============================================================================

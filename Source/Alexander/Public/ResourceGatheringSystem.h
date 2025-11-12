@@ -234,6 +234,23 @@ struct FMiningResult
 	}
 };
 
+// Wrapper structs for complex template containers (UHT compatibility)
+USTRUCT(BlueprintType)
+struct FResourceDepositArray
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TArray<FResourceDeposit> Deposits;
+};
+
+USTRUCT(BlueprintType)
+struct FPlanetaryDepositMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FVector, FResourceDepositArray> LocationDeposits;
+};
+
 // Delegate declarations
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnResourceMined, const FResourceQuantity&, Resource);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDepositDepleted, const FResourceDeposit&, Deposit);
@@ -385,11 +402,11 @@ protected:
 
 	// Asteroid resource deposits
 	UPROPERTY()
-	TMap<AAsteroid*, TArray<FResourceDeposit>> AsteroidDeposits;
+	TMap<AAsteroid*, FResourceDepositArray> AsteroidDeposits;
 
 	// Planetary resource deposits
 	UPROPERTY()
-	TMap<APlanet*, TMap<FVector, TArray<FResourceDeposit>>> PlanetaryDeposits;
+	TMap<APlanet*, FPlanetaryDepositMap> PlanetaryDeposits;
 
 	// Statistics tracking
 	UPROPERTY()

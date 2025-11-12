@@ -214,6 +214,15 @@ struct FAlexanderHarvestResult
 	}
 };
 
+// Wrapper struct for complex template container (UHT compatibility)
+USTRUCT(BlueprintType)
+struct FActorArray
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TArray<AActor*> Actors;
+};
+
 // Delegate declarations
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCropPlanted, const FCropPlantingInfo&, PlantingInfo, const FGuid&, PlotID);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCropHarvested, const FHarvestResult&, HarvestResult, const FGuid&, PlotID);
@@ -354,7 +363,7 @@ protected:
 
 	// Infrastructure by type
 	UPROPERTY()
-	TMap<EFarmingInfrastructureType, TArray<AActor*>> InfrastructureByType;
+	TMap<EFarmingInfrastructureType, FActorArray> InfrastructureByType;
 
 	// Auto-management enabled
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")

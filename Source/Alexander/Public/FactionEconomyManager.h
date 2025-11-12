@@ -248,6 +248,39 @@ struct FFactionSanctions
 	}
 };
 
+// Wrapper structs for complex template containers (UHT compatibility)
+USTRUCT(BlueprintType)
+struct FPlayerReputationMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FString, FPlayerFactionReputation> ReputationData;
+};
+
+USTRUCT(BlueprintType)
+struct FTradeRouteArray
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TArray<FTradeRoute> Routes;
+};
+
+USTRUCT(BlueprintType)
+struct FFactionInt32ValueMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FName, int32> Values;
+};
+
+USTRUCT(BlueprintType)
+struct FFactionRelationshipMap
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FString, float> Relationships;
+};
+
 // Delegate declarations
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFactionReputationChanged, const FString&, FactionID, float, NewReputation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnFactionPolicyChanged, const FString&, FactionID, EFactionEconomicPolicy, NewPolicy);
@@ -512,7 +545,7 @@ protected:
 
 	// Player reputations: PlayerID -> FactionID -> ReputationData
 	UPROPERTY()
-	TMap<FString, TMap<FString, FPlayerFactionReputation>> PlayerReputations;
+	TMap<FString, FPlayerReputationMap> PlayerReputations;
 
 	// Active trade agreements
 	UPROPERTY()
@@ -524,7 +557,7 @@ protected:
 
 	// Faction relationships: FactionID1 -> FactionID2 -> RelationshipScore
 	UPROPERTY()
-	TMap<FString, TMap<FString, float>> FactionRelationships;
+	TMap<FString, FFactionRelationshipMap> FactionRelationships;
 
 	// Configuration
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")

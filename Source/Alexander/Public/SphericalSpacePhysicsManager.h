@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Templates/Pair.h"
 #include "SphericalSpacePhysicsManager.generated.h"
 
 // Forward declarations
@@ -71,6 +72,19 @@ struct FBubbleInfluenceConfig
         , MinScaleFactor(0.1f)     // Scale down to 10% at max distance
         , ScalingExponent(2.0f)    // Quadratic scaling
     {}
+};
+
+/**
+ * Wrapper struct for orbital parameters (UHT compatibility)
+ */
+USTRUCT(BlueprintType)
+struct FOrbitalParameterData
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	AActor* CenterActor;
+	UPROPERTY()
+	float AngularSpeed;
 };
 
 /**
@@ -269,7 +283,7 @@ private:
 
     // Orbital tracking
     UPROPERTY()
-    TMap<AActor*, TPair<AActor*, float>> OrbitalParameters; // Actor -> (CenterActor, AngularSpeed)
+    TMap<TWeakObjectPtr<AActor>, FOrbitalParameterData> OrbitalParameters; // Actor -> orbital data
 
     // Helper functions
     void UpdateActorInfluence(AActor* Actor);

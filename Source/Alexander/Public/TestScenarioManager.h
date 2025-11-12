@@ -114,6 +114,9 @@ struct FTestExecutionResult
 	}
 };
 
+// Test step execution delegate (must be declared at top level for UHT)
+DECLARE_DELEGATE_RetVal_TwoParams(FTestStepDelegate, bool, const FString& /*Parameters*/, FString& /*OutMessage*/);
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ALEXANDER_API UTestScenarioManager : public UActorComponent
 {
@@ -181,7 +184,6 @@ public:
 	float GetSuccessRate() const;
 
 	// Register custom test step handler
-	UFUNCTION(BlueprintCallable, Category = "Test Scenarios")
 	void RegisterStepHandler(const FString& StepType, const FTestStepDelegate& Handler);
 
 protected:
@@ -249,6 +251,3 @@ private:
 	// Execution start time
 	float ExecutionStartTime;
 };
-
-// Test step execution delegate
-DECLARE_DELEGATE_RetVal_TwoParams(bool, FTestStepDelegate, const FString& /*Parameters*/, FString& /*OutMessage*/);

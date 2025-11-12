@@ -10,7 +10,7 @@
  * Performance metrics captured at a specific altitude
  */
 // Forward declaration - defined in PerformanceSelfMonitor.h
-struct FAlexanderPerformanceMetrics;
+struct FSelfTestPerformanceMetrics;
 
 /**
  * VR-specific performance metrics
@@ -96,7 +96,7 @@ struct FPerformanceTestResults
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, Category = "Results")
-	TArray<FAlexanderPerformanceMetrics> Samples;
+	TArray<FSelfTestPerformanceMetrics> Samples;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Results")
 	TArray<FVRPerformanceMetrics> VRSamples;

@@ -6,6 +6,7 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "ResourceGatheringSystem.h"
 #include "SystemSelfTestInterface.h"
+#include "Templates/Pair.h"
 #include "PlanetaryMiningSystem.generated.h"
 
 // Forward declarations
@@ -167,6 +168,15 @@ struct FPlanetaryMiningResult
 	}
 };
 
+// Scan history wrapper
+USTRUCT(BlueprintType)
+struct FPlanetScanHistory
+{
+	GENERATED_BODY()
+	UPROPERTY()
+	TMap<FVector, FPlanetaryScanResult> LocationScans;
+};
+
 // Mining permit
 USTRUCT(BlueprintType)
 struct FMiningPermit
@@ -213,6 +223,7 @@ struct FMiningPermit
 		MaxAllowedImpact = EEnvironmentalImpact::Moderate;
 	}
 };
+
 
 // Delegate declarations
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlanetaryScanned, APlanet*, Planet, const FPlanetaryScanResult&, ScanResult);
@@ -395,7 +406,7 @@ protected:
 
 	// Scan history
 	UPROPERTY()
-	TMap<TPair<TWeakObjectPtr<APlanet>, FVector>, FPlanetaryScanResult> ScanHistory;
+	TMap<TWeakObjectPtr<APlanet>, FPlanetScanHistory> ScanHistory;
 
 	// Mining permits
 	UPROPERTY()

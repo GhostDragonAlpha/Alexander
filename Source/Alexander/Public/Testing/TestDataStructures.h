@@ -9,8 +9,17 @@
 /**
  * Test result status enumeration
  */
-// Forward declaration for test status enum
-enum class EAlexanderTestStatus : uint8;
+// Test status enumeration
+UENUM(BlueprintType)
+enum class EAlexanderTestStatus : uint8
+{
+	NotRun		UMETA(DisplayName = "Not Run"),
+	Running		UMETA(DisplayName = "Running"),
+	Passed		UMETA(DisplayName = "Passed"),
+	Failed		UMETA(DisplayName = "Failed"),
+	Timeout		UMETA(DisplayName = "Timeout"),
+	Skipped		UMETA(DisplayName = "Skipped")
+};
 
 /**
  * Test severity for errors and warnings
@@ -145,13 +154,13 @@ struct FTestCaseResult
 	TMap<FString, FString> CustomData;
 
 	FTestCaseResult()
-		: TestName(TEXT("")), Status(ETestStatus::NotRun), Description(TEXT("")),
-		  ErrorMessage(TEXT("")), Severity(ETestSeverity::Info), ExecutionTimeSeconds(0.0f)
-	{}
-
-	explicit FTestCaseResult(const FString& InTestName)
-		: TestName(InTestName), Status(ETestStatus::NotRun), Description(TEXT("")),
-		  ErrorMessage(TEXT("")), Severity(ETestSeverity::Info), ExecutionTimeSeconds(0.0f)
+		: TestName(TEXT("")), Status(EAlexanderTestStatus::NotRun), Description(TEXT("")),
+				  ErrorMessage(TEXT("")), Severity(ETestSeverity::Info), ExecutionTimeSeconds(0.0f)
+			{}
+		
+			explicit FTestCaseResult(const FString& InTestName)
+				: TestName(InTestName), Status(EAlexanderTestStatus::NotRun), Description(TEXT("")),
+				  ErrorMessage(TEXT("")), Severity(ETestSeverity::Info), ExecutionTimeSeconds(0.0f)
 	{}
 
 	// Mark test as started

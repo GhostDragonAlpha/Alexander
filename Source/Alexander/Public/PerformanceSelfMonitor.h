@@ -67,7 +67,7 @@ struct FSelfTestPerformanceMetrics
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Performance")
 	int32 ShaderComplexityWarnings;
 
-	FAlexanderPerformanceMetrics()
+	FSelfTestPerformanceMetrics()
 	{
 		AverageFPS = 0.0f;
 		MinFPS = 0.0f;
