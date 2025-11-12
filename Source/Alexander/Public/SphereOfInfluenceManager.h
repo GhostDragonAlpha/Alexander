@@ -128,7 +128,6 @@ public:
     AOrbitalBody* GetRootBody() const { return RootBody; }
 
     // Get the SOI hierarchy as a tree structure
-    UFUNCTION(BlueprintCallable, Category = "Orbital Mechanics|SOI")
     FSOINode GetSOIHierarchy() const;
 
     // Get all children of a body in the hierarchy

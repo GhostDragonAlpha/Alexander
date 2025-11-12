@@ -225,23 +225,18 @@ protected:
 
 private:
 	// Current performance metrics
-	UPROPERTY( Category = "Performance")
 	FPerformanceMetrics CurrentMetrics;
 
 	// Performance baseline
-	UPROPERTY(EditAnywhere, Category = "Performance")
 	FPerformanceBaseline Baseline;
 
 	// Metrics history
-	UPROPERTY( Category = "Performance")
 	TArray<FPerformanceMetrics> MetricsHistory;
 
 	// Monitoring active
-	UPROPERTY( Category = "State")
 	bool bIsMonitoring;
 
 	// Monitor interval
-	UPROPERTY(EditAnywhere, Category = "Configuration")
 	float MonitorInterval;
 
 	// Timer handle
@@ -254,6 +249,5 @@ private:
 	TArray<float> FrameTimeHistory;
 
 	// Maximum history size
-	UPROPERTY(EditAnywhere, Category = "Configuration")
 	int32 MaxHistorySize;
 };

@@ -222,27 +222,21 @@ protected:
 
 private:
 	// Predefined test scenarios
-	UPROPERTY(EditAnywhere, Category = "Scenarios")
 	TArray<FTestScenario> TestScenarios;
 
 	// Current execution status
-	UPROPERTY( Category = "Status")
 	ETestStatus CurrentStatus;
 
 	// Current scenario being executed
-	UPROPERTY( Category = "Status")
 	FString CurrentScenario;
 
 	// Current step index
-	UPROPERTY( Category = "Status")
 	int32 CurrentStepIndex;
 
 	// Execution results
-	UPROPERTY( Category = "Results")
 	TArray<FTestExecutionResult> ExecutionResults;
 
 	// Should stop execution
-	UPROPERTY( Category = "Status")
 	bool bShouldStop;
 
 	// Test step handlers

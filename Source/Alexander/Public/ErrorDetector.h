@@ -173,45 +173,35 @@ protected:
 
 private:
 	// Error reports
-	UPROPERTY( Category = "Errors")
 	TArray<FErrorReport> ErrorReports;
 
 	// Monitoring active
-	UPROPERTY( Category = "State")
 	bool bIsMonitoring;
 
 	// Current screenshot path
-	UPROPERTY( Category = "State")
 	FString CurrentScreenshotPath;
 
 	// Memory threshold for warnings (MB)
-	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float MemoryWarningThresholdMB;
 
 	// Memory threshold for errors (MB)
-	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float MemoryErrorThresholdMB;
 
 	// FPS threshold for warnings
-	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float FPSWarningThreshold;
 
 	// FPS threshold for errors
-	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float FPSErrorThreshold;
 
 	// Frame time threshold for warnings (ms)
-	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float FrameTimeWarningThresholdMS;
 
 	// Frame time threshold for errors (ms)
-	UPROPERTY(EditAnywhere, Category = "Thresholds")
 	float FrameTimeErrorThresholdMS;
 
 	// Timer handle for monitoring
 	FTimerHandle MonitorTimer;
 
 	// Monitor interval
-	UPROPERTY(EditAnywhere, Category = "Configuration")
 	float MonitorInterval;
 };

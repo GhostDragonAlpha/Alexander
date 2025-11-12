@@ -227,7 +227,7 @@ public:
     float CurrentBubbleRadius;
 
     // Registered orbital bodies
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Bubble")
+    UPROPERTY(VisibleAnywhere, Category = "VR Bubble")
     TArray<TWeakObjectPtr<AOrbitalBody>> RegisteredBodies;
 
     // Enable debug visualization

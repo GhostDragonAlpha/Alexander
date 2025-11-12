@@ -149,33 +149,26 @@ protected:
 
 private:
 	// Screenshot settings
-	UPROPERTY(EditAnywhere, Category = "Settings")
 	FScreenshotSettings ScreenshotSettings;
 
 	// Last captured screenshot path
-	UPROPERTY( Category = "State")
 	FString LastScreenshotPath;
 
 	// Capture statistics
-	UPROPERTY( Category = "Statistics")
 	int32 TotalCaptures;
 
-	UPROPERTY( Category = "Statistics")
 	float TotalCaptureTime;
 
 	// Continuous capture active
-	UPROPERTY( Category = "State")
 	bool bContinuousCaptureActive;
 
 	// Capture interval
-	UPROPERTY(EditAnywhere, Category = "Settings")
 	float CaptureInterval;
 
 	// Timer handle for continuous capture
 	FTimerHandle ContinuousCaptureTimer;
 
 	// Template images for object detection
-	UPROPERTY()
 	TMap<FString, UTexture2D*> TemplateImages;
 
 	// Capture timestamps for statistics

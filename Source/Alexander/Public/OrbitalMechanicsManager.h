@@ -196,7 +196,7 @@ public:
     TWeakObjectPtr<AOrbitalBody> RootBody;
 
     // All registered orbital bodies
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orbital Mechanics")
+    UPROPERTY(VisibleAnywhere, Category = "Orbital Mechanics")
     TArray<TWeakObjectPtr<AOrbitalBody>> RegisteredBodies;
 
     // Hohmann transfer calculator

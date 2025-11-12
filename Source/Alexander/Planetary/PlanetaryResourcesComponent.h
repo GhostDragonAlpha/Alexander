@@ -248,6 +248,9 @@ struct FMiningOperation
     int32 OperationID;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    EResourceType ResourceType;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 MiningFacilityID;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -585,7 +588,7 @@ struct FResourceStatistics
 };
 
 // Delegates
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnResourceDepositDiscovered, FResourceDeposit, Deposit);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnResourceDepositDiscovered, FAlexanderResourceDeposit, Deposit);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnResourceExtracted, EResourceType, ResourceType, float, Amount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnResourceProcessed, EResourceType, InputType, EResourceType, OutputType);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnResourceStored, FResourceAmount, Amount);
@@ -628,10 +631,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Resources")
     TArray<FAlexanderResourceDeposit> GetResourceDeposits() const { return ResourceDeposits; }
 
-    FResourceDeposit* GetResourceDeposit(int32 DepositID);
+    FAlexanderResourceDeposit* GetResourceDeposit(int32 DepositID);
 
     UFUNCTION(BlueprintCallable, Category = "Resources")
-    TArray<FResourceDeposit> GetDepositsByType(EResourceType ResourceType) const;
+    TArray<FAlexanderResourceDeposit> GetDepositsByType(EResourceType ResourceType) const;
 
     UFUNCTION(BlueprintCallable, Category = "Resources")
     bool DiscoverResourceDeposit(const FVector& Location, EResourceType ResourceType, float Amount);
@@ -832,7 +835,7 @@ protected:
     void ProcessStorageDecay(FResourceStorage& Storage, float DeltaTime);
     void ProcessTrade(FResourceTrade& Trade);
 
-    FResourceAmount ExtractResourcesFromDeposit(FResourceDeposit& Deposit, float Amount);
+    FResourceAmount ExtractResourcesFromDeposit(FAlexanderResourceDeposit& Deposit, float Amount);
     FResourceAmount ProcessResources(const FResourceProcessing& Processing, const FResourceAmount& Input);
     bool ValidateTrade(const FResourceTrade& Trade) const;
     void ExecuteTradeInternal(FResourceTrade& Trade);
@@ -848,8 +851,8 @@ protected:
     float CalculateStorageEfficiency(const FResourceStorage& Storage) const;
     float CalculateTradeValue(const FResourceTrade& Trade) const;
 
-    FResourceDeposit* FindDepositByID(int32 DepositID);
-    const FResourceDeposit* FindDepositByID(int32 DepositID) const;
+    FAlexanderResourceDeposit* FindDepositByID(int32 DepositID);
+    const FAlexanderResourceDeposit* FindDepositByID(int32 DepositID) const;
     FMiningOperation* FindMiningOperation(int32 OperationID);
     FResourceProcessing* FindProcessingOperation(int32 ProcessingID);
     FResourceStorage* FindStorageFacility(int32 StorageID);
@@ -860,7 +863,7 @@ protected:
     void PerformResourceScan();
     void StoreResourcesInAvailableStorage(const FResourceAmount& Resources);
     void RetrieveResourcesFromStorage(const FResourceAmount& Resources);
-    void GenerateDepositByproducts(FResourceDeposit& Deposit);
+    void GenerateDepositByproducts(FAlexanderResourceDeposit& Deposit);
     TArray<EResourceType> GetRequiredCatalysts(EResourceType InputResource, EResourceType OutputResource) const;
     float CalculateResourceDemand(EResourceType ResourceType) const;
     void AddResourceToProductionRate(FResourceAmount& ProductionRate, EResourceType ResourceType, float Rate) const;

@@ -106,7 +106,7 @@ public:
 
 	// Launch game with default configuration
 	UFUNCTION(BlueprintCallable, Category = "Game Launcher")
-	bool LaunchGame();
+	bool LaunchGameWithDefaultConfig();
 
 	// Check if game is running
 	UFUNCTION(BlueprintCallable, Category = "Game Launcher")
@@ -153,15 +153,12 @@ protected:
 
 private:
 	// Default configuration
-	UPROPERTY(EditAnywhere, Category = "Configuration")
 	FGameLaunchConfig DefaultConfig;
 
 	// Current configuration
-	UPROPERTY( Category = "Configuration")
 	FGameLaunchConfig CurrentConfig;
 
 	// Process information
-	UPROPERTY( Category = "Process")
 	FGameProcessInfo ProcessInfo;
 
 	// Process handle (platform specific)
@@ -174,6 +171,5 @@ private:
 	int32 RestartCount;
 
 	// Maximum restart attempts
-	UPROPERTY(EditAnywhere, Category = "Configuration")
 	int32 MaxRestartAttempts;
 };

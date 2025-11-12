@@ -204,11 +204,11 @@ struct FGeneratedStarSystem
     TWeakObjectPtr<ASun> Star;
 
     // Generated planets
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "System")
+    UPROPERTY(VisibleAnywhere, Category = "System")
     TArray<TWeakObjectPtr<APlanet>> Planets;
 
     // Generated moons
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "System")
+    UPROPERTY(VisibleAnywhere, Category = "System")
     TArray<TWeakObjectPtr<AOrbitalBody>> Moons;
 
     // System configuration used for generation
