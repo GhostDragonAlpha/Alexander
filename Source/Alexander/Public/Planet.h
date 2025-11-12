@@ -16,6 +16,8 @@ class UPlanetCloudComponent;
 class UPlanetWeatherComponent;
 class UPlanetFarmingComponent;
 class UDayNightCycleComponent;
+class UBiomeFeatureGenerator;
+class UTerrainMaterialSystem;
 
 UCLASS(Blueprintable)
 class ALEXANDER_API APlanet : public AOrbitalBody

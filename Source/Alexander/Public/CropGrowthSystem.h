@@ -76,6 +76,17 @@ enum class EDiseaseType : uint8
 	Virus UMETA(DisplayName = "Virus")
 };
 
+// Crop growth stages
+UENUM(BlueprintType)
+enum class ECropGrowthStage : uint8
+{
+	Seed		UMETA(DisplayName = "Seed"),
+	Sprout		UMETA(DisplayName = "Sprout"),
+	Growing		UMETA(DisplayName = "Growing"),
+	Mature		UMETA(DisplayName = "Mature"),
+	Harvestable	UMETA(DisplayName = "Harvestable")
+};
+
 // Crop growth data with extended information
 USTRUCT(BlueprintType)
 struct FCropGrowthData

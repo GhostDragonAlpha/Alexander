@@ -4,11 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Containers/Map.h"
+#include "Containers/Array.h"
+#include "HAL/ThreadSafeCounter.h"
 #include "PerformanceSelfMonitor.generated.h"
 
 // Performance metrics collected during testing
 USTRUCT(BlueprintType)
-struct FAlexanderPerformanceMetrics
+struct FPerformanceMetrics
 {
 	GENERATED_BODY()
 
@@ -200,10 +203,8 @@ protected:
 	UPROPERTY()
 	TArray<FString> PerformanceWarnings;
 
-	// Stat tracking
-	UPROPERTY()
+	// Stat tracking (non-reflected counters used internally)
 	FThreadSafeCounter DrawCallCount;
 
-	UPROPERTY()
 	FThreadSafeCounter TriangleCount;
 };

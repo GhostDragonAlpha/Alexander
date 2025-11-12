@@ -10,6 +10,7 @@
 #include "ResourceGatheringSystem.h"
 #include "CraftingSystem.h"
 #include "SystemSelfTestInterface.h"
+#include "Containers/Map.h"
 #include "TradingEconomySystem.generated.h"
 
 // Forward declarations
@@ -254,6 +255,18 @@ struct FEnhancedMarketListing
 	}
 };
 
+// Wrapper struct for enhanced market listings map
+USTRUCT(BlueprintType)
+struct FEnhancedMarketListingMap
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TMap<FName, FEnhancedMarketListing> Listings;
+
+	FEnhancedMarketListingMap() {}
+};
+
 /**
  * Trade route with detailed analysis
  */
@@ -313,6 +326,20 @@ struct FDetailedTradeRoute
 };
 
 /**
+ * Market data update wrapper for delegate parameters
+ */
+USTRUCT(BlueprintType)
+struct FMarketDataUpdate
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TMap<FName, FEnhancedMarketListing> MarketData;
+
+	FMarketDataUpdate() {}
+};
+
+/**
  * Enhanced transaction record
  */
 USTRUCT(BlueprintType)
@@ -363,7 +390,7 @@ struct FEnhancedTransactionRecord
 };
 
 // Delegate declarations
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMarketPricesUpdated, const TMap<FName, FEnhancedMarketListing>&, MarketData);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMarketPricesUpdated, const FMarketDataUpdate&, MarketDataUpdate);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTradeRouteDiscovered, const FDetailedTradeRoute&, Route);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEconomicEventTriggered, const FString&, EventName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerMarketTransaction, const FEnhancedTransactionRecord&, Transaction, float, NewBalance);
@@ -663,11 +690,10 @@ protected:
 	UPROPERTY()
 	TMap<FName, FEnhancedMarketListing> GlobalMarketData;
 
-	UPROPERTY()
-	TMap<FString, TMap<FName, FEnhancedMarketListing>> StationMarkets; // StationID -> CommodityData
+	// Station and player market caches are internal and not exposed to reflection
+	TMap<FString, FEnhancedMarketListingMap> StationMarkets; // StationID -> CommodityData
 
-	UPROPERTY()
-	TMap<FString, TMap<FName, FEnhancedMarketListing>> PlayerMarkets; // StationID -> CommodityData
+	TMap<FString, FEnhancedMarketListingMap> PlayerMarkets; // StationID -> CommodityData
 
 	// Trade routes
 	UPROPERTY()

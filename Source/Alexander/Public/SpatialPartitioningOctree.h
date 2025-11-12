@@ -6,11 +6,18 @@
 #include "UObject/NoExportTypes.h"
 #include "SpatialPartitioningOctree.generated.h"
 
+// Octree configuration constants
+static constexpr int32 MAX_BODIES_PER_NODE = 8;
+static constexpr int32 MAX_DEPTH = 6;
+
 // Forward declarations
 class AOrbitalBody;
 
 /**
  * Octree node for spatial partitioning
+ */
+/**
+ * Octree node for spatial partitioning (internal implementation - not Blueprint exposed)
  */
 USTRUCT()
 struct FOctreeNode
@@ -21,27 +28,18 @@ struct FOctreeNode
     UPROPERTY()
     FBox BoundingBox;
 
-    // Orbital bodies in this node
-    UPROPERTY()
+    // Orbital bodies in this node (internal only)
     TArray<TWeakObjectPtr<AOrbitalBody>> Bodies;
 
-    // Children nodes (8 for octree)
-    UPROPERTY()
+    // Children nodes (8 for octree) - internal only to avoid struct recursion issues
     TArray<FOctreeNode> Children;
 
     // Parent node (null for root)
-    UPROPERTY()
     TWeakObjectPtr<UObject> ParentNode;
 
     // Node depth (0 for root)
     UPROPERTY()
     int32 Depth;
-
-    // Maximum bodies before splitting
-    static constexpr int32 MAX_BODIES_PER_NODE = 8;
-
-    // Maximum depth to prevent infinite recursion
-    static constexpr int32 MAX_DEPTH = 6;
 
     FOctreeNode()
         : ParentNode(nullptr)
@@ -73,7 +71,7 @@ struct FAlexanderSpatialQueryResult
 
     // Found orbital bodies
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spatial Query")
-    TArray<TWeakObjectPtr<AOrbitalBody>> FoundBodies;
+    TArray<AOrbitalBody*> FoundBodies;
 
     // Query position
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spatial Query")
@@ -170,27 +168,21 @@ public:
 
 protected:
     // Root node of octree
-    UPROPERTY()
     FOctreeNode RootNode;
 
     // World bounds
-    UPROPERTY()
     FBox WorldBounds;
 
     // Body count
-    UPROPERTY()
     int32 BodyCount;
 
     // Node count
-    UPROPERTY()
     int32 NodeCount;
 
     // Maximum depth reached
-    UPROPERTY()
     int32 MaxDepth;
 
     // Enable debug visualization
-    UPROPERTY()
     bool bEnableDebugVisualization;
 
     // Add body to node
