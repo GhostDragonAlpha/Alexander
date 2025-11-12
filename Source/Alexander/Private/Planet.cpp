@@ -27,9 +27,9 @@ APlanet::APlanet()
 
 	// Planets orbit the Sun by default
 	OrbitMode = EOrbitMode::Orbit;
-	Mass = 5.972e24f; // Mass of Earth in kg (default)
-	OrbitRadius = 10000.0f; // Default orbit distance
-	OrbitSpeed = 10.0f; // Default orbital speed (degrees per second)
+	Mass = EARTH_MASS_KG; // Mass of Earth in kg (default)
+	OrbitRadius = DEFAULT_ORBIT_RADIUS; // Default orbit distance
+	OrbitSpeed = DEFAULT_ORBIT_SPEED; // Default orbital speed (degrees per second)
 	OrbitInclination = 0.0f; // Default to same plane as Sun
 
 	// RootComponent already created by parent class AOrbitalBody
@@ -226,7 +226,7 @@ void APlanet::ApplyConfiguration()
 	}
 
 	// Scale mesh based on radius (simplified - actual scale would be more complex)
-	float ScaleFactor = PlanetRadius / 6371.0f; // Normalize to Earth radius
+	float ScaleFactor = PlanetRadius / EARTH_RADIUS_KM; // Normalize to Earth radius
 	PlanetMesh->SetWorldScale3D(FVector(ScaleFactor * PlanetScale));
 }
 
@@ -242,121 +242,23 @@ void APlanet::GeneratePlanetTerrain()
 	}
 
 	// Configure noise parameters for terrain generation
-	// TODO: Add ContinentalFrequency, MaxElevation, MountainFrequency, DetailFrequency to FPlanetTerrainConfig
-	// Using calculated values from existing TerrainConfig properties as placeholders
-	float MaxElevation = TerrainConfig.Amplitude * 2.0f; // Derived from Amplitude
-	float ContinentalFrequency = 1.0f / (TerrainConfig.Scale * 10.0f); // Derived from Scale
-	float MountainFrequency = 1.0f / (TerrainConfig.Scale * 5.0f); // Derived from Scale
-	float DetailFrequency = 1.0f / (TerrainConfig.Scale * 2.0f); // Derived from Scale
-
-	FNoiseConfig ContinentalNoise;
-	ContinentalNoise.Seed = TerrainSeed;
-	ContinentalNoise.NoiseType = ENoiseType::Perlin;
-	ContinentalNoise.Frequency = ContinentalFrequency;
-	ContinentalNoise.Octaves = 4;
-	ContinentalNoise.Lacunarity = 2.0f;
-	ContinentalNoise.Persistence = 0.5f;
-	ContinentalNoise.Amplitude = MaxElevation * 0.6f; // Continental scale features
-
-	FNoiseConfig MountainNoise;
-	MountainNoise.Seed = TerrainSeed + 1000;
-	MountainNoise.NoiseType = ENoiseType::RidgedMultifractal;
-	MountainNoise.Frequency = MountainFrequency;
-	MountainNoise.Octaves = 5;
-	MountainNoise.Lacunarity = 2.2f;
-	MountainNoise.Persistence = 0.6f;
-	MountainNoise.Amplitude = MaxElevation;
-
-	FNoiseConfig DetailNoise;
-	DetailNoise.Seed = TerrainSeed + 2000;
-	DetailNoise.NoiseType = ENoiseType::Perlin;
-	DetailNoise.Frequency = DetailFrequency;
-	DetailNoise.Octaves = 3;
-	DetailNoise.Lacunarity = 2.0f;
-	DetailNoise.Persistence = 0.4f;
-	DetailNoise.Amplitude = MaxElevation * 0.1f; // Fine detail features
+	FNoiseConfig ContinentalNoise, MountainNoise, DetailNoise;
+	ConfigureTerrainNoise(ContinentalNoise, MountainNoise, DetailNoise);
 
 	// Log terrain generation configuration
-	UE_LOG(LogTemp, Log, TEXT("Terrain generation configured:"));
-	UE_LOG(LogTemp, Log, TEXT("  Continental: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
-		ContinentalNoise.Frequency, ContinentalNoise.Octaves, ContinentalNoise.Amplitude);
-	UE_LOG(LogTemp, Log, TEXT("  Mountain: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
-		MountainNoise.Frequency, MountainNoise.Octaves, MountainNoise.Amplitude);
-	UE_LOG(LogTemp, Log, TEXT("  Detail: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
-		DetailNoise.Frequency, DetailNoise.Octaves, DetailNoise.Amplitude);
+	LogTerrainConfiguration(ContinentalNoise, MountainNoise, DetailNoise);
 
 	// Generate sample terrain at a few test points to verify
-	int32 SampleCount = 8;
+	const int32 SampleCount = 8;
 	for (int32 i = 0; i < SampleCount; ++i)
 	{
 		float Lat = FMath::RandRange(-90.0f, 90.0f);
 		float Lon = FMath::RandRange(-180.0f, 180.0f);
 
-		// Convert spherical to 3D coordinates
-		FVector Position = UProceduralNoiseGenerator::SphericalToCartesian(Lat, Lon, PlanetRadius);
+		// Generate terrain height at this location
+		float FinalHeight = GenerateTerrainHeightAtLocation(Lat, Lon, ContinentalNoise, MountainNoise, DetailNoise);
 
-		// Generate continental base
-		float ContinentalHeight = UProceduralNoiseGenerator::FractalNoise2D(
-			Lon, Lat, ContinentalNoise
-		);
-
-		// Generate mountain features (only apply where continental height is positive)
-		float MountainHeight = 0.0f;
-		if (ContinentalHeight > 0.0f)
-		{
-			MountainHeight = UProceduralNoiseGenerator::RidgedMultifractalNoise2D(
-				Lon * 2.0f, Lat * 2.0f, MountainNoise
-			) * ContinentalHeight; // Mountains only on land
-		}
-
-		// Generate detail features
-		float DetailHeight = UProceduralNoiseGenerator::FractalNoise2D(
-			Lon * 4.0f, Lat * 4.0f, DetailNoise
-		);
-
-		// Get biome at this location for biome-specific modulation
-		int32 BiomeIndex = BiomeManager->GetDominantBiomeAtLocation(Position);
-		float BiomeHeightModifier = 1.0f;
-
-		if (BiomeIndex >= 0 && BiomeIndex < PlanetConfig->Biomes.Num())
-		{
-			const FBiomeDefinition& Biome = PlanetConfig->Biomes[BiomeIndex];
-
-			// Modulate terrain height based on biome type
-			switch (Biome.BiomeType)
-			{
-				case EBiomeType::Ocean:
-					BiomeHeightModifier = -0.5f; // Oceans are below sea level
-					break;
-				case EBiomeType::Desert:
-					BiomeHeightModifier = 0.3f; // Deserts are relatively flat
-					MountainHeight *= 0.5f; // Less mountainous
-					break;
-				// TODO: Add Mountains and IceCaps to EBiomeType enum in PlanetConfiguration.h
-				// Using Alpine as substitute for Mountains, Tundra as substitute for IceCaps
-				case EBiomeType::Alpine:
-					BiomeHeightModifier = 1.5f; // Amplify mountain features
-					MountainHeight *= 2.0f;
-					break;
-				case EBiomeType::Tundra:
-					BiomeHeightModifier = 0.8f;
-					DetailHeight *= 1.5f; // More surface detail from ice formations
-					break;
-				case EBiomeType::Volcanic:
-					MountainHeight *= 2.5f; // Dramatic volcanic peaks
-					DetailHeight *= 0.5f; // Smoother volcanic flows
-					break;
-				default:
-					BiomeHeightModifier = 1.0f;
-					break;
-			}
-		}
-
-		// Combine all layers
-		float FinalHeight = (ContinentalHeight + MountainHeight + DetailHeight) * BiomeHeightModifier;
-
-		UE_LOG(LogTemp, Log, TEXT("  Sample %d (Lat: %.1f, Lon: %.1f): Height=%.1fm (Continental=%.1f, Mountain=%.1f, Detail=%.1f, BiomeMod=%.2f)"),
-			i, Lat, Lon, FinalHeight, ContinentalHeight, MountainHeight, DetailHeight, BiomeHeightModifier);
+		UE_LOG(LogTemp, Log, TEXT("  Sample %d (Lat: %.1f, Lon: %.1f): Height=%.1fm"), i, Lat, Lon, FinalHeight);
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Terrain generation complete for %s"), *GetName());
@@ -464,6 +366,133 @@ float APlanet::GetTerrainHeightAtLocation(FVector2D Coordinates) const
 
 	// Combine all layers
 	return (ContinentalHeight + MountainHeight + DetailHeight) * BiomeHeightModifier;
+void APlanet::ConfigureTerrainNoise(FNoiseConfig& OutContinentalNoise, FNoiseConfig& OutMountainNoise, FNoiseConfig& OutDetailNoise) const
+{
+	// Calculate noise parameters from terrain config
+	float MaxElevation = TerrainConfig.Amplitude * 2.0f; // Derived from Amplitude
+	float ContinentalFrequency = 1.0f / (TerrainConfig.Scale * 10.0f); // Derived from Scale
+	float MountainFrequency = 1.0f / (TerrainConfig.Scale * 5.0f); // Derived from Scale
+	float DetailFrequency = 1.0f / (TerrainConfig.Scale * 2.0f); // Derived from Scale
+
+	// Configure continental noise (large-scale terrain features)
+	OutContinentalNoise.Seed = TerrainSeed;
+	OutContinentalNoise.NoiseType = ENoiseType::Perlin;
+	OutContinentalNoise.Frequency = ContinentalFrequency;
+	OutContinentalNoise.Octaves = 4;
+	OutContinentalNoise.Lacunarity = 2.0f;
+	OutContinentalNoise.Persistence = 0.5f;
+	OutContinentalNoise.Amplitude = MaxElevation * 0.6f; // Continental scale features
+
+	// Configure mountain noise (mid-scale terrain features)
+	OutMountainNoise.Seed = TerrainSeed + 1000;
+	OutMountainNoise.NoiseType = ENoiseType::RidgedMultifractal;
+	OutMountainNoise.Frequency = MountainFrequency;
+	OutMountainNoise.Octaves = 5;
+	OutMountainNoise.Lacunarity = 2.2f;
+	OutMountainNoise.Persistence = 0.6f;
+	OutMountainNoise.Amplitude = MaxElevation;
+
+	// Configure detail noise (fine-scale terrain features)
+	OutDetailNoise.Seed = TerrainSeed + 2000;
+	OutDetailNoise.NoiseType = ENoiseType::Perlin;
+	OutDetailNoise.Frequency = DetailFrequency;
+	OutDetailNoise.Octaves = 3;
+	OutDetailNoise.Lacunarity = 2.0f;
+	OutDetailNoise.Persistence = 0.4f;
+	OutDetailNoise.Amplitude = MaxElevation * 0.1f; // Fine detail features
+}
+
+void APlanet::LogTerrainConfiguration(const FNoiseConfig& ContinentalNoise, const FNoiseConfig& MountainNoise, const FNoiseConfig& DetailNoise) const
+{
+	UE_LOG(LogTemp, Log, TEXT("Terrain generation configured:"));
+	UE_LOG(LogTemp, Log, TEXT("  Continental: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
+		ContinentalNoise.Frequency, ContinentalNoise.Octaves, ContinentalNoise.Amplitude);
+	UE_LOG(LogTemp, Log, TEXT("  Mountain: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
+		MountainNoise.Frequency, MountainNoise.Octaves, MountainNoise.Amplitude);
+	UE_LOG(LogTemp, Log, TEXT("  Detail: Freq=%.4f, Octaves=%d, Amplitude=%.1fm"),
+		DetailNoise.Frequency, DetailNoise.Octaves, DetailNoise.Amplitude);
+}
+
+float APlanet::GenerateTerrainHeightAtLocation(float Lat, float Lon, const FNoiseConfig& ContinentalNoise, const FNoiseConfig& MountainNoise, const FNoiseConfig& DetailNoise) const
+{
+	// Generate continental base
+	float ContinentalHeight = UProceduralNoiseGenerator::FractalNoise2D(Lon, Lat, ContinentalNoise);
+
+	// Generate mountain features (only apply where continental height is positive)
+	float MountainHeight = 0.0f;
+	if (ContinentalHeight > 0.0f)
+	{
+		MountainHeight = UProceduralNoiseGenerator::RidgedMultifractalNoise2D(
+			Lon * 2.0f, Lat * 2.0f, MountainNoise
+		) * ContinentalHeight; // Mountains only on land
+	}
+
+	// Generate detail features
+	float DetailHeight = UProceduralNoiseGenerator::FractalNoise2D(Lon * 4.0f, Lat * 4.0f, DetailNoise);
+
+	// Get biome at this location for biome-specific modulation
+	FVector Position = UProceduralNoiseGenerator::SphericalToCartesian(Lat, Lon, PlanetRadius);
+	int32 BiomeIndex = BiomeManager->GetDominantBiomeAtLocation(Position);
+	
+	float BiomeHeightModifier = 1.0f;
+	float MountainMultiplier = 1.0f;
+	float DetailMultiplier = 1.0f;
+
+	if (BiomeIndex >= 0 && BiomeIndex < PlanetConfig->Biomes.Num())
+	{
+		BiomeHeightModifier = GetBiomeHeightModifier(BiomeIndex, MountainMultiplier, DetailMultiplier);
+	}
+
+	// Apply biome-specific multipliers
+	MountainHeight *= MountainMultiplier;
+	DetailHeight *= DetailMultiplier;
+
+	// Combine all layers
+	return (ContinentalHeight + MountainHeight + DetailHeight) * BiomeHeightModifier;
+}
+
+float APlanet::GetBiomeHeightModifier(int32 BiomeIndex, float& OutMountainMultiplier, float& OutDetailMultiplier) const
+{
+	OutMountainMultiplier = 1.0f;
+	OutDetailMultiplier = 1.0f;
+
+	if (!PlanetConfig || BiomeIndex < 0 || BiomeIndex >= PlanetConfig->Biomes.Num())
+	{
+		return 1.0f;
+	}
+
+	const FBiomeDefinition& Biome = PlanetConfig->Biomes[BiomeIndex];
+
+	// Modulate terrain height based on biome type
+	switch (Biome.BiomeType)
+	{
+		case EBiomeType::Ocean:
+			return -0.5f; // Oceans are below sea level
+			
+		case EBiomeType::Desert:
+			OutMountainMultiplier = 0.5f; // Less mountainous
+			return 0.3f; // Deserts are relatively flat
+			
+		// TODO: Add Mountains and IceCaps to EBiomeType enum in PlanetConfiguration.h
+		// Using Alpine as substitute for Mountains, Tundra as substitute for IceCaps
+		case EBiomeType::Alpine:
+			OutMountainMultiplier = 2.0f; // Amplify mountain features
+			return 1.5f;
+			
+		case EBiomeType::Tundra:
+			OutDetailMultiplier = 1.5f; // More surface detail from ice formations
+			return 0.8f;
+			
+		case EBiomeType::Volcanic:
+			OutMountainMultiplier = 2.5f; // Dramatic volcanic peaks
+			OutDetailMultiplier = 0.5f; // Smoother volcanic flows
+			return 1.0f;
+			
+		default:
+			return 1.0f;
+	}
+}
+
 }
 
 void APlanet::DrawDebugVisualization()

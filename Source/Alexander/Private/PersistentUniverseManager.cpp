@@ -10,6 +10,7 @@
 #include "Compression/OodleDataCompression.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
+#include "SystemSelfTestInterface.h"
 
 UPersistentUniverseManager::UPersistentUniverseManager()
 {
@@ -27,6 +28,7 @@ UPersistentUniverseManager::UPersistentUniverseManager()
     EncryptionKey = TEXT("DefaultKey123456789"); // Should be set by user
 }
 
+
 void UPersistentUniverseManager::BeginPlay()
 {
     Super::BeginPlay();
@@ -41,20 +43,315 @@ void UPersistentUniverseManager::BeginPlay()
     UE_LOG(LogTemp, Log, TEXT("PersistentUniverseManager initialized. Save directory: %s"), *SaveDirectory);
 }
 
-void UPersistentUniverseManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+//~ Begin ISystemSelfTestInterface interface
+bool UPersistentUniverseManager::RunSelfTest_Implementation(FSystemTestResult& OutResult)
 {
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-    if (bEnableAutoSave)
+    OutResult.SystemName = GetSystemName_Implementation();
+    OutResult.WarningMessages.Empty();
+    
+    UE_LOG(LogTemp, Log, TEXT("=== Testing Persistent Universe Manager ==="));
+    
+    // Test 1: Check if save directory is accessible
+    IPlatformFile& PlatformFile = FPlatformFileManager::Get().GetPlatformFile();
+    if (!PlatformFile.DirectoryExists(*SaveDirectory))
     {
-        AutoSaveTimer += DeltaTime;
-        if (AutoSaveTimer >= AutoSaveInterval)
-        {
-            TriggerAutoSave();
-            AutoSaveTimer = 0.0f;
-        }
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Save directory does not exist and cannot be created");
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Save directory not accessible"));
+        return false;
     }
-}
+    UE_LOG(LogTemp, Log, TEXT("✓ Save directory test PASSED - Directory: %s"), *SaveDirectory);
+    
+    // Test 2: Test player data save/load
+    FString TestPlayerID = TEXT("TEST_PLAYER_001");
+    FPlayerPersistentData TestPlayerData;
+    TestPlayerData.PlayerID = TestPlayerID;
+    TestPlayerData.PlayerName = TEXT("Test Player");
+    TestPlayerData.Level = 5;
+    TestPlayerData.Experience = 1250;
+    TestPlayerData.Credits = 50000;
+    TestPlayerData.LastLocation = FVector(1000.0f, 2000.0f, 3000.0f);
+    TestPlayerData.CurrentSystemID = TEXT("SOL_SYSTEM");
+    TestPlayerData.PlayTime = 3600.0f; // 1 hour
+    
+    // Save test data
+    FSaveOperationResult SaveResult = SavePlayerData(TestPlayerID, TestPlayerData);
+    if (!SaveResult.bSuccess)
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Failed to save test player data: ") + SaveResult.ErrorMessage;
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Player data save - %s"), *SaveResult.ErrorMessage);
+        return false;
+    }
+ 97     UE_LOG(LogTemp, Log, TEXT("✓ Player data save test PASSED - Saved %d bytes"), SaveResult.BytesSaved);
+ 98
+ 99     // Load test data
+100     bool bLoadSuccess = false;
+101     FPlayerPersistentData LoadedData = LoadPlayerData(TestPlayerID, bLoadSuccess);
+102     if (!bLoadSuccess)
+103     {
+104         OutResult.bPassed = false;
+105         OutResult.ErrorMessage = TEXT("Failed to load test player data");
+106         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Player data load"));
+107         return false;
+108     }
+109
+110     // Verify loaded data matches saved data
+111     if (LoadedData.PlayerID != TestPlayerData.PlayerID ||
+112         LoadedData.PlayerName != TestPlayerData.PlayerName ||
+113         LoadedData.Level != TestPlayerData.Level ||
+114         LoadedData.Experience != TestPlayerData.Experience ||
+115         LoadedData.Credits != TestPlayerData.Credits ||
+116         !LoadedData.LastLocation.Equals(TestPlayerData.LastLocation, 1.0f) ||
+117         LoadedData.CurrentSystemID != TestPlayerData.CurrentSystemID ||
+118         FMath::Abs(LoadedData.PlayTime - TestPlayerData.PlayTime) > 0.1f)
+119     {
+120         OutResult.bPassed = false;
+121         OutResult.ErrorMessage = TEXT("Loaded player data does not match saved data");
+122         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Player data integrity check"));
+123         return false;
+124     }
+125     UE_LOG(LogTemp, Log, TEXT("✓ Player data load and integrity test PASSED"));
+126
+127     // Test 3: Test world state save/load
+128     FString TestWorldID = TEXT("TEST_WORLD_001");
+129     FWorldStateData TestWorldData;
+130     TestWorldData.WorldID = TestWorldID;
+131     TestWorldData.DynamicActorLocations.Add(TEXT("ACTOR_001"), FVector(100.0f, 200.0f, 300.0f));
+132     TestWorldData.DynamicActorLocations.Add(TEXT("ACTOR_002"), FVector(400.0f, 500.0f, 600.0f));
+133     TestWorldData.WorldFlags.Add(TEXT("Flag1"), true);
+134     TestWorldData.WorldFlags.Add(TEXT("Flag2"), false);
+135     TestWorldData.CompletedEvents.Add(TEXT("Event1"));
+136     TestWorldData.CompletedEvents.Add(TEXT("Event2"));
+137
+138     FSaveOperationResult WorldSaveResult = SaveWorldState(TestWorldID, TestWorldData);
+139     if (!WorldSaveResult.bSuccess)
+140     {
+141         OutResult.bPassed = false;
+142         OutResult.ErrorMessage = TEXT("Failed to save test world data: ") + WorldSaveResult.ErrorMessage;
+143         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World state save - %s"), *WorldSaveResult.ErrorMessage);
+144         return false;
+145     }
+146     UE_LOG(LogTemp, Log, TEXT("✓ World state save test PASSED - Saved %d bytes"), WorldSaveResult.BytesSaved);
+147
+148     bool bWorldLoadSuccess = false;
+149     FWorldStateData LoadedWorldData = LoadWorldState(TestWorldID, bWorldLoadSuccess);
+150     if (!bWorldLoadSuccess)
+151     {
+152         OutResult.bPassed = false;
+153         OutResult.ErrorMessage = TEXT("Failed to load test world data");
+154         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World state load"));
+155         return false;
+156     }
+157
+158     // Verify world data integrity
+159     if (LoadedWorldData.WorldID != TestWorldData.WorldID ||
+160         LoadedWorldData.DynamicActorLocations.Num() != TestWorldData.DynamicActorLocations.Num() ||
+161         LoadedWorldData.WorldFlags.Num() != TestWorldData.WorldFlags.Num() ||
+162         LoadedWorldData.CompletedEvents.Num() != TestWorldData.CompletedEvents.Num())
+163     {
+164         OutResult.bPassed = false;
+165         OutResult.ErrorMessage = TEXT("Loaded world data structure does not match saved data");
+166         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World data integrity check"));
+167         return false;
+168     }
+169     UE_LOG(LogTemp, Log, TEXT("✓ World state load and integrity test PASSED"));
+170
+171     // Test 4: Test compression if enabled
+172     if (bEnableCompression)
+173     {
+174         FString LargeTestData = TEXT("This is a test string that should compress well. ");
+175         LargeTestData = LargeTestData + LargeTestData + LargeTestData + LargeTestData + LargeTestData;
+176
+177         TArray<uint8> UncompressedData;
+178         UncompressedData.Append((uint8*)TCHAR_TO_UTF8(*LargeTestData), LargeTestData.Len());
+179
+180         TArray<uint8> CompressedData = CompressData(UncompressedData);
+181
+182         if (CompressedData.Num() >= UncompressedData.Num())
+183         {
+184             OutResult.WarningMessages.Add(TEXT("Compression may not be working optimally"));
+185             UE_LOG(LogTemp, Warning, TEXT("WARNING: Compression test - compressed size (%d) >= uncompressed size (%d)"),
+186                 CompressedData.Num(), UncompressedData.Num());
+187         }
+188         else
+189         {
+190             UE_LOG(LogTemp, Log, TEXT("✓ Compression test PASSED - Compressed %d bytes to %d bytes (%.1f%% reduction)"),
+191                 UncompressedData.Num(), CompressedData.Num(),
+192                 100.0f * (1.0f - (float)CompressedData.Num() / (float)UncompressedData.Num()));
+193         }
+194
+195         // Test decompression
+196         TArray<uint8> DecompressedData = DecompressData(CompressedData);
+197         if (DecompressedData.Num() != UncompressedData.Num() ||
+198             FMemory::Memcmp(DecompressedData.GetData(), UncompressedData.GetData(), UncompressedData.Num()) != 0)
+199         {
+200             OutResult.bPassed = false;
+201             OutResult.ErrorMessage = TEXT("Decompressed data does not match original");
+202             UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Decompression integrity check"));
+203             return false;
+204         }
+205         UE_LOG(LogTemp, Log, TEXT("✓ Decompression test PASSED"));
+206     }
+207     else
+208     {
+209         UE_LOG(LogTemp, Log, TEXT("⊘ Compression test SKIPPED (compression disabled)"));
+210     }
+211
+212     // Test 5: Test encryption if enabled
+213     if (bEnableEncryption)
+214     {
+215         FString TestString = TEXT("This is sensitive test data that should be encrypted");
+216         TArray<uint8> PlainData;
+217         PlainData.Append((uint8*)TCHAR_TO_UTF8(*TestString), TestString.Len());
+218
+219         TArray<uint8> EncryptedData = EncryptData(PlainData);
+220         TArray<uint8> DecryptedData = DecryptData(EncryptedData);
+221
+222         // Verify encryption changed the data
+223         if (EncryptedData.Num() != PlainData.Num() ||
+224             FMemory::Memcmp(EncryptedData.GetData(), PlainData.GetData(), PlainData.Num()) == 0)
+225         {
+226             OutResult.WarningMessages.Add(TEXT("Encryption may not be working - encrypted data matches plain data"));
+227             UE_LOG(LogTemp, Warning, TEXT("WARNING: Encryption test - data may not be properly encrypted"));
+228         }
+229         else
+230         {
+231             UE_LOG(LogTemp, Log, TEXT("✓ Encryption test PASSED - Data properly encrypted"));
+232         }
+233
+234         // Verify decryption restores original data
+235         if (DecryptedData.Num() != PlainData.Num() ||
+236             FMemory::Memcmp(DecryptedData.GetData(), PlainData.GetData(), PlainData.Num()) != 0)
+237         {
+238             OutResult.bPassed = false;
+239             OutResult.ErrorMessage = TEXT("Decrypted data does not match original plain data");
+240             UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Decryption integrity check"));
+241             return false;
+242         }
+243         UE_LOG(LogTemp, Log, TEXT("✓ Decryption test PASSED"));
+244     }
+245     else
+246     {
+247         UE_LOG(LogTemp, Log, TEXT("⊘ Encryption test SKIPPED (encryption disabled)"));
+248     }
+249
+250     // Test 6: Test backup creation
+251     FString TestBackupName = TEXT("TEST_BACKUP_") + FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
+252     if (!CreateBackup(TestBackupName))
+253     {
+254         OutResult.WarningMessages.Add(TEXT("Backup creation failed - this may be expected in some environments"));
+255         UE_LOG(LogTemp, Warning, TEXT("WARNING: Backup creation test failed (may be expected)"));
+256     }
+257     else
+258     {
+259         UE_LOG(LogTemp, Log, TEXT("✓ Backup creation test PASSED"));
+260
+261         // Test backup listing
+262         TArray<FString> Backups = GetAvailableBackups();
+263         if (!Backups.Contains(TestBackupName))
+264         {
+265             OutResult.WarningMessages.Add(TEXT("Created backup but cannot find it in listing"));
+266             UE_LOG(LogTemp, Warning, TEXT("WARNING: Backup listing test failed"));
+267         }
+268         else
+269         {
+270             UE_LOG(LogTemp, Log, TEXT("✓ Backup listing test PASSED"));
+271         }
+272     }
+273
+274     // Test 7: Test statistics tracking
+275     FPersistenceStatistics CurrentStats = GetStatistics();
+276     if (CurrentStats.TotalSaves < 2 || CurrentStats.TotalLoads < 1)
+277     {
+278         OutResult.bPassed = false;
+279         OutResult.ErrorMessage = TEXT("Statistics tracking not working properly");
+280         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Statistics tracking"));
+281         return false;
+282     }
+283     UE_LOG(LogTemp, Log, TEXT("✓ Statistics tracking test PASSED - Total saves: %d, Total loads: %d"),
+284         CurrentStats.TotalSaves, CurrentStats.TotalLoads);
+285
+286     // Test 8: Test file size queries
+287     int32 PlayerFileSize = GetSaveFileSize(TestPlayerID);
+288     if (PlayerFileSize <= 0)
+289     {
+290         OutResult.WarningMessages.Add(TEXT("File size query returned invalid size"));
+291         UE_LOG(LogTemp, Warning, TEXT("WARNING: File size query test failed"));
+292     }
+293     else
+294     {
+295         UE_LOG(LogTemp, Log, TEXT("✓ File size query test PASSED - Size: %d bytes"), PlayerFileSize);
+296     }
+297
+298     // Test 9: Test data validation
+299     TArray<uint8> ValidData;
+300     ValidData.Add(1); ValidData.Add(2); ValidData.Add(3);
+301     if (!ValidateSaveData(ValidData))
+302     {
+303         OutResult.bPassed = false;
+304         OutResult.ErrorMessage = TEXT("Data validation failed for valid data");
+305         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Data validation"));
+306         return false;
+307     }
+308     UE_LOG(LogTemp, Log, TEXT("✓ Data validation test PASSED"));
+309
+310     // Test 10: Test cleanup
+311     bool bCleanupSuccess = true;
+312     bCleanupSuccess &= DeletePlayerData(TestPlayerID);
+313     bCleanupSuccess &= DeleteWorldState(TestWorldID);
+314
+315     if (!bCleanupSuccess)
+316     {
+317         OutResult.WarningMessages.Add(TEXT("Test data cleanup failed - test files may remain"));
+318         UE_LOG(LogTemp, Warning, TEXT("WARNING: Test cleanup failed"));
+319     }
+320     else
+321     {
+322         UE_LOG(LogTemp, Log, TEXT("✓ Test cleanup PASSED"));
+323     }
+324
+325     // Record performance metrics
+326     OutResult.bPassed = true;
+327     OutResult.PerformanceMetrics.Add(TEXT("PlayerSaveSize"), SaveResult.BytesSaved);
+328     OutResult.PerformanceMetrics.Add(TEXT("WorldSaveSize"), WorldSaveResult.BytesSaved);
+329     OutResult.PerformanceMetrics.Add(TEXT("PlayerSaveTime"), SaveResult.SaveDuration);
+330     OutResult.PerformanceMetrics.Add(TEXT("PlayerLoadTime"), CurrentStats.AverageLoadTime);
+331
+332     UE_LOG(LogTemp, Log, TEXT("=== Persistent Universe Manager test PASSED ==="));
+333     return true;
+334 }
+335
+336 FString UPersistentUniverseManager::GetSystemName_Implementation() const
+337 {
+338     return TEXT("PersistentUniverseManager");
+339 }
+340
+341 FString UPersistentUniverseManager::GetTestDescription_Implementation() const
+342 {
+343     return TEXT("Tests save/load functionality, compression, encryption, and backup systems");
+344 }
+345
+346 bool UPersistentUniverseManager::IsReadyForTesting_Implementation() const
+347 {
+348     return !SaveDirectory.IsEmpty();
+349 }
+350 //~ End ISystemSelfTestInterface interface
+351
+ 352 void UPersistentUniverseManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+ 353 {
+ 354     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+ 355
+ 356     if (bEnableAutoSave)
+ 357     {
+ 358         AutoSaveTimer += DeltaTime;
+ 359         if (AutoSaveTimer >= AutoSaveInterval)
+ 360         {
+ 361             TriggerAutoSave();
+ 362             AutoSaveTimer = 0.0f;
+ 363         }
+ 364     }
+ 365 }
 
 FString UPersistentUniverseManager::GetSaveFilePath(EPersistenceType DataType, const FString& DataID) const
 {

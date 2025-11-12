@@ -1,10 +1,21 @@
 # Python Dependencies for Alexander Project Automation
+# AI Agent Autonomous Development System
+
+# Core dependencies for AI Agent System
+requests==2.31.0          # HTTP API calls for Kimi API and automation
+python-dotenv==1.0.0      # Environment variable management for API keys
+pydantic==2.5.0           # Data validation and settings management
 
 # Build scheduling (for nightly_build.py)
 schedule==1.2.0
 
 # Additional useful packages for automation
-# Uncomment and install as needed:
-# requests==2.31.0  # For HTTP API calls
 # psutil==5.9.6     # For process management
 # watchdog==3.0.0   # For file system monitoring
+
+# Development and testing
+# pytest==7.4.3     # Testing framework (optional)
+# black==23.11.0    # Code formatting (optional)
+# flake8==6.1.0     # Code linting (optional)
+
+# Note: Install with: pip install -r requirements.txt

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "SystemSelfTestInterface.h"
 // #include "InputActionValue.h"  // Forward declared below
 struct FInputActionValue;
 #include "SurfacePlayerCharacter.generated.h"
@@ -37,7 +38,7 @@ enum class ESurfaceMovementMode : uint8
  * Supports both VR and non-VR gameplay
  */
 UCLASS(Blueprintable, BlueprintType)
-class ALEXANDER_API ASurfacePlayerCharacter : public ACharacter
+class ALEXANDER_API ASurfacePlayerCharacter : public ACharacter, public ISystemSelfTestInterface
 {
     GENERATED_BODY()
 

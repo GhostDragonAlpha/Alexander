@@ -1,0 +1,148 @@
+{
+  "test_summary": {
+    "start_time": "2025-11-10T21:30:07.505580",
+    "end_time": "2025-11-10T21:30:23.753897",
+    "duration_seconds": 16.248317,
+    "total_tests": 22,
+    "passed_tests": 17,
+    "failed_tests": 5,
+    "success_rate": 0.7727272727272727
+  },
+  "test_results": {
+    "kimi_chat": false,
+    "kimi_code_analysis": false,
+    "kimi_task_plan": false,
+    "kimi_usage_report": true,
+    "nlp_goal_parsing": true,
+    "nlp_code_refs": true,
+    "nlp_tech_terms": true,
+    "nlp_sentiment": true,
+    "task_generation": true,
+    "task_conversion": true,
+    "task_generation_types": true,
+    "ai_control_layer": false,
+    "decision_execution_strategy": true,
+    "decision_error_recovery": true,
+    "decision_prioritization": true,
+    "decision_learning": true,
+    "decision_report": true,
+    "github_api": false,
+    "data_storage_stats": true,
+    "data_dir_size": true,
+    "data_size_format": true,
+    "end_to_end_pipeline": true
+  },
+  "test_details": {
+    "kimi": {
+      "total_tokens": 0,
+      "total_cost": 0.0,
+      "response_times": [],
+      "models_used": [
+        "moonshot-v1-8k"
+      ]
+    },
+    "nlp": {
+      "parsed_goals": 3,
+      "goal_types": [
+        "bug_fix",
+        "performance_optimization",
+        "bug_fix"
+      ],
+      "code_references": [
+        "json",
+        "py"
+      ],
+      "technical_terms": [
+        "JSON"
+      ],
+      "sentiment_analysis": {
+        "sentiment": "neutral",
+        "urgency": "medium",
+        "confidence": "low",
+        "key_emotions": [
+          "uncertain"
+        ]
+      }
+    },
+    "task_gen": {
+      "total_tasks_generated": 3,
+      "task_types": [
+        "research",
+        "analysis",
+        "documentation"
+      ],
+      "priorities": [
+        "HIGH",
+        "MEDIUM",
+        "HIGH"
+      ],
+      "safety_levels": [
+        "low_risk",
+        "low_risk",
+        "low_risk"
+      ]
+    },
+    "decision_engine": {
+      "decisions_made": 2,
+      "success_rates": {
+        "task_execution_strategy": 0.7,
+        "error_recovery": 0.7,
+        "safety_override": 0.5,
+        "resource_allocation": 0.5,
+        "task_prioritization": 0.5,
+        "risk_mitigation": 0.5,
+        "execution_order": 0.5,
+        "fallback_plan": 0.5
+      },
+      "prioritized_tasks": 3
+    },
+    "data_management": {
+      "storage_stats": {
+        "timestamp": "2025-11-10T21:30:19.505304",
+        "directories": {
+          "screenshots": {
+            "size_bytes": 0,
+            "size_readable": "0.0 B",
+            "file_count": 0
+          },
+          "archives": {
+            "size_bytes": 0,
+            "size_readable": "0.0 B",
+            "file_count": 0
+          },
+          "backups": {
+            "size_bytes": 0,
+            "size_readable": "0.0 B",
+            "file_count": 0
+          },
+          "issues": {
+            "size_bytes": 0,
+            "size_readable": "0.0 B",
+            "file_count": 2
+          }
+        },
+        "total_size_bytes": 0,
+        "total_size_readable": "0.0 B"
+      },
+      "directory_sizes": {
+        "screenshots": {
+          "size_bytes": 0,
+          "size_readable": "0.0 B",
+          "file_count": 0
+        },
+        "archives": {
+          "size_bytes": 0,
+          "size_readable": "0.0 B",
+          "file_count": 0
+        }
+      }
+    },
+    "end_to_end": {
+      "goal_processed": true,
+      "tasks_generated": 5,
+      "execution_plan_created": true,
+      "plan_file": "test_execution_plan.json",
+      "safety_validation_passed": true
+    }
+  }
+}

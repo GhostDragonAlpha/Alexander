@@ -8,17 +8,14 @@
 #include "BiomeBlendingSystem.h"
 #include "Planet.generated.h"
 
-// Forward declarations
+// Forward declarations (UBiomeManager, UBiomeBlendingSystem, UBiomeFeatureGenerator,
+// and UTerrainMaterialSystem are already declared in included headers)
 class UPlanetAtmosphereComponent;
 class USkyAtmosphereComponent;
 class UPlanetCloudComponent;
 class UPlanetWeatherComponent;
 class UPlanetFarmingComponent;
 class UDayNightCycleComponent;
-class UBiomeManager;
-class UBiomeBlendingSystem;
-class UBiomeFeatureGenerator;
-class UTerrainMaterialSystem;
 
 UCLASS(Blueprintable)
 class ALEXANDER_API APlanet : public AOrbitalBody
@@ -26,6 +23,13 @@ class ALEXANDER_API APlanet : public AOrbitalBody
 	GENERATED_BODY()
 
 public:
+	// Constants for planet generation and configuration
+	static constexpr float EARTH_RADIUS_KM = 6371.0f; // Earth's radius in kilometers
+	static constexpr float EARTH_MASS_KG = 5.972e24f; // Earth's mass in kilograms
+	static constexpr float DEFAULT_ORBIT_RADIUS = 10000.0f; // Default orbit distance in Unreal units
+	static constexpr float DEFAULT_ORBIT_SPEED = 10.0f; // Default orbital speed in degrees per second
+	static constexpr int32 DEFAULT_TERRAIN_SEED = 12345; // Default seed for terrain generation
+
 	APlanet();
 
 protected:
@@ -96,13 +100,13 @@ public:
 	// BIOME SYSTEM
 	// ============================================================================
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Systems")
 	UBiomeManager* BiomeManager;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Systems")
 	UBiomeBlendingSystem* BiomeBlendingSystem;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Systems")
 	UBiomeFeatureGenerator* BiomeFeatureGenerator;
 
 	// Initialize biome systems
@@ -121,7 +125,7 @@ public:
 	// MATERIAL SYSTEM
 	// ============================================================================
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Systems")
 	UTerrainMaterialSystem* MaterialSystem;
 
 	// Master terrain material
@@ -165,12 +169,14 @@ public:
 	void DrawDebugVisualization();
 
 	// ============================================================================
-	// LEGACY PROPERTIES (for backward compatibility)
+	// LEGACY PROPERTIES (Deprecated - use PlanetConfig data asset instead)
 	// ============================================================================
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Planet Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Planet Properties (Legacy)",
+		meta = (DeprecatedProperty, DeprecationMessage = "Use PlanetConfig data asset instead"))
 	float PlanetScale;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Planet Properties")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Planet Properties (Legacy)",
+		meta = (DeprecatedProperty, DeprecationMessage = "Use PlanetConfig data asset instead"))
 	FLinearColor PlanetColor;
 };
