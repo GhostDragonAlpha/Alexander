@@ -5,7 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "PowerSystem.h"
-#include "IrrigationSystem.generated.h"
+#include "AlexanderIrrigationSystem.generated.h"
 
 // Forward declarations
 class AFarmPlot;
@@ -33,12 +33,12 @@ enum class EIrrigationStatus : uint8
  * Requires 500W of power to operate
  */
 UCLASS()
-class ALEXANDER_API AIrrigationSystem : public AActor, public IPowerConsumer
+class ALEXANDER_API AAlexanderIrrigationSystem : public AActor, public IPowerConsumer
 {
 	GENERATED_BODY()
 
 public:
-	AIrrigationSystem();
+	AAlexanderIrrigationSystem();
 
 protected:
 	virtual void BeginPlay() override;

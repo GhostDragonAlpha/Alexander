@@ -173,7 +173,7 @@ struct FResourceTypeArray
 
 // Resource deposit data
 USTRUCT(BlueprintType)
-struct FResourceDeposit
+struct FAlexanderResourceDeposit
 {
     GENERATED_BODY()
 
@@ -219,7 +219,7 @@ struct FResourceDeposit
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     int32 MiningFacilityID;
 
-    FResourceDeposit()
+    FAlexanderResourceDeposit()
     {
         ResourceType = EResourceType::None;
         Location = FVector::ZeroVector;
@@ -254,7 +254,7 @@ struct FMiningOperation
     int32 TargetDepositID;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    EResourceType ResourceType;
+    TMap<FGuid, FAlexanderResourceDeposit> ResourceDeposits;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     float ExtractionRate;
@@ -626,7 +626,7 @@ public:
 
     // Resource deposits
     UFUNCTION(BlueprintCallable, Category = "Resources")
-    TArray<FResourceDeposit> GetResourceDeposits() const { return ResourceDeposits; }
+    TArray<FAlexanderResourceDeposit> GetResourceDeposits() const { return ResourceDeposits; }
 
     FResourceDeposit* GetResourceDeposit(int32 DepositID);
 
@@ -780,7 +780,7 @@ protected:
     FResourceAmount AvailableResources;
 
     UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Resources")
-    TArray<FResourceDeposit> ResourceDeposits;
+    TArray<FAlexanderResourceDeposit> ResourceDeposits;
 
     UPROPERTY(Replicated, VisibleAnywhere, BlueprintReadOnly, Category = "Resources")
     TArray<FMiningOperation> MiningOperations;

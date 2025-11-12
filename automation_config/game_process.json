@@ -1,0 +1,13 @@
+{
+  "pid": 85200,
+  "start_time": "2025-11-11T11:38:13.999443",
+  "resolution": "1280x720",
+  "quality": "medium",
+  "capture_interval": 3,
+  "port": 8080,
+  "debug_enabled": true,
+  "console_enabled": true,
+  "restart_count": 3,
+  "max_restarts": 3,
+  "timeout": 0
+}

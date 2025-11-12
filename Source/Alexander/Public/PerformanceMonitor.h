@@ -225,23 +225,23 @@ protected:
 
 private:
 	// Current performance metrics
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
+	UPROPERTY( Category = "Performance")
 	FPerformanceMetrics CurrentMetrics;
 
 	// Performance baseline
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Performance")
+	UPROPERTY(EditAnywhere, Category = "Performance")
 	FPerformanceBaseline Baseline;
 
 	// Metrics history
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
+	UPROPERTY( Category = "Performance")
 	TArray<FPerformanceMetrics> MetricsHistory;
 
 	// Monitoring active
-	UPROPERTY(BlueprintReadOnly, Category = "State")
+	UPROPERTY( Category = "State")
 	bool bIsMonitoring;
 
 	// Monitor interval
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
+	UPROPERTY(EditAnywhere, Category = "Configuration")
 	float MonitorInterval;
 
 	// Timer handle
@@ -254,6 +254,6 @@ private:
 	TArray<float> FrameTimeHistory;
 
 	// Maximum history size
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Configuration")
+	UPROPERTY(EditAnywhere, Category = "Configuration")
 	int32 MaxHistorySize;
 };

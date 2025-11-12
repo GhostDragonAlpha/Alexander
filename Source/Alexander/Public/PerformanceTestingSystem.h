@@ -9,67 +9,8 @@
 /**
  * Performance metrics captured at a specific altitude
  */
-USTRUCT(BlueprintType)
-struct FPerformanceMetrics
-{
-	GENERATED_BODY()
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	float Altitude = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	float FrameRate = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	float FrameTime = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	float GameThreadTime = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	float RenderThreadTime = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	float GPUTime = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	int32 DrawCalls = 0;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	int32 VisibleTriangles = 0;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	float MemoryUsageMB = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	float StreamingBandwidthMBps = 0.0f;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	int32 ActiveTerrainTiles = 0;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	int32 StreamingTiles = 0;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Performance")
-	FDateTime Timestamp;
-
-	FPerformanceMetrics()
-		: Altitude(0.0f)
-		, FrameRate(0.0f)
-		, FrameTime(0.0f)
-		, GameThreadTime(0.0f)
-		, RenderThreadTime(0.0f)
-		, GPUTime(0.0f)
-		, DrawCalls(0)
-		, VisibleTriangles(0)
-		, MemoryUsageMB(0.0f)
-		, StreamingBandwidthMBps(0.0f)
-		, ActiveTerrainTiles(0)
-		, StreamingTiles(0)
-		, Timestamp(FDateTime::Now())
-	{
-	}
-};
+// Forward declaration - defined in PerformanceSelfMonitor.h
+struct FAlexanderPerformanceMetrics;
 
 /**
  * VR-specific performance metrics
@@ -155,7 +96,7 @@ struct FPerformanceTestResults
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, Category = "Results")
-	TArray<FPerformanceMetrics> Samples;
+	TArray<FAlexanderPerformanceMetrics> Samples;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Results")
 	TArray<FVRPerformanceMetrics> VRSamples;

@@ -31,34 +31,9 @@ enum class ETradeMissionType : uint8
 	Diplomatic		UMETA(DisplayName = "Diplomatic")
 };
 
-/**
- * Mission difficulty levels
- */
-UENUM(BlueprintType)
-enum class EMissionDifficulty : uint8
-{
-	Trivial		UMETA(DisplayName = "Trivial"),
-	Easy		UMETA(DisplayName = "Easy"),
-	Moderate	UMETA(DisplayName = "Moderate"),
-	Hard		UMETA(DisplayName = "Hard"),
-	Extreme		UMETA(DisplayName = "Extreme"),
-	Legendary	UMETA(DisplayName = "Legendary")
-};
-
-/**
- * Mission status
- */
-UENUM(BlueprintType)
-enum class EMissionStatus : uint8
-{
-	Available		UMETA(DisplayName = "Available"),
-	Accepted		UMETA(DisplayName = "Accepted"),
-	InProgress		UMETA(DisplayName = "In Progress"),
-	Completed		UMETA(DisplayName = "Completed"),
-	Failed			UMETA(DisplayName = "Failed"),
-	Expired			UMETA(DisplayName = "Expired"),
-	Cancelled		UMETA(DisplayName = "Cancelled")
-};
+// Forward declarations for mission enums (defined in MissionBoardComponent.h)
+enum class EMissionDifficulty : uint8;
+enum class EMissionStatus : uint8;
 
 /**
  * Trade mission data
@@ -75,7 +50,7 @@ struct FTradeMission
 	ETradeMissionType MissionType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
-	EMissionDifficulty Difficulty;
+	EAlexanderMissionDifficulty Difficulty;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
 	FString Title;
