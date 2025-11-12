@@ -4,6 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Containers/Map.h"
+#include "Containers/Array.h"
+#include "Templates/Function.h"
 #include "AsyncLoadingComponent.generated.h"
 
 // Async loading task status
@@ -21,8 +24,6 @@ enum class EAsyncTaskStatus : uint8
 struct FAsyncLoadingTask
 {
     FString SystemID;
-    TFunction<void()> TaskFunction;
-    TFunction<void()> CompletionCallback;
     EAsyncTaskStatus Status;
     double StartTime;
     double EndTime;
@@ -50,11 +51,11 @@ public:
 
     // Queue a system for async loading
     UFUNCTION(BlueprintCallable, Category = "AsyncLoading")
-    void QueueLoadingTask(const FString& SystemID, TFunction<void()> TaskFunction, TFunction<void()> CompletionCallback);
+    void QueueLoadingTask(const FString& SystemID);
 
     // Queue a system for async unloading
     UFUNCTION(BlueprintCallable, Category = "AsyncLoading")
-    void QueueUnloadingTask(const FString& SystemID, TFunction<void()> TaskFunction, TFunction<void()> CompletionCallback);
+    void QueueUnloadingTask(const FString& SystemID);
 
     // Get task status
     UFUNCTION(BlueprintCallable, Category = "AsyncLoading")

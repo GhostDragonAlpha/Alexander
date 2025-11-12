@@ -1,0 +1,25 @@
+{
+  "collector_type": "compilation_errors",
+  "timestamp": "2025-11-11T14:50:40.559761",
+  "build_config": {
+    "configuration": "Development",
+    "platform": "Win64",
+    "project_path": "C:\\Users\\allen\\Desktop\\Alexander\\Alexander",
+    "engine_path": "C:\\Program Files\\Epic Games\\UE_5.6"
+  },
+  "execution": {
+    "start_time": "2025-11-11T14:50:40.559761",
+    "end_time": "2025-11-11T14:50:41.720791",
+    "duration_seconds": 1.16103,
+    "exit_code": 6,
+    "command_executed": "C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Binaries\\DotNET\\UnrealBuildTool\\UnrealBuildTool.exe Alexander Win64 Development -Project=C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject -Progress -Detailed"
+  },
+  "results": {
+    "success": false,
+    "total_errors": 0,
+    "total_warnings": 0,
+    "errors": [],
+    "warnings": [],
+    "raw_output": "Log file: C:\\Users\\allen\\AppData\\Local\\UnrealBuildTool\\Log.txt\nUsing 'git status' to determine working set for adaptive non-unity build (C:\\Users\\allen\\Desktop\\Alexander\\Alexander).\n@progress push 5%\n@progress 'Generating code...' 0%\n@progress 'Generating code...' 33%\nParsing headers for Alexander\n  Running Internal UnrealHeaderTool C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Intermediate\\Build\\Win64\\Alexander\\Development\\Alexander.uhtmanifest -WarningsAsErrors -installed\nC:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Source\\Alexander\\Public\\SphereOfInfluenceManager.h(196): Error: Unable to find 'class', 'delegate', 'enum', or 'struct' with name 'FWeakOrbitalBodyArray'\nTotal of 0 written\n\nResult: Failed (OtherCompilationError)\nTotal execution time: 1.08 seconds\n"
+  }
+}

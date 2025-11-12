@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "CropSystem.h"
 #include "LandClaimManager.h"
+#include "Containers/Map.h"
+#include "Containers/Array.h"
+#include "Engine/EngineTypes.h"
 #include "PlanetaryFarmingSystem.generated.h"
 
 // Forward declarations
@@ -173,7 +176,7 @@ struct FCropPlantingInfo
 
 // Harvest result
 USTRUCT(BlueprintType)
-struct FHarvestResult
+struct FAlexanderHarvestResult
 {
 	GENERATED_BODY()
 
@@ -201,7 +204,7 @@ struct FHarvestResult
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest")
 	FVector Location;
 
-	FHarvestResult()
+	FAlexanderHarvestResult()
 	{
 		bSuccess = false;
 		CropType = ECropType::Wheat;
@@ -247,7 +250,7 @@ public:
 
 	// Harvest crops from a plot
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
-	FHarvestResult HarvestCrops(const FGuid& PlotID);
+	FAlexanderHarvestResult HarvestCrops(const FGuid& PlotID);
 
 	// Water a farm plot
 	UFUNCTION(BlueprintCallable, Category = "Farming System")

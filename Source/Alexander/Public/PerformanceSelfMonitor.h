@@ -8,7 +8,7 @@
 
 // Performance metrics collected during testing
 USTRUCT(BlueprintType)
-struct FPerformanceMetrics
+struct FAlexanderPerformanceMetrics
 {
 	GENERATED_BODY()
 
@@ -64,7 +64,7 @@ struct FPerformanceMetrics
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Performance")
 	int32 ShaderComplexityWarnings;
 
-	FPerformanceMetrics()
+	FAlexanderPerformanceMetrics()
 	{
 		AverageFPS = 0.0f;
 		MinFPS = 0.0f;

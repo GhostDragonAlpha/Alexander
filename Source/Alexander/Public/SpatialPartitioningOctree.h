@@ -31,7 +31,7 @@ struct FOctreeNode
 
     // Parent node (null for root)
     UPROPERTY()
-    FOctreeNode* Parent;
+    TWeakObjectPtr<UObject> ParentNode;
 
     // Node depth (0 for root)
     UPROPERTY()
@@ -44,7 +44,7 @@ struct FOctreeNode
     static constexpr int32 MAX_DEPTH = 6;
 
     FOctreeNode()
-        : Parent(nullptr)
+        : ParentNode(nullptr)
         , Depth(0)
     {
     }
@@ -65,8 +65,9 @@ struct FOctreeNode
 /**
  * Query result from spatial query
  */
+// Spatial query result
 USTRUCT(BlueprintType)
-struct FSpatialQueryResult
+struct FAlexanderSpatialQueryResult
 {
     GENERATED_BODY()
 
@@ -90,7 +91,7 @@ struct FSpatialQueryResult
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spatial Query")
     float QueryTime;
 
-    FSpatialQueryResult()
+    FAlexanderSpatialQueryResult()
         : QueryPosition(FVector::ZeroVector)
         , QueryRadius(0.0f)
         , NodesVisited(0)
@@ -129,11 +130,11 @@ public:
 
     // Query bodies within a sphere
     UFUNCTION(BlueprintCallable, Category = "Spatial Partitioning")
-    FSpatialQueryResult QueryBodiesInRadius(const FVector& Position, float Radius) const;
+    FAlexanderSpatialQueryResult QueryBodiesInRadius(const FVector& Position, float Radius) const;
 
     // Query bodies within a box
     UFUNCTION(BlueprintCallable, Category = "Spatial Partitioning")
-    FSpatialQueryResult QueryBodiesInBox(const FBox& QueryBox) const;
+    FAlexanderSpatialQueryResult QueryBodiesInBox(const FBox& QueryBox) const;
 
     // Get all bodies in octree
     UFUNCTION(BlueprintCallable, Category = "Spatial Partitioning")

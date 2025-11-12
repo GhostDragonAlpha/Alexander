@@ -1,0 +1,15 @@
+{
+  "session_id": "session_20251111_112928",
+  "start_time": "2025-11-11T11:29:28.152113",
+  "end_time": "2025-11-11T11:29:28.153112",
+  "duration_minutes": 1.666545867919922e-05,
+  "total_iterations": 0,
+  "test_results": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "error": 0
+  },
+  "performance_summary": {},
+  "issue_summary": {}
+}

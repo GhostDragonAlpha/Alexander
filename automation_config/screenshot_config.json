@@ -1,0 +1,11 @@
+{
+  "capture_interval": 3.0,
+  "jpeg_quality": 85,
+  "max_screenshots": 1000,
+  "auto_cleanup": true,
+  "capture_region": null,
+  "resize_to": null,
+  "enable_compression": true,
+  "metadata_embedding": true,
+  "server_endpoint": "/screenshot"
+}

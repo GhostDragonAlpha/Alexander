@@ -9,16 +9,8 @@
 /**
  * Test result status enumeration
  */
-UENUM(BlueprintType)
-enum class ETestStatus : uint8
-{
-	NotRun UMETA(DisplayName = "Not Run"),
-	Running UMETA(DisplayName = "Running"),
-	Passed UMETA(DisplayName = "Passed"),
-	Failed UMETA(DisplayName = "Failed"),
-	Skipped UMETA(DisplayName = "Skipped"),
-	Timeout UMETA(DisplayName = "Timeout")
-};
+// Forward declaration for test status enum
+enum class EAlexanderTestStatus : uint8;
 
 /**
  * Test severity for errors and warnings
@@ -125,7 +117,7 @@ struct FTestCaseResult
 	FString TestName;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Test")
-	ETestStatus Status = ETestStatus::NotRun;
+	EAlexanderTestStatus Status = EAlexanderTestStatus::NotRun;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Test")
 	FString Description;
@@ -165,14 +157,14 @@ struct FTestCaseResult
 	// Mark test as started
 	void Start()
 	{
-		Status = ETestStatus::Running;
+		Status = EAlexanderTestStatus::Running;
 		StartTime = FDateTime::Now();
 	}
 
 	// Mark test as passed
 	void Pass(const FString& Message = TEXT(""))
 	{
-		Status = ETestStatus::Passed;
+		Status = EAlexanderTestStatus::Passed;
 		EndTime = FDateTime::Now();
 		ExecutionTimeSeconds = (EndTime - StartTime).GetTotalSeconds();
 		if (!Message.IsEmpty())
@@ -184,7 +176,7 @@ struct FTestCaseResult
 	// Mark test as failed
 	void Fail(const FString& Error, ETestSeverity InSeverity = ETestSeverity::Error)
 	{
-		Status = ETestStatus::Failed;
+		Status = EAlexanderTestStatus::Failed;
 		EndTime = FDateTime::Now();
 		ExecutionTimeSeconds = (EndTime - StartTime).GetTotalSeconds();
 		ErrorMessage = Error;
@@ -194,7 +186,7 @@ struct FTestCaseResult
 	// Mark test as timeout
 	void Timeout(float TimeoutSeconds)
 	{
-		Status = ETestStatus::Timeout;
+		Status = EAlexanderTestStatus::Timeout;
 		EndTime = FDateTime::Now();
 		ExecutionTimeSeconds = TimeoutSeconds;
 		ErrorMessage = FString::Printf(TEXT("Test exceeded timeout of %.1f seconds"), TimeoutSeconds);
@@ -204,14 +196,14 @@ struct FTestCaseResult
 	// Mark test as skipped
 	void Skip(const FString& Reason = TEXT(""))
 	{
-		Status = ETestStatus::Skipped;
+		Status = EAlexanderTestStatus::Skipped;
 		ErrorMessage = Reason;
 	}
 
 	// Check if test passed
-	bool IsPassed() const { return Status == ETestStatus::Passed; }
-	bool IsFailed() const { return Status == ETestStatus::Failed; }
-	bool IsRunning() const { return Status == ETestStatus::Running; }
+	bool IsPassed() const { return Status == EAlexanderTestStatus::Passed; }
+	bool IsFailed() const { return Status == EAlexanderTestStatus::Failed; }
+	bool IsRunning() const { return Status == EAlexanderTestStatus::Running; }
 
 	// Generate summary string
 	FString ToString() const
@@ -287,7 +279,7 @@ struct FTestStationResults
 
 	int32 GetSkippedTests() const
 	{
-		return TestCases.FilterByPredicate([](const FTestCaseResult& Test) { return Test.Status == ETestStatus::Skipped; }).Num();
+		return TestCases.FilterByPredicate([](const FTestCaseResult& Test) { return Test.Status == EAlexanderTestStatus::Skipped; }).Num();
 	}
 
 	float GetPassRate() const
