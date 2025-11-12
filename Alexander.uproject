@@ -54,16 +54,12 @@
       "Enabled": true
     },
     {
-      "Name": "AIVisionSystem",
-      "Enabled": true
-    },
-    {
       "Name": "XRBase",
-      "Enabled": true
+      "Enabled": false
     },
     {
       "Name": "LiveLink",
-      "Enabled": true
+      "Enabled": false
     }
   ],
   "TargetPlatforms": [
