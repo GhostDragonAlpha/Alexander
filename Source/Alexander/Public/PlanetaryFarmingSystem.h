@@ -46,9 +46,9 @@ enum class EFarmingInfrastructureType : uint8
 	StorageSilo UMETA(DisplayName = "Storage Silo")
 };
 
-// Crop growth stage
+// Crop growth stage (planetary-specific)
 UENUM(BlueprintType)
-enum class ECropGrowthStage : uint8
+enum class EPlanetaryCropGrowthStage : uint8
 {
 	Seed UMETA(DisplayName = "Seed"),
 	Sprout UMETA(DisplayName = "Sprout"),
@@ -298,7 +298,7 @@ public:
 
 	// Get crop growth stage
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
-	ECropGrowthStage GetCropGrowthStage(const FGuid& PlotID) const;
+	EPlanetaryCropGrowthStage GetCropGrowthStage(const FGuid& PlotID) const;
 
 	// Auto-manage farming (AI helper)
 	UFUNCTION(BlueprintCallable, Category = "Farming System")

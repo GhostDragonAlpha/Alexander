@@ -9,9 +9,9 @@
 #include "HAL/ThreadSafeCounter.h"
 #include "PerformanceSelfMonitor.generated.h"
 
-// Performance metrics collected during testing
+// Performance metrics collected during testing (self-test specific)
 USTRUCT(BlueprintType)
-struct FPerformanceMetrics
+struct FSelfTestPerformanceMetrics
 {
 	GENERATED_BODY()
 
@@ -110,11 +110,11 @@ public:
 
 	// Get current performance metrics
 	UFUNCTION(BlueprintCallable, Category = "Performance")
-	FPerformanceMetrics GetCurrentMetrics() const { return CurrentMetrics; }
+	FSelfTestPerformanceMetrics GetCurrentMetrics() const { return CurrentMetrics; }
 
 	// Get final performance metrics
 	UFUNCTION(BlueprintCallable, Category = "Performance")
-	FPerformanceMetrics GetFinalMetrics() const { return FinalMetrics; }
+	FSelfTestPerformanceMetrics GetFinalMetrics() const { return FinalMetrics; }
 
 	// Check if monitoring is active
 	UFUNCTION(BlueprintCallable, Category = "Performance")
@@ -154,11 +154,11 @@ protected:
 
 	// Current metrics being collected
 	UPROPERTY()
-	FPerformanceMetrics CurrentMetrics;
+	FSelfTestPerformanceMetrics CurrentMetrics;
 
 	// Final metrics after monitoring stops
 	UPROPERTY()
-	FPerformanceMetrics FinalMetrics;
+	FSelfTestPerformanceMetrics FinalMetrics;
 
 	// Performance targets
 	UPROPERTY()
