@@ -46,6 +46,15 @@ struct FPerformanceMetrics
 	float RHIThreadTime;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Performance")
+	float StreamingBandwidthMBps;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Performance")
+	int32 ActiveTerrainTiles;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Performance")
+	int32 StreamingTiles;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Performance")
 	FDateTime Timestamp;
 
 	FPerformanceMetrics()
@@ -61,6 +70,9 @@ struct FPerformanceMetrics
 		GameThreadTime = 0.0f;
 		RenderThreadTime = 0.0f;
 		RHIThreadTime = 0.0f;
+		StreamingBandwidthMBps = 0.0f;
+		ActiveTerrainTiles = 0;
+		StreamingTiles = 0;
 		Timestamp = FDateTime::Now();
 	}
 };

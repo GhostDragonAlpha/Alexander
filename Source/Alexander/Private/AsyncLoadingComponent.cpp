@@ -30,6 +30,12 @@ void UAsyncLoadingComponent::Initialize(int32 ThreadPoolSize)
     UE_LOG(LogTemp, Log, TEXT("AsyncLoadingComponent thread pool size set to: %d"), MaxThreadPoolSize);
 }
 
+void UAsyncLoadingComponent::QueueLoadingTask(const FString& SystemID)
+{
+    // Default implementation - queue with empty task and completion callbacks
+    QueueLoadingTask(SystemID, []() {}, []() {});
+}
+
 void UAsyncLoadingComponent::QueueLoadingTask(const FString& SystemID, TFunction<void()> TaskFunction, TFunction<void()> CompletionCallback)
 {
     FScopeLock Lock(&TaskLock);

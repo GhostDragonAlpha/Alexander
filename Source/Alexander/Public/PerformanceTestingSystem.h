@@ -4,13 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
+#include "PerformanceMonitor.h"
 #include "PerformanceTestingSystem.generated.h"
 
 /**
  * Performance metrics captured at a specific altitude
  */
-// Forward declaration - defined in PerformanceSelfMonitor.h
-struct FSelfTestPerformanceMetrics;
+// Forward declaration - defined in PerformanceMonitor.h
+struct FPerformanceMetrics;
+
+/**
+ * Forward declaration - defined in PerformanceMonitor.h
+ */
+struct FPerformanceMetrics;
 
 /**
  * VR-specific performance metrics
@@ -96,7 +102,7 @@ struct FPerformanceTestResults
 	GENERATED_BODY()
 
 	UPROPERTY(BlueprintReadOnly, Category = "Results")
-	TArray<FSelfTestPerformanceMetrics> Samples;
+	TArray<FPerformanceMetrics> Samples;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Results")
 	TArray<FVRPerformanceMetrics> VRSamples;

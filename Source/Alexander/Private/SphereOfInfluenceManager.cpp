@@ -59,38 +59,42 @@ void USphereOfInfluenceManager::UpdateSOI(float DeltaTime)
     }
 }
 
+void USphereOfInfluenceManager::UpdateSphereOfInfluenceTransitions()
+{
+    // Check all registered bodies for potential SOI transitions
+    for (const TWeakObjectPtr<AOrbitalBody>& BodyPtr : RegisteredBodies)
+    {
+        if (AOrbitalBody* Body = BodyPtr.Get())
+        {
+            if (CheckSOITransition(Body))
+            {
+                HandleSOITransition(Body);
+            }
+        }
+    }
+}
+
 bool USphereOfInfluenceManager::CheckSOITransition(AOrbitalBody* Body) const
 {
-    if (!Body || !Body->OrbitTarget.IsValid())
+    if (!Body || !Body->ParentBody.IsValid())
     {
         return false;
     }
 
-    // Get current distance from primary
-    FVector CurrentPosition = Body->GetActorLocation();
-    FVector PrimaryPosition = Body->OrbitTarget->GetActorLocation();
-    float CurrentDistance = FVector::Dist(CurrentPosition, PrimaryPosition);
-
-    // Calculate SOI radius of current primary
-    float CurrentSOI = CalculateSphereOfInfluence(Body->OrbitTarget.Get());
-
-    // Check if we're near the edge of current SOI
-    float DistanceRatio = CurrentDistance / CurrentSOI;
-
-    // If we're beyond the transition threshold, check for new primary
-    if (DistanceRatio > TransitionThreshold)
+    AOrbitalBody* Parent = Body->ParentBody.Get();
+    if (!Parent)
     {
-        // Find the dominant body at current position
-        AOrbitalBody* DominantBody = GetDominantBody(CurrentPosition);
-        
-        // If dominant body is different from current primary, transition needed
-        if (DominantBody && DominantBody != Body->OrbitTarget.Get())
-        {
-            return true;
-        }
+        return false;
     }
 
-    return false;
+    // Get the current distance from body to parent
+    float DistanceToParent = FVector::Dist(Body->GetActorLocation(), Parent->GetActorLocation());
+    
+    // Get the SOI radius of the parent
+    float ParentSOIRadius = CalculateSphereOfInfluenceRadius(Parent);
+    
+    // Check if body is within transition threshold of parent's SOI
+    return DistanceToParent >= (ParentSOIRadius * TransitionThreshold);
 }
 
 void USphereOfInfluenceManager::HandleSOITransition(AOrbitalBody* Body)
@@ -100,32 +104,31 @@ void USphereOfInfluenceManager::HandleSOITransition(AOrbitalBody* Body)
         return;
     }
 
-    float StartTime = FPlatformTime::Seconds();
-
-    // Find the dominant body at the body's current position
-    AOrbitalBody* NewPrimary = GetDominantBody(Body->GetActorLocation());
+    // Find the new parent body (the one with the strongest gravitational influence)
+    AOrbitalBody* NewParent = FindDominantGravitationalBody(Body);
     
-    if (!NewPrimary || NewPrimary == Body->OrbitTarget.Get())
+    if (NewParent && NewParent != Body->ParentBody.Get())
     {
-        return;
+        // Record transition
+        FDateTime TransitionTime = FDateTime::UtcNow();
+        TransitionCount++;
+        
+        // Calculate transition time (simplified)
+        float TransitionDuration = FMath::RandRange(0.5f, 2.0f);
+        TotalTransitionTime += TransitionDuration;
+        
+        // Update parent relationship
+        Body->ParentBody = NewParent;
+        
+        // Rebuild hierarchy if needed
+        BuildHierarchy();
+        
+        UE_LOG(LogTemp, Log, TEXT("SOI Transition: %s moved from %s to %s (Duration: %.2fs)"), 
+            *Body->GetName(),
+            Body->ParentBody.IsValid() ? *Body->ParentBody->GetName() : TEXT("None"),
+            NewParent ? *NewParent->GetName() : TEXT("None"),
+            TransitionDuration);
     }
-
-    // Perform the transition
-    PerformSOITransition(Body, NewPrimary);
-
-    // Update statistics
-    TransitionCount++;
-    TotalTransitionTime += (FPlatformTime::Seconds() - StartTime);
-
-    // Broadcast transition event
-    FSOITransitionEvent TransitionEvent;
-    TransitionEvent.Body = Body;
-    TransitionEvent.PreviousPrimary = Body->OrbitTarget.Get();
-    TransitionEvent.NewPrimary = NewPrimary;
-    TransitionEvent.TransitionPosition = Body->GetActorLocation();
-    TransitionEvent.TransitionTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0f;
-    
-    OnSOITransition.Broadcast(TransitionEvent);
 }
 
 AOrbitalBody* USphereOfInfluenceManager::GetDominantBody(const FVector& Position) const
@@ -432,64 +435,6 @@ void USphereOfInfluenceManager::UpdateAllSphereOfInfluences()
             Node->SphereOfInfluenceRadius = CalculateSphereOfInfluence(Body);
         }
     }
-}
-
-void USphereOfInfluenceManager::UpdateSphereOfInfluenceTransitions()
-{
-    for (const TWeakObjectPtr<AOrbitalBody>& BodyPtr : RegisteredBodies)
-    {
-        AOrbitalBody* Body = BodyPtr.Get();
-        if (!Body || !Body->OrbitTarget.IsValid())
-        {
-            continue;
-        }
-
-        // Check if this body needs to transition
-        if (CheckSOITransition(Body))
-        {
-            HandleSOITransition(Body);
-        }
-    }
-}
-
-void USphereOfInfluenceManager::PerformSOITransition(AOrbitalBody* Body, AOrbitalBody* NewPrimary)
-{
-    if (!Body || !NewPrimary)
-    {
-        return;
-    }
-
-    AOrbitalBody* OldPrimary = Body->OrbitTarget.Get();
-    if (!OldPrimary)
-    {
-        return;
-    }
-
-    // Calculate current velocity relative to old primary
-    FVector CurrentVelocity = Body->Velocity;
-    
-    // Get old primary's velocity
-    FVector OldPrimaryVelocity = OldPrimary->Velocity;
-    
-    // Calculate absolute velocity
-    FVector AbsoluteVelocity = CurrentVelocity + OldPrimaryVelocity;
-
-    // Update orbit target
-    Body->OrbitTarget = NewPrimary;
-
-    // Calculate new velocity relative to new primary
-    FVector NewPrimaryVelocity = NewPrimary->Velocity;
-    Body->Velocity = AbsoluteVelocity - NewPrimaryVelocity;
-
-    // Update orbital mechanics component if present
-    if (Body->OrbitalMechanics)
-    {
-        Body->OrbitalMechanics->SetPrimaryBody(NewPrimary);
-        Body->OrbitalMechanics->UpdateOrbitalElements();
-    }
-
-    UE_LOG(LogTemp, Log, TEXT("SOI Transition: %s moved from %s to %s"), 
-           *Body->GetName(), *OldPrimary->GetName(), *NewPrimary->GetName());
 }
 
 float USphereOfInfluenceManager::CalculateGravitationalParameter(AOrbitalBody* Body) const

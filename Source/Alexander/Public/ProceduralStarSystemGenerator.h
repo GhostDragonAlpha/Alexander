@@ -137,6 +137,10 @@ struct FPlanetarySystemConfig
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
     int32 RandomSeed;
 
+    // Star spectral type for orbital calculations
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "System")
+    EStarSpectralType StarSpectralType;
+
     // Habitable zone inner boundary (AU)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Habitable Zone")
     float HabitableZoneInner;
@@ -154,6 +158,7 @@ struct FPlanetarySystemConfig
         , bGenerateMoons(true)
         , MaxMoonsPerPlanet(5)
         , RandomSeed(12345)
+        , StarSpectralType(EStarSpectralType::G)
         , HabitableZoneInner(0.95f)
         , HabitableZoneOuter(1.37f)
     {

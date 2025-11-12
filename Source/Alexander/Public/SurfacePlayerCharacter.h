@@ -307,6 +307,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Input")
     UInputAction* InteractAction;
 
+    // Self-test implementation
+    virtual bool RunSelfTest_Implementation(FSystemTestResult& OutResult) override;
+
 private:
     // Camera settings
     float BaseTurnRate;

@@ -432,7 +432,7 @@ void UResourceGatheringSystem::GeneratePlanetaryResources(APlanet* Planet)
 	// This is a simplified version - in a full implementation, this would be
 	// based on the planet's biome system and geological features
 
-	TMap<FVector, TArray<FResourceDeposit>> PlanetDeposits;
+	FPlanetaryDepositMap PlanetDeposits;
 
 	// For now, we'll create a few sample deposits at random locations
 	int32 NumDeposits = FMath::RandRange(5, 15);
@@ -502,11 +502,11 @@ void UResourceGatheringSystem::GeneratePlanetaryResources(APlanet* Planet)
 		Deposit.Location = RandomLocation;
 
 		// Add to planet deposits (using location as key)
-		PlanetDeposits.FindOrAdd(RandomLocation).Add(Deposit);
+		PlanetDeposits.LocationDeposits.FindOrAdd(RandomLocation).Deposits.Add(Deposit);
 	}
 
 	// Store deposits
-	PlanetaryDeposits.Add(Planet, PlanetDeposits);
+	PlanetaryDeposits.Add(Planet, PlanetDepositMap);
 
 	UE_LOG(LogTemp, Log, TEXT("Generated %d resource deposits for planet"), NumDeposits);
 }
@@ -520,16 +520,20 @@ TArray<FResourceDeposit> UResourceGatheringSystem::GetPlanetaryResources(APlanet
 
 	// Find deposits near the location
 	TArray<FResourceDeposit> NearbyDeposits;
-	const TMap<FVector, TArray<FResourceDeposit>>* PlanetDeposits = PlanetaryDeposits.Find(Planet);
+	const FPlanetaryDepositMap* PlanetDeposits = PlanetaryDeposits.Find(Planet);
 
-	if (PlanetDeposits)
+	if (PlanetDepositMap)
 	{
-		for (const auto& Pair : *PlanetDeposits)
+<<<<<<< Updated upstream
+		for (const auto& Pair : PlanetDepositMap->LocationDeposits)
+=======
+		for (const auto& Pair : PlanetDeposits->LocationDeposits)
+>>>>>>> Stashed changes
 		{
 			float Distance = FVector::Dist(Location, Pair.Key);
 			if (Distance < 5000.0f) // 5km range
 			{
-				NearbyDeposits.Append(Pair.Value);
+				NearbyDeposits.Append(Pair.Value.Deposits);
 			}
 		}
 	}

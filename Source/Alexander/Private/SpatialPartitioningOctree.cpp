@@ -73,9 +73,9 @@ void USpatialPartitioningOctree::UpdateBodyPosition(AOrbitalBody* Body, const FV
     AddBody(Body);
 }
 
-FSpatialQueryResult USpatialPartitioningOctree::QueryBodiesInRadius(const FVector& Position, float Radius) const
+FAlexanderSpatialQueryResult USpatialPartitioningOctree::QueryBodiesInRadius(const FVector& Position, float Radius) const
 {
-    FSpatialQueryResult Result;
+    FAlexanderSpatialQueryResult Result;
     Result.QueryPosition = Position;
     Result.QueryRadius = Radius;
     
@@ -89,9 +89,9 @@ FSpatialQueryResult USpatialPartitioningOctree::QueryBodiesInRadius(const FVecto
     return Result;
 }
 
-FSpatialQueryResult USpatialPartitioningOctree::QueryBodiesInBox(const FBox& QueryBox) const
+FAlexanderSpatialQueryResult USpatialPartitioningOctree::QueryBodiesInBox(const FBox& QueryBox) const
 {
-    FSpatialQueryResult Result;
+    FAlexanderSpatialQueryResult Result;
     Result.QueryPosition = QueryBox.GetCenter();
     Result.QueryRadius = QueryBox.GetExtent().Size();
     
@@ -213,7 +213,7 @@ void USpatialPartitioningOctree::RemoveBodyFromNode(FOctreeNode& Node, AOrbitalB
 
 void USpatialPartitioningOctree::SplitNode(FOctreeNode& Node)
 {
-    if (!Node.IsLeaf() || Node.Depth >= FOctreeNode::MAX_DEPTH)
+    if (!Node.IsLeaf() || Node.Depth >= MAX_DEPTH)
     {
         return;
     }

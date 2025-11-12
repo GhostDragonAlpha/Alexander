@@ -581,4 +581,16 @@ private:
 
 	// Calculate distance between grid positions
 	float CalculateGridDistance(FIntPoint Pos1, FIntPoint Pos2) const;
+
+	// Get module size for a given type
+	EModuleSize GetModuleSize(EBaseModuleType ModuleType) const;
+
+	// Get size in cells for a given module size
+	int32 GetSizeInCells(EModuleSize Size) const;
+
+	// Calculate module value
+	float CalculateModuleValue(const FBaseModuleData& Module) const;
+
+	// Calculate maintenance cost
+	float CalculateMaintenanceCost() const;
 };

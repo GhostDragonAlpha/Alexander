@@ -118,7 +118,7 @@ FPerformanceMetrics UPerformanceTestingSystem::CapturePerformanceMetrics()
 	}
 
 	// Capture performance metrics
-	Metrics.FrameRate = MeasureFrameRate();
+	Metrics.FPS = MeasureFrameRate();
 	Metrics.FrameTime = MeasureFrameTime();
 	Metrics.GameThreadTime = MeasureGameThreadTime();
 	Metrics.RenderThreadTime = MeasureRenderThreadTime();

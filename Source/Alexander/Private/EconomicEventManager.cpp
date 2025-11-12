@@ -1331,21 +1331,6 @@ void UEconomicEventManager::SetupRandomEventEffects(FEconomicEventData& Event)
 	}
 }
 
-void UEconomicEventManager::SetupRandomEventEffects(FEconomicEventData& Event)
-{
-	// Set up completely random effects
-	int32 NumImpacts = FMath::RandRange(1, 5);
-
-	for (int32 i = 0; i < NumImpacts; i++)
-	{
-		FName CommodityID = FName(*FString::Printf(TEXT("Commodity_%d"), FMath::RandRange(0, 20)));
-		float RandomMultiplier = FMath::FRandRange(0.5f, 1.5f);
-		
-		Event.CommodityPriceMultipliers.Add(CommodityID, RandomMultiplier);
-		Event.CommodityDemandMultipliers.Add(CommodityID, RandomMultiplier);
-	}
-}
-
 void UEconomicEventManager::ProcessEventChain(FEventChain& Chain)
 {
 	if (!Chain.bIsActive || Chain.Events.Num() == 0)
@@ -1464,8 +1449,7 @@ bool UEconomicEventManager::CanTriggerEvent(const FEconomicEventData& Event) con
 bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutResult)
 {
 	OutResult.SystemName = "EconomicEventManager";
-	OutResult.bSuccess = true;
-	OutResult.TestTimestamp = FDateTime::Now();
+	OutResult.bPassed = true;
 	
 	UE_LOG(LogTemp, Log, TEXT("=== Starting EconomicEventManager Self-Test ==="));
 	
@@ -1476,8 +1460,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (!DynamicMarketManager || !FactionEconomyManager)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Subsystem references not initialized"));
-			OutResult.ErrorMessages.Add(TEXT("Subsystem initialization failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Subsystem initialization failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1485,18 +1469,13 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (EventTemplates.Num() < 3)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Default event templates not initialized"));
-			OutResult.ErrorMessages.Add(TEXT("Event template initialization failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Event template initialization failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Subsystem initialization verified"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Subsystem Initialization"),
-			FString::Printf(TEXT("%d event templates loaded"), EventTemplates.Num()),
-			0.0f
-		});
+		OutResult.PerformanceMetrics.Add(TEXT("EventTemplatesLoaded"), EventTemplates.Num());
 	}
 	
 	// Test 2: Verify basic event triggering
@@ -1519,7 +1498,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Event triggering failed"));
 			OutResult.ErrorMessages.Add(TEXT("Event triggering test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1538,8 +1517,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (!bEventFound)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Triggered event not found in active events"));
-			OutResult.ErrorMessages.Add(TEXT("Active events tracking test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Active events tracking test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1561,18 +1540,13 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (bEventFound)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Event should be removed after EndEvent"));
-			OutResult.ErrorMessages.Add(TEXT("Event removal test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Event removal test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Basic event triggering working"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Basic Event Triggering"),
-			TEXT("Event creation, activation, and removal functional"),
-			0.0f
-		});
+		OutResult.PerformanceMetrics.Add(TEXT("EventsTested"), 1.0f);
 	}
 	
 	// Test 3: Verify event categories and filtering
@@ -1609,8 +1583,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (MarketEvents.Num() != 1)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Market event filtering returned %d events (expected 1)"), MarketEvents.Num());
-			OutResult.ErrorMessages.Add(TEXT("Category filtering test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Category filtering test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1618,8 +1592,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (FactionEvents.Num() != 1)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Faction event filtering returned %d events (expected 1)"), FactionEvents.Num());
-			OutResult.ErrorMessages.Add(TEXT("Faction filtering test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Faction filtering test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1628,8 +1602,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (RegionalEvents.Num() < 2) // Market and Faction events should be regional
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Scope filtering returned insufficient events"));
-			OutResult.ErrorMessages.Add(TEXT("Scope filtering test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Scope filtering test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1637,12 +1611,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		ClearAllEvents();
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Event categories and filtering working"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Event Categories & Filtering"),
-			TEXT("Category and scope filtering functional"),
-			0.0f
-		});
+		OutResult.PerformanceMetrics.Add(TEXT("CategoriesTested"), 3.0f);
 	}
 	
 	// Test 4: Verify event chains
@@ -1684,8 +1653,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (TestChain.ChainID.IsEmpty() || TestChain.Events.Num() != 3)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Event chain creation failed"));
-			OutResult.ErrorMessages.Add(TEXT("Event chain creation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Event chain creation test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1695,8 +1664,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (!StartedChain.bIsActive)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Event chain not activated"));
-			OutResult.ErrorMessages.Add(TEXT("Event chain activation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Event chain activation test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1715,8 +1684,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (!bChainFound)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Chain not found in active chains"));
-			OutResult.ErrorMessages.Add(TEXT("Active chains tracking test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Active chains tracking test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1738,18 +1707,13 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (bChainFound)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Chain should be removed after EndEventChain"));
-			OutResult.ErrorMessages.Add(TEXT("Chain removal test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Chain removal test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Event chains working"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Event Chains"),
-			TEXT("Chain creation, activation, and removal functional"),
-			0.0f
-		});
+		OutResult.PerformanceMetrics.Add(TEXT("ChainsTested"), 1.0f);
 	}
 	
 	// Test 5: Verify random event generation
@@ -1765,8 +1729,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (RandomEvent.EventID.IsEmpty() || !RandomEvent.bIsActive)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Random event generation failed"));
-			OutResult.ErrorMessages.Add(TEXT("Random event generation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Random event generation test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1774,8 +1738,8 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		if (RandomEvent.Severity < 0.2f || RandomEvent.Severity > MaxEventSeverity)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Random event severity out of valid range"));
-			OutResult.ErrorMessages.Add(TEXT("Random event severity test failed"));
-			OutResult.bSuccess = false;
+			OutResult.ErrorMessage = TEXT("Random event severity test failed");
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1783,7 +1747,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Random event duration out of valid range"));
 			OutResult.ErrorMessages.Add(TEXT("Random event duration test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1794,7 +1758,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Random chain should have 3-5 events, got %d"), RandomChain.Events.Num());
 			OutResult.ErrorMessages.Add(TEXT("Random chain generation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1835,7 +1799,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Player event triggering failed"));
 			OutResult.ErrorMessages.Add(TEXT("Player event trigger test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1855,7 +1819,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Player-triggered event not found in active events"));
 			OutResult.ErrorMessages.Add(TEXT("Player event activation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1865,7 +1829,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: No player-triggerable events found"));
 			OutResult.ErrorMessages.Add(TEXT("Player triggerable events query test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1896,7 +1860,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Market crash event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Market crash test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1911,7 +1875,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Market boom event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Market boom test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1926,7 +1890,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Supply shortage event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Supply shortage test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1941,7 +1905,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Supply glut event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Supply glut test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1957,7 +1921,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Trade war event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Trade war test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1972,7 +1936,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Pirate blockade event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Pirate blockade test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1982,7 +1946,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Expected at least 4 market events, got %d"), MarketEvents.Num());
 			OutResult.ErrorMessages.Add(TEXT("Market event count test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2013,7 +1977,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Faction economic boom event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Faction boom test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2028,7 +1992,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Faction economic crisis event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Faction crisis test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2043,7 +2007,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Faction civil war event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Civil war test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2058,7 +2022,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Faction revolution event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Revolution test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2068,7 +2032,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Expected 4 faction events, got %d"), FactionEvents.Num());
 			OutResult.ErrorMessages.Add(TEXT("Faction event count test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2099,7 +2063,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Seasonal festival event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Seasonal festival test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2113,7 +2077,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Harvest season event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Harvest season test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2127,7 +2091,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Holiday season event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Holiday season test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2137,7 +2101,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Expected 3 seasonal events, got %d"), SeasonalEvents.Num());
 			OutResult.ErrorMessages.Add(TEXT("Seasonal event count test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2167,7 +2131,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Galactic economic boom event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Galactic boom test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2181,7 +2145,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Galactic recession event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Galactic recession test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2195,7 +2159,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Tech revolution event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Tech revolution test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2210,7 +2174,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Resource discovery event failed"));
 			OutResult.ErrorMessages.Add(TEXT("Resource discovery test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2220,7 +2184,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Expected 4 global events, got %d"), GlobalEvents.Num());
 			OutResult.ErrorMessages.Add(TEXT("Global event count test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2257,7 +2221,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Expected at least 2 history entries, got %d"), History.Num());
 			OutResult.ErrorMessages.Add(TEXT("Event history test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2271,7 +2235,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Date range filtering returned insufficient events"));
 			OutResult.ErrorMessages.Add(TEXT("Date range filtering test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2281,7 +2245,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: History export failed"));
 			OutResult.ErrorMessages.Add(TEXT("History export test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2335,7 +2299,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Event report generation failed"));
 			OutResult.ErrorMessages.Add(TEXT("Event report generation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2371,7 +2335,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Exceeded maximum active events limit"));
 			OutResult.ErrorMessages.Add(TEXT("Max events limit test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2381,7 +2345,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Severity below minimum"));
 			OutResult.ErrorMessages.Add(TEXT("Severity minimum test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2390,7 +2354,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Severity above maximum"));
 			OutResult.ErrorMessages.Add(TEXT("Severity maximum test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2400,7 +2364,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Duration below minimum"));
 			OutResult.ErrorMessages.Add(TEXT("Duration minimum test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2409,7 +2373,7 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Duration above maximum"));
 			OutResult.ErrorMessages.Add(TEXT("Duration maximum test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -2426,10 +2390,10 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 	}
 	
 	// Final result
-	if (OutResult.bSuccess)
+	if (OutResult.bPassed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("=== EconomicEventManager Self-Test PASSED ==="));
-		UE_LOG(LogTemp, Log, TEXT("Total Tests: %d"), OutResult.TestResults.Num());
+		UE_LOG(LogTemp, Log, TEXT("Performance Metrics: %d"), OutResult.PerformanceMetrics.Num());
 		UE_LOG(LogTemp, Log, TEXT("Total Events Triggered: %d"), TotalEventsTriggered);
 		UE_LOG(LogTemp, Log, TEXT("Total Events Ended: %d"), TotalEventsEnded);
 		UE_LOG(LogTemp, Log, TEXT("Total Event Chains Started: %d"), TotalEventChainsStarted);
@@ -2440,5 +2404,5 @@ bool UEconomicEventManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		UE_LOG(LogTemp, Error, TEXT("=== EconomicEventManager Self-Test FAILED ==="));
 	}
 	
-	return OutResult.bSuccess;
+	return OutResult.bPassed;
 }

@@ -8,6 +8,7 @@
 #include "CropGrowthCalculator.h"
 #include "CropDefinition.h"
 #include "BiomeManager.h"
+#include "PerformanceTestingSystem.h"
 
 // ============================================================================
 // NOISE GENERATION TESTS
@@ -528,8 +529,6 @@ bool FCropGrowthFertilityTest::RunTest(const FString& Parameters)
 // PERFORMANCE TESTING TESTS
 // ============================================================================
 
-#include "PerformanceTestingSystem.h"
-
 IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPerformanceMetricsCaptureTest,
 	"Alexander.PlanetInterior.Performance.MetricsCapture",
 	EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
@@ -543,7 +542,7 @@ bool FPerformanceMetricsCaptureTest::RunTest(const FString& Parameters)
 	FPerformanceMetrics Metrics = PerfSystem->CapturePerformanceMetrics();
 	
 	// Verify metrics are in valid ranges
-	TestTrue(TEXT("Frame rate should be positive"), Metrics.FrameRate >= 0.0f);
+	TestTrue(TEXT("Frame rate should be positive"), Metrics.FPS >= 0.0f);
 	TestTrue(TEXT("Frame time should be positive"), Metrics.FrameTime >= 0.0f);
 	TestTrue(TEXT("Memory usage should be positive"), Metrics.MemoryUsageMB >= 0.0f);
 	TestTrue(TEXT("Streaming bandwidth should be non-negative"), Metrics.StreamingBandwidthMBps >= 0.0f);
@@ -599,7 +598,7 @@ bool FPerformanceVRValidationTest::RunTest(const FString& Parameters)
 	for (int32 i = 0; i < 10; ++i)
 	{
 		FPerformanceMetrics Sample;
-		Sample.FrameRate = 95.0f;
+		Sample.FPS = 95.0f;
 		Sample.FrameTime = 10.5f; // ~95 FPS
 		PassingResults.Samples.Add(Sample);
 	}
@@ -626,7 +625,7 @@ bool FPerformanceVRValidationTest::RunTest(const FString& Parameters)
 	for (int32 i = 0; i < 10; ++i)
 	{
 		FPerformanceMetrics Sample;
-		Sample.FrameRate = 95.0f;
+		Sample.FPS = 95.0f;
 		Sample.FrameTime = (i % 2 == 0) ? 8.0f : 15.0f; // High variance
 		InconsistentResults.Samples.Add(Sample);
 	}
@@ -750,9 +749,9 @@ bool FPerformanceResultsAnalysisTest::RunTest(const FString& Parameters)
 	for (int32 i = 0; i < 10; ++i)
 	{
 		FPerformanceMetrics Sample;
-		Sample.FrameRate = 90.0f + (i * 2.0f); // 90-108 FPS
+		Sample.FPS = 90.0f + (i * 2.0f); // 90-108 FPS
 		Sample.MemoryUsageMB = 1000.0f + (i * 10.0f);
-		Sample.StreamingBandwidthMBps = 50.0f + (i * 5.0f);
+		Sample.FrameTime = 1000.0f / Sample.FPS;
 		Results.Samples.Add(Sample);
 	}
 	

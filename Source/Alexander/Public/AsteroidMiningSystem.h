@@ -59,12 +59,17 @@ struct FAsteroidScanResult
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scan")
 	float ScanTime;
 
+	// Failure reason if scan failed
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scan")
+	FString FailureReason;
+
 	FAsteroidScanResult()
 	{
 		bSuccess = false;
 		ScanStrength = 0.0f;
 		ScanQuality = 0.0f;
 		ScanTime = 0.0f;
+		FailureReason = TEXT("");
 	}
 };
 

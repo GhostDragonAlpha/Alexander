@@ -563,11 +563,11 @@ public:
 protected:
 	// Dynamic market manager reference
 	UPROPERTY()
-	TWeakObjectPtr<UDynamicMarketManager> DynamicMarketManager;
+	UDynamicMarketManager* DynamicMarketManager;
 
 	// Faction economy manager reference
 	UPROPERTY()
-	TWeakObjectPtr<UFactionEconomyManager> FactionEconomyManager;
+	UFactionEconomyManager* FactionEconomyManager;
 
 	// Active events
 	UPROPERTY()
@@ -624,6 +624,9 @@ private:
 	int32 TotalEventChainsStarted;
 	int32 PlayerTriggeredEvents;
 
+	// Configuration
+	float MaxEventSeverity;
+
 	// Helper functions
 	void UpdateActiveEvents(float DeltaTime);
 	void UpdateEventChains(float DeltaTime);
@@ -639,4 +642,14 @@ private:
 	FEconomicEventData CreateEventFromTemplate(const FEconomicEventData& Template);
 	void ProcessEventChain(FEventChain& Chain);
 	bool CanTriggerEvent(const FEconomicEventData& Event) const;
+
+	// Setup functions for different event types
+	void SetupRandomEventEffects(FEconomicEventData& Event);
+	void SetupMarketEventEffects(FEconomicEventData& Event);
+	void SetupFactionEventEffects(FEconomicEventData& Event);
+	void SetupGlobalEventEffects(FEconomicEventData& Event);
+	void SetupSeasonalEventEffects(FEconomicEventData& Event);
+
+	// Self-test implementation
+	bool RunSelfTest_Implementation(FSystemTestResult& OutResult);
 };

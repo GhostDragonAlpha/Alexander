@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Templates/Pair.h"
 #include "SphericalSpacePhysicsManager.generated.h"
 
 // Forward declarations

@@ -36,8 +36,15 @@ FGeneratedStarSystem UProceduralStarSystemGenerator::GenerateStarSystem(const FS
     // Calculate habitable zone
     CalculateHabitableZone(Config.StarConfig.Luminosity, Result.HabitableZoneInner, Result.HabitableZoneOuter);
 
+    // Set star spectral type for planetary generation
+    Config.PlanetaryConfig.StarSpectralType = Config.StarConfig.SpectralType;
+
     // Generate planetary system
-    Result.Planets = GeneratePlanetarySystem(Star, Config.PlanetaryConfig);
+    TArray<APlanet*> GeneratedPlanets = GeneratePlanetarySystem(Star, Config.PlanetaryConfig);
+    for (APlanet* Planet : GeneratedPlanets)
+    {
+        Result.Planets.Add(Planet);
+    }
 
     // Generate asteroid belt if requested
     if (Config.PlanetaryConfig.bGenerateAsteroidBelt)
@@ -138,7 +145,7 @@ TArray<APlanet*> UProceduralStarSystemGenerator::GeneratePlanetarySystem(ASun* S
     for (int32 i = 0; i < NumPlanets; i++)
     {
         // Calculate orbital radius using modified Titius-Bode law
-        float OrbitalRadius = CalculateOrbitalSpacing(i, Config.MinOrbitalRadius, Config.MaxOrbitalRadius, Config.StarConfig.SpectralType);
+        float OrbitalRadius = CalculateOrbitalSpacing(i, Config.MinOrbitalRadius, Config.MaxOrbitalRadius, Config.StarSpectralType);
         
         APlanet* Planet = GeneratePlanet(Star, OrbitalRadius, i, Config.RandomSeed + i);
         if (Planet)
@@ -275,7 +282,7 @@ TArray<AOrbitalBody*> UProceduralStarSystemGenerator::GenerateMoons(APlanet* Pla
             Moon->SetActorLocation(MoonPosition);
             
             // Set moon name
-            FString MoonName = FString::Printf(TEXT("%s Moon %d"), *Planet->GetActorLabel(), i + 1);
+                FString MoonName = FString::Printf(TEXT("%s Moon %d"), Planet->GetActorLabel(), i + 1);
             Moon->SetActorLabel(MoonName);
             
             Moons.Add(Moon);

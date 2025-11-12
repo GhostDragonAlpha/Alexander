@@ -1332,69 +1332,40 @@ void UStarSystemManager::InitializeSpatialPartitioning()
 {
     if (!SpatialPartitioning)
     {
-        SpatialPartitioning = NewObject<USpatialPartitioningComponent>(this, USpatialPartitioningComponent::StaticClass(), TEXT("SpatialPartitioning"));
-        SpatialPartitioning->RegisterComponent();
+        SpatialPartitioning = NewObject<USpatialPartitioningComponent>(this);
+        if (SpatialPartitioning)
+        {
+            SpatialPartitioning->Initialize(FVector::ZeroVector, FVector(1000000.0f), SpatialPartitioningDepth);
+            UE_LOG(LogTemp, Log, TEXT("Spatial partitioning initialized"));
+        }
     }
-    
-    // Initialize with galaxy-sized bounds
-    SpatialPartitioning->Initialize(FVector::ZeroVector, 200000.0f, SpatialPartitioningDepth);
 }
 
 void UStarSystemManager::InitializeAsyncLoading()
 {
     if (!AsyncLoader && bEnableAsyncLoading)
     {
-        AsyncLoader = NewObject<UAsyncLoadingComponent>(this, UAsyncLoadingComponent::StaticClass(), TEXT("AsyncLoader"));
-        AsyncLoader->RegisterComponent();
-        AsyncLoader->Initialize(AsyncLoadingThreadPoolSize);
+        AsyncLoader = NewObject<UAsyncLoadingComponent>(this);
+        if (AsyncLoader)
+        {
+            AsyncLoader->Initialize(AsyncLoadingThreadPoolSize);
+            UE_LOG(LogTemp, Log, TEXT("Async loading initialized with %d threads"), AsyncLoadingThreadPoolSize);
+        }
     }
-}
-
-bool UStarSystemManager::ShouldUnloadSystem(const FString& SystemID) const
-{
-    if (SystemID == CurrentSystemID)
-    {
-        return false; // Never unload current system
-    }
-
-    // Check reference count
-    const int32* RefCount = SystemReferenceCount.Find(SystemID);
-    if (RefCount && *RefCount > 0)
-    {
-        return false; // System is still referenced
-    }
-
-    // Check distance from current system
-    float Distance = CalculateJumpDistance(CurrentSystemID, SystemID);
-    return Distance > SystemUnloadDistance;
 }
 
 void UStarSystemManager::UpdateMemoryTracking(const FString& SystemID)
 {
-    FSystemMemoryInfo MemoryInfo;
-    
-    const FStarSystemData* System = StarSystems.Find(SystemID);
-    if (System)
+    if (SystemMemoryTracker.Contains(SystemID))
     {
-        // Estimate memory usage (these are rough estimates)
-        MemoryInfo.SystemDataSize = sizeof(FStarSystemData);
-        MemoryInfo.CelestialBodiesSize = System->CelestialBodies.Num() * sizeof(FCelestialBody);
-        
-        // Count stations in this system
-        int32 StationCount = 0;
-        for (const auto& StationPair : SpaceStations)
-        {
-            if (StationPair.Value.SystemID == SystemID)
-            {
-                StationCount++;
-            }
-        }
-        MemoryInfo.StationsSize = StationCount * sizeof(FSpaceStationData);
-        
-        MemoryInfo.TotalSize = MemoryInfo.SystemDataSize +
-                               MemoryInfo.CelestialBodiesSize +
-                               MemoryInfo.StationsSize;
+        CalculateSystemMemoryUsage(SystemID);
     }
-    
-    SystemMemoryTracker.Add(SystemID, MemoryInfo);
+}
+
+void UStarSystemManager::RemoveFromSpatialIndex(const FString& SystemID)
+{
+    if (SpatialPartitioning)
+    {
+        SpatialPartitioning->RemoveSystem(SystemID);
+    }
 }

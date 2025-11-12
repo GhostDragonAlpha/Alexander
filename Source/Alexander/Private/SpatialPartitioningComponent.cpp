@@ -22,7 +22,7 @@ void USpatialPartitioningComponent::Initialize(const FVector& WorldCenter, float
     WorldBoundsSize = WorldSize;
     MaxTreeDepth = MaxDepth;
     
-    RootNode = MakeShareable(new FOctreeNode(WorldCenter, WorldSize * 0.5f));
+    RootNode = MakeShareable(new FSimpleOctreeNode(WorldCenter, WorldSize * 0.5f));
     UE_LOG(LogTemp, Log, TEXT("SpatialPartitioning initialized: Center=%s, Size=%.2f, Depth=%d"), 
         *WorldCenter.ToString(), WorldSize, MaxDepth);
 }
@@ -100,8 +100,8 @@ TArray<FString> USpatialPartitioningComponent::FindInBox(const FVector& Center, 
 
     // Simple implementation - check all systems in octree
     // In production, you'd traverse the octree more efficiently
-    TFunction<void(TSharedPtr<FOctreeNode>)> TraverseNode;
-    TraverseNode = [&](TSharedPtr<FOctreeNode> Node) {
+    TFunction<void(TSharedPtr<FSimpleOctreeNode>)> TraverseNode;
+    TraverseNode = [&](TSharedPtr<FSimpleOctreeNode> Node) {
         if (!Node.IsValid())
         {
             return;
@@ -142,7 +142,7 @@ void USpatialPartitioningComponent::Clear()
     RootNode.Reset();
     if (WorldBoundsSize > 0)
     {
-        RootNode = MakeShareable(new FOctreeNode(WorldBoundsCenter, WorldBoundsSize * 0.5f));
+        RootNode = MakeShareable(new FSimpleOctreeNode(WorldBoundsCenter, WorldBoundsSize * 0.5f));
     }
 }
 
@@ -154,8 +154,8 @@ int32 USpatialPartitioningComponent::GetNodeCount() const
     }
 
     int32 Count = 0;
-    TFunction<void(TSharedPtr<FOctreeNode>)> CountNodes;
-    CountNodes = [&](TSharedPtr<FOctreeNode> Node) {
+    TFunction<void(TSharedPtr<FSimpleOctreeNode>)> CountNodes;
+    CountNodes = [&](TSharedPtr<FSimpleOctreeNode> Node) {
         if (!Node.IsValid())
         {
             return;
@@ -179,8 +179,8 @@ int32 USpatialPartitioningComponent::GetSystemCount() const
     }
 
     int32 Count = 0;
-    TFunction<void(TSharedPtr<FOctreeNode>)> CountSystems;
-    CountSystems = [&](TSharedPtr<FOctreeNode> Node) {
+    TFunction<void(TSharedPtr<FSimpleOctreeNode>)> CountSystems;
+    CountSystems = [&](TSharedPtr<FSimpleOctreeNode> Node) {
         if (!Node.IsValid())
         {
             return;
@@ -196,7 +196,7 @@ int32 USpatialPartitioningComponent::GetSystemCount() const
     return Count;
 }
 
-void USpatialPartitioningComponent::SubdivideNode(TSharedPtr<FOctreeNode> Node)
+void USpatialPartitioningComponent::SubdivideNode(TSharedPtr<FSimpleOctreeNode> Node)
 {
     if (!Node.IsValid() || Node->Children.Num() > 0)
     {
@@ -214,7 +214,7 @@ void USpatialPartitioningComponent::SubdivideNode(TSharedPtr<FOctreeNode> Node)
             (i & 4) ? ChildSize : -ChildSize
         );
         
-        auto ChildNode = MakeShareable(new FOctreeNode(Node->Center + Offset, ChildSize));
+        auto ChildNode = MakeShareable(new FSimpleOctreeNode(Node->Center + Offset, ChildSize));
         Node->Children.Add(ChildNode);
     }
 
@@ -228,7 +228,7 @@ void USpatialPartitioningComponent::SubdivideNode(TSharedPtr<FOctreeNode> Node)
     }
 }
 
-void USpatialPartitioningComponent::InsertIntoNode(TSharedPtr<FOctreeNode> Node, const FString& SystemID, const FVector& Position)
+void USpatialPartitioningComponent::InsertIntoNode(TSharedPtr<FSimpleOctreeNode> Node, const FString& SystemID, const FVector& Position)
 {
     if (!Node.IsValid())
     {
@@ -267,7 +267,7 @@ void USpatialPartitioningComponent::InsertIntoNode(TSharedPtr<FOctreeNode> Node,
     }
 }
 
-void USpatialPartitioningComponent::FindInRadiusRecursive(TSharedPtr<FOctreeNode> Node, const FVector& Position, float Radius, TArray<FString>& Results) const
+void USpatialPartitioningComponent::FindInRadiusRecursive(TSharedPtr<FSimpleOctreeNode> Node, const FVector& Position, float Radius, TArray<FString>& Results) const
 {
     if (!Node.IsValid())
     {
@@ -293,7 +293,7 @@ void USpatialPartitioningComponent::FindInRadiusRecursive(TSharedPtr<FOctreeNode
     }
 }
 
-void USpatialPartitioningComponent::FindNearestRecursive(TSharedPtr<FOctreeNode> Node, const FVector& Position, int32 Count, TArray<TPair<float, FString>>& Candidates) const
+void USpatialPartitioningComponent::FindNearestRecursive(TSharedPtr<FSimpleOctreeNode> Node, const FVector& Position, int32 Count, TArray<TPair<float, FString>>& Candidates) const
 {
     if (!Node.IsValid())
     {
@@ -316,7 +316,7 @@ void USpatialPartitioningComponent::FindNearestRecursive(TSharedPtr<FOctreeNode>
     }
 }
 
-bool USpatialPartitioningComponent::IsPointInNode(TSharedPtr<FOctreeNode> Node, const FVector& Position) const
+bool USpatialPartitioningComponent::IsPointInNode(TSharedPtr<FSimpleOctreeNode> Node, const FVector& Position) const
 {
     if (!Node.IsValid())
     {
@@ -331,7 +331,7 @@ bool USpatialPartitioningComponent::IsPointInNode(TSharedPtr<FOctreeNode> Node, 
            Position.Z >= Min.Z && Position.Z <= Max.Z;
 }
 
-bool USpatialPartitioningComponent::DoesSphereIntersectNode(TSharedPtr<FOctreeNode> Node, const FVector& Position, float Radius) const
+bool USpatialPartitioningComponent::DoesSphereIntersectNode(TSharedPtr<FSimpleOctreeNode> Node, const FVector& Position, float Radius) const
 {
     if (!Node.IsValid())
     {
@@ -363,10 +363,10 @@ bool USpatialPartitioningComponent::DoesSphereIntersectNode(TSharedPtr<FOctreeNo
     return DistSq <= (Radius * Radius);
 }
 
-int32 USpatialPartitioningComponent::GetNodeDepth(TSharedPtr<FOctreeNode> Node) const
+int32 USpatialPartitioningComponent::GetNodeDepth(TSharedPtr<FSimpleOctreeNode> Node) const
 {
     int32 Depth = 0;
-    TSharedPtr<FOctreeNode> Current = Node;
+    TSharedPtr<FSimpleOctreeNode> Current = Node;
     
     while (Current.IsValid() && Current != RootNode)
     {

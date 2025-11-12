@@ -82,6 +82,9 @@ enum class ECropGrowthStage : uint8
 {
 	Seed		UMETA(DisplayName = "Seed"),
 	Sprout		UMETA(DisplayName = "Sprout"),
+	Vegetative	UMETA(DisplayName = "Vegetative"),
+	Flowering	UMETA(DisplayName = "Flowering"),
+	Fruiting	UMETA(DisplayName = "Fruiting"),
 	Growing		UMETA(DisplayName = "Growing"),
 	Mature		UMETA(DisplayName = "Mature"),
 	Harvestable	UMETA(DisplayName = "Harvestable")
@@ -257,6 +260,10 @@ struct FActiveCrop
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Quality")
 	float QualityModifier;
 
+	// Preferred fertilizer type
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Fertilizer")
+	EFertilizerType PreferredFertilizer;
+
 	// Time planted
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Time")
 	FDateTime PlantTime;
@@ -282,6 +289,7 @@ struct FActiveCrop
 		DiseaseLevel = 0.0f;
 		CurrentDisease = EDiseaseType::None;
 		QualityModifier = 1.0f;
+		PreferredFertilizer = EFertilizerType::None;
 		ActualYield = 0;
 	}
 };

@@ -20,7 +20,8 @@ enum class ERefineryModuleType : uint8
 	EnrichmentFacility UMETA(DisplayName = "Enrichment Facility"),
 	Crystallizer UMETA(DisplayName = "Crystallizer"),
 	Extractor UMETA(DisplayName = "Extractor"),
-	Purifier UMETA(DisplayName = "Purifier")
+	Purifier UMETA(DisplayName = "Purifier"),
+	Factory UMETA(DisplayName = "Factory")
 };
 
 // Refining recipe
@@ -373,7 +374,7 @@ public:
 	// ============================================================================
 
 	UPROPERTY(BlueprintAssignable, Category = "Refining Events")
-	FOnRefiningRecipeUnlocked OnRecipeUnlocked;
+	FOnRefiningRecipeUnlocked OnRefiningRecipeUnlocked;
 
 	UPROPERTY(BlueprintAssignable, Category = "Refining Events")
 	FOnRefiningStarted OnRefiningStarted;

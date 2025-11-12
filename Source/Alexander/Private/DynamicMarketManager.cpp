@@ -372,14 +372,14 @@ FMarketDepthImpact UDynamicMarketManager::ProcessLargeOrder(
 	FMarketDepthImpact Impact = CalculateMarketDepthImpact(CommodityID, Quantity, StationID);
 
 	// Record the impact
-	TMap<FName, TArray<FMarketDepthImpact>>& StationDepth = MarketDepthTracker.FindOrAdd(StationID);
-	TArray<FMarketDepthImpact>& Impacts = StationDepth.FindOrAdd(CommodityID);
-	Impacts.Add(Impact);
+	FMarketDepthMap& StationDepthMap = MarketDepthTracker.FindOrAdd(StationID);
+	FMarketDepthImpactArray& ImpactArray = StationDepthMap.CommodityDepth.FindOrAdd(CommodityID);
+	ImpactArray.Impacts.Add(Impact);
 
 	// Keep only recent impacts
-	if (Impacts.Num() > 10)
+	if (ImpactArray.Impacts.Num() > 10)
 	{
-		Impacts.RemoveAt(0, Impacts.Num() - 10);
+		ImpactArray.Impacts.RemoveAt(0, ImpactArray.Impacts.Num() - 10);
 	}
 
 	TotalPriceImpactsProcessed++;
@@ -405,13 +405,13 @@ float UDynamicMarketManager::GetMarketLiquidity(FName CommodityID, FString Stati
 
 int32 UDynamicMarketManager::GetAverageDailyVolume(FName CommodityID, FString StationID) const
 {
-	const TMap<FName, int32>* StationVolumes = DailyTradeVolumes.Find(StationID);
+	const FMarketInt32ValueMap* StationVolumes = DailyTradeVolumes.Find(StationID);
 	if (!StationVolumes)
 	{
 		return 100; // Default volume
 	}
 
-	const int32* Volume = StationVolumes->Find(CommodityID);
+	const int32* Volume = StationVolumes->Values.Find(CommodityID);
 	return Volume ? *Volume : 100;
 }
 
@@ -432,19 +432,19 @@ void UDynamicMarketManager::RecordPriceHistory(
 	Entry.TradeVolume = TradeVolume;
 
 	// Add to history database
-	TMap<FName, TArray<FPriceHistoryEntry>>& StationHistory = PriceHistoryDatabase.FindOrAdd(StationID);
-	TArray<FPriceHistoryEntry>& History = StationHistory.FindOrAdd(CommodityID);
-	History.Add(Entry);
+	FPriceHistoryMap& StationHistoryMap = PriceHistoryDatabase.FindOrAdd(StationID);
+	FPriceHistoryArray& HistoryArray = StationHistoryMap.CommodityHistory.FindOrAdd(CommodityID);
+	HistoryArray.Entries.Add(Entry);
 
 	// Limit history size
-	if (History.Num() > MaxPriceHistoryEntries)
+	if (HistoryArray.Entries.Num() > MaxPriceHistoryEntries)
 	{
-		History.RemoveAt(0, History.Num() - MaxPriceHistoryEntries);
+		HistoryArray.Entries.RemoveAt(0, HistoryArray.Entries.Num() - MaxPriceHistoryEntries);
 	}
 
 	// Update daily volume
-	TMap<FName, int32>& Volumes = DailyTradeVolumes.FindOrAdd(StationID);
-	Volumes.Add(CommodityID, TradeVolume);
+	FMarketInt32ValueMap& VolumesMap = DailyTradeVolumes.FindOrAdd(StationID);
+	VolumesMap.Values.Add(CommodityID, TradeVolume);
 }
 
 TArray<FPriceHistoryEntry> UDynamicMarketManager::GetPriceHistory(
@@ -453,14 +453,14 @@ TArray<FPriceHistoryEntry> UDynamicMarketManager::GetPriceHistory(
 	int32 HoursBack
 ) const
 {
-	const TMap<FName, TArray<FPriceHistoryEntry>>* StationHistory = PriceHistoryDatabase.Find(StationID);
-	if (!StationHistory)
+	const FPriceHistoryMap* StationHistoryMap = PriceHistoryDatabase.Find(StationID);
+	if (!StationHistoryMap)
 	{
 		return TArray<FPriceHistoryEntry>();
 	}
 
-	const TArray<FPriceHistoryEntry>* History = StationHistory->Find(CommodityID);
-	if (!History)
+	const FPriceHistoryArray* HistoryArray = StationHistoryMap->CommodityHistory.Find(CommodityID);
+	if (!HistoryArray)
 	{
 		return TArray<FPriceHistoryEntry>();
 	}
@@ -469,7 +469,7 @@ TArray<FPriceHistoryEntry> UDynamicMarketManager::GetPriceHistory(
 	FDateTime CutoffTime = FDateTime::Now() - FTimespan(HoursBack, 0, 0);
 	TArray<FPriceHistoryEntry> FilteredHistory;
 
-	for (const FPriceHistoryEntry& Entry : *History)
+	for (const FPriceHistoryEntry& Entry : HistoryArray->Entries)
 	{
 		if (Entry.Timestamp >= CutoffTime)
 		{
@@ -611,19 +611,19 @@ void UDynamicMarketManager::UpdateFactionMarketControl(
 	float ControlLevel
 )
 {
-	TMap<FString, float>& ControlMap = FactionMarketControl.FindOrAdd(FactionID);
-	ControlMap.Add(StationID, FMath::Clamp(ControlLevel, 0.0f, 1.0f));
+	FStringFloatMap& ControlMap = FactionMarketControl.FindOrAdd(FactionID);
+	ControlMap.Values.Add(StationID, FMath::Clamp(ControlLevel, 0.0f, 1.0f));
 }
 
 float UDynamicMarketManager::GetFactionMarketControl(FString FactionID, FString StationID) const
 {
-	const TMap<FString, float>* ControlMap = FactionMarketControl.Find(FactionID);
+	const FStringFloatMap* ControlMap = FactionMarketControl.Find(FactionID);
 	if (!ControlMap)
 	{
 		return 0.0f;
 	}
 
-	const float* ControlLevel = ControlMap->Find(StationID);
+	const float* ControlLevel = ControlMap->Values.Find(StationID);
 	return ControlLevel ? *ControlLevel : 0.0f;
 }
 
@@ -709,12 +709,12 @@ TMap<FName, float> UDynamicMarketManager::GetMarketVolatilityByCommodity() const
 {
 	TMap<FName, float> VolatilityMap;
 	
-	for (const auto& StationPair : PriceHistoryDatabase)
+	for (auto StationIt = PriceHistoryDatabase.CreateIterator(); StationIt; ++StationIt)
 	{
-		for (const auto& CommodityPair : StationPair.Value)
+		for (auto CommodityIt = StationIt.Value().CreateIterator(); CommodityIt; ++CommodityIt)
 		{
-			float Volatility = CalculatePriceVolatility(CommodityPair.Key, StationPair.Key);
-			float& AvgVolatility = VolatilityMap.FindOrAdd(CommodityPair.Key);
+			float Volatility = CalculatePriceVolatility(CommodityIt.Key(), StationIt.Key());
+			float& AvgVolatility = VolatilityMap.FindOrAdd(CommodityIt.Key());
 			
 			// Average across stations
 			AvgVolatility = (AvgVolatility + Volatility) / 2.0f;
@@ -729,11 +729,11 @@ TArray<FName> UDynamicMarketManager::GetMostTradedCommodities(int32 Count) const
 	TMap<FName, int32> TotalVolumes;
 	
 	// Sum volumes across all stations
-	for (const auto& StationPair : DailyTradeVolumes)
+	for (auto StationIt = DailyTradeVolumes.CreateIterator(); StationIt; ++StationIt)
 	{
-		for (const auto& CommodityPair : StationPair.Value)
+		for (auto CommodityIt = StationIt.Value().CreateIterator(); CommodityIt; ++CommodityIt)
 		{
-			TotalVolumes.FindOrAdd(CommodityPair.Key) += CommodityPair.Value;
+			TotalVolumes.FindOrAdd(CommodityIt.Key()) += CommodityIt.Value();
 		}
 	}
 	
@@ -743,9 +743,9 @@ TArray<FName> UDynamicMarketManager::GetMostTradedCommodities(int32 Count) const
 	// Get top N
 	TArray<FName> MostTraded;
 	int32 NumAdded = 0;
-	for (const auto& Pair : TotalVolumes)
+	for (auto It = TotalVolumes.CreateIterator(); It; ++It)
 	{
-		MostTraded.Add(Pair.Key);
+		MostTraded.Add(It.Key());
 		NumAdded++;
 		
 		if (NumAdded >= Count)
@@ -766,9 +766,9 @@ float UDynamicMarketManager::GetMarketEfficiency(FString StationID) const
 	const TMap<FName, int32>* Volumes = DailyTradeVolumes.Find(StationID);
 	if (Volumes)
 	{
-		for (const auto& Pair : *Volumes)
+		for (auto It = Volumes->CreateIterator(); It; ++It)
 		{
-			LiquidityScore += GetMarketLiquidity(Pair.Key, StationID);
+			LiquidityScore += GetMarketLiquidity(It.Key(), StationID);
 			CommodityCount++;
 		}
 	}
@@ -782,9 +782,9 @@ float UDynamicMarketManager::GetMarketEfficiency(FString StationID) const
 	
 	// Efficiency is high liquidity and low average volatility
 	float AvgVolatility = 0.0f;
-	for (const auto& Pair : *Volumes)
+	for (auto It = Volumes->CreateIterator(); It; ++It)
 	{
-		AvgVolatility += CalculatePriceVolatility(Pair.Key, StationID);
+		AvgVolatility += CalculatePriceVolatility(It.Key(), StationID);
 	}
 	AvgVolatility /= CommodityCount;
 	
@@ -882,11 +882,11 @@ void UDynamicMarketManager::CleanupOldPriceHistory()
 {
 	FDateTime CutoffTime = FDateTime::Now() - FTimespan(168, 0, 0); // 1 week
 
-	for (auto& StationPair : PriceHistoryDatabase)
+	for (auto StationIt = PriceHistoryDatabase.CreateIterator(); StationIt; ++StationIt)
 	{
-		for (auto& CommodityPair : StationPair.Value)
+		for (auto CommodityIt = StationIt.Value().CreateIterator(); CommodityIt; ++CommodityIt)
 		{
-			TArray<FPriceHistoryEntry>& History = CommodityPair.Value;
+			TArray<FPriceHistoryEntry>& History = CommodityIt.Value();
 			
 			// Remove old entries
 			for (int32 i = History.Num() - 1; i >= 0; i--)
@@ -909,12 +909,12 @@ void UDynamicMarketManager::UpdateDailyVolumes(float DeltaTime)
 void UDynamicMarketManager::DecayPlayerImpact(float DeltaTime)
 {
 	// Decay player market impact over time
-	for (auto& PlayerPair : PlayerTradeImpact)
+	for (auto PlayerIt = PlayerTradeImpact.CreateIterator(); PlayerIt; ++PlayerIt)
 	{
-		for (auto& CommodityPair : PlayerPair.Value)
+		for (auto CommodityIt = PlayerIt.Value().CreateIterator(); CommodityIt; ++CommodityIt)
 		{
 			// Decay impact
-			CommodityPair.Value = FMath::Max(0.0f, CommodityPair.Value - (PlayerImpactDecayRate * DeltaTime));
+			CommodityIt.Value() = FMath::Max(0.0f, CommodityIt.Value() - (PlayerImpactDecayRate * DeltaTime));
 		}
 	}
 }
@@ -1006,8 +1006,8 @@ void UDynamicMarketManager::SimulateSupplyShortage(FName CommodityID, float Seve
 bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutResult)
 {
 	OutResult.SystemName = "DynamicMarketManager";
-	OutResult.bSuccess = true;
-	OutResult.TestTimestamp = FDateTime::Now();
+	OutResult.bPassed = true;
+	
 	
 	UE_LOG(LogTemp, Log, TEXT("=== Starting DynamicMarketManager Self-Test ==="));
 	
@@ -1033,7 +1033,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Price calculation returned invalid value: %.2f"), CalculatedPrice);
 			OutResult.ErrorMessages.Add(TEXT("Price calculation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1045,7 +1045,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: High volatility price calculation failed"));
 			OutResult.ErrorMessages.Add(TEXT("High volatility price test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1074,7 +1074,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Base demand/supply factors invalid"));
 			OutResult.ErrorMessages.Add(TEXT("Base factor calculation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1085,7 +1085,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Total demand/supply calculation invalid"));
 			OutResult.ErrorMessages.Add(TEXT("Total factor calculation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1119,7 +1119,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Event type mismatch"));
 			OutResult.ErrorMessages.Add(TEXT("Event type test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1127,7 +1127,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Supply shortage should increase price"));
 			OutResult.ErrorMessages.Add(TEXT("Event price multiplier test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1147,7 +1147,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Event not found in active events list"));
 			OutResult.ErrorMessages.Add(TEXT("Active events tracking test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1170,7 +1170,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Event should be removed after EndMarketEvent"));
 			OutResult.ErrorMessages.Add(TEXT("Event removal test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1198,7 +1198,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid price impact"));
 			OutResult.ErrorMessages.Add(TEXT("Price impact calculation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1209,7 +1209,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Order size mismatch in processed order"));
 			OutResult.ErrorMessages.Add(TEXT("Order processing test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1219,7 +1219,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid liquidity value"));
 			OutResult.ErrorMessages.Add(TEXT("Liquidity calculation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1253,7 +1253,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Insufficient price history entries (expected 5, got %d)"), History.Num());
 			OutResult.ErrorMessages.Add(TEXT("Price history retrieval test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1264,7 +1264,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 			{
 				UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid price history entry"));
 				OutResult.ErrorMessages.Add(TEXT("Price history entry validation test failed"));
-				OutResult.bSuccess = false;
+				OutResult.bPassed = false;
 				return false;
 			}
 		}
@@ -1301,7 +1301,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid volatility value"));
 			OutResult.ErrorMessages.Add(TEXT("Volatility calculation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1329,7 +1329,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Market analysis generation failed"));
 			OutResult.ErrorMessages.Add(TEXT("Market analysis generation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1338,7 +1338,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Market analysis missing expected sections"));
 			OutResult.ErrorMessages.Add(TEXT("Market analysis content test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1368,7 +1368,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Station market modifier not set properly"));
 			OutResult.ErrorMessages.Add(TEXT("Station initialization test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1383,7 +1383,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Station market modifier not updated properly"));
 			OutResult.ErrorMessages.Add(TEXT("Station modifier update test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1412,7 +1412,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Faction market control not set properly"));
 			OutResult.ErrorMessages.Add(TEXT("Faction control test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1422,7 +1422,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid faction price modifier"));
 			OutResult.ErrorMessages.Add(TEXT("Faction price modifier test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1452,7 +1452,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Player market influence not recorded properly"));
 			OutResult.ErrorMessages.Add(TEXT("Player impact recording test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1473,7 +1473,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Player market impact not reset properly"));
 			OutResult.ErrorMessages.Add(TEXT("Player impact reset test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1508,7 +1508,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid random event chance"));
 			OutResult.ErrorMessages.Add(TEXT("Random event chance test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1554,7 +1554,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Market efficiency out of valid range [0,1]"));
 			OutResult.ErrorMessages.Add(TEXT("Market efficiency test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1638,7 +1638,7 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 	}
 	
 	// Final result
-	if (OutResult.bSuccess)
+	if (OutResult.bPassed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("=== DynamicMarketManager Self-Test PASSED ==="));
 		UE_LOG(LogTemp, Log, TEXT("Total Tests: %d"), OutResult.TestResults.Num());
@@ -1650,5 +1650,5 @@ bool UDynamicMarketManager::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		UE_LOG(LogTemp, Error, TEXT("=== DynamicMarketManager Self-Test FAILED ==="));
 	}
 	
-	return OutResult.bSuccess;
+	return OutResult.bPassed;
 }

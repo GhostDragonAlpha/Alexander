@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "OrbitalBody.h"
 #include "SunStormComponent.h"
+#include "ProceduralStarSystemGenerator.h"
 #include "Sun.generated.h"
 
 /**
@@ -109,6 +110,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sun Properties|Storms")
 	float FlareIntensity; // Brightness multiplier for solar flare effects (default: 1.5)
+
+	// Surface temperature in Kelvin
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sun Properties|Physics")
+	float SurfaceTemperature;
 
 private:
 	// Animation state variables for runtime effects

@@ -235,8 +235,8 @@ bool UAsteroidMiningSystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Resource extraction tracking"));
 		return false;
 	}
- 237
- 238 	float AvgTimePerAsteroid = GetTotalMiningTime() / GetTotalAsteroidsMined();
+
+	float AvgTimePerAsteroid = GetTotalMiningTime() / GetTotalAsteroidsMined();
  239 	if (AvgTimePerAsteroid < 5.0f || AvgTimePerAsteroid > 30.0f)
  240 	{
  241 		OutResult.WarningMessages.Add(TEXT("Average mining time per asteroid may be out of expected range"));

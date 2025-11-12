@@ -27,6 +27,8 @@ struct FAsyncLoadingTask
     EAsyncTaskStatus Status;
     double StartTime;
     double EndTime;
+    TFunction<void()> TaskFunction;
+    TFunction<void()> CompletionCallback;
 
     FAsyncLoadingTask()
         : Status(EAsyncTaskStatus::Pending)
@@ -52,6 +54,9 @@ public:
     // Queue a system for async loading
     UFUNCTION(BlueprintCallable, Category = "AsyncLoading")
     void QueueLoadingTask(const FString& SystemID);
+
+    // Queue a system for async loading with custom task and completion callbacks
+    void QueueLoadingTask(const FString& SystemID, TFunction<void()> TaskFunction, TFunction<void()> CompletionCallback);
 
     // Queue a system for async unloading
     UFUNCTION(BlueprintCallable, Category = "AsyncLoading")
@@ -93,7 +98,7 @@ private:
 
     // Thread pool
     int32 MaxThreadPoolSize;
-    FCriticalSection TaskLock;
+    mutable FCriticalSection TaskLock;
 
     // Processing functions
     void ProcessPendingTasks();

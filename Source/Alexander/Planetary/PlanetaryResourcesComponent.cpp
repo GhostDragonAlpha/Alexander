@@ -129,16 +129,16 @@ bool UPlanetaryResourcesComponent::HasEnoughResources(const FResourceAmount& Res
 }
 
 // Resource deposits
-FResourceDeposit* UPlanetaryResourcesComponent::GetResourceDeposit(int32 DepositID)
+FAlexanderResourceDeposit* UPlanetaryResourcesComponent::GetResourceDeposit(int32 DepositID)
 {
     return FindDepositByID(DepositID);
 }
 
-TArray<FResourceDeposit> UPlanetaryResourcesComponent::GetDepositsByType(EResourceType ResourceType) const
+TArray<FAlexanderResourceDeposit> UPlanetaryResourcesComponent::GetDepositsByType(EResourceType ResourceType) const
 {
-    TArray<FResourceDeposit> Deposits;
+    TArray<FAlexanderResourceDeposit> Deposits;
     
-    for (const FResourceDeposit& Deposit : ResourceDeposits)
+    for (const FAlexanderResourceDeposit& Deposit : ResourceDeposits)
     {
         if (Deposit.ResourceType == ResourceType && !Deposit.bIsDepleted)
         {
@@ -156,7 +156,7 @@ bool UPlanetaryResourcesComponent::DiscoverResourceDeposit(const FVector& Locati
     if (!IsValidResourceType(ResourceType) || Amount <= 0.0f) return false;
     
     // Check if deposit already exists at this location
-    for (const FResourceDeposit& ExistingDeposit : ResourceDeposits)
+    for (const FAlexanderResourceDeposit& ExistingDeposit : ResourceDeposits)
     {
         if (FVector::Dist(Location, ExistingDeposit.Location) < 100.0f)
         {
@@ -165,7 +165,7 @@ bool UPlanetaryResourcesComponent::DiscoverResourceDeposit(const FVector& Locati
     }
     
     // Create new deposit
-    FResourceDeposit NewDeposit;
+    FAlexanderResourceDeposit NewDeposit;
     NewDeposit.ResourceType = ResourceType;
     NewDeposit.Location = Location;
     NewDeposit.TotalAmount = Amount;
@@ -232,7 +232,7 @@ int32 UPlanetaryResourcesComponent::StartMiningOperation(int32 DepositID, int32 
     if (!GetOwner()->HasAuthority()) return -1;
     
     // Find deposit
-    FResourceDeposit* Deposit = FindDepositByID(DepositID);
+    FAlexanderResourceDeposit* Deposit = FindDepositByID(DepositID);
     if (!Deposit || Deposit->bIsDepleted || Deposit->bIsBeingMined)
     {
         UE_LOG(LogTemp, Warning, TEXT("Cannot start mining operation: Invalid or unavailable deposit"));
@@ -281,7 +281,7 @@ bool UPlanetaryResourcesComponent::StopMiningOperation(int32 OperationID)
     if (!Operation) return false;
     
     // Find associated deposit
-    FResourceDeposit* Deposit = FindDepositByID(Operation->TargetDepositID);
+    FAlexanderResourceDeposit* Deposit = FindDepositByID(Operation->TargetDepositID);
     if (Deposit)
     {
         Deposit->bIsBeingMined = false;
@@ -523,7 +523,7 @@ FResourceAnalysis UPlanetaryResourcesComponent::AnalyzeResource(EResourceType Re
     Analysis.ResourceType = ResourceType;
     
     // Calculate total deposits
-    for (const FResourceDeposit& Deposit : ResourceDeposits)
+    for (const FAlexanderResourceDeposit& Deposit : ResourceDeposits)
     {
         if (Deposit.ResourceType == ResourceType)
         {
@@ -768,7 +768,7 @@ void UPlanetaryResourcesComponent::UpdateResourceDecay(float DeltaTime)
 
 void UPlanetaryResourcesComponent::ProcessMiningOperation(FMiningOperation& Operation, float DeltaTime)
 {
-    FResourceDeposit* Deposit = FindDepositByID(Operation.TargetDepositID);
+    FAlexanderResourceDeposit* Deposit = FindDepositByID(Operation.TargetDepositID);
     if (!Deposit || Deposit->bIsDepleted)
     {
         Operation.bIsActive = false;
@@ -868,7 +868,7 @@ void UPlanetaryResourcesComponent::ProcessTrade(FResourceTrade& Trade)
     OnTradeExecuted.Broadcast(Trade);
 }
 
-FResourceAmount UPlanetaryResourcesComponent::ExtractResourcesFromDeposit(FResourceDeposit& Deposit, float Amount)
+FResourceAmount UPlanetaryResourcesComponent::ExtractResourcesFromDeposit(FAlexanderResourceDeposit& Deposit, float Amount)
 {
     if (Deposit.bIsDepleted || Deposit.CurrentAmount <= 0.0f)
     {
@@ -1013,7 +1013,7 @@ bool UPlanetaryResourcesComponent::IsValidResourceType(EResourceType ResourceTyp
 
 float UPlanetaryResourcesComponent::CalculateMiningEfficiency(const FMiningOperation& Operation) const
 {
-    const FResourceDeposit* Deposit = FindDepositByID(Operation.TargetDepositID);
+    const FAlexanderResourceDeposit* Deposit = FindDepositByID(Operation.TargetDepositID);
     if (!Deposit) return 0.5f;
 
     float Efficiency = 1.0f;
@@ -1069,9 +1069,9 @@ float UPlanetaryResourcesComponent::CalculateTradeValue(const FResourceTrade& Tr
     return 0.0f;
 }
 
-FResourceDeposit* UPlanetaryResourcesComponent::FindDepositByID(int32 DepositID)
+FAlexanderResourceDeposit* UPlanetaryResourcesComponent::FindDepositByID(int32 DepositID)
 {
-    for (FResourceDeposit& Deposit : ResourceDeposits)
+    for (FAlexanderResourceDeposit& Deposit : ResourceDeposits)
     {
         if (Deposit.ResourceType != EResourceType::None) // Use ResourceType as ID placeholder
         {
@@ -1081,9 +1081,9 @@ FResourceDeposit* UPlanetaryResourcesComponent::FindDepositByID(int32 DepositID)
     return nullptr;
 }
 
-const FResourceDeposit* UPlanetaryResourcesComponent::FindDepositByID(int32 DepositID) const
+const FAlexanderResourceDeposit* UPlanetaryResourcesComponent::FindDepositByID(int32 DepositID) const
 {
-    for (const FResourceDeposit& Deposit : ResourceDeposits)
+    for (const FAlexanderResourceDeposit& Deposit : ResourceDeposits)
     {
         if (Deposit.ResourceType != EResourceType::None) // Use ResourceType as ID placeholder
         {
@@ -1195,25 +1195,24 @@ void UPlanetaryResourcesComponent::RetrieveResourcesFromStorage(const FResourceA
     }
 }
 
-void UPlanetaryResourcesComponent::GenerateDepositByproducts(FResourceDeposit& Deposit)
+void UPlanetaryResourcesComponent::GenerateDepositByproducts(FAlexanderResourceDeposit& Deposit)
 {
     // Generate byproducts based on resource type
-    switch (Deposit.ResourceType)
+    if (Deposit.ResourceType == EResourceType::Metals)
     {
-        case EResourceType::Metals:
-            Deposit.Byproducts.Add(EResourceType::RareElements);
-            break;
-        case EResourceType::Crystals:
-            Deposit.Byproducts.Add(EResourceType::Energy);
-            break;
-        case EResourceType::Gas:
-            Deposit.Byproducts.Add(EResourceType::Fuel);
-            break;
-        case EResourceType::Biomass:
-            Deposit.Byproducts.Add(EResourceType::Food);
-            break;
-        default:
-            break;
+        Deposit.Byproducts.Add(EResourceType::RareElements);
+    }
+    else if (Deposit.ResourceType == EResourceType::Crystals)
+    {
+        Deposit.Byproducts.Add(EResourceType::Energy);
+    }
+    else if (Deposit.ResourceType == EResourceType::Gas)
+    {
+        Deposit.Byproducts.Add(EResourceType::Fuel);
+    }
+    else if (Deposit.ResourceType == EResourceType::Biomass)
+    {
+        Deposit.Byproducts.Add(EResourceType::Food);
     }
 }
 

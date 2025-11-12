@@ -552,6 +552,10 @@ private:
 	void UpdateActiveEvents(float DeltaTime);
 	void ApplyEventToMarket(const FActiveMarketEvent& Event);
 	void RemoveEventFromMarket(const FActiveMarketEvent& Event);
+	void DecayPlayerImpact(float DeltaTime);
+	float CalculateFactionControlFactor(FString FactionID, FString StationID) const;
+	float CalculateEventFactor(FName CommodityID, FString StationID) const;
+	float CalculatePlayerImpactFactor(FName CommodityID, FString StationID) const;
 	float CalculateDistanceFactor(FName CommodityID, FString StationID) const;
 	float CalculateSeasonalFactor() const;
 	float CalculateRandomFactor(FName CommodityID) const;

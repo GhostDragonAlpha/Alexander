@@ -670,6 +670,12 @@ private:
     float TotalGameTime;
     FRandomStream RandomStream;
 
+    // Performance tracking
+    int32 TotalSystemsGenerated;
+    double TotalLoadTime;
+    FCriticalSection SystemDataLock;
+    UAsyncLoadingComponent* AsyncLoader;
+
     // Helper functions
     FCelestialBody GenerateRandomPlanet(const FString& SystemID, int32 OrbitIndex);
     FCelestialBody GenerateRandomMoon(const FString& PlanetID, int32 MoonIndex);
@@ -680,4 +686,10 @@ private:
     EStarSystemPlanetType DeterminePlanetType(float DistanceFromStar, EStarClass StarClass);
     void UnloadDistantSystems();
     FString GenerateUniqueID(const FString& Prefix) const;
+
+    // Missing function declarations
+    void InitializeSpatialPartitioning();
+    void InitializeAsyncLoading();
+    void UpdateMemoryTracking(const FString& SystemID);
+    void RemoveFromSpatialIndex(const FString& SystemID);
 };

@@ -998,8 +998,8 @@ void UFactionEconomyManager::LogFactionEvent(const FString& FactionID, const FSt
 bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutResult)
 {
 	OutResult.SystemName = "FactionEconomyManager";
-	OutResult.bSuccess = true;
-	OutResult.TestTimestamp = FDateTime::Now();
+	OutResult.bPassed = true;
+	
 	
 	UE_LOG(LogTemp, Log, TEXT("=== Starting FactionEconomyManager Self-Test ==="));
 	
@@ -1013,7 +1013,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Faction creation failed"));
 			OutResult.ErrorMessages.Add(TEXT("Faction creation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1022,7 +1022,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Created faction data is invalid"));
 			OutResult.ErrorMessages.Add(TEXT("Faction data retrieval test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1061,7 +1061,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 			{
 				UE_LOG(LogTemp, Error, TEXT("FAILED: Policy change failed for policy %d"), (int32)Policy);
 				OutResult.ErrorMessages.Add(FString::Printf(TEXT("Policy change test failed for policy %d"), (int32)Policy));
-				OutResult.bSuccess = false;
+				OutResult.bPassed = false;
 				return false;
 			}
 		}
@@ -1100,7 +1100,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 			{
 				UE_LOG(LogTemp, Error, TEXT("FAILED: Restriction change failed for restriction %d"), (int32)Restriction);
 				OutResult.ErrorMessages.Add(FString::Printf(TEXT("Restriction change test failed for restriction %d"), (int32)Restriction));
-				OutResult.bSuccess = false;
+				OutResult.bPassed = false;
 				return false;
 			}
 		}
@@ -1127,7 +1127,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Initial reputation should be 0.0f"));
 			OutResult.ErrorMessages.Add(TEXT("Initial reputation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1139,7 +1139,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Reputation modification failed"));
 			OutResult.ErrorMessages.Add(TEXT("Reputation modification test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1149,7 +1149,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid reputation discount"));
 			OutResult.ErrorMessages.Add(TEXT("Reputation discount calculation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1159,7 +1159,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Player should be able to trade with positive reputation"));
 			OutResult.ErrorMessages.Add(TEXT("Trading permission test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1188,7 +1188,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid buying price modifier"));
 			OutResult.ErrorMessages.Add(TEXT("Buying price modifier test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1198,7 +1198,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid selling price modifier"));
 			OutResult.ErrorMessages.Add(TEXT("Selling price modifier test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1230,7 +1230,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Commodity should not be initially banned"));
 			OutResult.ErrorMessages.Add(TEXT("Initial ban state test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1243,7 +1243,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Commodity should be banned after BanCommodity"));
 			OutResult.ErrorMessages.Add(TEXT("Commodity banning test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1253,7 +1253,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Tariff for banned commodity should be very high"));
 			OutResult.ErrorMessages.Add(TEXT("Banned commodity tariff test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1266,7 +1266,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Commodity should be unbanned after UnbanCommodity"));
 			OutResult.ErrorMessages.Add(TEXT("Commodity unbanning test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1293,7 +1293,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Trade agreement creation failed"));
 			OutResult.ErrorMessages.Add(TEXT("Trade agreement creation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1337,7 +1337,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Sanctions creation failed"));
 			OutResult.ErrorMessages.Add(TEXT("Sanctions creation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1393,7 +1393,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Alliance should create trade agreement"));
 			OutResult.ErrorMessages.Add(TEXT("Alliance trade agreement test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1432,7 +1432,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Resource balance calculation incorrect (expected 0.5, got %.2f)"), Balance);
 			OutResult.ErrorMessages.Add(TEXT("Resource balance calculation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1442,7 +1442,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Commodity with surplus should not be in import needs"));
 			OutResult.ErrorMessages.Add(TEXT("Import needs test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1452,7 +1452,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Commodity with surplus should be in export surplus"));
 			OutResult.ErrorMessages.Add(TEXT("Export surplus test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1491,7 +1491,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Economic strength out of valid range"));
 			OutResult.ErrorMessages.Add(TEXT("Economic strength test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1520,7 +1520,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Faction economic report generation failed"));
 			OutResult.ErrorMessages.Add(TEXT("Faction report generation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1530,7 +1530,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Player reputation report generation failed"));
 			OutResult.ErrorMessages.Add(TEXT("Player report generation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1547,7 +1547,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: GetTopTradingFactions should return exactly 3 factions"));
 			OutResult.ErrorMessages.Add(TEXT("Top trading factions test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1561,7 +1561,7 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 	}
 	
 	// Final result
-	if (OutResult.bSuccess)
+	if (OutResult.bPassed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("=== FactionEconomyManager Self-Test PASSED ==="));
 		UE_LOG(LogTemp, Log, TEXT("Total Tests: %d"), OutResult.TestResults.Num());
@@ -1574,5 +1574,5 @@ bool UFactionEconomyManager::RunSelfTest_Implementation(FSystemTestResult& OutRe
 		UE_LOG(LogTemp, Error, TEXT("=== FactionEconomyManager Self-Test FAILED ==="));
 	}
 	
-	return OutResult.bSuccess;
+	return OutResult.bPassed;
 }

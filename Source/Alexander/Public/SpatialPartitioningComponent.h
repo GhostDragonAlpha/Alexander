@@ -6,16 +6,20 @@
 #include "Components/ActorComponent.h"
 #include "SpatialPartitioningComponent.generated.h"
 
-// Octree node for spatial partitioning
-struct FOctreeNode
+<<<<<<< Updated upstream
+// Simple octree node for spatial partitioning
+=======
+// Simple octree node for spatial partitioning
+>>>>>>> Stashed changes
+struct FSimpleOctreeNode
 {
     FVector Center;
     float HalfSize;
     TArray<FString> SystemIDs;
-    TArray<TSharedPtr<FOctreeNode>> Children;
+    TArray<TSharedPtr<FSimpleOctreeNode>> Children;
     bool bIsLeaf;
 
-    FOctreeNode(const FVector& InCenter, float InHalfSize)
+    FSimpleOctreeNode(const FVector& InCenter, float InHalfSize)
         : Center(InCenter)
         , HalfSize(InHalfSize)
         , bIsLeaf(true)
@@ -69,17 +73,17 @@ protected:
     virtual void BeginPlay() override;
 
 private:
-    TSharedPtr<FOctreeNode> RootNode;
+    TSharedPtr<FSimpleOctreeNode> RootNode;
     int32 MaxTreeDepth;
     float WorldBoundsSize;
     FVector WorldBoundsCenter;
 
     // Helper functions
-    void SubdivideNode(TSharedPtr<FOctreeNode> Node);
-    void InsertIntoNode(TSharedPtr<FOctreeNode> Node, const FString& SystemID, const FVector& Position);
-    void FindInRadiusRecursive(TSharedPtr<FOctreeNode> Node, const FVector& Position, float Radius, TArray<FString>& Results) const;
-    void FindNearestRecursive(TSharedPtr<FOctreeNode> Node, const FVector& Position, int32 Count, TArray<TPair<float, FString>>& Candidates) const;
-    bool IsPointInNode(TSharedPtr<FOctreeNode> Node, const FVector& Position) const;
-    bool DoesSphereIntersectNode(TSharedPtr<FOctreeNode> Node, const FVector& Position, float Radius) const;
-    int32 GetNodeDepth(TSharedPtr<FOctreeNode> Node) const;
+    void SubdivideNode(TSharedPtr<FSimpleOctreeNode> Node);
+    void InsertIntoNode(TSharedPtr<FSimpleOctreeNode> Node, const FString& SystemID, const FVector& Position);
+    void FindInRadiusRecursive(TSharedPtr<FSimpleOctreeNode> Node, const FVector& Position, float Radius, TArray<FString>& Results) const;
+    void FindNearestRecursive(TSharedPtr<FSimpleOctreeNode> Node, const FVector& Position, int32 Count, TArray<TPair<float, FString>>& Candidates) const;
+    bool IsPointInNode(TSharedPtr<FSimpleOctreeNode> Node, const FVector& Position) const;
+    bool DoesSphereIntersectNode(TSharedPtr<FSimpleOctreeNode> Node, const FVector& Position, float Radius) const;
+    int32 GetNodeDepth(TSharedPtr<FSimpleOctreeNode> Node) const;
 };

@@ -56,16 +56,16 @@ void AProductionChainManager::Tick(float DeltaTime)
 	}
 }
 
-void AProductionChainManager::Initialize(ABaseBuildingManager* BuildingManager, APlanetaryFarmingSystem* FarmingSystem)
+void AProductionChainManager::Initialize(ABaseBuildingManager* InBuildingManager, APlanetaryFarmingSystem* InFarmingSystem)
 {
-	if (!BuildingManager || !FarmingSystem)
+	if (!InBuildingManager || !InFarmingSystem)
 	{
 		UE_LOG(LogTemp, Error, TEXT("Invalid building manager or farming system"));
 		return;
 	}
 
-	BaseBuildingManager = BuildingManager;
-	FarmingSystem = FarmingSystem;
+	BaseBuildingManager = InBuildingManager;
+	FarmingSystem = InFarmingSystem;
 
 	UE_LOG(LogTemp, Log, TEXT("ProductionChainManager initialized with BuildingManager and FarmingSystem"));
 }

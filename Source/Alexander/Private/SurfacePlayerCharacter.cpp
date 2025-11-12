@@ -924,8 +924,7 @@ void ASurfacePlayerCharacter::CheckNearbyShip()
 bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutResult)
 {
 	OutResult.SystemName = "SurfacePlayerCharacter";
-	OutResult.bSuccess = true;
-	OutResult.TestTimestamp = FDateTime::Now();
+	OutResult.bPassed = true;
 	
 	UE_LOG(LogTemp, Log, TEXT("=== Starting SurfacePlayerCharacter Self-Test ==="));
 	
@@ -937,8 +936,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!GetCapsuleComponent() || !GetCharacterMovement() || !Controller)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Core character components not initialized"));
-			OutResult.ErrorMessages.Add(TEXT("Character component initialization failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -946,8 +945,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!CameraBoom || !FollowCamera || !VRCamera)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Camera components not initialized"));
-			OutResult.ErrorMessages.Add(TEXT("Camera component initialization failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -955,8 +954,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!LeftController || !RightController)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: VR controller components not initialized"));
-			OutResult.ErrorMessages.Add(TEXT("VR controller initialization failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -964,8 +963,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!ExplorationComponent)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Exploration component not initialized"));
-			OutResult.ErrorMessages.Add(TEXT("Exploration component initialization failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -973,8 +972,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (WalkSpeed <= 0.0f || RunSpeed <= 0.0f || CrouchSpeed <= 0.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid movement speed values"));
-			OutResult.ErrorMessages.Add(TEXT("Movement speed initialization failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -982,8 +981,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (Stamina != MaxStamina || MaxStamina <= 0.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid stamina initialization"));
-			OutResult.ErrorMessages.Add(TEXT("Stamina initialization failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1005,8 +1004,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (MovementMode != ESurfaceMovementMode::Walking)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Walking mode not set correctly"));
-			OutResult.ErrorMessages.Add(TEXT("Walking mode test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1015,8 +1014,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (MovementMode != ESurfaceMovementMode::Running)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Running mode not set correctly"));
-			OutResult.ErrorMessages.Add(TEXT("Running mode test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1025,8 +1024,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (MovementMode != ESurfaceMovementMode::Crouching)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Crouching mode not set correctly"));
-			OutResult.ErrorMessages.Add(TEXT("Crouching mode test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1038,8 +1037,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (FMath::Abs(GetCharacterMovement()->MaxWalkSpeed - RunSpeed) > 1.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Movement speed not updated correctly for running"));
-			OutResult.ErrorMessages.Add(TEXT("Movement speed update test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1066,8 +1065,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!bIsRunning || MovementMode != ESurfaceMovementMode::Running)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Sprinting not activated"));
-			OutResult.ErrorMessages.Add(TEXT("Sprint activation test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1077,8 +1076,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (Stamina >= InitialStamina)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Stamina not draining while sprinting"));
-			OutResult.ErrorMessages.Add(TEXT("Stamina drain test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1088,8 +1087,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (bIsRunning)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Sprinting not stopped"));
-			OutResult.ErrorMessages.Add(TEXT("Sprint deactivation test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1151,16 +1150,16 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (MovementMode != ESurfaceMovementMode::Crouching)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Crouching mode not activated"));
-			OutResult.ErrorMessages.Add(TEXT("Crouch activation test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
 		if (!GetCharacterMovement()->IsCrouching())
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Character movement component not crouching"));
-			OutResult.ErrorMessages.Add(TEXT("Character crouch test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1170,8 +1169,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (MovementMode != ESurfaceMovementMode::Walking)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Crouching mode not deactivated"));
-			OutResult.ErrorMessages.Add(TEXT("Crouch deactivation test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1194,16 +1193,16 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!bIsVRMode || !bVRInitialized)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: VR mode not enabled"));
-			OutResult.ErrorMessages.Add(TEXT("VR enable test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
 		if (!VRCamera->IsActive())
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: VR camera not active"));
-			OutResult.ErrorMessages.Add(TEXT("VR camera activation test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1213,16 +1212,16 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (bIsVRMode)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: VR mode not disabled"));
-			OutResult.ErrorMessages.Add(TEXT("VR disable test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
 		if (!FollowCamera->IsActive())
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Follow camera not active after VR disable"));
-			OutResult.ErrorMessages.Add(TEXT("Camera switch test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1243,8 +1242,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (InteractionRange <= 0.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid interaction range"));
-			OutResult.ErrorMessages.Add(TEXT("Interaction range test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1252,8 +1251,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (InteractionCheckInterval <= 0.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid interaction check interval"));
-			OutResult.ErrorMessages.Add(TEXT("Interaction interval test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1274,8 +1273,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (CameraBoom->TargetArmLength <= 0.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid camera boom arm length"));
-			OutResult.ErrorMessages.Add(TEXT("Camera boom test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1283,8 +1282,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!FollowCamera->GetAttachParent() || FollowCamera->GetAttachParent() != CameraBoom)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Follow camera not attached to boom"));
-			OutResult.ErrorMessages.Add(TEXT("Camera attachment test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1292,8 +1291,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!VRCamera->GetAttachParent() || VRCamera->GetAttachParent() != RootComponent)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: VR camera not attached to root"));
-			OutResult.ErrorMessages.Add(TEXT("VR camera attachment test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1315,8 +1314,8 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (Status.IsEmpty())
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Character status string empty"));
-			OutResult.ErrorMessages.Add(TEXT("Status function test failed"));
-			OutResult.bSuccess = false;
+			
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1402,8 +1401,7 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (VRGrabRadius <= 0.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid VR grab radius"));
-			OutResult.ErrorMessages.Add(TEXT("VR grab radius test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1411,8 +1409,7 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (VRGrabForceStrength <= 0.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid VR grab force strength"));
-			OutResult.ErrorMessages.Add(TEXT("VR grab force test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1421,8 +1418,7 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (!LeftController->IsActive() || !RightController->IsActive())
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: VR controllers not active when VR enabled"));
-			OutResult.ErrorMessages.Add(TEXT("VR controller activation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1430,12 +1426,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		SetVRMode(false);
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: VR grab system setup verified"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("VR Grab System Setup"),
-			TEXT("Grab radius, force strength, and controller activation functional"),
-			0.0f
-		});
 	}
 	
 	// Test 12: Verify stamina limits
@@ -1449,8 +1439,7 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (Stamina > MaxStamina)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Stamina exceeded maximum value"));
-			OutResult.ErrorMessages.Add(TEXT("Stamina maximum limit test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1461,8 +1450,7 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (Stamina < 0.0f)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Stamina below minimum value"));
-			OutResult.ErrorMessages.Add(TEXT("Stamina minimum limit test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1473,25 +1461,17 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		if (bIsRunning)
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Should not be able to sprint with zero stamina"));
-			OutResult.ErrorMessages.Add(TEXT("Stamina sprint restriction test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Stamina limits enforced"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Stamina Limits"),
-			TEXT("Maximum, minimum, and sprint restrictions functional"),
-			0.0f
-		});
 	}
 	
 	// Final result
-	if (OutResult.bSuccess)
+	if (OutResult.bPassed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("=== SurfacePlayerCharacter Self-Test PASSED ==="));
-		UE_LOG(LogTemp, Log, TEXT("Total Tests: %d"), OutResult.TestResults.Num());
 		UE_LOG(LogTemp, Log, TEXT("Movement modes: %d tested"), 3);
 		UE_LOG(LogTemp, Log, TEXT("VR mode: %s"), bIsVRMode ? TEXT("Enabled") : TEXT("Disabled"));
 		UE_LOG(LogTemp, Log, TEXT("Current position: %s"), *GetActorLocation().ToString());
@@ -1501,5 +1481,5 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		UE_LOG(LogTemp, Error, TEXT("=== SurfacePlayerCharacter Self-Test FAILED ==="));
 	}
 	
-	return OutResult.bSuccess;
+	return OutResult.bPassed;
 }

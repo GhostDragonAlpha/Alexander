@@ -498,8 +498,10 @@ private:
 	void InitializeConsumableBlueprints();
 	void InitializeAdvancedBlueprints();
 	FCraftingResult CompleteCraftingOperation(FActiveCraftingOperation& Operation);
+	bool CanCraftBlueprint(const FCraftingBlueprint& Blueprint, ABaseModule* Station) const;
 	bool HasRequiredResources(const FCraftingBlueprint& Blueprint) const;
 	void ConsumeResources(const FCraftingBlueprint& Blueprint);
+	FCraftingResult CraftItem(const FCraftingBlueprint& Blueprint, ABaseModule* Station, float QualityMultiplier);
 	void ProduceItem(const FCraftingBlueprint& Blueprint, FCraftingResult& Result, float QualityMultiplier);
 	float CalculateSuccessChance(const FCraftingBlueprint& Blueprint, ABaseModule* Station) const;
 	EResourceQuality CalculateItemQuality(float BaseQuality, float QualityMultiplier) const;

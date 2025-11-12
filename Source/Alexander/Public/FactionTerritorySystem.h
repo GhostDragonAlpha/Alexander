@@ -323,7 +323,7 @@ struct FBorderZone
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnTerritoryChanged, const FString&, TerritoryID, const FString&, NewFactionID);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReputationChanged, const FString&, FactionID, int32, NewReputation);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReputationChanged, const FString&, FactionID, float, NewReputation);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnConflictStarted, const FString&, Faction1ID, const FString&, Faction2ID, const FString&, TerritoryID);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAllegianceChanged, EFactionAllegiance, NewAllegiance);
 

@@ -2,6 +2,7 @@
 
 #include "RefiningSystem.h"
 #include "BaseBuildingManager.h"
+#include "BaseModule.h"
 #include "ResourceGatheringSystem.h"
 #include "InventoryManager.h"
 #include "Engine/World.h"
@@ -154,7 +155,7 @@ bool URefiningSystem::UnlockRecipe(FName RecipeID)
 	Recipe->bIsUnlocked = true;
 
 	// Fire unlock event
-	OnRefiningRecipeUnlocked.Broadcast(*Recipe);
+	OnRecipeUnlocked.Broadcast(*Recipe);
 
 	UE_LOG(LogTemp, Log, TEXT("Unlocked refining recipe: %s"), *RecipeID.ToString());
 
@@ -847,7 +848,7 @@ void URefiningSystem::InitializeAdvancedRecipes()
 	FRefiningRecipe Electronics;
 	Electronics.RecipeID = FName("Electronics");
 	Electronics.DisplayName = "Manufacture Electronics";
-	Electronics.RequiredModuleType = ERefineryModuleType::Factory;
+	Electronics.RequiredModuleType = ERefineryModuleType::ChemicalPlant;
 	Electronics.MinimumModuleTier = 3;
 	Electronics.ProcessingTime = 30.0f;
 	Electronics.EnergyRequired = 40.0f;

@@ -14,6 +14,36 @@ static constexpr int32 MAX_DEPTH = 6;
 class AOrbitalBody;
 
 /**
+ * Spatial query result structure
+ */
+USTRUCT(BlueprintType)
+struct FAlexanderSpatialQueryResult
+{
+    GENERATED_BODY()
+
+    UPROPERTY(BlueprintReadOnly, Category = "Spatial")
+    TArray<AOrbitalBody*> FoundBodies;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Spatial")
+    FVector QueryPosition;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Spatial")
+    float QueryRadius;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Spatial")
+    int32 NodesVisited;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Spatial")
+    float QueryTime;
+
+    FAlexanderSpatialQueryResult()
+        : QueryRadius(0.0f)
+        , NodesVisited(0)
+        , QueryTime(0.0f)
+    {}
+};
+
+/**
  * Octree node for spatial partitioning
  */
 /**
@@ -41,9 +71,13 @@ struct FOctreeNode
     UPROPERTY()
     int32 Depth;
 
+    // Parent node reference for traversal
+    FOctreeNode* Parent;
+
     FOctreeNode()
         : ParentNode(nullptr)
         , Depth(0)
+        , Parent(nullptr)
     {
     }
 
@@ -57,44 +91,6 @@ struct FOctreeNode
     bool NeedsSplit() const
     {
         return Bodies.Num() > MAX_BODIES_PER_NODE && Depth < MAX_DEPTH;
-    }
-};
-
-/**
- * Query result from spatial query
- */
-// Spatial query result
-USTRUCT(BlueprintType)
-struct FAlexanderSpatialQueryResult
-{
-    GENERATED_BODY()
-
-    // Found orbital bodies
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spatial Query")
-    TArray<AOrbitalBody*> FoundBodies;
-
-    // Query position
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spatial Query")
-    FVector QueryPosition;
-
-    // Query radius
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spatial Query")
-    float QueryRadius;
-
-    // Number of nodes visited during query
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spatial Query")
-    int32 NodesVisited;
-
-    // Query time in milliseconds
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spatial Query")
-    float QueryTime;
-
-    FAlexanderSpatialQueryResult()
-        : QueryPosition(FVector::ZeroVector)
-        , QueryRadius(0.0f)
-        , NodesVisited(0)
-        , QueryTime(0.0f)
-    {
     }
 };
 

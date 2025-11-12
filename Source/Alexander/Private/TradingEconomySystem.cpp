@@ -1234,8 +1234,8 @@ void UTradingEconomySystem::LoadMarketData()
 bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutResult)
 {
 	OutResult.SystemName = "TradingEconomySystem";
-	OutResult.bSuccess = true;
-	OutResult.TestTimestamp = FDateTime::Now();
+	OutResult.bPassed = true;
+	
 	
 	UE_LOG(LogTemp, Log, TEXT("=== Starting TradingEconomySystem Self-Test ==="));
 	
@@ -1248,7 +1248,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: One or more subsystems not initialized"));
 			OutResult.ErrorMessages.Add(TEXT("Subsystem initialization failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1285,7 +1285,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Commodity registration failed"));
 			OutResult.ErrorMessages.Add(TEXT("Commodity registration test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1294,7 +1294,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Insufficient commodities registered"));
 			OutResult.ErrorMessages.Add(TEXT("Commodity count test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1320,7 +1320,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 			{
 				UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid prices for commodity %s"), *Pair.Key.ToString());
 				OutResult.ErrorMessages.Add(FString::Printf(TEXT("Invalid prices for %s"), *Pair.Key.ToString()));
-				OutResult.bSuccess = false;
+				OutResult.bPassed = false;
 				return false;
 			}
 			
@@ -1329,7 +1329,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 			{
 				UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid quantity for commodity %s"), *Pair.Key.ToString());
 				OutResult.ErrorMessages.Add(FString::Printf(TEXT("Invalid quantity for %s"), *Pair.Key.ToString()));
-				OutResult.bSuccess = false;
+				OutResult.bPassed = false;
 				return false;
 			}
 			
@@ -1371,7 +1371,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 				{
 					UE_LOG(LogTemp, Error, TEXT("FAILED: Price calculation returned invalid value"));
 					OutResult.ErrorMessages.Add(TEXT("Price calculation test failed"));
-					OutResult.bSuccess = false;
+					OutResult.bPassed = false;
 					return false;
 				}
 				
@@ -1399,7 +1399,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Initial reputation should be 0.0f"));
 			OutResult.ErrorMessages.Add(TEXT("Initial reputation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1413,7 +1413,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Invalid price modifier"));
 			OutResult.ErrorMessages.Add(TEXT("Price modifier test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1466,7 +1466,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Insufficient metallic ores found"));
 			OutResult.ErrorMessages.Add(TEXT("Commodity category query failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1476,7 +1476,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Could not retrieve Iron Ore commodity"));
 			OutResult.ErrorMessages.Add(TEXT("Commodity retrieval test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1504,7 +1504,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Pirate station should have black market"));
 			OutResult.ErrorMessages.Add(TEXT("Black market detection test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1516,7 +1516,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Black market prices should be higher"));
 			OutResult.ErrorMessages.Add(TEXT("Black market pricing test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1539,7 +1539,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Legal goods should have 0 smuggling risk"));
 			OutResult.ErrorMessages.Add(TEXT("Smuggling risk test failed for legal goods"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1549,7 +1549,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Illegal goods should have smuggling risk"));
 			OutResult.ErrorMessages.Add(TEXT("Smuggling risk test failed for illegal goods"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1572,7 +1572,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: Economy report generation failed"));
 			OutResult.ErrorMessages.Add(TEXT("Economy report generation test failed"));
-			OutResult.bSuccess = false;
+			OutResult.bPassed = false;
 			return false;
 		}
 		
@@ -1628,7 +1628,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 	}
 	
 	// Final result
-	if (OutResult.bSuccess)
+	if (OutResult.bPassed)
 	{
 		UE_LOG(LogTemp, Log, TEXT("=== TradingEconomySystem Self-Test PASSED ==="));
 		UE_LOG(LogTemp, Log, TEXT("Total Tests: %d"), OutResult.TestResults.Num());
@@ -1638,5 +1638,5 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		UE_LOG(LogTemp, Error, TEXT("=== TradingEconomySystem Self-Test FAILED ==="));
 	}
 	
-	return OutResult.bSuccess;
+	return OutResult.bPassed;
 }

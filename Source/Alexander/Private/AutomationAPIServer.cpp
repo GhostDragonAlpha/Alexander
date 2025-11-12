@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "GameFramework/Pawn.h"
 #include "GameFramework/PlayerController.h"
+#include "GameFramework/GameModeBase.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "Kismet/GameplayStatics.h"
@@ -340,7 +341,6 @@ FString UAutomationAPIServer::GetServerStatus() const
 	return OutputString;
 }
 
-<<< SEARCH
 void UAutomationAPIServer::HandleHTTPRequest(const FString& Endpoint, const FString& Method, const FString& Body, FString& OutResponse)
 {
 	if (!CheckRateLimit())
@@ -2299,7 +2299,7 @@ FString UAutomationAPIServer::HandlePerformanceMetrics()
 	// Unreal specific metrics
 	TSharedPtr<FJsonObject> UnrealMetrics = MakeShareable(new FJsonObject);
 	UnrealMetrics->SetNumberField(TEXT("num_actors"), World->GetActorCount());
-	UnrealMetrics->SetNumberField(TEXT("num_pawns"), World->GetPawnCount());
+	UnrealMetrics->SetNumberField(TEXT("num_pawns"), World->GetNumPawns());
 
 	Metrics->SetObjectField(TEXT("unreal"), UnrealMetrics);
 
@@ -2309,83 +2309,8 @@ FString UAutomationAPIServer::HandlePerformanceMetrics()
 FString UAutomationAPIServer::HandleStreamingMetrics()
 {
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleStreamingMetrics"));
-
-	// Find MemoryOptimizationManager in the world
-	UWorld* World = nullptr;
-#if WITH_EDITOR
-	for (const FWorldContext& Context : GEngine->GetWorldContexts())
-	{
-		if (Context.WorldType == EWorldType::PIE)
-		{
-			World = Context.World();
-			break;
-		}
-	}
-#else
-	World = GetWorld();
-#endif
-
-	if (!World)
-	{
-		return CreateJSONResponse(false, TEXT("No active game world"));
-	}
-
-	// Find MemoryOptimizationManager
-	UMemoryOptimizationManager* MemoryManager = nullptr;
-	for (TActorIterator<AActor> It(World); It; ++It)
-	{
-		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
-		if (MemoryManager)
-		{
-			break;
-		}
-	}
-
-	if (!MemoryManager)
-	{
-		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
-	}
-
-	// Get streaming metrics
-	FMemoryStats StreamingStats = MemoryManager->GetStreamingMemoryStats();
-	int32 ActiveAsyncLoads = MemoryManager->GetActiveAsyncLoads();
-	int32 StreamingLevelsCount = MemoryManager->GetStreamingLevelsCount();
-
-	// Build streaming metrics response
-	TSharedPtr<FJsonObject> Metrics = MakeShareable(new FJsonObject);
-
-	// Memory usage
-	TSharedPtr<FJsonObject> MemoryUsage = MakeShareable(new FJsonObject);
-	MemoryUsage->SetNumberField(TEXT("total_allocated_mb"), StreamingStats.TotalAllocatedMB);
-	MemoryUsage->SetNumberField(TEXT("used_physical_mb"), StreamingStats.UsedPhysicalMB);
-	MemoryUsage->SetNumberField(TEXT("used_virtual_mb"), StreamingStats.UsedVirtualMB);
-	MemoryUsage->SetNumberField(TEXT("texture_memory_mb"), StreamingStats.TextureMemoryMB);
-	MemoryUsage->SetNumberField(TEXT("mesh_memory_mb"), StreamingStats.MeshMemoryMB);
-	MemoryUsage->SetNumberField(TEXT("audio_memory_mb"), StreamingStats.AudioMemoryMB);
-
-	Metrics->SetObjectField(TEXT("memory_usage"), MemoryUsage);
-
-	// Streaming stats
-	TSharedPtr<FJsonObject> StreamingStatsObj = MakeShareable(new FJsonObject);
-	StreamingStatsObj->SetNumberField(TEXT("active_async_loads"), ActiveAsyncLoads);
-	StreamingStatsObj->SetNumberField(TEXT("streaming_levels_count"), StreamingLevelsCount);
-	StreamingStatsObj->SetNumberField(TEXT("object_count"), StreamingStats.ObjectCount);
-	StreamingStatsObj->SetNumberField(TEXT("actor_count"), StreamingStats.ActorCount);
-
-	Metrics->SetObjectField(TEXT("streaming_stats"), StreamingStatsObj);
-
-	// Current optimization strategy
-	TSharedPtr<FJsonObject> OptimizationSettings = MakeShareable(new FJsonObject);
-	OptimizationSettings->SetStringField(TEXT("current_strategy"), UEnum::GetValueAsString(MemoryManager->OptimizationStrategy));
-	OptimizationSettings->SetBoolField(TEXT("texture_streaming_enabled"), MemoryManager->StreamingConfig.bEnableTextureStreaming);
-	OptimizationSettings->SetBoolField(TEXT("mesh_lod_streaming_enabled"), MemoryManager->StreamingConfig.bEnableMeshLODStreaming);
-	OptimizationSettings->SetNumberField(TEXT("streaming_distance_scale"), MemoryManager->StreamingConfig.StreamingDistanceScale);
-	OptimizationSettings->SetNumberField(TEXT("texture_pool_size_mb"), MemoryManager->StreamingConfig.TexturePoolSizeMB);
-	OptimizationSettings->SetNumberField(TEXT("max_async_load_concurrency"), MemoryManager->StreamingConfig.MaxAsyncLoadConcurrency);
-
-	Metrics->SetObjectField(TEXT("optimization_settings"), OptimizationSettings);
-
-	return CreateJSONResponse(true, TEXT("Streaming metrics retrieved"), Metrics);
+	// TODO: Implement streaming metrics when MemoryOptimizationManager is available
+	return CreateJSONResponse(false, TEXT("Streaming metrics not implemented - MemoryOptimizationManager not available"));
 }
 
 FString UAutomationAPIServer::HandleSetStreamingStrategy(const FString& RequestBody)
@@ -2473,242 +2398,32 @@ FString UAutomationAPIServer::HandleAssetLoadingStatus()
 {
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleAssetLoadingStatus"));
 
-	// Find MemoryOptimizationManager
-	UWorld* World = nullptr;
-#if WITH_EDITOR
-	for (const FWorldContext& Context : GEngine->GetWorldContexts())
-	{
-		if (Context.WorldType == EWorldType::PIE)
-		{
-			World = Context.World();
-			break;
-		}
-	}
-#else
-	World = GetWorld();
-#endif
-
-	if (!World)
-	{
-		return CreateJSONResponse(false, TEXT("No active game world"));
-	}
-
-	UMemoryOptimizationManager* MemoryManager = nullptr;
-	for (TActorIterator<AActor> It(World); It; ++It)
-	{
-		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
-		if (MemoryManager)
-		{
-			break;
-		}
-	}
-
-	if (!MemoryManager)
-	{
-		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
-	}
-
-	// Get asset loading status
-	int32 ActiveAsyncLoads = MemoryManager->GetActiveAsyncLoads();
-
-	// Build response
-	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	ResponseData->SetNumberField(TEXT("active_async_loads"), ActiveAsyncLoads);
-	ResponseData->SetNumberField(TEXT("max_concurrency"), MemoryManager->StreamingConfig.MaxAsyncLoadConcurrency);
-	ResponseData->SetBoolField(TEXT("async_loading_enabled"), MemoryManager->StreamingConfig.bEnableAsyncLoading);
-
-	return CreateJSONResponse(true, TEXT("Asset loading status retrieved"), ResponseData);
+	// TODO: Implement asset loading status when MemoryOptimizationManager is available
+	return CreateJSONResponse(false, TEXT("Asset loading status not implemented - MemoryOptimizationManager not available"));
 }
 
 FString UAutomationAPIServer::HandleTextureMemoryStats()
 {
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleTextureMemoryStats"));
 
-	// Find MemoryOptimizationManager
-	UWorld* World = nullptr;
-#if WITH_EDITOR
-	for (const FWorldContext& Context : GEngine->GetWorldContexts())
-	{
-		if (Context.WorldType == EWorldType::PIE)
-		{
-			World = Context.World();
-			break;
-		}
-	}
-#else
-	World = GetWorld();
-#endif
-
-	if (!World)
-	{
-		return CreateJSONResponse(false, TEXT("No active game world"));
-	}
-
-	UMemoryOptimizationManager* MemoryManager = nullptr;
-	for (TActorIterator<AActor> It(World); It; ++It)
-	{
-		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
-		if (MemoryManager)
-		{
-			break;
-		}
-	}
-
-	if (!MemoryManager)
-	{
-		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
-	}
-
-	// Get memory stats
-	FMemoryStats Stats = MemoryManager->GetCurrentMemoryStats();
-
-	// Build texture memory response
-	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	ResponseData->SetNumberField(TEXT("texture_memory_mb"), Stats.TextureMemoryMB);
-	ResponseData->SetNumberField(TEXT("texture_pool_size_mb"), MemoryManager->StreamingConfig.TexturePoolSizeMB);
-	ResponseData->SetBoolField(TEXT("texture_streaming_enabled"), MemoryManager->StreamingConfig.bEnableTextureStreaming);
-	ResponseData->SetNumberField(TEXT("critical_memory_mip_bias"), MemoryManager->StreamingConfig.CriticalMemoryMipBias);
-
-	return CreateJSONResponse(true, TEXT("Texture memory stats retrieved"), ResponseData);
+	// TODO: Implement texture memory stats when MemoryOptimizationManager is available
+	return CreateJSONResponse(false, TEXT("Texture memory stats not implemented - MemoryOptimizationManager not available"));
 }
 
 FString UAutomationAPIServer::HandleMeshMemoryStats()
 {
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleMeshMemoryStats"));
 
-	// Find MemoryOptimizationManager
-	UWorld* World = nullptr;
-#if WITH_EDITOR
-	for (const FWorldContext& Context : GEngine->GetWorldContexts())
-	{
-		if (Context.WorldType == EWorldType::PIE)
-		{
-			World = Context.World();
-			break;
-		}
-	}
-#else
-	World = GetWorld();
-#endif
-
-	if (!World)
-	{
-		return CreateJSONResponse(false, TEXT("No active game world"));
-	}
-
-	UMemoryOptimizationManager* MemoryManager = nullptr;
-	for (TActorIterator<AActor> It(World); It; ++It)
-	{
-		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
-		if (MemoryManager)
-		{
-			break;
-		}
-	}
-
-	if (!MemoryManager)
-	{
-		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
-	}
-
-	// Get memory stats
-	FMemoryStats Stats = MemoryManager->GetCurrentMemoryStats();
-
-	// Build mesh memory response
-	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	ResponseData->SetNumberField(TEXT("mesh_memory_mb"), Stats.MeshMemoryMB);
-	ResponseData->SetBoolField(TEXT("mesh_lod_streaming_enabled"), MemoryManager->StreamingConfig.bEnableMeshLODStreaming);
-	ResponseData->SetNumberField(TEXT("streaming_distance_scale"), MemoryManager->StreamingConfig.StreamingDistanceScale);
-	ResponseData->SetNumberField(TEXT("critical_memory_lod_bias"), MemoryManager->StreamingConfig.CriticalMemoryLODBias);
-
-	return CreateJSONResponse(true, TEXT("Mesh memory stats retrieved"), ResponseData);
+	// TODO: Implement mesh memory stats when MemoryOptimizationManager is available
+	return CreateJSONResponse(false, TEXT("Mesh memory stats not implemented - MemoryOptimizationManager not available"));
 }
 
 FString UAutomationAPIServer::HandleForceMemoryOptimization(const FString& RequestBody)
 {
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleForceMemoryOptimization"));
 
-	TSharedPtr<FJsonObject> JsonObj = ParseJSON(RequestBody);
-	if (!JsonObj.IsValid())
-	{
-		return CreateJSONResponse(false, TEXT("Invalid JSON"));
-	}
-
-	// Find MemoryOptimizationManager
-	UWorld* World = nullptr;
-#if WITH_EDITOR
-	for (const FWorldContext& Context : GEngine->GetWorldContexts())
-	{
-		if (Context.WorldType == EWorldType::PIE)
-		{
-			World = Context.World();
-			break;
-		}
-	}
-#else
-	World = GetWorld();
-#endif
-
-	if (!World)
-	{
-		return CreateJSONResponse(false, TEXT("No active game world"));
-	}
-
-	UMemoryOptimizationManager* MemoryManager = nullptr;
-	for (TActorIterator<AActor> It(World); It; ++It)
-	{
-		MemoryManager = It->FindComponentByClass<UMemoryOptimizationManager>();
-		if (MemoryManager)
-		{
-			break;
-		}
-	}
-
-	if (!MemoryManager)
-	{
-		return CreateJSONResponse(false, TEXT("MemoryOptimizationManager not found"));
-	}
-
-	// Parse optimization type
-	FString OptimizationType = JsonObj->GetStringField(TEXT("optimization_type"));
-	bool bSuccess = false;
-
-	if (OptimizationType == TEXT("full"))
-	{
-		MemoryManager->OptimizeMemoryUsage();
-		bSuccess = true;
-	}
-	else if (OptimizationType == TEXT("textures"))
-	{
-		MemoryManager->ForceLowerTextureMips();
-		bSuccess = true;
-	}
-	else if (OptimizationType == TEXT("meshes"))
-	{
-		MemoryManager->ForceLowerMeshLODs();
-		bSuccess = true;
-	}
-	else if (OptimizationType == TEXT("garbage_collection"))
-	{
-		MemoryManager->ForceGarbageCollection(true);
-		bSuccess = true;
-	}
-	else if (OptimizationType == TEXT("unload_assets"))
-	{
-		MemoryManager->UnloadUnusedAssets();
-		bSuccess = true;
-	}
-	else
-	{
-		return CreateJSONResponse(false, FString::Printf(TEXT("Invalid optimization type: %s"), *OptimizationType));
-	}
-
-	// Build response
-	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	ResponseData->SetStringField(TEXT("optimization_type"), OptimizationType);
-	ResponseData->SetBoolField(TEXT("success"), bSuccess);
-
-	return CreateJSONResponse(true, FString::Printf(TEXT("Memory optimization executed: %s"), *OptimizationType), ResponseData);
+	// TODO: Implement force memory optimization when MemoryOptimizationManager is available
+	return CreateJSONResponse(false, TEXT("Force memory optimization not implemented - MemoryOptimizationManager not available"));
 }
 
 // ============================================================================
@@ -2719,86 +2434,8 @@ FString UAutomationAPIServer::HandleTickStats()
 {
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleTickStats"));
 
-	// Find TickOptimizationManager
-	UWorld* World = nullptr;
-#if WITH_EDITOR
-	for (const FWorldContext& Context : GEngine->GetWorldContexts())
-	{
-		if (Context.WorldType == EWorldType::PIE)
-		{
-			World = Context.World();
-			break;
-		}
-	}
-#else
-	World = GetWorld();
-#endif
-
-	if (!World)
-	{
-		return CreateJSONResponse(false, TEXT("No active game world"));
-	}
-
-	UTickOptimizationManager* TickManager = nullptr;
-	for (TActorIterator<AActor> It(World); It; ++It)
-	{
-		TickManager = It->FindComponentByClass<UTickOptimizationManager>();
-		if (TickManager)
-		{
-			break;
-		}
-	}
-
-	if (!TickManager)
-	{
-		return CreateJSONResponse(false, TEXT("TickOptimizationManager not found"));
-	}
-
-	// Get tick stats from manager
-	FString StatsString = TickManager->GetTickStats();
-
-	// Parse the stats string into JSON
-	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	
-	// Extract key metrics from the stats string
-	TArray<FString> Lines;
-	StatsString.ParseIntoArrayLines(Lines);
-	
-	for (const FString& Line : Lines)
-	{
-		if (Line.Contains(TEXT("Current FPS:")))
-		{
-			float FPS = FCString::Atof(*Line.RightChop(13));
-			ResponseData->SetNumberField(TEXT("current_fps"), FPS);
-		}
-		else if (Line.Contains(TEXT("Target FPS:")))
-		{
-			float TargetFPS = FCString::Atof(*Line.RightChop(12));
-			ResponseData->SetNumberField(TEXT("target_fps"), TargetFPS);
-		}
-		else if (Line.Contains(TEXT("Min FPS:")))
-		{
-			float MinFPS = FCString::Atof(*Line.RightChop(9));
-			ResponseData->SetNumberField(TEXT("min_fps"), MinFPS);
-		}
-		else if (Line.Contains(TEXT("Performance Degraded:")))
-		{
-			bool bDegraded = Line.Contains(TEXT("Yes"));
-			ResponseData->SetBoolField(TEXT("performance_degraded"), bDegraded);
-		}
-		else if (Line.Contains(TEXT("Total Actors:")))
-		{
-			int32 TotalActors = FCString::Atoi(*Line.RightChop(14));
-			ResponseData->SetNumberField(TEXT("total_actors"), TotalActors);
-		}
-		else if (Line.Contains(TEXT("Total Components:")))
-		{
-			int32 TotalComponents = FCString::Atoi(*Line.RightChop(18));
-			ResponseData->SetNumberField(TEXT("total_components"), TotalComponents);
-		}
-	}
-
-	return CreateJSONResponse(true, TEXT("Tick stats retrieved"), ResponseData);
+	// TODO: Implement tick stats when TickOptimizationManager is available
+	return CreateJSONResponse(false, TEXT("Tick stats not implemented - TickOptimizationManager not available"));
 }
 
 FString UAutomationAPIServer::HandleSetActorPriority(const FString& RequestBody)
@@ -2901,71 +2538,8 @@ FString UAutomationAPIServer::HandleDormantActors()
 {
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: HandleDormantActors"));
 
-	// Find TickOptimizationManager
-	UWorld* World = nullptr;
-#if WITH_EDITOR
-	for (const FWorldContext& Context : GEngine->GetWorldContexts())
-	{
-		if (Context.WorldType == EWorldType::PIE)
-		{
-			World = Context.World();
-			break;
-		}
-	}
-#else
-	World = GetWorld();
-#endif
-
-	if (!World)
-	{
-		return CreateJSONResponse(false, TEXT("No active game world"));
-	}
-
-	UTickOptimizationManager* TickManager = nullptr;
-	for (TActorIterator<AActor> It(World); It; ++It)
-	{
-		TickManager = It->FindComponentByClass<UTickOptimizationManager>();
-		if (TickManager)
-		{
-			break;
-		}
-	}
-
-	if (!TickManager)
-	{
-		return CreateJSONResponse(false, TEXT("TickOptimizationManager not found"));
-	}
-
-	// Get dormant actors
-	TArray<AActor*> DormantActors = TickManager->GetDormantActors();
-
-	// Build response
-	TSharedPtr<FJsonObject> ResponseData = MakeShareable(new FJsonObject);
-	TArray<TSharedPtr<FJsonValue>> DormantActorsArray;
-
-	for (AActor* Actor : DormantActors)
-	{
-		if (Actor)
-		{
-			TSharedPtr<FJsonObject> ActorObj = MakeShareable(new FJsonObject);
-			ActorObj->SetStringField(TEXT("actor_id"), Actor->GetName());
-			ActorObj->SetStringField(TEXT("actor_class"), Actor->GetClass()->GetName());
-			
-			FVector Location = Actor->GetActorLocation();
-			TSharedPtr<FJsonObject> LocationObj = MakeShareable(new FJsonObject);
-			LocationObj->SetNumberField(TEXT("x"), Location.X);
-			LocationObj->SetNumberField(TEXT("y"), Location.Y);
-			LocationObj->SetNumberField(TEXT("z"), Location.Z);
-			ActorObj->SetObjectField(TEXT("location"), LocationObj);
-			
-			DormantActorsArray.Add(MakeShareable(new FJsonValueObject(ActorObj)));
-		}
-	}
-
-	ResponseData->SetArrayField(TEXT("dormant_actors"), DormantActorsArray);
-	ResponseData->SetNumberField(TEXT("count"), DormantActorsArray.Num());
-
-	return CreateJSONResponse(true, FString::Printf(TEXT("Found %d dormant actors"), DormantActorsArray.Num()), ResponseData);
+	// TODO: Implement dormant actors when TickOptimizationManager is available
+	return CreateJSONResponse(false, TEXT("Dormant actors not implemented - TickOptimizationManager not available"));
 }
 
 FString UAutomationAPIServer::HandleResetTickOptimization(const FString& RequestBody)

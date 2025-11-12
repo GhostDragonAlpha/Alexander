@@ -272,7 +272,7 @@ public:
 
 	// Initialize production chain manager
 	UFUNCTION(BlueprintCallable, Category = "Production")
-	void Initialize(ABaseBuildingManager* BuildingManager, APlanetaryFarmingSystem* FarmingSystem);
+	void Initialize(ABaseBuildingManager* InBuildingManager, APlanetaryFarmingSystem* InFarmingSystem);
 
 	// Create production chain
 	UFUNCTION(BlueprintCallable, Category = "Production")

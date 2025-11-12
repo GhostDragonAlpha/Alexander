@@ -186,6 +186,15 @@ protected:
     // Get all registered bodies
     TArray<AOrbitalBody*> GetAllRegisteredBodies() const;
 
+    // Update sphere of influence transitions
+    void UpdateSphereOfInfluenceTransitions();
+
+    // Check if a body should transition SOI
+    bool CheckSOITransition(AOrbitalBody* Body) const;
+
+    // Handle an SOI transition
+    void HandleSOITransition(AOrbitalBody* Body);
+
     // Root body of the hierarchy
     UPROPERTY()
     TWeakObjectPtr<AOrbitalBody> RootBody;
@@ -199,7 +208,7 @@ protected:
     FSOINode HierarchyRoot;
 
     // Map of body to its SOI node for fast lookup
-    TMap<FGuid, FSOINode*> BodyNodeMap;
+    TMap<uint32, FSOINode*> BodyNodeMap;
 
     // Enable automatic SOI transitions
     UPROPERTY()
