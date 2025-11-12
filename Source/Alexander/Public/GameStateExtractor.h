@@ -5,7 +5,15 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Dom/JsonObject.h"
+#include "Templates/SharedPointer.h"
 #include "GameStateExtractor.generated.h"
+
+// Forward declarations for JSON types
+class FJsonObject;
+
+// Forward declarations for other types
+class UFlightController;
+class UShipCustomizationComponent;
 
 /**
  * Game State Extractor Component
@@ -50,8 +58,7 @@ public:
 	// ============================================================================
 
 	// Extract complete game state as JSON object
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
-	TSharedPtr<FJsonObject> ExtractGameState();
+	TSharedPtr<FJsonObject, ESPMode::ThreadSafe> ExtractGameState();
 
 	// Get game state as JSON string
 	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
@@ -62,31 +69,24 @@ public:
 	// ============================================================================
 
 	// Extract player state (position, rotation, health, inventory, etc.)
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> ExtractPlayerState();
 
 	// Extract world state (time, actors, game mode, etc.)
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> ExtractWorldState();
 
 	// Extract performance metrics (FPS, memory, hardware)
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> ExtractPerformanceMetrics();
 
 	// Extract inventory state (equipped parts, loadout, etc.)
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> ExtractInventoryState();
 
 	// Extract mission/objective status
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> ExtractMissionState();
 
 	// Extract nearby actors and objects
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> ExtractNearbyActors(float Radius);
 
 	// Extract UI state (menus, dialogs, HUD elements)
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> ExtractUIState();
 
 	// ============================================================================
@@ -114,15 +114,12 @@ public:
 	class UShipCustomizationComponent* GetShipCustomizationComponent();
 
 	// Convert FVector to JSON object
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> VectorToJSON(const FVector& Vector);
 
 	// Convert FRotator to JSON object
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> RotatorToJSON(const FRotator& Rotator);
 
 	// Convert FTransform to JSON object
-	UFUNCTION(BlueprintCallable, Category = "Game State Extractor")
 	TSharedPtr<FJsonObject> TransformToJSON(const FTransform& Transform);
 
 protected:
@@ -134,7 +131,7 @@ protected:
 	float LastUpdateTime;
 
 	// Cached game state
-	TSharedPtr<FJsonObject> CachedGameState;
+	TSharedPtr<FJsonObject, ESPMode::ThreadSafe> CachedGameState;
 
 	// Performance tracking
 	float AverageFPS;
