@@ -220,27 +220,27 @@ protected:
 
 private:
 	// Predefined test scenarios
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scenarios")
+	UPROPERTY(EditAnywhere, Category = "Scenarios")
 	TArray<FTestScenario> TestScenarios;
 
 	// Current execution status
-	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	UPROPERTY( Category = "Status")
 	ETestStatus CurrentStatus;
 
 	// Current scenario being executed
-	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	UPROPERTY( Category = "Status")
 	FString CurrentScenario;
 
 	// Current step index
-	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	UPROPERTY( Category = "Status")
 	int32 CurrentStepIndex;
 
 	// Execution results
-	UPROPERTY(BlueprintReadOnly, Category = "Results")
+	UPROPERTY( Category = "Results")
 	TArray<FTestExecutionResult> ExecutionResults;
 
 	// Should stop execution
-	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	UPROPERTY( Category = "Status")
 	bool bShouldStop;
 
 	// Test step handlers

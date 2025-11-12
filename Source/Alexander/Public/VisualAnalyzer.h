@@ -149,26 +149,26 @@ protected:
 
 private:
 	// Screenshot settings
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	UPROPERTY(EditAnywhere, Category = "Settings")
 	FScreenshotSettings ScreenshotSettings;
 
 	// Last captured screenshot path
-	UPROPERTY(BlueprintReadOnly, Category = "State")
+	UPROPERTY( Category = "State")
 	FString LastScreenshotPath;
 
 	// Capture statistics
-	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	UPROPERTY( Category = "Statistics")
 	int32 TotalCaptures;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	UPROPERTY( Category = "Statistics")
 	float TotalCaptureTime;
 
 	// Continuous capture active
-	UPROPERTY(BlueprintReadOnly, Category = "State")
+	UPROPERTY( Category = "State")
 	bool bContinuousCaptureActive;
 
 	// Capture interval
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	UPROPERTY(EditAnywhere, Category = "Settings")
 	float CaptureInterval;
 
 	// Timer handle for continuous capture
