@@ -13,7 +13,7 @@
 UTickOptimizationManager::UTickOptimizationManager()
 {
     PrimaryComponentTick.bCanEverTick = true;
-    PrimaryComponentTick.TickInterval = 0.1f; // Check every 0.1 seconds for better responsiveness
+    PrimaryComponentTick.TickInterval = 1.0f; // FIX 2: Changed from 0.1f to 1.0f to reduce overhead
 
     // Create sub-components
     AnalysisComponent = CreateDefaultSubobject<UTickAnalysisComponent>(TEXT("AnalysisComponent"));
@@ -348,8 +348,7 @@ void UTickOptimizationManager::UpdateComponentTickStates()
     
     for (UActorComponent* Component : Components)
     {
-        if (!Component || Component->IsPendingKillPending()) continue;
-        
+        if (!Component || Component->IsBeingDestroyed()) continue;
         UpdateComponentTickState(Component);
     }
 }

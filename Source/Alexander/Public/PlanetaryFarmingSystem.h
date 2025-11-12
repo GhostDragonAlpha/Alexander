@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "CropSystem.h"
 #include "LandClaimManager.h"
+#include "FarmingInfrastructure.h"
+#include "AlexanderIrrigationSystem.h"
 #include "Containers/Map.h"
 #include "Containers/Array.h"
 #include "Engine/EngineTypes.h"
@@ -13,11 +15,6 @@
 
 // Forward declarations
 class AFarmPlot;
-class AHydroponicsBay;
-class AGreenhouse;
-class AIrrigationSystem;
-class AFertilizerInjector;
-class AHarvestingDrone;
 class APlanet;
 class UCropGrowthStageManager;
 
@@ -147,7 +144,7 @@ struct FCropPlantingInfo
 
 	// Crop type to plant
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Planting")
-	ECropType CropType;
+	ECropTypeExtended CropType;
 
 	// Plot location
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Planting")
@@ -167,7 +164,7 @@ struct FCropPlantingInfo
 
 	FCropPlantingInfo()
 	{
-		CropType = ECropType::Wheat;
+		CropType = ECropTypeExtended::Wheat;
 		PlantingDensity = 1.0f;
 		ExpectedHarvestTime = 0.0f;
 		ExpectedYield = 0;
@@ -186,7 +183,7 @@ struct FAlexanderHarvestResult
 
 	// Crop type harvested
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest")
-	ECropType CropType;
+	ECropTypeExtended CropType;
 
 	// Quantity harvested
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest")
@@ -207,7 +204,7 @@ struct FAlexanderHarvestResult
 	FAlexanderHarvestResult()
 	{
 		bSuccess = false;
-		CropType = ECropType::Wheat;
+		CropType = ECropTypeExtended::Wheat;
 		Quantity = 0;
 		Quality = 0.0f;
 		MarketValue = 0.0f;
@@ -255,7 +252,7 @@ public:
 
 	// Plant crops in a plot
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
-	bool PlantCrops(const FGuid& PlotID, ECropType CropType, float PlantingDensity = 1.0f);
+	bool PlantCrops(const FGuid& PlotID, ECropTypeExtended CropType, float PlantingDensity = 1.0f);
 
 	// Harvest crops from a plot
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
@@ -289,9 +286,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
 	FFarmStatistics GetFarmStatistics() const;
 
-	// Get crop system
+	// Get crop growth system
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
-	UCropSystem* GetCropSystem() const { return CropSystem; }
+	UCropGrowthSystem* GetCropSystem() const { return CropSystem; }
 
 	// Get all infrastructure of a type
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
@@ -299,7 +296,7 @@ public:
 
 	// Find best crop for location
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
-	ECropType FindBestCropForLocation(FVector Location) const;
+	ECropTypeExtended FindBestCropForLocation(FVector Location) const;
 
 	// Get crop growth progress
 	UFUNCTION(BlueprintCallable, Category = "Farming System")
@@ -345,9 +342,9 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<ALandClaimManager> LandClaimManager;
 
-	// Crop system for crop data
+	// Crop growth system for crop data
 	UPROPERTY()
-	UCropSystem* CropSystem;
+	UCropGrowthSystem* CropSystem;
 
 	// All farm plots
 	UPROPERTY()
@@ -396,10 +393,10 @@ private:
 	void ProcessAutoManagement();
 
 	// Find optimal crop for location
-	ECropType FindOptimalCrop(FVector Location) const;
+	ECropTypeExtended FindOptimalCrop(FVector Location) const;
 
 	// Calculate expected yield
-	int32 CalculateExpectedYield(ECropType CropType, float SoilQuality, float PlantingDensity) const;
+	int32 CalculateExpectedYield(ECropTypeExtended CropType, float SoilQuality, float PlantingDensity) const;
 
 	// Get plot index by ID
 	int32 GetPlotIndex(const FGuid& PlotID) const;

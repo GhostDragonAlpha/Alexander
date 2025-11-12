@@ -56,17 +56,17 @@ public:
 	TSubclassOf<AFarmPlot> TestFarmPlotClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farming Testing|Config")
-	TArray<ECropType> CropTypesToTest = {
-		ECropType::Wheat,
-		ECropType::Corn,
-		ECropType::Tomatoes,
-		ECropType::Potatoes,
-		ECropType::Carrots,
-		ECropType::Lettuce,
-		ECropType::Strawberries,
-		ECropType::SpaceWeed,
-		ECropType::MoonMelons,
-		ECropType::QuantumPotatoes
+	TArray<ECropTypeExtended> CropTypesToTest = {
+		ECropTypeExtended::Wheat,
+		ECropTypeExtended::Corn,
+		ECropTypeExtended::Tomatoes,
+		ECropTypeExtended::Potatoes,
+		ECropTypeExtended::Carrots,
+		ECropTypeExtended::Lettuce,
+		ECropTypeExtended::Strawberries,
+		ECropTypeExtended::SpaceWeed,
+		ECropTypeExtended::Rice,
+		ECropTypeExtended::QuantumPlants
 	};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farming Testing|Config")
@@ -186,12 +186,12 @@ protected:
 	/**
 	 * Plant a crop at a specific grid position
 	 */
-	bool PlantCropAtPosition(ECropType CropType, FIntPoint GridPosition);
+	bool PlantCropAtPosition(ECropTypeExtended CropType, FIntPoint GridPosition);
 
 	/**
 	 * Get crop definition for a crop type
 	 */
-	UCropDefinition* GetCropDefinition(ECropType CropType);
+	UCropDefinition* GetCropDefinition(ECropTypeExtended CropType);
 
 	/**
 	 * Accelerate growth by time factor
@@ -263,7 +263,7 @@ private:
 	UVRHarvestInteractionManager* HarvestManager = nullptr;
 
 	// Test state
-	TMap<ECropType, UCropDefinition*> CropDefinitionCache;
+	TMap<ECropTypeExtended, UCropDefinition*> CropDefinitionCache;
 	FIntPoint LastPlantedPosition = FIntPoint(-1, -1);
 	float InitialGrowthProgress = 0.0f;
 	float TestStartTime = 0.0f;

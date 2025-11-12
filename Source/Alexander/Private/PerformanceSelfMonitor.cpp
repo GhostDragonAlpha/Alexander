@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "PerformanceSelfMonitor.h"
+#include "PerformanceMonitor.h"
 #include "Engine/Engine.h"
 #include "Engine/GameViewportClient.h"
 #include "Stats/Stats.h"
@@ -215,7 +216,7 @@ void UPerformanceSelfMonitor::SetPerformanceTargets(float InTargetFPS, float InM
 
 bool UPerformanceSelfMonitor::WereTargetsMet(FString& OutFailureReason) const
 {
-	if (!FinalMetrics.FramesRendered > 0)
+	if (FinalMetrics.FramesRendered <= 0)
 	{
 		OutFailureReason = TEXT("No metrics collected");
 		return false;
@@ -277,8 +278,8 @@ FString UPerformanceSelfMonitor::GetPerformanceReport() const
 
 void UPerformanceSelfMonitor::ResetMetrics()
 {
-	CurrentMetrics = FPerformanceMetrics();
-	FinalMetrics = FPerformanceMetrics();
+	CurrentMetrics = FSelfTestPerformanceMetrics();
+	FinalMetrics = FSelfTestPerformanceMetrics();
 	FrameCount = 0;
 	TotalFrameTime = 0.0f;
 	MinFrameTime = FLT_MAX;

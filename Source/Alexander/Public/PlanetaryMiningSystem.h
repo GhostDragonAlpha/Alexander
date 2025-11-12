@@ -6,13 +6,11 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "ResourceGatheringSystem.h"
 #include "SystemSelfTestInterface.h"
-#include "Templates/Pair.h"
 #include "PlanetaryMiningSystem.generated.h"
 
 // Forward declarations
 class APlanet;
 class ASpaceship;
-class UInventoryManager;
 
 // Mining equipment types
 UENUM(BlueprintType)
@@ -77,6 +75,10 @@ struct FPlanetaryScanResult
 	// Environmental impact of scanning
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scan")
 	EEnvironmentalImpact EnvironmentalImpact;
+
+	// Failure reason (if failed)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scan")
+	FString FailureReason;
 
 	FPlanetaryScanResult()
 	{
@@ -396,10 +398,6 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<UResourceGatheringSystem> ResourceGatheringSystem;
 
-	// Inventory manager reference
-	UPROPERTY()
-	TWeakObjectPtr<UInventoryManager> InventoryManager;
-
 	// Current mining equipment
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mining")
 	EPlanetaryMiningEquipment CurrentEquipment;
@@ -446,4 +444,8 @@ private:
 	float CalculateEnvironmentalImpact(const FPlanetaryMiningParams& Params, const FResourceDeposit& Deposit) const;
 	bool CheckPermitRestrictions(const FMiningPermit& Permit, const FPlanetaryMiningParams& Params, int32 AmountExtracted) const;
 	void UpdateEnvironmentalHealth(APlanet* Planet, EEnvironmentalImpact Impact);
+	bool IsEquipmentSuitableForDeposit(EPlanetaryMiningEquipment Equipment, EDepositType DepositType) const;
+	float CalculateMiningDuration(const FResourceDeposit& Deposit, EPlanetaryMiningEquipment Equipment) const;
+	float CalculateEnergyConsumption(float Duration, EPlanetaryMiningEquipment Equipment) const;
+	bool DoesPlanetRequirePermits(APlanet* Planet) const;
 };

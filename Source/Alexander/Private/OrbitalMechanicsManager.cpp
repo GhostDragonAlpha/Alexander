@@ -70,11 +70,8 @@ bool UOrbitalMechanicsManager::RunSelfTest_Implementation(FSystemTestResult& Out
     
     // Test 2: Test star system generation
     FStarSystemConfig TestConfig;
-    TestConfig.StarClass = EStarClass::G;
-    TestConfig.StarMass = 1.0f;
-    TestConfig.StarRadius = 696340.0f; // Sun radius in km
-    TestConfig.MinPlanets = 2;
-    TestConfig.MaxPlanets = 5;
+    // Note: FStarSystemConfig structure is defined in ProceduralStarSystemGenerator.h
+    // Using default configuration for testing
     
     AOrbitalBody* GeneratedStar = GenerateStarSystem(TestConfig);
     if (!GeneratedStar)
@@ -84,155 +81,155 @@ bool UOrbitalMechanicsManager::RunSelfTest_Implementation(FSystemTestResult& Out
         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Star system generation failed"));
         return false;
     }
- 87
- 88     // Verify generated bodies were registered
- 89     if (RegisteredBodies.Num() < 3) // At least star + 2 planets
- 90     {
- 91         OutResult.bPassed = false;
- 92         OutResult.ErrorMessage = TEXT("Generated star system but bodies were not properly registered");
- 93         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Body registration failed"));
- 94         return false;
- 95     }
- 96     UE_LOG(LogTemp, Log, TEXT("✓ Star system generation test PASSED - Generated %d bodies"), RegisteredBodies.Num());
- 97
- 98     // Test 3: Test orbital calculations
- 99     if (RegisteredBodies.Num() >= 2)
-100     {
-101         AOrbitalBody* TestBody1 = RegisteredBodies[0].Get();
-102         AOrbitalBody* TestBody2 = RegisteredBodies[1].Get();
-103
-104         if (TestBody1 && TestBody2)
-105         {
-106             // Test orbital position calculation
-107             FVector InitialPosition = TestBody1->GetActorLocation();
-108             FVector NewPosition = CalculateOrbitalPosition(TestBody1, 1.0f);
-109
-110             if (NewPosition.Equals(InitialPosition, 1.0f)) // Positions should be different after 1 second
-111             {
-112                 OutResult.bPassed = false;
-113                 OutResult.ErrorMessage = TEXT("Orbital position calculation failed - position did not change");
-114                 UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Orbital position calculation"));
-115                 return false;
-116             }
-117             UE_LOG(LogTemp, Log, TEXT("✓ Orbital position calculation test PASSED"));
-118
-119             // Test gravitational force calculation
-120             FVector GravitationalForce = CalculateGravitationalForce(TestBody1, TestBody2);
-121             if (GravitationalForce.IsNearlyZero())
-122             {
-123                 OutResult.bPassed = false;
-124                 OutResult.ErrorMessage = TEXT("Gravitational force calculation failed - zero force returned");
-125                 UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Gravitational force calculation"));
-126                 return false;
-127             }
-128             UE_LOG(LogTemp, Log, TEXT("✓ Gravitational force calculation test PASSED"));
-129
-130             // Test Hohmann transfer calculation
-131             float DeltaV1, DeltaV2, TransferTime;
-132             if (!CalculateHohmannTransfer(TestBody1, TestBody2, DeltaV1, DeltaV2, TransferTime))
-133             {
-134                 OutResult.bPassed = false;
-135                 OutResult.ErrorMessage = TEXT("Hohmann transfer calculation failed");
-136                 UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Hohmann transfer calculation"));
-137                 return false;
-138             }
-139             UE_LOG(LogTemp, Log, TEXT("✓ Hohmann transfer calculation test PASSED"));
-140         }
-141     }
-142
-143     // Test 4: Test spatial partitioning
-144     FVector TestPosition = FVector::ZeroVector;
-145     float TestRadius = 1000000000.0f; // 10,000 km in cm
-146     TArray<AOrbitalBody*> FoundBodies = FindBodiesInRadius(TestPosition, TestRadius);
-147
-148     if (FoundBodies.Num() != RegisteredBodies.Num())
-149     {
-150         OutResult.WarningMessages.Add(TEXT("Spatial partitioning may not be working optimally - found different number of bodies than registered"));
-151         UE_LOG(LogTemp, Warning, TEXT("WARNING: Spatial partitioning test found %d bodies, expected %d"),
-152             FoundBodies.Num(), RegisteredBodies.Num());
-153     }
-154     else
-155     {
-156         UE_LOG(LogTemp, Log, TEXT("✓ Spatial partitioning test PASSED"));
-157     }
-158
-159     // Test 5: Test sphere of influence calculations
-160     if (SOIManager && RegisteredBodies.Num() > 0)
-161     {
-162         AOrbitalBody* TestBody = RegisteredBodies[0].Get();
-163         if (TestBody)
-164         {
-165             FVector BodyPosition = TestBody->GetActorLocation();
-166             bool bInSOI = IsInSphereOfInfluence(BodyPosition, TestBody);
-167
-168             if (!bInSOI)
-169             {
-170                 OutResult.WarningMessages.Add(TEXT("Sphere of influence test returned unexpected result"));
-171                 UE_LOG(LogTemp, Warning, TEXT("WARNING: SOI test - body not in its own SOI"));
-172             }
-173             else
-174             {
-175                 UE_LOG(LogTemp, Log, TEXT("✓ Sphere of influence test PASSED"));
-176             }
-177         }
-178     }
-179
-180     // Test 6: Performance metrics
-181     float TestDuration = 5.0f; // 5 second test
-182     float StartTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0f;
-183     int32 UpdatesDuringTest = 0;
-184
-185     while (GetWorld() && (GetWorld()->GetTimeSeconds() - StartTime) < TestDuration)
-186     {
-187         Tick(0.016f); // Simulate 60 FPS
-188         UpdatesDuringTest++;
-189     }
-190
-191     float ActualDuration = GetWorld() ? (GetWorld()->GetTimeSeconds() - StartTime) : TestDuration;
-192     float AverageUpdateTime = ActualDuration / UpdatesDuringTest;
-193
-194     if (AverageUpdateTime > 0.1f) // Should update faster than 10 FPS
-195     {
-196         OutResult.WarningMessages.Add(FString::Printf(TEXT("Performance warning - average update time: %.2f ms"),
-197             AverageUpdateTime * 1000.0f));
-198         UE_LOG(LogTemp, Warning, TEXT("WARNING: Performance test - average update time: %.2f ms"),
-199             AverageUpdateTime * 1000.0f);
-200     }
-201     else
-202     {
-203         UE_LOG(LogTemp, Log, TEXT("✓ Performance test PASSED - average update time: %.2f ms"),
-204             AverageUpdateTime * 1000.0f);
-205     }
-206
-207     OutResult.bPassed = true;
-208     OutResult.PerformanceMetrics.Add(TEXT("AverageUpdateTime"), AverageUpdateTime);
-209     OutResult.PerformanceMetrics.Add(TEXT("BodiesGenerated"), RegisteredBodies.Num());
-210     OutResult.PerformanceMetrics.Add(TEXT("UpdatesDuringTest"), UpdatesDuringTest);
-211
-212     UE_LOG(LogTemp, Log, TEXT("=== Orbital Mechanics Manager test PASSED ==="));
-213     return true;
-214 }
-215
-216 FString UOrbitalMechanicsManager::GetSystemName_Implementation() const
-217 {
-218     return TEXT("OrbitalMechanicsManager");
-219 }
-220
-220 FString UOrbitalMechanicsManager::GetTestDescription_Implementation() const
-221 {
-222     return TEXT("Tests orbital mechanics calculations, star system generation, and spatial partitioning");
-223 }
-224
-225 bool UOrbitalMechanicsManager::IsReadyForTesting_Implementation() const
-226 {
-227     return HohmannCalculator != nullptr && SOIManager != nullptr &&
-228            SystemGenerator != nullptr && SpatialPartitioner != nullptr;
-229 }
-230 //~ End ISystemSelfTestInterface interface
-231
-232 void UOrbitalMechanicsManager::Tick(float DeltaTime)
-233 {
-234     Super::Tick(DeltaTime);
+
+    // Verify generated bodies were registered
+    if (RegisteredBodies.Num() < 3) // At least star + 2 planets
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Generated star system but bodies were not properly registered");
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Body registration failed"));
+        return false;
+    }
+    UE_LOG(LogTemp, Log, TEXT("✓ Star system generation test PASSED - Generated %d bodies"), RegisteredBodies.Num());
+
+    // Test 3: Test orbital calculations
+    if (RegisteredBodies.Num() >= 2)
+    {
+        AOrbitalBody* TestBody1 = RegisteredBodies[0].Get();
+        AOrbitalBody* TestBody2 = RegisteredBodies[1].Get();
+
+        if (TestBody1 && TestBody2)
+        {
+            // Test orbital position calculation
+            FVector InitialPosition = TestBody1->GetActorLocation();
+            FVector NewPosition = CalculateOrbitalPosition(TestBody1, 1.0f);
+
+            if (NewPosition.Equals(InitialPosition, 1.0f)) // Positions should be different after 1 second
+            {
+                OutResult.bPassed = false;
+                OutResult.ErrorMessage = TEXT("Orbital position calculation failed - position did not change");
+                UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Orbital position calculation"));
+                return false;
+            }
+            UE_LOG(LogTemp, Log, TEXT("✓ Orbital position calculation test PASSED"));
+
+            // Test gravitational force calculation
+            FVector GravitationalForce = CalculateGravitationalForce(TestBody1, TestBody2);
+            if (GravitationalForce.IsNearlyZero())
+            {
+                OutResult.bPassed = false;
+                OutResult.ErrorMessage = TEXT("Gravitational force calculation failed - zero force returned");
+                UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Gravitational force calculation"));
+                return false;
+            }
+            UE_LOG(LogTemp, Log, TEXT("✓ Gravitational force calculation test PASSED"));
+
+            // Test Hohmann transfer calculation
+            float DeltaV1, DeltaV2, TransferTime;
+            if (!CalculateHohmannTransfer(TestBody1, TestBody2, DeltaV1, DeltaV2, TransferTime))
+            {
+                OutResult.bPassed = false;
+                OutResult.ErrorMessage = TEXT("Hohmann transfer calculation failed");
+                UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Hohmann transfer calculation"));
+                return false;
+            }
+            UE_LOG(LogTemp, Log, TEXT("✓ Hohmann transfer calculation test PASSED"));
+        }
+    }
+
+    // Test 4: Test spatial partitioning
+    FVector TestPosition = FVector::ZeroVector;
+    float TestRadius = 1000000000.0f; // 10,000 km in cm
+    TArray<AOrbitalBody*> FoundBodies = FindBodiesInRadius(TestPosition, TestRadius);
+
+    if (FoundBodies.Num() != RegisteredBodies.Num())
+    {
+        OutResult.WarningMessages.Add(TEXT("Spatial partitioning may not be working optimally - found different number of bodies than registered"));
+        UE_LOG(LogTemp, Warning, TEXT("WARNING: Spatial partitioning test found %d bodies, expected %d"),
+            FoundBodies.Num(), RegisteredBodies.Num());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("✓ Spatial partitioning test PASSED"));
+    }
+
+    // Test 5: Test sphere of influence calculations
+    if (SOIManager && RegisteredBodies.Num() > 0)
+    {
+        AOrbitalBody* TestBody = RegisteredBodies[0].Get();
+        if (TestBody)
+        {
+            FVector BodyPosition = TestBody->GetActorLocation();
+            bool bInSOI = IsInSphereOfInfluence(BodyPosition, TestBody);
+
+            if (!bInSOI)
+            {
+                OutResult.WarningMessages.Add(TEXT("Sphere of influence test returned unexpected result"));
+                UE_LOG(LogTemp, Warning, TEXT("WARNING: SOI test - body not in its own SOI"));
+            }
+            else
+            {
+                UE_LOG(LogTemp, Log, TEXT("✓ Sphere of influence test PASSED"));
+            }
+        }
+    }
+
+    // Test 6: Performance metrics
+    float TestDuration = 5.0f; // 5 second test
+    float StartTime = GetWorld() ? GetWorld()->GetTimeSeconds() : 0.0f;
+    int32 UpdatesDuringTest = 0;
+
+    while (GetWorld() && (GetWorld()->GetTimeSeconds() - StartTime) < TestDuration)
+    {
+        Tick(0.016f); // Simulate 60 FPS
+        UpdatesDuringTest++;
+    }
+
+    float ActualDuration = GetWorld() ? (GetWorld()->GetTimeSeconds() - StartTime) : TestDuration;
+    float AverageUpdateTime = ActualDuration / UpdatesDuringTest;
+
+    if (AverageUpdateTime > 0.1f) // Should update faster than 10 FPS
+    {
+        OutResult.WarningMessages.Add(FString::Printf(TEXT("Performance warning - average update time: %.2f ms"),
+            AverageUpdateTime * 1000.0f));
+        UE_LOG(LogTemp, Warning, TEXT("WARNING: Performance test - average update time: %.2f ms"),
+            AverageUpdateTime * 1000.0f);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("✓ Performance test PASSED - average update time: %.2f ms"),
+            AverageUpdateTime * 1000.0f);
+    }
+
+    OutResult.bPassed = true;
+    OutResult.PerformanceMetrics.Add(TEXT("AverageUpdateTime"), AverageUpdateTime);
+    OutResult.PerformanceMetrics.Add(TEXT("BodiesGenerated"), RegisteredBodies.Num());
+    OutResult.PerformanceMetrics.Add(TEXT("UpdatesDuringTest"), UpdatesDuringTest);
+
+    UE_LOG(LogTemp, Log, TEXT("=== Orbital Mechanics Manager test PASSED ==="));
+    return true;
+}
+
+FString UOrbitalMechanicsManager::GetSystemName_Implementation() const
+{
+    return TEXT("OrbitalMechanicsManager");
+}
+
+FString UOrbitalMechanicsManager::GetTestDescription_Implementation() const
+{
+    return TEXT("Tests orbital mechanics calculations, star system generation, and spatial partitioning");
+}
+
+bool UOrbitalMechanicsManager::IsReadyForTesting_Implementation() const
+{
+    return HohmannCalculator != nullptr && SOIManager != nullptr &&
+           SystemGenerator != nullptr && SpatialPartitioner != nullptr;
+}
+//~ End ISystemSelfTestInterface interface
+
+void UOrbitalMechanicsManager::Tick(float DeltaTime)
+{
+    Super::Tick(DeltaTime);
 
     // Clamp delta time for stability
     float ClampedDeltaTime = FMath::Min(DeltaTime, MaxTimeStep);

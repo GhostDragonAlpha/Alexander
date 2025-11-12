@@ -673,8 +673,22 @@ private:
     // Performance tracking
     int32 TotalSystemsGenerated;
     double TotalLoadTime;
+    TMap<FString, double> SystemLoadTimes;
     FCriticalSection SystemDataLock;
     UAsyncLoadingComponent* AsyncLoader;
+
+    // System loading states
+    TMap<FString, ESystemLoadState> SystemLoadStates;
+
+    // Spatial partitioning
+    USpatialPartitioningComponent* SpatialPartitioning;
+
+    // Memory tracking
+    TMap<FString, FSystemMemoryInfo> SystemMemoryTracker;
+
+    // Spatial index for fast queries
+    TMap<uint32, TArray<FString>> SpatialIndex;
+    FCriticalSection SpatialIndexLock;
 
     // Helper functions
     FCelestialBody GenerateRandomPlanet(const FString& SystemID, int32 OrbitIndex);
@@ -688,8 +702,11 @@ private:
     FString GenerateUniqueID(const FString& Prefix) const;
 
     // Missing function declarations
+    void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
     void InitializeSpatialPartitioning();
     void InitializeAsyncLoading();
     void UpdateMemoryTracking(const FString& SystemID);
+    void UpdateSpatialIndex(const FString& SystemID, const FVector& Position);
     void RemoveFromSpatialIndex(const FString& SystemID);
+    FSystemMemoryInfo CalculateSystemMemoryUsage(const FString& SystemID) const;
 };

@@ -6,18 +6,31 @@
 #include "Components/ActorComponent.h"
 #include "SpatialPartitioningComponent.generated.h"
 
-<<<<<<< Updated upstream
 // Simple octree node for spatial partitioning
-=======
-// Simple octree node for spatial partitioning
->>>>>>> Stashed changes
+USTRUCT()
 struct FSimpleOctreeNode
 {
+    GENERATED_BODY()
+
+    UPROPERTY()
     FVector Center;
+    
+    UPROPERTY()
     float HalfSize;
+    
+    UPROPERTY()
     TArray<FString> SystemIDs;
+    
     TArray<TSharedPtr<FSimpleOctreeNode>> Children;
+    
+    UPROPERTY()
     bool bIsLeaf;
+
+    FSimpleOctreeNode()
+        : Center(FVector::ZeroVector)
+        , HalfSize(0.0f)
+        , bIsLeaf(true)
+    {}
 
     FSimpleOctreeNode(const FVector& InCenter, float InHalfSize)
         : Center(InCenter)

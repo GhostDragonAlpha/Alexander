@@ -125,7 +125,7 @@ public:
 
     // Get the SOI hierarchy root
     UFUNCTION(BlueprintCallable, Category = "Orbital Mechanics|SOI")
-    AOrbitalBody* GetRootBody() const { return RootBody; }
+    AOrbitalBody* GetRootBody() const { return RootBody.Get(); }
 
     // Get the SOI hierarchy as a tree structure
     FSOINode GetSOIHierarchy() const;
@@ -188,12 +188,6 @@ protected:
 
     // Update sphere of influence transitions
     void UpdateSphereOfInfluenceTransitions();
-
-    // Check if a body should transition SOI
-    bool CheckSOITransition(AOrbitalBody* Body) const;
-
-    // Handle an SOI transition
-    void HandleSOITransition(AOrbitalBody* Body);
 
     // Root body of the hierarchy
     UPROPERTY()

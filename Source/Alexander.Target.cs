@@ -10,6 +10,9 @@ public class AlexanderTarget : TargetRules
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 
+		// UE 5.6: Update include order version
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;
+
 		ExtraModuleNames.AddRange( new string[] { "Alexander" } );
 	}
 }

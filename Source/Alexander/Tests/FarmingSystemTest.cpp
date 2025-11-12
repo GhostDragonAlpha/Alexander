@@ -4,7 +4,6 @@
 #include "CropSystem.h"
 #include "CropDefinition.h"
 #include "SoilSystem.h"
-#include "IrrigationSystem.h"
 #include "PlanetFarmingComponent.h"
 
 /**
@@ -31,7 +30,7 @@ public:
 
 private:
     // Helper function to create a test crop definition
-    static UCropDefinition* CreateTestCropDefinition(ECropType CropType)
+    static UCropDefinition* CreateTestCropDefinition(ECropTypeExtended CropType)
     {
         UCropDefinition* CropDef = NewObject<UCropDefinition>();
         if (CropDef)
@@ -71,9 +70,9 @@ private:
         AFarmPlot* TestPlot = CreateTestFarmPlot();
         
         // Test planting different crops
-        UCropDefinition* WheatDef = CreateTestCropDefinition(ECropType::Wheat);
-        UCropDefinition* CornDef = CreateTestCropDefinition(ECropType::Corn);
-        UCropDefinition* TomatoDef = CreateTestCropDefinition(ECropType::Tomatoes);
+        UCropDefinition* WheatDef = CreateTestCropDefinition(ECropTypeExtended::Wheat);
+        UCropDefinition* CornDef = CreateTestCropDefinition(ECropTypeExtended::Corn);
+        UCropDefinition* TomatoDef = CreateTestCropDefinition(ECropTypeExtended::Tomatoes);
         
         bool WheatPlanted = TestPlot->PlantCrop(FIntPoint(0, 0), WheatDef);
         bool CornPlanted = TestPlot->PlantCrop(FIntPoint(1, 0), CornDef);
@@ -193,23 +192,23 @@ private:
         UCropSystem* CropSystem = NewObject<UCropSystem>();
         
         // Test crop breeding
-        bool CanBreed = CropSystem->CanBreedCrops(ECropType::Wheat, ECropType::Corn);
-        ECropType HybridCrop = CropSystem->BreedCrops(ECropType::Wheat, ECropType::Corn);
+        bool CanBreed = CropSystem->CanBreedCrops(ECropTypeExtended::Wheat, ECropTypeExtended::Corn);
+        ECropTypeExtended HybridCrop = CropSystem->BreedCrops(ECropTypeExtended::Wheat, ECropTypeExtended::Corn);
         
         // Test that same crops can't breed
-        bool CannotBreedSame = !CropSystem->CanBreedCrops(ECropType::Wheat, ECropType::Wheat);
+        bool CannotBreedSame = !CropSystem->CanBreedCrops(ECropTypeExtended::Wheat, ECropTypeExtended::Wheat);
         
         // Test special crops can't breed
-        bool CannotBreedSpecial = !CropSystem->CanBreedCrops(ECropType::QuantumPotatoes, ECropType::Wheat);
+        bool CannotBreedSpecial = !CropSystem->CanBreedCrops(ECropTypeExtended::QuantumPlants, ECropTypeExtended::Wheat);
         
         // Test crop data retrieval
-        FCropData WheatData = CropSystem->GetCropData(ECropType::Wheat);
+        FCropData WheatData = CropSystem->GetCropData(ECropTypeExtended::Wheat);
         
         bool TestPassed = CanBreed &&
-                          HybridCrop == ECropType::QuantumPotatoes &&
+                          HybridCrop == ECropTypeExtended::QuantumPlants &&
                           CannotBreedSame &&
                           CannotBreedSpecial &&
-                          WheatData.CropType == ECropType::Wheat &&
+                          WheatData.CropType == ECropTypeExtended::Wheat &&
                           WheatData.BaseYield > 0;
         
         if (TestPassed)
@@ -235,10 +234,10 @@ private:
         FSoilComposition Soil = SoilSystem->AnalyzeSoil(TestPlot->GetActorLocation());
         
         // Get suitable crops for this soil
-        TArray<ECropType> SuitableCrops = CropSystem->GetCropsForClimate(20.0f, 0.6f);
+        TArray<ECropTypeExtended> SuitableCrops = CropSystem->GetCropsForClimate(20.0f, 0.6f);
         
         // Plant a suitable crop
-        ECropType ChosenCrop = SuitableCrops.Num() > 0 ? SuitableCrops[0] : ECropType::Wheat;
+        ECropTypeExtended ChosenCrop = SuitableCrops.Num() > 0 ? SuitableCrops[0] : ECropTypeExtended::Wheat;
         UCropDefinition* CropDef = CreateTestCropDefinition(ChosenCrop);
         bool Planted = TestPlot->PlantCrop(FIntPoint(0, 0), CropDef);
         

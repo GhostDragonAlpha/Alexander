@@ -216,7 +216,7 @@ FSoilComposition USoilSystem::SimulateCompaction(const FSoilComposition& Soil, f
 	return CompactedSoil;
 }
 
-TArray<FString> USoilSystem::GetSoilRecommendations(const FSoilComposition& Soil, ECropType CropType)
+TArray<FString> USoilSystem::GetSoilRecommendations(const FSoilComposition& Soil, ECropTypeExtended CropType)
 {
 	TArray<FString> Recommendations;
 	
@@ -272,7 +272,7 @@ TArray<FString> USoilSystem::GetSoilRecommendations(const FSoilComposition& Soil
 	return Recommendations;
 }
 
-float USoilSystem::GetCropSuitability(const FSoilComposition& Soil, ECropType CropType) const
+float USoilSystem::GetCropSuitability(const FSoilComposition& Soil, ECropTypeExtended CropType) const
 {
 	// Get crop requirements (simplified)
 	float RequiredpH = 6.5f;
@@ -283,18 +283,18 @@ float USoilSystem::GetCropSuitability(const FSoilComposition& Soil, ECropType Cr
 	// Adjust requirements based on crop type
 	switch (CropType)
 	{
-		case ECropType::Corn:
+		case ECropTypeExtended::Corn:
 			RequiredNitrogen = 0.04f;
 			break;
-		case ECropType::Tomatoes:
+		case ECropTypeExtended::Tomatoes:
 			RequiredpH = 6.2f;
 			RequiredPhosphorus = 0.025f;
 			break;
-		case ECropType::Potatoes:
+		case ECropTypeExtended::Potatoes:
 			RequiredpH = 5.5f;
 			RequiredPotassium = 0.03f;
 			break;
-		case ECropType::SpaceWeed:
+		case ECropTypeExtended::SpaceWeed:
 			// Space weed is very adaptable
 			return 0.9f;
 		default:

@@ -76,12 +76,12 @@ void USphereOfInfluenceManager::UpdateSphereOfInfluenceTransitions()
 
 bool USphereOfInfluenceManager::CheckSOITransition(AOrbitalBody* Body) const
 {
-    if (!Body || !Body->ParentBody.IsValid())
+    if (!Body || !Body->OrbitTarget.IsValid())
     {
         return false;
     }
 
-    AOrbitalBody* Parent = Body->ParentBody.Get();
+    AOrbitalBody* Parent = Body->OrbitTarget.Get();
     if (!Parent)
     {
         return false;
@@ -91,7 +91,7 @@ bool USphereOfInfluenceManager::CheckSOITransition(AOrbitalBody* Body) const
     float DistanceToParent = FVector::Dist(Body->GetActorLocation(), Parent->GetActorLocation());
     
     // Get the SOI radius of the parent
-    float ParentSOIRadius = CalculateSphereOfInfluenceRadius(Parent);
+    float ParentSOIRadius = CalculateSphereOfInfluence(Parent);
     
     // Check if body is within transition threshold of parent's SOI
     return DistanceToParent >= (ParentSOIRadius * TransitionThreshold);
@@ -105,9 +105,9 @@ void USphereOfInfluenceManager::HandleSOITransition(AOrbitalBody* Body)
     }
 
     // Find the new parent body (the one with the strongest gravitational influence)
-    AOrbitalBody* NewParent = FindDominantGravitationalBody(Body);
+    AOrbitalBody* NewParent = GetDominantBody(Body->GetActorLocation());
     
-    if (NewParent && NewParent != Body->ParentBody.Get())
+    if (NewParent && NewParent != Body->OrbitTarget.Get())
     {
         // Record transition
         FDateTime TransitionTime = FDateTime::UtcNow();
@@ -118,14 +118,14 @@ void USphereOfInfluenceManager::HandleSOITransition(AOrbitalBody* Body)
         TotalTransitionTime += TransitionDuration;
         
         // Update parent relationship
-        Body->ParentBody = NewParent;
+        Body->OrbitTarget = NewParent;
         
         // Rebuild hierarchy if needed
         BuildHierarchy();
         
-        UE_LOG(LogTemp, Log, TEXT("SOI Transition: %s moved from %s to %s (Duration: %.2fs)"), 
+        UE_LOG(LogTemp, Log, TEXT("SOI Transition: %s moved from %s to %s (Duration: %.2fs)"),
             *Body->GetName(),
-            Body->ParentBody.IsValid() ? *Body->ParentBody->GetName() : TEXT("None"),
+            Body->OrbitTarget.IsValid() ? *Body->OrbitTarget->GetName() : TEXT("None"),
             NewParent ? *NewParent->GetName() : TEXT("None"),
             TransitionDuration);
     }

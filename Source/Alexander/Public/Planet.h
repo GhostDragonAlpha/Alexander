@@ -6,6 +6,7 @@
 #include "OrbitalBody.h"
 #include "PlanetConfiguration.h"
 #include "BiomeBlendingSystem.h"
+#include "ProceduralNoiseGenerator.h"
 #include "Planet.generated.h"
 
 // Forward declarations (UBiomeManager, UBiomeBlendingSystem, UBiomeFeatureGenerator,
@@ -97,6 +98,15 @@ public:
 	// Get terrain height at location (placeholder)
 	UFUNCTION(BlueprintCallable, Category = "Terrain")
 	float GetTerrainHeightAtLocation(FVector2D Coordinates) const;
+
+	// Configure terrain noise parameters
+	void ConfigureTerrainNoise(FNoiseConfig& ContinentalNoise, FNoiseConfig& MountainNoise, FNoiseConfig& DetailNoise);
+
+	// Log terrain configuration
+	void LogTerrainConfiguration(const FNoiseConfig& ContinentalNoise, const FNoiseConfig& MountainNoise, const FNoiseConfig& DetailNoise);
+
+	// Generate terrain height at location
+	float GenerateTerrainHeightAtLocation(float Latitude, float Longitude, const FNoiseConfig& ContinentalNoise, const FNoiseConfig& MountainNoise, const FNoiseConfig& DetailNoise);
 
 	// ============================================================================
 	// BIOME SYSTEM

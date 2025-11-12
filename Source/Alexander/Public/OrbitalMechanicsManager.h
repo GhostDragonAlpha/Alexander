@@ -57,10 +57,9 @@ public:
     virtual bool IsReadyForTesting_Implementation() const override;
     //~ End ISystemSelfTestInterface interface
 
-    //~ Begin UTickableWorldSubsystem interface
-    virtual void Tick(float DeltaTime) override;
-    virtual TStatId GetStatId() const override;
-    //~ End UTickableWorldSubsystem interface
+    // Tick function
+    virtual void Tick(float DeltaTime);
+    virtual TStatId GetStatId() const;
 
     // ============================================================================
     // UNIVERSE MANAGEMENT

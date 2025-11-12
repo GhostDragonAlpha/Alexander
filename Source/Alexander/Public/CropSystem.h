@@ -5,22 +5,10 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "FarmPlot.h"
+#include "CropTypes.h"
 #include "CropSystem.generated.h"
 
-UENUM(BlueprintType)
-enum class ECropType : uint8
-{
-	Wheat UMETA(DisplayName = "Wheat"),
-	Corn UMETA(DisplayName = "Corn"),
-	Tomatoes UMETA(DisplayName = "Tomatoes"),
-	Potatoes UMETA(DisplayName = "Potatoes"),
-	Carrots UMETA(DisplayName = "Carrots"),
-	Lettuce UMETA(DisplayName = "Lettuce"),
-	Strawberries UMETA(DisplayName = "Strawberries"),
-	SpaceWeed UMETA(DisplayName = "Space Weed"),
-	MoonMelons UMETA(DisplayName = "Moon Melons"),
-	QuantumPotatoes UMETA(DisplayName = "Quantum Potatoes")
-};
+// ECropType enum removed - use ECropTypeExtended from CropGrowthSystem.h instead
 
 UENUM(BlueprintType)
 enum class ESoilQuality : uint8
@@ -41,7 +29,7 @@ struct FCropData
 	GENERATED_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crop")
-	ECropType CropType = ECropType::Wheat;
+	ECropTypeExtended CropType = ECropTypeExtended::Wheat;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Crop")
 	FString CropName;
@@ -88,30 +76,30 @@ public:
 
 	// Crop operations
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
-	FCropData GetCropData(ECropType CropType) const;
+	FCropData GetCropData(ECropTypeExtended CropType) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
-	TArray<ECropType> GetAvailableCrops() const;
+	TArray<ECropTypeExtended> GetAvailableCrops() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
-	TArray<ECropType> GetCropsForClimate(float Temperature, float Humidity) const;
+	TArray<ECropTypeExtended> GetCropsForClimate(float Temperature, float Humidity) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
-	float GetCropMarketValue(ECropType CropType) const;
+	float GetCropMarketValue(ECropTypeExtended CropType) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
-	bool IsCropInSeason(ECropType CropType, float SeasonFactor) const;
+	bool IsCropInSeason(ECropTypeExtended CropType, float SeasonFactor) const;
 
 	// Crop breeding
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
-	ECropType BreedCrops(ECropType Crop1, ECropType Crop2);
+	ECropTypeExtended BreedCrops(ECropTypeExtended Crop1, ECropTypeExtended Crop2);
 
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
-	bool CanBreedCrops(ECropType Crop1, ECropType Crop2) const;
+	bool CanBreedCrops(ECropTypeExtended Crop1, ECropTypeExtended Crop2) const;
 
 	// Crop quality assessment
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
-	float CalculateCropQuality(ECropType CropType, ESoilQuality Soil, float GrowthTime) const;
+	float CalculateCropQuality(ECropTypeExtended CropType, ESoilQuality Soil, float GrowthTime) const;
 
 	UFUNCTION(BlueprintCallable, Category = "Crop System")
 	FString GetQualityDescription(float Quality) const;
@@ -120,5 +108,5 @@ protected:
 	void InitializeCropDatabase();
 
 private:
-	TMap<ECropType, FCropData> CropDataMap;
+	TMap<ECropTypeExtended, FCropData> CropDataMap;
 };

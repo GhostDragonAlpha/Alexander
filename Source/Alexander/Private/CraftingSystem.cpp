@@ -4,6 +4,7 @@
 #include "BaseBuildingManager.h"
 #include "ResourceGatheringSystem.h"
 #include "InventoryManager.h"
+#include "SpaceStationHub.h"
 #include "Engine/World.h"
 
 UCraftingSystem::UCraftingSystem()
@@ -206,7 +207,7 @@ bool UCraftingSystem::PurchaseBlueprint(FName BlueprintID, int32 PlayerCredits)
 	return true;
 }
 
-bool UCraftingSystem::StartCrafting(FName BlueprintID, ABaseModule* Station)
+bool UCraftingSystem::StartCrafting(FName BlueprintID, ASpaceStationHub* Station)
 {
 	if (!Station)
 	{
@@ -272,7 +273,7 @@ bool UCraftingSystem::StartCrafting(FName BlueprintID, ABaseModule* Station)
 	return true;
 }
 
-void UCraftingSystem::CancelCrafting(ABaseModule* Station)
+void UCraftingSystem::CancelCrafting(ASpaceStationHub* Station)
 {
 	if (!Station)
 	{
@@ -294,7 +295,7 @@ void UCraftingSystem::CancelCrafting(ABaseModule* Station)
 	}
 }
 
-bool UCraftingSystem::IsStationCrafting(ABaseModule* Station) const
+bool UCraftingSystem::IsStationCrafting(ASpaceStationHub* Station) const
 {
 	if (!Station)
 	{
@@ -312,7 +313,7 @@ bool UCraftingSystem::IsStationCrafting(ABaseModule* Station) const
 	return false;
 }
 
-float UCraftingSystem::GetCraftingProgress(ABaseModule* Station) const
+float UCraftingSystem::GetCraftingProgress(ASpaceStationHub* Station) const
 {
 	if (!Station)
 	{
@@ -330,7 +331,7 @@ float UCraftingSystem::GetCraftingProgress(ABaseModule* Station) const
 	return 0.0f;
 }
 
-void UCraftingSystem::RegisterCraftingStation(ABaseModule* Station, ECraftingStationType StationType, int32 Tier)
+void UCraftingSystem::RegisterCraftingStation(ASpaceStationHub* Station, ECraftingStationType StationType, int32 Tier)
 {
 	if (!Station)
 	{
@@ -355,7 +356,7 @@ void UCraftingSystem::RegisterCraftingStation(ABaseModule* Station, ECraftingSta
 		   *Station->GetName(), *UEnum::GetDisplayValueAsText(StationType).ToString(), Tier);
 }
 
-void UCraftingSystem::UnregisterCraftingStation(ABaseModule* Station)
+void UCraftingSystem::UnregisterCraftingStation(ASpaceStationHub* Station)
 {
 	if (!Station)
 	{
@@ -374,7 +375,7 @@ void UCraftingSystem::UnregisterCraftingStation(ABaseModule* Station)
 	UE_LOG(LogTemp, Log, TEXT("Unregistered crafting station: %s"), *Station->GetName());
 }
 
-FCraftingStationInfo UCraftingSystem::GetCraftingStationInfo(ABaseModule* Station) const
+FCraftingStationInfo UCraftingSystem::GetCraftingStationInfo(ASpaceStationHub* Station) const
 {
 	const FCraftingStationInfo* StationInfo = CraftingStations.Find(Station);
 	return StationInfo ? *StationInfo : FCraftingStationInfo();
@@ -400,7 +401,7 @@ TArray<FCraftingStationInfo> UCraftingSystem::GetStationsByType(ECraftingStation
 	return StationsByType;
 }
 
-void UCraftingSystem::SetStationOperational(ABaseModule* Station, bool bIsOperational)
+void UCraftingSystem::SetStationOperational(ASpaceStationHub* Station, bool bIsOperational)
 {
 	if (!Station)
 	{
@@ -486,7 +487,7 @@ FCraftingResult UCraftingSystem::CompleteCraftingOperation(FActiveCraftingOperat
 	return Result;
 }
 
-FCraftingResult UCraftingSystem::CraftItem(const FCraftingBlueprint& Blueprint, ABaseModule* Station, float QualityMultiplier)
+FCraftingResult UCraftingSystem::CraftItem(const FCraftingBlueprint& Blueprint, ASpaceStationHub* Station, float QualityMultiplier)
 {
 	FCraftingResult Result;
 	Result.bSuccess = false;
@@ -532,7 +533,7 @@ FCraftingResult UCraftingSystem::CraftItem(const FCraftingBlueprint& Blueprint, 
 	Result.bSuccess = true;
 	Result.CraftingTime = CraftingTime;
 	Result.EnergyConsumed = EnergyRequired;
-	Result.ExperienceGained = Blueprint.CraftingTier * 10.0f; // XP based on tier
+	Result.ExperienceGained = static_cast<int32>(Blueprint.CraftingTier) * 10.0f; // XP based on tier
 
 	// Update statistics
 	TotalCraftingOperations++;
@@ -548,7 +549,7 @@ FCraftingResult UCraftingSystem::CraftItem(const FCraftingBlueprint& Blueprint, 
 	return Result;
 }
 
-bool UCraftingSystem::CanCraftBlueprint(const FCraftingBlueprint& Blueprint, ABaseModule* Station) const
+bool UCraftingSystem::CanCraftBlueprint(const FCraftingBlueprint& Blueprint, ASpaceStationHub* Station) const
 {
 	if (!Station)
 	{
@@ -579,21 +580,64 @@ bool UCraftingSystem::CanCraftBlueprint(const FCraftingBlueprint& Blueprint, ABa
 
 bool UCraftingSystem::HasRequiredResources(const FCraftingBlueprint& Blueprint) const
 {
-	if (!ResourceGatheringSystem.IsValid())
+	if (!InventoryManager.IsValid())
 	{
 		return false;
 	}
 
-	// In a full implementation, this would check the inventory system
-	// For now, assume we have the resources
+	// Check if we have all required resources in station storage
+	// TODO: Pass actual station ID from crafting station
+	FGuid DummyStationID = FGuid::NewGuid();
+
+	for (const FResourceQuantity& Input : Blueprint.RequiredResources)
+	{
+		if (!InventoryManager->HasResource(
+			Input.ResourceID,
+			Input.Quantity,
+			EInventoryType::StationStorage,
+			DummyStationID))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Missing resource: %s (need %d)"),
+				*Input.ResourceID.ToString(), Input.Quantity);
+			return false;
+		}
+	}
+
 	return true;
 }
 
 void UCraftingSystem::ConsumeResources(const FCraftingBlueprint& Blueprint)
 {
-	// In a full implementation, this would remove resources from inventory
-	// For now, this is a placeholder
-	UE_LOG(LogTemp, Log, TEXT("Consumed resources for blueprint: %s"), *Blueprint.BlueprintID.ToString());
+	if (!InventoryManager.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cannot consume resources: InventoryManager not available"));
+		return;
+	}
+
+	// Remove input resources from station storage
+	// TODO: Pass actual station ID from crafting station
+	FGuid DummyStationID = FGuid::NewGuid();
+
+	for (const FResourceQuantity& Input : Blueprint.RequiredResources)
+	{
+		bool bRemoved = InventoryManager->RemoveResource(
+			Input.ResourceID,
+			Input.Quantity,
+			EInventoryType::StationStorage,
+			DummyStationID
+		);
+
+		if (bRemoved)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Consumed %d %s for blueprint: %s"),
+				Input.Quantity, *Input.ResourceID.ToString(), *Blueprint.BlueprintID.ToString());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to consume %d %s for blueprint: %s"),
+				Input.Quantity, *Input.ResourceID.ToString(), *Blueprint.BlueprintID.ToString());
+		}
+	}
 }
 
 void UCraftingSystem::ProduceItem(const FCraftingBlueprint& Blueprint, FCraftingResult& Result, float QualityMultiplier)
@@ -605,12 +649,38 @@ void UCraftingSystem::ProduceItem(const FCraftingBlueprint& Blueprint, FCrafting
 	float QualityRoll = FMath::FRand() * QualityMultiplier;
 	Result.ItemQuality = CalculateItemQuality(QualityRoll, QualityMultiplier);
 
-	// In a full implementation, this would add the item to inventory
-	UE_LOG(LogTemp, Log, TEXT("Produced item from blueprint: %s (Quality: %s)"), 
-		   *Blueprint.BlueprintID.ToString(), *UEnum::GetDisplayValueAsText(Result.ItemQuality).ToString());
+	// Add item to inventory
+	if (InventoryManager.IsValid())
+	{
+		// TODO: Pass actual station ID from crafting station
+		FGuid DummyStationID = FGuid::NewGuid();
+
+		bool bAdded = InventoryManager->AddResource(
+			Blueprint.OutputItem.ResourceID,
+			Blueprint.OutputItem.Quantity,
+			Result.ItemQuality,
+			EInventoryType::StationStorage,
+			DummyStationID
+		);
+
+		if (bAdded)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Produced item from blueprint: %s (Quality: %s)"),
+				*Blueprint.BlueprintID.ToString(), *UEnum::GetDisplayValueAsText(Result.ItemQuality).ToString());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to add produced item to inventory: %s"),
+				*Blueprint.BlueprintID.ToString());
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cannot produce item: InventoryManager not available"));
+	}
 }
 
-float UCraftingSystem::CalculateSuccessChance(const FCraftingBlueprint& Blueprint, ABaseModule* Station) const
+float UCraftingSystem::CalculateSuccessChance(const FCraftingBlueprint& Blueprint, ASpaceStationHub* Station) const
 {
 	float BaseChance = Blueprint.SuccessRate;
 
@@ -648,7 +718,7 @@ EResourceQuality UCraftingSystem::CalculateItemQuality(float BaseQuality, float 
 	}
 }
 
-float UCraftingSystem::CalculateCraftingDuration(const FCraftingBlueprint& Blueprint, ABaseModule* Station) const
+float UCraftingSystem::CalculateCraftingDuration(const FCraftingBlueprint& Blueprint, ASpaceStationHub* Station) const
 {
 	float BaseTime = Blueprint.CraftingTime;
 
@@ -662,7 +732,7 @@ float UCraftingSystem::CalculateCraftingDuration(const FCraftingBlueprint& Bluep
 	return BaseTime / (StationSpeed * SkillMultiplier);
 }
 
-float UCraftingSystem::CalculateEnergyConsumption(float Duration, ABaseModule* Station) const
+float UCraftingSystem::CalculateEnergyConsumption(float Duration, ASpaceStationHub* Station) const
 {
 	// Base consumption: 10 energy per second
 	float BaseConsumption = 10.0f;

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "CropGrowthSystem.h"
 #include "FarmPlot.generated.h"
 
 // Forward declarations
@@ -108,15 +109,23 @@ struct FHarvestResult
 	int32 YieldAmount;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Harvest")
+	int32 Quantity; // Added for interface compatibility
+
+	UPROPERTY(BlueprintReadWrite, Category = "Harvest")
 	FString ItemName;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Harvest")
 	float Quality; // 0-1
 
+	UPROPERTY(BlueprintReadWrite, Category = "Harvest")
+	ECropTypeExtended CropType; // Added for interface compatibility
+
 	FHarvestResult()
 		: bSuccess(false)
 		, YieldAmount(0)
+		, Quantity(0)
 		, Quality(0.0f)
+		, CropType(ECropTypeExtended::Wheat)
 	{
 	}
 };
@@ -269,6 +278,9 @@ public:
 	// ============================================================================
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm")
+	FGuid PlotID;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm")
 	FVector2D PlotSize; // meters (X, Y)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm")
@@ -283,6 +295,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soil")
 	float SoilQuality; // 0-1, base quality from biome
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soil")
+	float SoilNutrients; // 0-1, overall nutrient level
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Soil")
 	float WaterLevel; // 0-1
@@ -365,6 +380,29 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Harvest")
 	int32 MaxHarvestRecords;
 
+	// Current crop being grown (for single crop plots)
+	UPROPERTY(BlueprintReadOnly, Category = "Farming")
+	UCropDefinition* CurrentCrop;
+
+	// Statistics tracking
+	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	int32 CropsPlanted;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	int32 CropsHarvested;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	float CurrentYield;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	float WaterUsed;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	float FertilizerUsed;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Statistics")
+	float SoilMoisture;
+
 	// Track soil quality over time for averaging
 	UPROPERTY()
 	float AccumulatedSoilQuality;
@@ -376,6 +414,18 @@ public:
 	// Number of samples for averaging
 	UPROPERTY()
 	int32 QualitySampleCount;
+
+	// ============================================================================
+	// WEED MANAGEMENT
+	// ============================================================================
+
+	// Weed growth level (0-1)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weeds")
+	float WeedGrowth;
+
+	// Is the plot ready for harvest
+	UPROPERTY(BlueprintReadOnly, Category = "Farming")
+	bool bIsHarvestable;
 
 	// ============================================================================
 	// FARMING OPERATIONS
@@ -394,16 +444,22 @@ public:
 	FHarvestResult HarvestCrop(FIntPoint GridPosition);
 
 	/**
+	 * Harvest all crops in the plot
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Farming")
+	FHarvestResult HarvestAllCrops();
+
+	/**
 	 * Water the entire plot
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Farming")
-	void WaterPlot(float WaterAmount);
+	bool WaterPlot(float WaterAmount);
 
 	/**
 	 * Fertilize the plot to restore fertility
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Farming")
-	void FertilizePlot(float FertilizerAmount);
+	bool FertilizePlot(float FertilizerAmount, EFertilizerType FertilizerType = EFertilizerType::Basic);
 
 	/**
 	 * Apply specific fertilizer type (NPK)
@@ -424,6 +480,18 @@ public:
 	float CalculateSoilQuality() const;
 
 	/**
+	 * Calculate water needed for optimal growth
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Farming")
+	float CalculateWaterNeeded() const;
+
+	/**
+	 * Calculate fertilizer needed for optimal growth
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Farming")
+	float CalculateFertilizerNeeded() const;
+
+	/**
 	 * Get soil nutrient levels as a vector (N, P, K)
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Farming")
@@ -440,6 +508,24 @@ public:
 	 */
 	UFUNCTION(BlueprintCallable, Category = "Farming")
 	FFarmEnvironment GetEnvironmentalConditions() const;
+
+	/**
+	 * Check if plot has weeds
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Farming")
+	bool HasWeeds() const { return WeedGrowth > 0.5f; }
+
+	/**
+	 * Remove weeds from the plot
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Farming")
+	void RemoveWeeds() { WeedGrowth = 0.0f; }
+
+	/**
+	 * Get expected yield for the plot
+	 */
+	UFUNCTION(BlueprintCallable, Category = "Farming")
+	int32 GetExpectedYield() const;
 
 	// ============================================================================
 	// WEATHER INTEGRATION (Task 13.4)

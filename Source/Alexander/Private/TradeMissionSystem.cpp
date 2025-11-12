@@ -131,7 +131,7 @@ bool UTradeMissionSystem::AcceptMission(FString MissionID, FString PlayerID, ASp
 	ActiveMissions.Add(MissionID, ActiveMission);
 
 	// Add to player mission history
-	PlayerMissionHistory.FindOrAdd(PlayerID).Add(MissionID);
+	PlayerMissionHistory.FindOrAdd(PlayerID).Strings.Add(MissionID);
 
 	// Broadcast mission acceptance
 	OnMissionAccepted.Broadcast(*Mission);
@@ -220,7 +220,7 @@ bool UTradeMissionSystem::CancelMission(FString MissionID)
 	}
 
 	// Update mission status
-	Mission->Status = EMissionStatus::Cancelled;
+	Mission->Status = EMissionStatus::Abandoned;
 
 	// Remove from active missions
 	ActiveMissions.Remove(MissionID);
@@ -572,7 +572,7 @@ void UTradeMissionSystem::InitializeDefaultTemplates()
 	{
 		FMissionTemplate Template;
 		Template.MissionType = ETradeMissionType::Smuggling;
-		Template.BaseDifficulty = EMissionDifficulty::Moderate;
+		Template.BaseDifficulty = EMissionDifficulty::Normal;
 		Template.BaseRewardCredits = 5000.0f;
 		Template.BaseRewardReputation = -10.0f; // Negative reputation with authorities
 		Template.BaseDangerLevel = 0.7f;
@@ -588,7 +588,7 @@ void UTradeMissionSystem::InitializeDefaultTemplates()
 	{
 		FMissionTemplate Template;
 		Template.MissionType = ETradeMissionType::TradeContract;
-		Template.BaseDifficulty = EMissionDifficulty::Moderate;
+		Template.BaseDifficulty = EMissionDifficulty::Normal;
 		Template.BaseRewardCredits = 4000.0f;
 		Template.BaseRewardReputation = 25.0f;
 		Template.BaseDangerLevel = 0.3f;
@@ -659,7 +659,7 @@ float UTradeMissionSystem::GetDifficultyMultiplier(EMissionDifficulty Difficulty
 	{
 		case EMissionDifficulty::Trivial: return 0.5f;
 		case EMissionDifficulty::Easy: return 1.0f;
-		case EMissionDifficulty::Moderate: return 2.0f;
+		case EMissionDifficulty::Normal: return 2.0f;
 		case EMissionDifficulty::Hard: return 4.0f;
 		case EMissionDifficulty::Extreme: return 8.0f;
 		case EMissionDifficulty::Legendary: return 16.0f;
@@ -729,14 +729,14 @@ TArray<FTradeMission> UTradeMissionSystem::SearchMissions(const FString& SearchT
 
 int32 UTradeMissionSystem::GetCompletedMissionCount(FString PlayerID) const
 {
-	const TArray<FString>* History = PlayerMissionHistory.Find(PlayerID);
+	const FStringArray* History = PlayerMissionHistory.Find(PlayerID);
 	if (!History)
 	{
 		return 0;
 	}
 
 	int32 CompletedCount = 0;
-	for (const FString& MissionID : *History)
+	for (const FString& MissionID : History->Strings)
 	{
 		const FTradeMission* Mission = MissionDatabase.Find(MissionID);
 		if (Mission && Mission->Status == EMissionStatus::Completed)
@@ -750,26 +750,26 @@ int32 UTradeMissionSystem::GetCompletedMissionCount(FString PlayerID) const
 
 float UTradeMissionSystem::GetMissionSuccessRate(FString PlayerID) const
 {
-	const TArray<FString>* History = PlayerMissionHistory.Find(PlayerID);
-	if (!History || History->Num() == 0)
+	const FStringArray* History = PlayerMissionHistory.Find(PlayerID);
+	if (!History || History->Strings.Num() == 0)
 	{
 		return 0.0f;
 	}
 
 	int32 CompletedCount = GetCompletedMissionCount(PlayerID);
-	return (float)CompletedCount / History->Num();
+	return (float)CompletedCount / History->Strings.Num();
 }
 
 float UTradeMissionSystem::GetTotalCreditsEarned(FString PlayerID) const
 {
-	const TArray<FString>* History = PlayerMissionHistory.Find(PlayerID);
+	const FStringArray* History = PlayerMissionHistory.Find(PlayerID);
 	if (!History)
 	{
 		return 0.0f;
 	}
 
 	float TotalCredits = 0.0f;
-	for (const FString& MissionID : *History)
+	for (const FString& MissionID : History->Strings)
 	{
 		const FTradeMission* Mission = MissionDatabase.Find(MissionID);
 		if (Mission && Mission->Status == EMissionStatus::Completed)
@@ -783,14 +783,14 @@ float UTradeMissionSystem::GetTotalCreditsEarned(FString PlayerID) const
 
 float UTradeMissionSystem::GetTotalReputationEarned(FString PlayerID) const
 {
-	const TArray<FString>* History = PlayerMissionHistory.Find(PlayerID);
+	const FStringArray* History = PlayerMissionHistory.Find(PlayerID);
 	if (!History)
 	{
 		return 0.0f;
 	}
 
 	float TotalReputation = 0.0f;
-	for (const FString& MissionID : *History)
+	for (const FString& MissionID : History->Strings)
 	{
 		const FTradeMission* Mission = MissionDatabase.Find(MissionID);
 		if (Mission && Mission->Status == EMissionStatus::Completed)
@@ -804,7 +804,7 @@ float UTradeMissionSystem::GetTotalReputationEarned(FString PlayerID) const
 
 ETradeMissionType UTradeMissionSystem::GetFavoriteMissionType(FString PlayerID) const
 {
-	const TArray<FString>* History = PlayerMissionHistory.Find(PlayerID);
+	const FStringArray* History = PlayerMissionHistory.Find(PlayerID);
 	if (!History)
 	{
 		return ETradeMissionType::Courier;
@@ -812,7 +812,7 @@ ETradeMissionType UTradeMissionSystem::GetFavoriteMissionType(FString PlayerID) 
 
 	TMap<ETradeMissionType, int32> TypeCounts;
 
-	for (const FString& MissionID : *History)
+	for (const FString& MissionID : History->Strings)
 	{
 		const FTradeMission* Mission = MissionDatabase.Find(MissionID);
 		if (Mission && Mission->Status == EMissionStatus::Completed)
@@ -1000,7 +1000,7 @@ void UTradeMissionSystem::CleanUpOldMissions()
 
 void UTradeMissionSystem::UpdateMissionStatistics(FString PlayerID, const FTradeMission& Mission, bool bSuccess)
 {
-	TMap<FString, float>& Stats = MissionStatistics.FindOrAdd(PlayerID);
+	TMap<FString, float>& Stats = MissionStatistics.FindOrAdd(PlayerID).Values;
 	
 	// Update general stats
 	Stats.FindOrAdd(TEXT("TotalMissions")) += 1.0f;

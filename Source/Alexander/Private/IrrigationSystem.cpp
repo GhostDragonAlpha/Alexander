@@ -1,6 +1,6 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
-#include "IrrigationSystem.h"
+#include "AlexanderIrrigationSystem.h"
 #include "Math/UnrealMathUtility.h"  // For FMath functions
 #include "FarmPlot.h"
 #include "Components/SceneComponent.h"
@@ -12,6 +12,7 @@
 #include "Engine/World.h"
 
 AIrrigationSystem::AIrrigationSystem()
+	: Super()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -36,25 +37,25 @@ AIrrigationSystem::AIrrigationSystem()
 	WaterSprayEffect->SetupAttachment(RootComponent);
 	WaterSprayEffect->bAutoActivate = false;
 
-	// Default values
-	Status = EIrrigationStatus::Inactive;
-	bIsActive = false;
-	WateringRadiusCm = 1000.0f; // 10m in cm
-	WaterConsumptionRate = 100.0f; // 100 liters per hour
-	CurrentWaterLevel = 1000.0f; // Start with 1000 liters
-	MaxWaterCapacity = 1000.0f;
-	WaterAmountPerCycle = 0.2f; // 20% water level increase per cycle
-	WateringInterval = 30.0f; // Water every 30 seconds
-	TimeSinceLastWatering = 0.0f;
+	// Initialize default values
+	this->Status = EIrrigationStatus::Inactive;
+	this->bIsActive = false;
+	this->WateringRadiusCm = 1000.0f; // 10m in cm
+	this->WaterConsumptionRate = 100.0f; // 100 liters per hour
+	this->CurrentWaterLevel = 1000.0f; // Start with 1000 liters
+	this->MaxWaterCapacity = 1000.0f;
+	this->WaterAmountPerCycle = 0.2f; // 20% water level increase per cycle
+	this->WateringInterval = 30.0f; // Water every 30 seconds
+	this->TimeSinceLastWatering = 0.0f;
 
 	// Visual effect defaults
-	NumSprayNozzles = 8;
-	SpraySpawnRate = 100.0f;
-	SprayParticleSize = 5.0f;
+	this->NumSprayNozzles = 8;
+	this->SpraySpawnRate = 100.0f;
+	this->SprayParticleSize = 5.0f;
 
 	// Power system defaults
-	PowerRequirement = 500.0f; // 500 watts
-	bIsPowered = false;
+	this->PowerRequirement = 500.0f; // 500 watts
+	this->bIsPowered = false;
 }
 
 void AIrrigationSystem::BeginPlay()

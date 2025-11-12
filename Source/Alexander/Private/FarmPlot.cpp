@@ -35,6 +35,7 @@ AFarmPlot::AFarmPlot()
 	PlotSize = FVector2D(1000.0f, 1000.0f); // 10m x 10m
 	GridResolution = 10; // 10x10 grid
 	SoilQuality = 0.7f;
+	SoilNutrients = 0.7f;
 	WaterLevel = 0.5f;
 	Fertility = 1.0f;
 	PlanetActor = nullptr;
@@ -60,6 +61,10 @@ AFarmPlot::AFarmPlot()
 	AccumulatedSoilQuality = 0.0f;
 	AccumulatedFertility = 0.0f;
 	QualitySampleCount = 0;
+
+	// Weed management defaults
+	WeedGrowth = 0.0f;
+	bIsHarvestable = false;
 }
 
 void AFarmPlot::BeginPlay()
@@ -256,6 +261,54 @@ FHarvestResult AFarmPlot::HarvestCrop(FIntPoint GridPosition)
 		*Result.ItemName, Result.YieldAmount, Result.Quality);
 
 	return Result;
+}
+
+FHarvestResult AFarmPlot::HarvestAllCrops()
+{
+	FHarvestResult CombinedResult;
+	CombinedResult.bSuccess = false;
+	CombinedResult.Quantity = 0;
+	CombinedResult.YieldAmount = 0;
+	CombinedResult.Quality = 0.0f;
+
+	int32 HarvestedCount = 0;
+	float TotalQuality = 0.0f;
+
+	// Harvest all mature crops
+	for (int32 Y = 0; Y < GridResolution; ++Y)
+	{
+		for (int32 X = 0; X < GridResolution; ++X)
+		{
+			FIntPoint Position(X, Y);
+			int32 CellIndex = GetCellIndex(Position);
+			FCropCell& Cell = CropGrid[CellIndex];
+
+			// Check if cell has a mature crop
+			if (Cell.CropType && Cell.GrowthProgress >= 1.0f)
+			{
+				FHarvestResult SingleResult = HarvestCrop(Position);
+				if (SingleResult.bSuccess)
+				{
+					CombinedResult.Quantity += SingleResult.YieldAmount;
+					CombinedResult.YieldAmount += SingleResult.YieldAmount;
+					TotalQuality += SingleResult.Quality;
+					CombinedResult.CropType = SingleResult.CropType;
+					CombinedResult.ItemName = SingleResult.ItemName;
+					HarvestedCount++;
+				}
+			}
+		}
+	}
+
+	if (HarvestedCount > 0)
+	{
+		CombinedResult.bSuccess = true;
+		CombinedResult.Quality = TotalQuality / HarvestedCount; // Average quality
+		UE_LOG(LogTemp, Log, TEXT("FarmPlot: Harvested %d crops with total yield of %d"),
+			HarvestedCount, CombinedResult.YieldAmount);
+	}
+
+	return CombinedResult;
 }
 
 void AFarmPlot::WaterPlot(float WaterAmount)
@@ -1638,4 +1691,120 @@ float AFarmPlot::CalculateEconomicValue(UCropDefinition* CropType, int32 YieldAm
 	float TotalValue = BasePrice * YieldAmount * QualityMultiplier;
 
 	return TotalValue;
+}
+
+int32 AFarmPlot::GetExpectedYield() const
+{
+	int32 TotalExpectedYield = 0;
+
+	// Calculate expected yield from all crops in the grid
+	for (const FCropCell& Cell : CropGrid)
+	{
+		if (Cell.CropType && Cell.GrowthProgress >= 0.9f)
+		{
+			// Calculate expected yield based on crop type, soil quality, and health
+			float BaseYield = Cell.CropType->BaseYield;
+			float QualityModifier = FMath::Lerp(0.5f, 1.5f, CalculateSoilQuality());
+			float HealthModifier = Cell.Health;
+
+			int32 CellYield = FMath::RoundToInt(BaseYield * QualityModifier * HealthModifier);
+			TotalExpectedYield += CellYield;
+		}
+	}
+
+	return TotalExpectedYield;
+}
+
+bool AFarmPlot::WaterPlot(float WaterAmount)
+{
+	if (WaterAmount <= 0.0f)
+	{
+		return false;
+	}
+
+	// Add water to the plot
+	WaterLevel = FMath::Clamp(WaterLevel + (WaterAmount / 1000.0f), 0.0f, 1.0f); // Convert liters to normalized value
+
+	// Update all crop cells that need water
+	for (FCropCell& Cell : CropGrid)
+	{
+		if (Cell.bNeedsWater)
+		{
+			Cell.bNeedsWater = false;
+			Cell.TimeSinceLastWater = 0.0f;
+		}
+	}
+
+	return true;
+}
+
+bool AFarmPlot::FertilizePlot(float FertilizerAmount, EFertilizerType FertilizerType)
+{
+	if (FertilizerAmount <= 0.0f)
+	{
+		return false;
+	}
+
+	// Improve soil fertility and nutrient levels
+	float FertilizerEffect = FertilizerAmount / 100.0f; // Normalize fertilizer amount
+
+	// Apply fertilizer type bonus
+	float TypeBonus = 1.0f;
+	switch(FertilizerType)
+	{
+		case EFertilizerType::Premium: TypeBonus = 1.2f; break;
+		case EFertilizerType::Specialized: TypeBonus = 1.5f; break;
+		default: break;
+	}
+
+	float BoostedEffect = FertilizerEffect * TypeBonus;
+
+	NitrogenLevel = FMath::Clamp(NitrogenLevel + BoostedEffect * 0.4f, 0.0f, 1.0f);
+	PhosphorusLevel = FMath::Clamp(PhosphorusLevel + BoostedEffect * 0.3f, 0.0f, 1.0f);
+	PotassiumLevel = FMath::Clamp(PotassiumLevel + BoostedEffect * 0.3f, 0.0f, 1.0f);
+	OrganicMatter = FMath::Clamp(OrganicMatter + BoostedEffect * 0.2f, 0.0f, 1.0f);
+
+	// Update overall fertility
+	Fertility = FMath::Clamp(Fertility + BoostedEffect * 0.5f, 0.0f, 1.0f);
+
+	return true;
+}
+
+float AFarmPlot::CalculateWaterNeeded() const
+{
+	float TotalWaterNeeded = 0.0f;
+	int32 ActiveCrops = 0;
+
+	for (const FCropCell& Cell : CropGrid)
+	{
+		if (Cell.CropType)
+		{
+			// Calculate water need based on crop type and current soil moisture
+			float CropWaterNeed = Cell.CropType->WaterRequirement * (1.0f - SoilMoisture);
+			TotalWaterNeeded += CropWaterNeed;
+			ActiveCrops++;
+		}
+	}
+
+	return ActiveCrops > 0 ? TotalWaterNeeded / ActiveCrops : 0.0f;
+}
+
+float AFarmPlot::CalculateFertilizerNeeded() const
+{
+	float TotalFertilizerNeeded = 0.0f;
+	int32 ActiveCrops = 0;
+
+	for (const FCropCell& Cell : CropGrid)
+	{
+		if (Cell.CropType)
+		{
+			// Calculate fertilizer need based on nutrient deficiencies
+			float NutrientDeficiency = (1.0f - NitrogenLevel) + (1.0f - PhosphorusLevel) + (1.0f - PotassiumLevel);
+			float FertilizerNeed = Cell.CropType->FertilizerRequirement * (NutrientDeficiency / 3.0f);
+			TotalFertilizerNeeded += FertilizerNeed;
+			ActiveCrops++;
+		}
+	}
+
+	return ActiveCrops > 0 ? TotalFertilizerNeeded / ActiveCrops : 0.0f;
 }

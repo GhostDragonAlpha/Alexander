@@ -6,6 +6,8 @@
 #include "Subsystems/WorldSubsystem.h"
 #include "Engine/DataTable.h"
 #include "TradingEconomySystem.h"
+#include "MissionBoardComponent.h"
+#include "Spaceship.h"
 #include "TradeMissionSystem.generated.h"
 
 // Forward declarations
@@ -32,20 +34,7 @@ enum class ETradeMissionType : uint8
 };
 
 // Mission difficulty enum
-UENUM(BlueprintType)
-enum class EAlexanderMissionDifficulty : uint8
-{
-	Easy		UMETA(DisplayName = "Easy"),
-	Normal		UMETA(DisplayName = "Normal"),
-	Medium		UMETA(DisplayName = "Medium"),
-	Hard		UMETA(DisplayName = "Hard"),
-	VeryHard	UMETA(DisplayName = "Very Hard"),
-	Extreme		UMETA(DisplayName = "Extreme")
-};
 
-// Forward declarations for mission enums (defined in MissionBoardComponent.h)
-enum class EMissionDifficulty : uint8;
-enum class EMissionStatus : uint8;
 
 /**
  * Trade mission data
@@ -62,7 +51,7 @@ struct FTradeMission
 	ETradeMissionType MissionType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
-	EAlexanderMissionDifficulty Difficulty;
+	EMissionDifficulty Difficulty;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
 	FString Title;
@@ -460,27 +449,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Missions")
 	FString GenerateMissionStatistics(FString PlayerID) const;
 
-	// ============================================================================
-	// EVENTS
-	// ============================================================================
-
-	UPROPERTY(BlueprintAssignable, Category = "Mission Events")
-	FOnMissionAvailable OnMissionAvailable;
-
-	UPROPERTY(BlueprintAssignable, Category = "Mission Events")
-	FOnMissionAccepted OnMissionAccepted;
-
-	UPROPERTY(BlueprintAssignable, Category = "Mission Events")
-	FOnMissionCompleted OnMissionCompleted;
-
-	UPROPERTY(BlueprintAssignable, Category = "Mission Events")
-	FOnMissionFailed OnMissionFailed;
-
-	UPROPERTY(BlueprintAssignable, Category = "Mission Events")
-	FOnMissionExpired OnMissionExpired;
-
-	UPROPERTY(BlueprintAssignable, Category = "Mission Events")
-	FOnMissionProgressUpdated OnMissionProgressUpdated;
+	// Update mission statistics
+	UFUNCTION(BlueprintCallable, Category = "Missions")
+	void UpdateMissionStatistics(FString PlayerID, const FTradeMission& Mission, bool bSuccess);
 
 protected:
 	// Trade ship automation reference
@@ -525,6 +496,29 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Config")
 	bool bShowDebugMessages;
+
+	// ============================================================================
+	// EVENTS
+	// ============================================================================
+
+	// Mission events
+	UPROPERTY(BlueprintAssignable, Category = "Missions")
+	FOnMissionAvailable OnMissionAvailable;
+
+	UPROPERTY(BlueprintAssignable, Category = "Missions")
+	FOnMissionAccepted OnMissionAccepted;
+
+	UPROPERTY(BlueprintAssignable, Category = "Missions")
+	FOnMissionCompleted OnMissionCompleted;
+
+	UPROPERTY(BlueprintAssignable, Category = "Missions")
+	FOnMissionFailed OnMissionFailed;
+
+	UPROPERTY(BlueprintAssignable, Category = "Missions")
+	FOnMissionExpired OnMissionExpired;
+
+	UPROPERTY(BlueprintAssignable, Category = "Missions")
+	FOnMissionProgressUpdated OnMissionProgressUpdated;
 
 private:
 	// Generation timer

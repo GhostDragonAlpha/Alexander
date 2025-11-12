@@ -4,6 +4,7 @@
 #include "TradeMissionSystem.h"
 #include "Math/UnrealMathUtility.h"
 #include "Engine/World.h"
+#include "Spaceship.h"
 
 UTradeShipAutomation::UTradeShipAutomation()
 {
@@ -519,9 +520,9 @@ bool UTradeShipAutomation::UpdateFleetSettings(FString FleetID, const FTradeAuto
 	{
 		for (auto& Pair : AutomatedShips)
 		{
-			if (Pair.Value.Ship->GetName() == ShipID)
+			if (Pair.Value.Ship.IsValid() && Pair.Value.Ship->GetName() == ShipID)
 			{
-				ShipSettings.Add(Pair.Value.Ship, Settings);
+				ShipSettings.Add(Pair.Value.Ship.Get(), Settings);
 				break;
 			}
 		}
@@ -1267,7 +1268,27 @@ void UTradeShipAutomation::UpdateFleetStatistics(FString FleetID)
 	}
 
 	Fleet->TotalFleetProfit = TotalProfit;
-	Fleet->FleetEfficiency = CalculateFleetEfficiency(FleetID);
+	float EfficiencyValue = CalculateFleetEfficiency(FleetID);
+	if (EfficiencyValue >= 0.8f)
+	{
+		Fleet->FleetEfficiency = ERouteEfficiency::Excellent;
+	}
+	else if (EfficiencyValue >= 0.6f)
+	{
+		Fleet->FleetEfficiency = ERouteEfficiency::Good;
+	}
+	else if (EfficiencyValue >= 0.4f)
+	{
+		Fleet->FleetEfficiency = ERouteEfficiency::Average;
+	}
+	else if (EfficiencyValue >= 0.2f)
+	{
+		Fleet->FleetEfficiency = ERouteEfficiency::Poor;
+	}
+	else
+	{
+		Fleet->FleetEfficiency = ERouteEfficiency::Terrible;
+	}
 }
 
 void UTradeShipAutomation::HandleShipCombat(ASpaceship* Ship, float DeltaTime)
@@ -1334,4 +1355,148 @@ bool UTradeShipAutomation::IsRouteSuitableForShip(const FAutomatedTradeRoute& Ro
 		default:
 			return true;
 	}
+}
+
+float UTradeShipAutomation::CalculateFleetEfficiency(FString FleetID) const
+{
+	const FTradeFleetData* Fleet = Fleets.Find(FleetID);
+	if (!Fleet)
+	{
+		return 0.0f;
+	}
+
+	// Calculate efficiency based on ship count, status, and performance
+	int32 ActiveShips = 0;
+	int32 TotalShips = Fleet->ShipIDs.Num();
+	float TotalEfficiency = 0.0f;
+
+	for (const FString& ShipID : Fleet->ShipIDs)
+	{
+		// Find ship by name
+		const FAutomatedShipData* ShipData = nullptr;
+		for (const auto& Pair : AutomatedShips)
+		{
+			if (Pair.Key && Pair.Key->GetName() == ShipID)
+			{
+				ShipData = &Pair.Value;
+				break;
+			}
+		}
+		
+		if (ShipData && ShipData->AutomationStatus == EAutomationStatus::Active)
+		{
+			ActiveShips++;
+			// Add ship-specific efficiency calculation here
+			TotalEfficiency += 1.0f; // Placeholder
+		}
+	}
+
+	if (TotalShips == 0)
+	{
+		return 0.0f;
+	}
+
+	// Efficiency is based on active ships percentage and average efficiency
+	float ActivityRatio = static_cast<float>(ActiveShips) / TotalShips;
+	float AverageEfficiency = TotalEfficiency / TotalShips;
+
+	return ActivityRatio * AverageEfficiency;
+}
+
+// ============================================================================
+// STATUS & PROFIT QUERIES
+// ============================================================================
+
+FAutomatedTradeRouteStatus UTradeShipAutomation::GetAutomatedTradeRouteStatus(FString RouteID) const
+{
+	FAutomatedTradeRouteStatus Status;
+	Status.RouteID = RouteID;
+	Status.bIsActive = false;
+	Status.CurrentProgress = 0.0f;
+	Status.EstimatedCompletionTime = 0.0f;
+	Status.TotalProfit = 0.0f;
+	Status.ShipsAssigned = 0;
+
+	const FAutomatedTradeRoute* Route = TradeRoutes.Find(RouteID);
+	if (!Route)
+	{
+		return Status;
+	}
+
+	Status.bIsActive = true;
+
+	// Count assigned ships
+	for (const auto& Pair : AutomatedShips)
+	{
+		if (Pair.Value.CurrentRouteID == RouteID)
+		{
+			Status.ShipsAssigned++;
+			Status.TotalProfit += Pair.Value.TotalProfit;
+		}
+	}
+
+	// Calculate progress based on active ships
+	if (Status.ShipsAssigned > 0)
+	{
+		float TotalProgress = 0.0f;
+		int32 ActiveShips = 0;
+
+		for (const auto& Pair : AutomatedShips)
+		{
+			if (Pair.Value.CurrentRouteID == RouteID && Pair.Value.AutomationStatus == EAutomationStatus::Active)
+			{
+				// Calculate progress based on route completion
+				float ShipProgress = Pair.Value.RouteProgress;
+				TotalProgress += ShipProgress;
+				ActiveShips++;
+			}
+		}
+
+		if (ActiveShips > 0)
+		{
+			Status.CurrentProgress = TotalProgress / ActiveShips;
+		}
+
+		// Estimate completion time
+		float RemainingProgress = 1.0f - Status.CurrentProgress;
+		if (RemainingProgress > 0.0f)
+		{
+			Status.EstimatedCompletionTime = (RemainingProgress * Route->EstimatedDuration) / ActiveShips;
+		}
+	}
+
+	return Status;
+}
+
+float UTradeShipAutomation::GetFleetTradingProfit(FString FleetID) const
+{
+	const FTradeFleetData* Fleet = Fleets.Find(FleetID);
+	if (!Fleet)
+	{
+		return 0.0f;
+	}
+
+	float TotalProfit = 0.0f;
+
+	// Sum profit from all ships in the fleet
+	for (const FString& ShipID : Fleet->ShipIDs)
+	{
+		// Find ship by name
+		const FAutomatedShipData* ShipData = nullptr;
+		for (const auto& Pair : AutomatedShips)
+		{
+			if (Pair.Key && Pair.Key->GetName() == ShipID)
+			{
+				ShipData = &Pair.Value;
+				break;
+			}
+		}
+		
+		if (ShipData)
+		{
+			TotalProfit += ShipData->TotalProfit;
+		}
+	}
+
+	return TotalProfit;
 }

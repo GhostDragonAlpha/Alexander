@@ -3,6 +3,7 @@
 #include "Testing/NavigationKioskWidget.h"
 #include "Testing/TestLevelGameMode.h"
 #include "Testing/TestStation.h"
+#include "TestScenarioManager.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/ScrollBox.h"
@@ -412,7 +413,7 @@ EStationStatus UNavigationKioskWidget::DetermineStationStatus(const FString& Sta
 			// Check if any tests are running
 			for (const FTestCaseResult& TestCase : StationResults.TestCases)
 			{
-				if (TestCase.Status == ETestStatus::Running)
+				if (TestCase.Status == EAlexanderTestStatus::Running)
 				{
 					return EStationStatus::InProgress;
 				}

@@ -5,11 +5,11 @@
 #include "CoreMinimal.h"
 #include "Subsystems/WorldSubsystem.h"
 #include "Engine/DataTable.h"
-#include "TradingEconomySystem.h"
+// #include "TradingEconomySystem.h" // Removed to break circular dependency
+#include "Spaceship.h"
 #include "TradeShipAutomation.generated.h"
 
 // Forward declarations
-class ASpaceship;
 class ATradeStation;
 class UTradeMissionSystem;
 
@@ -35,6 +35,7 @@ UENUM(BlueprintType)
 enum class EAutomationStatus : uint8
 {
 	Idle			UMETA(DisplayName = "Idle"),
+	Active			UMETA(DisplayName = "Active"),
 	Traveling		UMETA(DisplayName = "Traveling"),
 	Loading			UMETA(DisplayName = "Loading"),
 	Unloading		UMETA(DisplayName = "Unloading"),
@@ -51,6 +52,7 @@ enum class EAutomationStatus : uint8
 UENUM(BlueprintType)
 enum class ERouteEfficiency : uint8
 {
+	Terrible	UMETA(DisplayName = "Terrible"),
 	VeryPoor	UMETA(DisplayName = "Very Poor"),
 	Poor		UMETA(DisplayName = "Poor"),
 	Average		UMETA(DisplayName = "Average"),
@@ -100,6 +102,12 @@ struct FAutomatedTradeRoute
 	float RoutePriority; // 0-1 (higher = more important)
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
+	float EstimatedProfit; // Estimated profit for this route
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
+	float DangerLevel; // 0-1 (higher = more dangerous)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
 	ERouteEfficiency Efficiency;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
@@ -110,6 +118,9 @@ struct FAutomatedTradeRoute
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
 	float AverageProfitPerRun;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
+	float EstimatedDuration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Route")
 	bool bIsActive;
@@ -125,6 +136,7 @@ struct FAutomatedTradeRoute
 		TotalProfit = 0.0f;
 		TotalRuns = 0;
 		AverageProfitPerRun = 0.0f;
+		EstimatedDuration = 3600.0f; // 1 hour default
 		bIsActive = true;
 	}
 };
@@ -186,6 +198,9 @@ struct FAutomatedShipData
 	float TotalProfitGenerated;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
+	float TotalProfit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
 	int32 SuccessfulTrades;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
@@ -202,6 +217,12 @@ struct FAutomatedShipData
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
 	TArray<FString> PreferredRoutes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
+	EAutomationStatus AutomationStatus;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ship")
+	float RouteProgress;
 
 	FAutomatedShipData()
 	{
@@ -223,6 +244,8 @@ struct FAutomatedShipData
 		FailedTrades = 0;
 		TimesAttacked = 0;
 		bIsPlayerControlled = false;
+		AutomationStatus = EAutomationStatus::Idle;
+		RouteProgress = 0.0f;
 	}
 };
 
@@ -308,6 +331,12 @@ struct FTradeAutomationSettings
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
 	int32 MaxRouteRetries;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	bool bEnableAutomaticFlee;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Settings")
+	float FuelReserveThreshold;
+
 	FTradeAutomationSettings()
 	{
 		bAutoBuy = true;
@@ -320,7 +349,42 @@ struct FTradeAutomationSettings
 		bAutoRepair = true;
 		bAutoRefuel = true;
 		MaxRouteRetries = 3;
+		bEnableAutomaticFlee = true;
+		FuelReserveThreshold = 0.1f; // 10% fuel threshold for fleeing
 	}
+};
+
+// Status information for automated trade routes
+USTRUCT(BlueprintType)
+struct FAutomatedTradeRouteStatus
+{
+	GENERATED_BODY()
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	FString RouteID;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	bool bIsActive;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	float CurrentProgress;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	float EstimatedCompletionTime;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	float TotalProfit;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Status")
+	int32 ShipsAssigned;
+
+	FAutomatedTradeRouteStatus()
+		: bIsActive(false)
+		, CurrentProgress(0.0f)
+		, EstimatedCompletionTime(0.0f)
+		, TotalProfit(0.0f)
+		, ShipsAssigned(0)
+	{}
 };
 
 // Delegate declarations
@@ -415,6 +479,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Automation|Routes")
 	TArray<FAutomatedTradeRoute> GetProfitableRoutes(ASpaceship* Ship, int32 Count) const;
 
+	// Check if route is suitable for ship
+	bool IsRouteSuitableForShip(const FAutomatedTradeRoute& Route, ETradeShipClass ShipClass) const;
+
 	// ============================================================================
 	// AUTOMATION CONTROL
 	// ============================================================================
@@ -478,6 +545,9 @@ public:
 	// Update fleet settings
 	UFUNCTION(BlueprintCallable, Category = "Automation|Fleet")
 	bool UpdateFleetSettings(FString FleetID, const FTradeAutomationSettings& Settings);
+
+	// Calculate fleet efficiency
+	float CalculateFleetEfficiency(FString FleetID) const;
 
 	// ============================================================================
 	// TRADE EXECUTION
@@ -616,6 +686,18 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "Automation Events")
 	FOnShipDestroyed OnShipDestroyed;
+
+	// ============================================================================
+	// STATUS & PROFIT QUERIES
+	// ============================================================================
+
+	// Get automated trade route status
+	UFUNCTION(BlueprintCallable, Category = "Automation|Status")
+	FAutomatedTradeRouteStatus GetAutomatedTradeRouteStatus(FString RouteID) const;
+
+	// Get fleet trading profit
+	UFUNCTION(BlueprintCallable, Category = "Automation|Profit")
+	float GetFleetTradingProfit(FString FleetID) const;
 
 protected:
 	// Trade mission system reference

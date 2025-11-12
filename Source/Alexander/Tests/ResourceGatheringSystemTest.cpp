@@ -7,7 +7,6 @@
 #include "PlanetaryMiningSystem.h"
 #include "RefiningSystem.h"
 #include "CraftingSystem.h"
-#include "InventoryManager.h"
 #include "Asteroid.h"
 #include "Planet.h"
 #include "Engine/World.h"
@@ -117,8 +116,8 @@ public:
 		if (ScanResult.DetectedResources.Num() > 0)
 		{
 			// Test mining
-			FMiningOperationResult MiningResult = MiningSystem->StartMining(TestAsteroid, EMiningLaserType::Basic);
-			UE_LOG(LogTemp, Log, TEXT("Mining operation started: %s"), MiningResult.bSuccess ? TEXT("true") : TEXT("false"));
+			bool bMiningStarted = MiningSystem->StartMining(TestAsteroid, EMiningLaserType::Basic);
+			UE_LOG(LogTemp, Log, TEXT("Mining operation started: %s"), bMiningStarted ? TEXT("true") : TEXT("false"));
 
 			// Wait for mining to complete (simulate)
 			float MiningDuration = MiningSystem->GetMiningProgress();
@@ -172,15 +171,15 @@ public:
 		// Test scanning
 		FVector TestLocation = FVector(100000.0f, 0.0f, 0.0f); // 100km from center
 		FPlanetaryScanResult ScanResult = PlanetarySystem->ScanPlanetaryLocation(TestPlanet, TestLocation, 1.0f);
-		UE_LOG(LogTemp, Log, TEXT("Planetary scan: %d resources detected (Success: %s, Impact: %s)"), 
+		UE_LOG(LogTemp, Log, TEXT("Planetary scan: %d resources detected (Success: %s, Impact: %s)"),
 			   ScanResult.DetectedResources.Num(), ScanResult.bSuccess ? TEXT("true") : TEXT("false"),
-			   *UEnum::GetDisplayValueAsText(ScanResult.EnvironmentalImpact).ToString());
+			   *UEnum::GetValueAsString(ScanResult.EnvironmentalImpact));
 
 		// Test mining permit
 		FMiningPermit Permit = PlanetarySystem->ApplyForMiningPermit(TestPlanet, 1000, EEnvironmentalImpact::Moderate);
-		UE_LOG(LogTemp, Log, TEXT("Mining permit: %s (Status: %s)"), 
-			   Permit.bSuccess ? TEXT("true") : TEXT("false"),
-			   *UEnum::GetDisplayValueAsText(Permit.Status).ToString());
+		UE_LOG(LogTemp, Log, TEXT("Mining permit: %s (Status: %s)"),
+			   Permit.Status == EPermitStatus::Granted ? TEXT("Granted") : TEXT("Denied"),
+			   *UEnum::GetValueAsString(Permit.Status));
 
 		if (ScanResult.DetectedResources.Num() > 0 && Permit.Status == EPermitStatus::Granted)
 		{
@@ -192,11 +191,11 @@ public:
 			Params.EnvironmentalImpactMultiplier = 1.0f;
 
 			FPlanetaryMiningResult MiningResult = PlanetarySystem->MinePlanetaryLocation(TestPlanet, TestLocation, Params);
-			UE_LOG(LogTemp, Log, TEXT("Planetary mining: %s (Resources: %d, Value: %.1f, Impact: %s)"), 
+			UE_LOG(LogTemp, Log, TEXT("Planetary mining: %s (Resources: %d, Value: %.1f, Impact: %s)"),
 				   MiningResult.bSuccess ? TEXT("true") : TEXT("false"),
 				   MiningResult.ResourcesExtracted.Num(),
 				   MiningResult.TotalValue,
-				   *UEnum::GetDisplayValueAsText(MiningResult.EnvironmentalImpact).ToString());
+				   *UEnum::GetValueAsString(MiningResult.EnvironmentalImpact));
 		}
 
 		// Cleanup
@@ -386,9 +385,9 @@ public:
 		UE_LOG(LogTemp, Log, TEXT("Search results for 'iron': %d"), SearchResults.Num());
 
 		// Test 11: Statistics
-		TMap<FName, int32> AllResources = InventoryManager->GetTotalResourcesAcrossAllInventories();
+		TMap<FName, int32> TotalResources = InventoryManager->GetTotalResourcesAcrossAllInventories();
 		float AllValue = InventoryManager->GetTotalValueAcrossAllInventories();
-		UE_LOG(LogTemp, Log, TEXT("All resources: %d types, Total value: %.1f"), AllResources.Num(), AllValue);
+		UE_LOG(LogTemp, Log, TEXT("All resources: %d types, Total value: %.1f"), TotalResources.Num(), AllValue);
 
 		UE_LOG(LogTemp, Log, TEXT("=== Inventory Manager Test Complete ==="));
 	}

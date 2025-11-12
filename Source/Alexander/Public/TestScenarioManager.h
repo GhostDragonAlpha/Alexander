@@ -6,6 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "TestScenarioManager.generated.h"
 
+// Test step execution delegate (must be declared at top level for UHT)
+typedef TDelegate<bool(const FString&, FString&)> FTestStepDelegate;
+
 // Test status enum
 UENUM(BlueprintType)
 enum class ETestStatus : uint8
@@ -115,7 +118,6 @@ struct FTestExecutionResult
 };
 
 // Test step execution delegate (must be declared at top level for UHT)
-DECLARE_DELEGATE_RetVal_TwoParams(FTestStepDelegate, bool, const FString& /*Parameters*/, FString& /*OutMessage*/);
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class ALEXANDER_API UTestScenarioManager : public UActorComponent

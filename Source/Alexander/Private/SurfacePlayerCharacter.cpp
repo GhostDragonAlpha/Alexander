@@ -987,12 +987,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Character initialization verified"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Character Initialization"),
-			TEXT("All components and properties properly initialized"),
-			0.0f
-		});
 	}
 	
 	// Test 2: Verify movement modes
@@ -1046,12 +1040,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		GetCharacterMovement()->MaxWalkSpeed = OriginalMaxSpeed;
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: All movement modes functional"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Movement Modes"),
-			TEXT("Walking, running, and crouching modes working"),
-			0.0f
-		});
 	}
 	
 	// Test 3: Verify sprinting system
@@ -1102,12 +1090,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Sprinting system working"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Sprinting System"),
-			TEXT("Sprint activation, stamina drain, and regeneration functional"),
-			0.0f
-		});
 	}
 	
 	// Test 4: Verify jumping mechanics
@@ -1132,12 +1114,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Jumping mechanics working"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Jumping Mechanics"),
-			TEXT("Jump activation and stamina consumption functional"),
-			0.0f
-		});
 	}
 	
 	// Test 5: Verify crouching system
@@ -1175,12 +1151,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Crouching system working"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Crouching System"),
-			TEXT("Crouch activation and deactivation functional"),
-			0.0f
-		});
 	}
 	
 	// Test 6: Verify VR mode toggling
@@ -1226,12 +1196,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: VR mode toggling working"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("VR Mode Toggling"),
-			TEXT("VR enable/disable and camera switching functional"),
-			0.0f
-		});
 	}
 	
 	// Test 7: Verify interaction system
@@ -1257,12 +1221,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Interaction system verified"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Interaction System"),
-			TEXT("Interaction range and timing functional"),
-			0.0f
-		});
 	}
 	
 	// Test 8: Verify camera systems
@@ -1297,12 +1255,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Camera systems verified"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Camera Systems"),
-			TEXT("Camera boom, follow camera, and VR camera functional"),
-			0.0f
-		});
 	}
 	
 	// Test 9: Verify status functions
@@ -1331,12 +1283,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Status functions working"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Status Functions"),
-			TEXT("Character status, ground check, and gravity detection functional"),
-			0.0f
-		});
 	}
 	
 	// Test 10: Automated movement sequence
@@ -1384,13 +1330,6 @@ bool ASurfacePlayerCharacter::RunSelfTest_Implementation(FSystemTestResult& OutR
 		}
 		
 		UE_LOG(LogTemp, Log, TEXT("PASSED: Automated movement sequence completed"));
-		OutResult.TestResults.Add(FTestResultItem{
-			true,
-			TEXT("Automated Movement Sequence"),
-			FString::Printf(TEXT("Forward: %.2f units, Right: %.2f units, Turn: %.2f degrees"),
-				ForwardDistance, RightDistance, YawChange),
-			0.0f
-		});
 	}
 	
 	// Test 11: Verify VR grab system setup

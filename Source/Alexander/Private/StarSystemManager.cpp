@@ -1314,7 +1314,8 @@ void UStarSystemManager::UpdateSpatialIndex(const FString& SystemID, const FVect
                      FMath::RoundToInt(Position.Y / 1000.0f) * 1000.0f,
                      FMath::RoundToInt(Position.Z / 1000.0f) * 1000.0f);
     
-    TArray<FString>& SystemsInCell = SpatialIndex.FindOrAdd(GridCell);
+    uint32 GridHash = GetTypeHash(GridCell);
+    TArray<FString>& SystemsInCell = SpatialIndex.FindOrAdd(GridHash);
     SystemsInCell.AddUnique(SystemID);
 }
 
@@ -1335,7 +1336,7 @@ void UStarSystemManager::InitializeSpatialPartitioning()
         SpatialPartitioning = NewObject<USpatialPartitioningComponent>(this);
         if (SpatialPartitioning)
         {
-            SpatialPartitioning->Initialize(FVector::ZeroVector, FVector(1000000.0f), SpatialPartitioningDepth);
+            SpatialPartitioning->Initialize(FVector::ZeroVector, 1000000.0f, SpatialPartitioningDepth);
             UE_LOG(LogTemp, Log, TEXT("Spatial partitioning initialized"));
         }
     }
@@ -1359,13 +1360,5 @@ void UStarSystemManager::UpdateMemoryTracking(const FString& SystemID)
     if (SystemMemoryTracker.Contains(SystemID))
     {
         CalculateSystemMemoryUsage(SystemID);
-    }
-}
-
-void UStarSystemManager::RemoveFromSpatialIndex(const FString& SystemID)
-{
-    if (SpatialPartitioning)
-    {
-        SpatialPartitioning->RemoveSystem(SystemID);
     }
 }

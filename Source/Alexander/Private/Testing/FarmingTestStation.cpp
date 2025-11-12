@@ -9,7 +9,7 @@
 #include "VRWateringCan.h"
 #include "VRHarvestInteractionManager.h"
 #include "SoilSystem.h"
-#include "IrrigationSystem.h"
+#include "AlexanderIrrigationSystem.h"
 #include "BiomeCompatibilitySystem.h"
 #include "CropGrowthStageManager.h"
 #include "CropHealthSystem.h"
@@ -192,7 +192,7 @@ void UFarmingTestStation::Test_VRSeedPlacement()
 
 	// Test planting a seed at grid position
 	FIntPoint TestPosition(2, 2);
-	bool bPlanted = PlantCropAtPosition(ECropType::Wheat, TestPosition);
+	bool bPlanted = PlantCropAtPosition(ECropTypeExtended::Wheat, TestPosition);
 
 	if (!bPlanted)
 	{
@@ -231,7 +231,7 @@ void UFarmingTestStation::Test_SoilInteraction()
 
 	// Plant crop and verify soil interaction
 	FIntPoint TestPosition(3, 3);
-	bool bPlanted = PlantCropAtPosition(ECropType::Tomatoes, TestPosition);
+	bool bPlanted = PlantCropAtPosition(ECropTypeExtended::Tomatoes, TestPosition);
 
 	if (!bPlanted)
 	{
@@ -259,7 +259,7 @@ void UFarmingTestStation::Test_BasicGrowthProgression()
 
 	// Plant a crop
 	FIntPoint TestPosition(4, 4);
-	if (!PlantCropAtPosition(ECropType::Wheat, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Wheat, TestPosition))
 	{
 		FailTest(TEXT("Basic_Growth_Progression"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -303,7 +303,7 @@ void UFarmingTestStation::Test_GrowthStages()
 	}
 
 	FIntPoint TestPosition(5, 5);
-	if (!PlantCropAtPosition(ECropType::Corn, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Corn, TestPosition))
 	{
 		FailTest(TEXT("Growth_Stages"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -352,7 +352,7 @@ void UFarmingTestStation::Test_GrowthRateCalculation()
 	}
 
 	FIntPoint TestPosition(6, 6);
-	if (!PlantCropAtPosition(ECropType::Carrots, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Carrots, TestPosition))
 	{
 		FailTest(TEXT("Growth_Rate_Calculation"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -390,7 +390,7 @@ void UFarmingTestStation::Test_VRWateringCan()
 
 	// Plant crop
 	FIntPoint TestPosition(1, 1);
-	if (!PlantCropAtPosition(ECropType::Lettuce, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Lettuce, TestPosition))
 	{
 		FailTest(TEXT("VR_Watering_Can"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -458,8 +458,8 @@ void UFarmingTestStation::Test_WaterEffectOnGrowth()
 	FIntPoint WateredPosition(2, 2);
 	FIntPoint UnwateredPosition(6, 6);
 
-	if (!PlantCropAtPosition(ECropType::Wheat, WateredPosition) ||
-		!PlantCropAtPosition(ECropType::Wheat, UnwateredPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Wheat, WateredPosition) ||
+		!PlantCropAtPosition(ECropTypeExtended::Wheat, UnwateredPosition))
 	{
 		FailTest(TEXT("Water_Effect_On_Growth"), TEXT("Failed to plant comparison crops"));
 		CleanupTestFarmPlot();
@@ -508,7 +508,7 @@ void UFarmingTestStation::Test_VRHarvestInteraction()
 	}
 
 	FIntPoint TestPosition(3, 3);
-	if (!PlantCropAtPosition(ECropType::Strawberries, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Strawberries, TestPosition))
 	{
 		FailTest(TEXT("VR_Harvest_Interaction"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -549,7 +549,7 @@ void UFarmingTestStation::Test_YieldCalculation()
 	SetSoilQuality(1.0f);
 	FIntPoint TestPosition(4, 4);
 
-	if (!PlantCropAtPosition(ECropType::Potatoes, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Potatoes, TestPosition))
 	{
 		FailTest(TEXT("Yield_Calculation"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -596,7 +596,7 @@ void UFarmingTestStation::Test_HarvestTiming()
 	}
 
 	FIntPoint TestPosition(5, 5);
-	if (!PlantCropAtPosition(ECropType::Tomatoes, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Tomatoes, TestPosition))
 	{
 		FailTest(TEXT("Harvest_Timing"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -644,7 +644,7 @@ void UFarmingTestStation::Test_HealthSystem()
 	}
 
 	FIntPoint TestPosition(6, 6);
-	if (!PlantCropAtPosition(ECropType::Corn, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Corn, TestPosition))
 	{
 		FailTest(TEXT("Health_System"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -680,7 +680,7 @@ void UFarmingTestStation::Test_EnvironmentalFactors()
 	}
 
 	FIntPoint TestPosition(1, 6);
-	if (!PlantCropAtPosition(ECropType::Lettuce, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Lettuce, TestPosition))
 	{
 		FailTest(TEXT("Environmental_Factors"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -718,7 +718,7 @@ void UFarmingTestStation::Test_HealthRecovery()
 	}
 
 	FIntPoint TestPosition(2, 6);
-	if (!PlantCropAtPosition(ECropType::Carrots, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Carrots, TestPosition))
 	{
 		FailTest(TEXT("Health_Recovery"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -770,10 +770,10 @@ void UFarmingTestStation::Test_BiomeCompatibility()
 	}
 
 	// Test different crops with different soil qualities (simulating biomes)
-	TArray<ECropType> TestCrops = {
-		ECropType::Wheat,
-		ECropType::SpaceWeed,
-		ECropType::MoonMelons
+	TArray<ECropTypeExtended> TestCrops = {
+		ECropTypeExtended::Wheat,
+		ECropTypeExtended::SpaceWeed,
+		ECropTypeExtended::Rice
 	};
 
 	int32 SuccessfulPlants = 0;
@@ -813,8 +813,8 @@ void UFarmingTestStation::Test_TemperatureEffects()
 	FIntPoint ColdPosition(0, 1);
 	FIntPoint HotPosition(7, 1);
 
-	if (!PlantCropAtPosition(ECropType::Wheat, ColdPosition) ||
-		!PlantCropAtPosition(ECropType::Wheat, HotPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Wheat, ColdPosition) ||
+		!PlantCropAtPosition(ECropTypeExtended::Wheat, HotPosition))
 	{
 		FailTest(TEXT("Temperature_Effects"), TEXT("Failed to plant test crops"));
 		CleanupTestFarmPlot();
@@ -901,7 +901,7 @@ void UFarmingTestStation::Test_NutrientDepletion()
 	{
 		for (int32 y = 0; y < 4; ++y)
 		{
-			PlantCropAtPosition(ECropType::Corn, FIntPoint(x, y));
+			PlantCropAtPosition(ECropTypeExtended::Corn, FIntPoint(x, y));
 		}
 	}
 
@@ -983,7 +983,7 @@ void UFarmingTestStation::Test_AcceleratedGrowth()
 	}
 
 	FIntPoint TestPosition(0, 0);
-	if (!PlantCropAtPosition(ECropType::Wheat, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Wheat, TestPosition))
 	{
 		FailTest(TEXT("Accelerated_Growth"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -1027,7 +1027,7 @@ void UFarmingTestStation::Test_FullLifecycle()
 	FIntPoint TestPosition(3, 3);
 
 	// Plant
-	if (!PlantCropAtPosition(ECropType::Tomatoes, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Tomatoes, TestPosition))
 	{
 		FailTest(TEXT("Full_Lifecycle"), TEXT("Failed to plant crop"));
 		CleanupTestFarmPlot();
@@ -1079,7 +1079,7 @@ void UFarmingTestStation::Test_WheatCrop()
 	}
 
 	FIntPoint TestPosition(0, 0);
-	if (!PlantCropAtPosition(ECropType::Wheat, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Wheat, TestPosition))
 	{
 		FailTest(TEXT("Wheat_Crop"), TEXT("Failed to plant wheat"));
 		CleanupTestFarmPlot();
@@ -1105,7 +1105,7 @@ void UFarmingTestStation::Test_CornCrop()
 	}
 
 	FIntPoint TestPosition(1, 1);
-	if (!PlantCropAtPosition(ECropType::Corn, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Corn, TestPosition))
 	{
 		FailTest(TEXT("Corn_Crop"), TEXT("Failed to plant corn"));
 		CleanupTestFarmPlot();
@@ -1131,7 +1131,7 @@ void UFarmingTestStation::Test_TomatoesCrop()
 	}
 
 	FIntPoint TestPosition(2, 2);
-	if (!PlantCropAtPosition(ECropType::Tomatoes, TestPosition))
+	if (!PlantCropAtPosition(ECropTypeExtended::Tomatoes, TestPosition))
 	{
 		FailTest(TEXT("Tomatoes_Crop"), TEXT("Failed to plant tomatoes"));
 		CleanupTestFarmPlot();
@@ -1283,7 +1283,7 @@ void UFarmingTestStation::CleanupTestFarmPlot()
 	LastPlantedPosition = FIntPoint(-1, -1);
 }
 
-bool UFarmingTestStation::PlantCropAtPosition(ECropType CropType, FIntPoint GridPosition)
+bool UFarmingTestStation::PlantCropAtPosition(ECropTypeExtended CropType, FIntPoint GridPosition)
 {
 	if (!TestFarmPlot)
 	{
@@ -1314,7 +1314,7 @@ bool UFarmingTestStation::PlantCropAtPosition(ECropType CropType, FIntPoint Grid
 	return bPlanted;
 }
 
-UCropDefinition* UFarmingTestStation::GetCropDefinition(ECropType CropType)
+UCropDefinition* UFarmingTestStation::GetCropDefinition(ECropTypeExtended CropType)
 {
 	// Check cache first
 	if (CropDefinitionCache.Contains(CropType))

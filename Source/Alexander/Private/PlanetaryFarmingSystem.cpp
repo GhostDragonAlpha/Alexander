@@ -2,11 +2,11 @@
 
 #include "PlanetaryFarmingSystem.h"
 #include "FarmPlot.h"
-#include "HydroponicsBay.h"
-#include "Greenhouse.h"
-#include "IrrigationSystem.h"
-#include "FertilizerInjector.h"
-#include "HarvestingDrone.h"
+//#include "HydroponicsBay.h"
+//#include "Greenhouse.h" // Temporarily disabled - file not found
+#include "AlexanderIrrigationSystem.h"
+//#include "FertilizerInjector.h" // Temporarily disabled - file not found
+//#include "HarvestingDrone.h" // Temporarily disabled - file not found
 #include "Planet.h"
 #include "LandClaimManager.h"
 #include "Engine/World.h"
@@ -87,12 +87,12 @@ void APlanetaryFarmingSystem::InitializeCropSystem()
 {
 	if (!CropSystem)
 	{
-		CropSystem = NewObject<UCropSystem>(this);
+		CropSystem = NewObject<UCropGrowthSystem>(this);
 	}
 
 	if (CropSystem)
 	{
-		UE_LOG(LogTemp, Log, TEXT("Crop system initialized with %d crop types"), CropSystem->GetAvailableCrops().Num());
+		UE_LOG(LogTemp, Log, TEXT("Crop growth system initialized with %d crop types"), CropSystem->GetAllAvailableCrops().Num());
 	}
 }
 
@@ -134,7 +134,7 @@ FGuid APlanetaryFarmingSystem::CreateFarmPlot(FVector Location, const FGuid& Cla
 	return NewPlot->PlotID;
 }
 
-bool APlanetaryFarmingSystem::PlantCrops(const FGuid& PlotID, ECropType CropType, float PlantingDensity)
+bool APlanetaryFarmingSystem::PlantCrops(const FGuid& PlotID, ECropTypeExtended CropType, float PlantingDensity)
 {
 	int32 PlotIndex = GetPlotIndex(PlotID);
 	if (PlotIndex == INDEX_NONE)
@@ -184,9 +184,9 @@ bool APlanetaryFarmingSystem::PlantCrops(const FGuid& PlotID, ECropType CropType
 	return bSuccess;
 }
 
-FHarvestResult APlanetaryFarmingSystem::HarvestCrops(const FGuid& PlotID)
+FAlexanderHarvestResult APlanetaryFarmingSystem::HarvestCrops(const FGuid& PlotID)
 {
-	FHarvestResult Result;
+	FAlexanderHarvestResult Result;
 	Result.bSuccess = false;
 
 	int32 PlotIndex = GetPlotIndex(PlotID);
@@ -209,7 +209,7 @@ FHarvestResult APlanetaryFarmingSystem::HarvestCrops(const FGuid& PlotID)
 		// Fire event
 		OnCropHarvested.Broadcast(Result, PlotID);
 
-		UE_LOG(LogTemp, Log, TEXT("Crops harvested: %d units of %s"), Result.Quantity, *UEnum::GetDisplayValueAsText(Result.CropType).ToString());
+		UE_LOG(LogTemp, Log, TEXT("Crops harvested: %d units of %s"), Result.Quantity, *UEnum::GetDisplayValueAsText(TEXT("ECropTypeExtended"), Result.CropType).ToString());
 	}
 
 	return Result;
@@ -253,7 +253,7 @@ bool APlanetaryFarmingSystem::FertilizePlot(const FGuid& PlotID, float Fertilize
 		return false;
 	}
 
-	bool bSuccess = Plot->FertilizePlot(FertilizerAmount, FertilizerType);
+	bool bSuccess = Plot->FertilizePlot(FertilizerAmount);
 	
 	if (bSuccess)
 	{
@@ -318,7 +318,7 @@ FGuid APlanetaryFarmingSystem::BuildInfrastructure(EFarmingInfrastructureType Ty
 	{
 		// Add to infrastructure collection
 		FarmingInfrastructure.Add(NewInfrastructure);
-		InfrastructureByType[Type].Add(NewInfrastructure);
+		InfrastructureByType[Type].Actors.Add(NewInfrastructure);
 
 		// Associate with claim
 		if (LandClaimManager.IsValid())
@@ -370,7 +370,7 @@ FFarmStatistics APlanetaryFarmingSystem::GetFarmStatistics() const
 	FFarmStatistics Stats;
 	Stats.TotalPlots = FarmPlots.Num();
 
-	TSet<ECropType> UniqueCropTypes;
+	TSet<ECropTypeExtended> UniqueCropTypes;
 
 	for (AFarmPlot* Plot : FarmPlots)
 	{
@@ -408,19 +408,19 @@ FFarmStatistics APlanetaryFarmingSystem::GetFarmStatistics() const
 
 TArray<AActor*> APlanetaryFarmingSystem::GetInfrastructureByType(EFarmingInfrastructureType Type) const
 {
-	const TArray<AActor*>* InfrastructureArray = InfrastructureByType.Find(Type);
+	const FActorArray* InfrastructureArray = InfrastructureByType.Find(Type);
 	if (InfrastructureArray)
 	{
-		return *InfrastructureArray;
+		return InfrastructureArray->Actors;
 	}
 	return TArray<AActor*>();
 }
 
-ECropType APlanetaryFarmingSystem::FindBestCropForLocation(FVector Location) const
+ECropTypeExtended APlanetaryFarmingSystem::FindBestCropForLocation(FVector Location) const
 {
 	if (!TargetPlanet.IsValid() || !CropSystem)
 	{
-		return ECropType::Wheat;
+		return ECropTypeExtended::Wheat;
 	}
 
 	// Get environmental conditions at location
@@ -435,13 +435,13 @@ ECropType APlanetaryFarmingSystem::FindBestCropForLocation(FVector Location) con
 	}
 
 	// Get suitable crops for these conditions
-	TArray<ECropType> SuitableCrops = CropSystem->GetCropsForClimate(Temperature, Humidity);
+	TArray<ECropTypeExtended> SuitableCrops = CropSystem->GetCropsForEnvironment(Temperature, Humidity, 0.7f);
 
 	// Return the most valuable suitable crop
-	ECropType BestCrop = ECropType::Wheat;
+	ECropTypeExtended BestCrop = ECropTypeExtended::Wheat;
 	float BestValue = 0.0f;
 
-	for (ECropType Crop : SuitableCrops)
+	for (ECropTypeExtended Crop : SuitableCrops)
 	{
 		float Value = CropSystem->GetCropMarketValue(Crop);
 		if (Value > BestValue)
@@ -457,21 +457,40 @@ ECropType APlanetaryFarmingSystem::FindBestCropForLocation(FVector Location) con
 float APlanetaryFarmingSystem::GetCropGrowthProgress(const FGuid& PlotID) const
 {
 	AFarmPlot* Plot = GetFarmPlot(PlotID);
-	if (Plot && Plot->CurrentCrop)
+	if (Plot)
 	{
-		return Plot->CurrentCrop->GrowthProgress;
+		float TotalProgress = 0.0f;
+		int32 ActiveCrops = 0;
+		
+		for (const FCropCell& Cell : Plot->CropGrid)
+		{
+			if (Cell.CropType)
+			{
+				TotalProgress += Cell.GrowthProgress;
+				ActiveCrops++;
+			}
+		}
+		
+		return ActiveCrops > 0 ? TotalProgress / ActiveCrops : 0.0f;
 	}
 	return 0.0f;
 }
 
-ECropGrowthStage APlanetaryFarmingSystem::GetCropGrowthStage(const FGuid& PlotID) const
+EPlanetaryCropGrowthStage APlanetaryFarmingSystem::GetCropGrowthStage(const FGuid& PlotID) const
 {
 	AFarmPlot* Plot = GetFarmPlot(PlotID);
-	if (Plot && Plot->CurrentCrop)
+	if (Plot)
 	{
-		return Plot->CurrentCrop->GetGrowthStage();
+		float AvgProgress = GetCropGrowthProgress(PlotID);
+		
+		if (AvgProgress < 0.2f) return EPlanetaryCropGrowthStage::Seed;
+		else if (AvgProgress < 0.4f) return EPlanetaryCropGrowthStage::Sprout;
+		else if (AvgProgress < 0.6f) return EPlanetaryCropGrowthStage::Vegetative;
+		else if (AvgProgress < 0.8f) return EPlanetaryCropGrowthStage::Flowering;
+		else if (AvgProgress < 1.0f) return EPlanetaryCropGrowthStage::Fruiting;
+		else return EPlanetaryCropGrowthStage::Mature;
 	}
-	return ECropGrowthStage::Seed;
+	return EPlanetaryCropGrowthStage::Seed;
 }
 
 void APlanetaryFarmingSystem::EnableAutoManagement(bool bEnable)
@@ -530,9 +549,9 @@ void APlanetaryFarmingSystem::ProcessAutoManagement()
 	}
 }
 
-int32 APlanetaryFarmingSystem::CalculateExpectedYield(ECropType CropType, float SoilQuality, float PlantingDensity) const
+int32 APlanetaryFarmingSystem::CalculateExpectedYield(ECropTypeExtended CropType, float SoilQuality, float PlantingDensity) const
 {
-	FCropData CropData = CropSystem->GetCropData(CropType);
+	FCropGrowthData CropData = CropSystem->GetCropGrowthData(CropType);
 	
 	// Base yield modified by soil quality and planting density
 	float QualityModifier = FMath::Clamp(SoilQuality, 0.5f, 1.5f);

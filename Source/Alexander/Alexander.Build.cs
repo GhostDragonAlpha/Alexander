@@ -9,6 +9,9 @@ public class Alexander : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+		// UE 5.6: Update include order version
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;
+
 		   PublicDependencyModuleNames.AddRange(new string[] {
 			   "Core", "CoreUObject", "Engine", "InputCore", "Niagara",
 			   "HTTP", "Json", "JsonUtilities", "RHI", "RenderCore",

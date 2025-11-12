@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "SystemSelfTestInterface.h"
+#include "PlanetaryFarmingSystem.h"
+#include "FarmPlot.h"
 #include "PersistentUniverseManager.generated.h"
 
 // Forward declarations
@@ -177,6 +179,57 @@ struct FPersistenceStatistics
         , AverageLoadTime(0.0f)
         , TotalBytesWritten(0)
         , TotalBytesRead(0)
+    {}
+};
+
+/**
+ * Farm state data for persistence
+ */
+USTRUCT(BlueprintType)
+struct FFarmStateData
+{
+    GENERATED_BODY()
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    FString FarmID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    FString PlanetID;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    TMap<FString, EFarmPlotStatus> PlotStates;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    TMap<FString, ECropTypeExtended> PlotCrops;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    TMap<FString, float> PlotGrowthProgress;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    TMap<FString, float> PlotHealth;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    TMap<FString, FDateTime> PlotPlantedTimes;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    TMap<FString, FDateTime> PlotLastWateredTimes;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    FFarmEnvironment EnvironmentData;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    FFarmStatistics FarmStats;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    int32 PlotCount;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Farm Persistence")
+    FDateTime LastSaveTime;
+
+    FFarmStateData()
+        : FarmID("")
+        , PlanetID("")
+        , PlotCount(0)
     {}
 };
 
@@ -354,6 +407,7 @@ private:
 
     // Helper functions
     FString GetSaveFilePath(EPersistenceType DataType, const FString& DataID) const;
+    FString GetSaveFilePath(const FString& ObjectID, const FString& Category) const;
     bool WriteToFile(const FString& FilePath, const TArray<uint8>& Data);
     bool ReadFromFile(const FString& FilePath, TArray<uint8>& OutData);
     TArray<uint8> CompressData(const TArray<uint8>& Data) const;
@@ -364,4 +418,18 @@ private:
     void CleanupOldBackups();
     FString GenerateBackupName() const;
     bool ValidateSaveData(const TArray<uint8>& Data) const;
+    bool MigrateFromVersion(int32 OldVersion, int32 NewVersion, FMemoryReader& Reader);
+    
+    // Public save/load functions for specific systems
+    UFUNCTION(BlueprintCallable, Category = "Persistence")
+    bool SaveEconomicState(const FString& FactionID, const struct FFactionEconomicData& EconomicData);
+    
+    UFUNCTION(BlueprintCallable, Category = "Persistence")
+    bool LoadEconomicState(const FString& FactionID, struct FFactionEconomicData& OutEconomicData);
+    
+    UFUNCTION(BlueprintCallable, Category = "Persistence")
+    bool SaveFarmingState(const FString& FarmID, const struct FFarmStateData& FarmData);
+    
+    UFUNCTION(BlueprintCallable, Category = "Persistence")
+    bool LoadFarmingState(const FString& FarmID, struct FFarmStateData& OutFarmData);
 };

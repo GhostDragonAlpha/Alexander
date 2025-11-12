@@ -3,7 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/Engine.h"
 #include "Tests/AutomationCommon.h"
-#include "Tests/AutomationEditorCommon.h"
+#include "Editor/UnrealEd/Public/Tests/AutomationEditorCommon.h"
 #include "LandClaimManager.h"
 #include "PlanetaryFarmingSystem.h"
 #include "CropGrowthSystem.h"
@@ -18,12 +18,12 @@
  * BaseBuildingManager, and ProductionChainManager
  */
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLandClaimManagerTest, "Alexander.PlanetaryFarming.LandClaimManager", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FLandClaimManagerTest, "Alexander.PlanetaryFarming.LandClaimManager", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FLandClaimManagerTest::RunTest(const FString& Parameters)
 {
 	// Create test world
-	UWorld* TestWorld = FAutomationEditorCommon::CreateNewMap();
+	UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
 	if (!TestWorld)
 	{
 		return false;
@@ -87,7 +87,7 @@ bool FLandClaimManagerTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCropGrowthSystemTest, "Alexander.PlanetaryFarming.CropGrowthSystem", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FCropGrowthSystemTest, "Alexander.PlanetaryFarming.CropGrowthSystem", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FCropGrowthSystemTest::RunTest(const FString& Parameters)
 {
@@ -178,12 +178,12 @@ bool FCropGrowthSystemTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPlanetaryFarmingSystemTest, "Alexander.PlanetaryFarming.PlanetaryFarmingSystem", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPlanetaryFarmingSystemTest, "Alexander.PlanetaryFarming.PlanetaryFarmingSystem", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPlanetaryFarmingSystemTest::RunTest(const FString& Parameters)
 {
 	// Create test world
-	UWorld* TestWorld = FAutomationEditorCommon::CreateNewMap();
+	UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
 	if (!TestWorld)
 	{
 		return false;
@@ -214,9 +214,9 @@ bool FPlanetaryFarmingSystemTest::RunTest(const FString& Parameters)
 	ClaimManager->InitializeForPlanet(TestPlanet);
 	FarmingSystem->InitializeForPlanet(TestPlanet, ClaimManager);
 
-	// Test 1: Verify crop system initialization
-	UCropSystem* CropSystem = FarmingSystem->GetCropSystem();
-	TestEqual("Crop system initialized", CropSystem != nullptr, true);
+	// Test 1: Verify crop growth system initialization
+	UCropGrowthSystem* CropSystem = FarmingSystem->GetCropSystem();
+	TestEqual("Crop growth system initialized", CropSystem != nullptr, true);
 
 	// Test 2: Create farm plot
 	TArray<FLandClaim> Claims = ClaimManager->GetAllClaims();
@@ -226,7 +226,7 @@ bool FPlanetaryFarmingSystemTest::RunTest(const FString& Parameters)
 		TestEqual("Farm plot created", PlotID.IsValid(), true);
 
 		// Test 3: Plant crops
-		bool bPlantSuccess = FarmingSystem->PlantCrops(PlotID, ECropType::Wheat, 1.0f);
+		bool bPlantSuccess = FarmingSystem->PlantCrops(PlotID, ECropTypeExtended::Wheat, 1.0f);
 		TestEqual("Crops planted", bPlantSuccess, true);
 
 		// Test 4: Water plot
@@ -250,8 +250,8 @@ bool FPlanetaryFarmingSystemTest::RunTest(const FString& Parameters)
 		TestEqual("Farm statistics available", Stats.TotalPlots > 0, true);
 
 		// Test 9: Find best crop for location
-		ECropType BestCrop = FarmingSystem->FindBestCropForLocation(Claims[0].Location);
-		TestEqual("Best crop for location found", BestCrop != ECropType::Wheat || true, true); // May return wheat
+		ECropTypeExtended BestCrop = FarmingSystem->FindBestCropForLocation(Claims[0].Location);
+		TestEqual("Best crop for location found", BestCrop != ECropTypeExtended::Wheat || true, true); // May return wheat
 
 		// Test 10: Enable auto-management
 		FarmingSystem->EnableAutoManagement(true);
@@ -277,12 +277,12 @@ bool FPlanetaryFarmingSystemTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBaseBuildingManagerTest, "Alexander.PlanetaryFarming.BaseBuildingManager", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FBaseBuildingManagerTest, "Alexander.PlanetaryFarming.BaseBuildingManager", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FBaseBuildingManagerTest::RunTest(const FString& Parameters)
 {
 	// Create test world
-	UWorld* TestWorld = FAutomationEditorCommon::CreateNewMap();
+	UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
 	if (!TestWorld)
 	{
 		return false;
@@ -388,12 +388,12 @@ bool FBaseBuildingManagerTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProductionChainManagerTest, "Alexander.PlanetaryFarming.ProductionChainManager", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FProductionChainManagerTest, "Alexander.PlanetaryFarming.ProductionChainManager", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FProductionChainManagerTest::RunTest(const FString& Parameters)
 {
 	// Create test world
-	UWorld* TestWorld = FAutomationEditorCommon::CreateNewMap();
+	UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
 	if (!TestWorld)
 	{
 		return false;
@@ -468,12 +468,12 @@ bool FProductionChainManagerTest::RunTest(const FString& Parameters)
 	return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPlanetaryFarmingIntegrationTest, "Alexander.PlanetaryFarming.Integration", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPlanetaryFarmingIntegrationTest, "Alexander.PlanetaryFarming.Integration", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPlanetaryFarmingIntegrationTest::RunTest(const FString& Parameters)
 {
 	// Create test world
-	UWorld* TestWorld = FAutomationEditorCommon::CreateNewMap();
+	UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
 	if (!TestWorld)
 	{
 		return false;
@@ -508,7 +508,7 @@ bool FPlanetaryFarmingIntegrationTest::RunTest(const FString& Parameters)
 		TestEqual("Farm plot created on claimed land", PlotID.IsValid(), true);
 
 		// Plant crops
-		bool bPlanted = FarmingSystem->PlantCrops(PlotID, ECropType::Wheat, 1.0f);
+		bool bPlanted = FarmingSystem->PlantCrops(PlotID, ECropTypeExtended::Wheat, 1.0f);
 		TestEqual("Crops planted on farm plot", bPlanted, true);
 
 		// Build processing facility
@@ -560,7 +560,7 @@ bool FPlanetaryFarmingIntegrationTest::RunTest(const FString& Parameters)
 /**
  * Master test suite that runs all planetary farming tests
  */
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPlanetaryFarmingMasterTest, "Alexander.PlanetaryFarming.MasterTest", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPlanetaryFarmingMasterTest, "Alexander.PlanetaryFarming.MasterTest", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 
 bool FPlanetaryFarmingMasterTest::RunTest(const FString& Parameters)
 {

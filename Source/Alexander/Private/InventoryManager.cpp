@@ -66,8 +66,10 @@ bool UInventoryManager::AddResource(FName ResourceID, int32 Quantity, EResourceQ
 	}
 
 	// Get or create inventory for this owner
-	TMap<FGuid, TMap<FName, FResourceQuantity>>& TypeInventories = Inventories.FindOrAdd(InventoryType);
-	TMap<FName, FResourceQuantity>& OwnerInventory = TypeInventories.FindOrAdd(OwnerID);
+	FContainerResources& ContainerResources = Inventories.FindOrAdd(InventoryType);
+	TMap<FGuid, FResourceQuantityMap>& TypeInventories = ContainerResources.OwnerResources;
+	FResourceQuantityMap& OwnerResourceMap = TypeInventories.FindOrAdd(OwnerID);
+	TMap<FName, FResourceQuantity>& OwnerInventory = OwnerResourceMap.Resources;
 
 	// Add to existing stack or create new
 	FResourceQuantity& ExistingResource = OwnerInventory.FindOrAdd(ResourceID);
@@ -81,8 +83,8 @@ bool UInventoryManager::AddResource(FName ResourceID, int32 Quantity, EResourceQ
 	// Fire event
 	OnResourceAdded.Broadcast(ResourceID, Quantity);
 
-	UE_LOG(LogTemp, Log, TEXT("Added %d %s to inventory %d (Quality: %d)"), 
-		   Quantity, *ResourceID.ToString(), OwnerID, (int32)Quality);
+	UE_LOG(LogTemp, Log, TEXT("Added %d %s to inventory %s (Quality: %d)"), 
+		   Quantity, *ResourceID.ToString(), *OwnerID.ToString(), (int32)Quality);
 
 	return true;
 }
@@ -96,21 +98,23 @@ bool UInventoryManager::RemoveResource(FName ResourceID, int32 Quantity, EInvent
 	}
 
 	// Find inventory
-	TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cannot remove resource: Inventory type not found"));
 		return false;
 	}
+	const TMap<FGuid, FResourceQuantityMap>& TypeInventories = ContainerResources->OwnerResources;
 
-	TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = TypeInventories.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cannot remove resource: Owner inventory not found"));
 		return false;
 	}
+	TMap<FName, FResourceQuantity>& OwnerInventory = const_cast<FResourceQuantityMap*>(OwnerResourceMap)->Resources;
 
-	FResourceQuantity* Resource = OwnerInventory->Find(ResourceID);
+	FResourceQuantity* Resource = OwnerInventory.Find(ResourceID);
 	if (!Resource || Resource->Quantity < Quantity)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Cannot remove resource: Insufficient quantity"));
@@ -123,7 +127,7 @@ bool UInventoryManager::RemoveResource(FName ResourceID, int32 Quantity, EInvent
 	// Remove entry if quantity reaches zero
 	if (Resource->Quantity <= 0)
 	{
-		OwnerInventory->Remove(ResourceID);
+		OwnerInventory.Remove(ResourceID);
 	}
 
 	// Update statistics
@@ -144,19 +148,19 @@ int32 UInventoryManager::GetResourceQuantity(FName ResourceID, EInventoryType In
 		return 0;
 	}
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return 0;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return 0;
 	}
 
-	const FResourceQuantity* Resource = OwnerInventory->Find(ResourceID);
+	const FResourceQuantity* Resource = OwnerResourceMap->Resources.Find(ResourceID);
 	return Resource ? Resource->Quantity : 0;
 }
 
@@ -169,19 +173,19 @@ TArray<FResourceQuantity> UInventoryManager::GetAllResources(EInventoryType Inve
 {
 	TArray<FResourceQuantity> AllResources;
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return AllResources;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return AllResources;
 	}
 
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		AllResources.Add(Pair.Value);
 	}
@@ -198,19 +202,19 @@ TArray<FResourceQuantity> UInventoryManager::GetResourcesByCategory(EResourceCat
 		return CategoryResources;
 	}
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return CategoryResources;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return CategoryResources;
 	}
 
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		FResourceDefinition ResourceDef = ResourceGatheringSystem->GetResourceDefinition(Pair.Key);
 		if (ResourceDef.Category == Category)
@@ -231,19 +235,19 @@ float UInventoryManager::GetTotalInventoryValue(EInventoryType InventoryType, FG
 		return TotalValue;
 	}
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return TotalValue;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return TotalValue;
 	}
 
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		FResourceDefinition ResourceDef = ResourceGatheringSystem->GetResourceDefinition(Pair.Key);
 		TotalValue += ResourceDef.BaseValue * Pair.Value.Quantity;
@@ -256,19 +260,19 @@ float UInventoryManager::GetTotalInventoryWeight(EInventoryType InventoryType, F
 {
 	float TotalWeight = 0.0f;
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return TotalWeight;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return TotalWeight;
 	}
 
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		TotalWeight += CalculateResourceWeight(Pair.Key, Pair.Value.Quantity);
 	}
@@ -280,19 +284,19 @@ float UInventoryManager::GetTotalInventoryVolume(EInventoryType InventoryType, F
 {
 	float TotalVolume = 0.0f;
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return TotalVolume;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return TotalVolume;
 	}
 
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		TotalVolume += CalculateResourceVolume(Pair.Key, Pair.Value.Quantity);
 	}
@@ -381,8 +385,9 @@ FGuid UInventoryManager::CreateContainer(EContainerType ContainerType, FString C
 	FGuid ContainerID = NewContainer.ContainerID;
 	Containers.Add(ContainerID, NewContainer);
 
-	// Add to ownership map
-	ContainerOwnership.FindOrAdd(OwnerID).Add(ContainerID);
+	// Add to ownership map - FIXED: Use FGuidArray.Guids access
+	FGuidArray& OwnerContainerArray = ContainerOwnership.FindOrAdd(OwnerID);
+	OwnerContainerArray.Guids.Add(ContainerID);
 
 	// Fire event
 	OnContainerAdded.Broadcast(NewContainer);
@@ -401,12 +406,12 @@ bool UInventoryManager::RemoveContainer(FGuid ContainerID)
 		return false;
 	}
 
-	// Remove from ownership map
-	TArray<FGuid>* OwnerContainers = ContainerOwnership.Find(Container->OwnerID);
-	if (OwnerContainers)
+	// Remove from ownership map - FIXED: Use FGuidArray.Guids access
+	FGuidArray* OwnerContainerArray = ContainerOwnership.Find(Container->OwnerID);
+	if (OwnerContainerArray)
 	{
-		OwnerContainers->Remove(ContainerID);
-		if (OwnerContainers->Num() == 0)
+		OwnerContainerArray->Guids.Remove(ContainerID);
+		if (OwnerContainerArray->Guids.Num() == 0)
 		{
 			ContainerOwnership.Remove(Container->OwnerID);
 		}
@@ -433,13 +438,13 @@ TArray<FInventoryContainer> UInventoryManager::GetContainersForOwner(FGuid Owner
 {
 	TArray<FInventoryContainer> OwnerContainers;
 
-	const TArray<FGuid>* ContainerIDs = ContainerOwnership.Find(OwnerID);
-	if (!ContainerIDs)
+	const FGuidArray* ContainerArray = ContainerOwnership.Find(OwnerID);
+	if (!ContainerArray)
 	{
 		return OwnerContainers;
 	}
 
-	for (const FGuid& ContainerID : *ContainerIDs)
+	for (const FGuid& ContainerID : ContainerArray->Guids)
 	{
 		const FInventoryContainer* Container = Containers.Find(ContainerID);
 		if (Container)
@@ -450,6 +455,9 @@ TArray<FInventoryContainer> UInventoryManager::GetContainersForOwner(FGuid Owner
 
 	return OwnerContainers;
 }
+
+// Duplicate functions removed (RemoveContainer, GetContainer, GetContainersForOwner)
+// Original definitions kept above
 
 TArray<FInventoryContainer> UInventoryManager::GetContainersByType(EContainerType ContainerType) const
 {
@@ -704,19 +712,19 @@ TArray<FResourceQuantity> UInventoryManager::FindResources(const FInventoryFilte
 		return FoundResources;
 	}
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return FoundResources;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return FoundResources;
 	}
 
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		FResourceDefinition ResourceDef = ResourceGatheringSystem->GetResourceDefinition(Pair.Key);
 		
@@ -764,21 +772,21 @@ TArray<FResourceQuantity> UInventoryManager::FindResources(const FInventoryFilte
 
 void UInventoryManager::SortInventory(EInventoryType InventoryType, FGuid OwnerID, bool bByValue, bool bByWeight, bool bByName)
 {
-	TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return;
 	}
 
-	TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return;
 	}
 
 	// Convert to array for sorting
 	TArray<FResourceQuantity> Resources;
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		Resources.Add(Pair.Value);
 	}
@@ -808,10 +816,10 @@ void UInventoryManager::SortInventory(EInventoryType InventoryType, FGuid OwnerI
 	}
 
 	// Clear and rebuild inventory
-	OwnerInventory->Empty();
+	OwnerResourceMap->Resources.Empty();
 	for (const FResourceQuantity& Resource : Resources)
 	{
-		OwnerInventory->Add(Resource.ResourceID, Resource);
+		OwnerResourceMap->Resources.Add(Resource.ResourceID, Resource);
 	}
 
 	// Fire sort event
@@ -830,21 +838,21 @@ TArray<FResourceQuantity> UInventoryManager::SearchResources(const FString& Sear
 		return FoundResources;
 	}
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return FoundResources;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return FoundResources;
 	}
 
 	FString LowerSearchText = SearchText.ToLower();
 
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		FResourceDefinition ResourceDef = ResourceGatheringSystem->GetResourceDefinition(Pair.Key);
 		FString LowerDisplayName = ResourceDef.DisplayName.ToLower();
@@ -889,38 +897,38 @@ void UInventoryManager::UpdateInventoryCapacity(EInventoryType InventoryType, FG
 
 void UInventoryManager::ConsolidateInventory(EInventoryType InventoryType, FGuid OwnerID)
 {
-	TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return;
 	}
 
-	TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return;
 	}
 
-	ConsolidateInventoryInternal(*OwnerInventory);
+	ConsolidateInventoryInternal(OwnerResourceMap->Resources);
 
 	UE_LOG(LogTemp, Log, TEXT("Consolidated inventory for owner %s"), *OwnerID.ToString());
 }
 
 void UInventoryManager::ClearEmptySlots(EInventoryType InventoryType, FGuid OwnerID)
 {
-	TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return;
 	}
 
-	TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return;
 	}
 
-	ClearEmptySlotsInternal(*OwnerInventory);
+	ClearEmptySlotsInternal(OwnerResourceMap->Resources);
 
 	UE_LOG(LogTemp, Log, TEXT("Cleared empty slots for owner %s"), *OwnerID.ToString());
 }
@@ -931,19 +939,19 @@ void UInventoryManager::GetInventoryStats(EInventoryType InventoryType, FGuid Ow
 	OutUsedSlots = 0;
 	OutEmptySlots = 0;
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return;
 	}
 
-	OutUsedSlots = OwnerInventory->Num();
+	OutUsedSlots = OwnerResourceMap->Resources.Num();
 	OutTotalSlots = OutUsedSlots; // In this implementation, we don't have a fixed slot count
 	OutEmptySlots = 0; // Not applicable in this implementation
 }
@@ -990,9 +998,9 @@ TMap<FName, int32> UInventoryManager::GetTotalResourcesAcrossAllInventories() co
 
 	for (const auto& TypePair : Inventories)
 	{
-		for (const auto& OwnerPair : TypePair.Value)
+		for (const auto& OwnerPair : TypePair.Value.OwnerResources)
 		{
-			for (const auto& ResourcePair : OwnerPair.Value)
+			for (const auto& ResourcePair : OwnerPair.Value.Resources)
 			{
 				int32& TotalAmount = TotalResources.FindOrAdd(ResourcePair.Key);
 				TotalAmount += ResourcePair.Value.Quantity;
@@ -1014,9 +1022,9 @@ float UInventoryManager::GetTotalValueAcrossAllInventories() const
 
 	for (const auto& TypePair : Inventories)
 	{
-		for (const auto& OwnerPair : TypePair.Value)
+		for (const auto& OwnerPair : TypePair.Value.OwnerResources)
 		{
-			for (const auto& ResourcePair : OwnerPair.Value)
+			for (const auto& ResourcePair : OwnerPair.Value.Resources)
 			{
 				FResourceDefinition ResourceDef = ResourceGatheringSystem->GetResourceDefinition(ResourcePair.Key);
 				TotalValue += ResourceDef.BaseValue * ResourcePair.Value.Quantity;
@@ -1118,19 +1126,19 @@ TArray<FResourceQuantity> UInventoryManager::GetResourcesInternal(EInventoryType
 {
 	TArray<FResourceQuantity> Resources;
 
-	const TMap<FGuid, TMap<FName, FResourceQuantity>>* TypeInventories = Inventories.Find(InventoryType);
-	if (!TypeInventories)
+	const FContainerResources* ContainerResources = Inventories.Find(InventoryType);
+	if (!ContainerResources)
 	{
 		return Resources;
 	}
 
-	const TMap<FName, FResourceQuantity>* OwnerInventory = TypeInventories->Find(OwnerID);
-	if (!OwnerInventory)
+	const FResourceQuantityMap* OwnerResourceMap = ContainerResources->OwnerResources.Find(OwnerID);
+	if (!OwnerResourceMap)
 	{
 		return Resources;
 	}
 
-	for (const auto& Pair : *OwnerInventory)
+	for (const auto& Pair : OwnerResourceMap->Resources)
 	{
 		Resources.Add(Pair.Value);
 	}

@@ -5,6 +5,9 @@ public class AIVisionSystem : ModuleRules
 	public AIVisionSystem(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
+
+		// UE 5.6: Update include order version
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;
 		
 		PublicIncludePaths.AddRange(
 			new string[] {

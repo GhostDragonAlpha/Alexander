@@ -14,10 +14,8 @@
 #include "TradingEconomySystem.generated.h"
 
 // Forward declarations
-class UDynamicMarketManager;
 class UFactionEconomyManager;
 class UTradeMissionSystem;
-class UEconomicEventManager;
 class UTradeShipAutomation;
 class ATradeStation;
 class ASpaceship;
@@ -68,7 +66,9 @@ enum class ECommodityCategory : uint8
 	ExoticMatter	UMETA(DisplayName = "Exotic Matter"),
 	AncientTech		UMETA(DisplayName = "Ancient Technology"),
 	DarkMatter		UMETA(DisplayName = "Dark Matter"),
-	Antimatter		UMETA(DisplayName = "Antimatter")
+	Antimatter		UMETA(DisplayName = "Antimatter"),
+	
+	MAX				UMETA(Hidden)
 };
 
 /**
@@ -394,7 +394,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMarketPricesUpdated, const FMarke
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnTradeRouteDiscovered, const FDetailedTradeRoute&, Route);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnEconomicEventTriggered, const FString&, EventName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerMarketTransaction, const FEnhancedTransactionRecord&, Transaction, float, NewBalance);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnReputationChanged, const FString&, FactionID, float, NewReputation);
 
 /**
  * Trading Economy System - Comprehensive system for dynamic markets, trade routes, and economic simulation
@@ -580,7 +579,7 @@ public:
 
 	// Get automated trade route status
 	UFUNCTION(BlueprintCallable, Category = "Trading|Automation")
-	FDetailedTradeRoute GetAutomatedTradeRouteStatus(ASpaceship* Ship) const;
+	FAutomatedTradeRoute GetAutomatedTradeRouteStatus(ASpaceship* Ship) const;
 
 	// Start automated trading
 	UFUNCTION(BlueprintCallable, Category = "Trading|Automation")
@@ -660,16 +659,10 @@ public:
 protected:
 	// Subsystem references
 	UPROPERTY()
-	TWeakObjectPtr<UDynamicMarketManager> DynamicMarketManager;
-
-	UPROPERTY()
 	TWeakObjectPtr<UFactionEconomyManager> FactionEconomyManager;
 
 	UPROPERTY()
 	TWeakObjectPtr<UTradeMissionSystem> TradeMissionSystem;
-
-	UPROPERTY()
-	TWeakObjectPtr<UEconomicEventManager> EconomicEventManager;
 
 	UPROPERTY()
 	TWeakObjectPtr<UTradeShipAutomation> TradeShipAutomation;

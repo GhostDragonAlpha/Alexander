@@ -151,7 +151,7 @@ public:
 
 	// Remove farm plot from greenhouse
 	UFUNCTION(BlueprintCallable, Category = "Greenhouse")
-	bool RemoveFarmPlot(const FGuid& PlotID);
+	bool RemoveFarmPlot(AFarmPlot* Plot);
 
 	// Control temperature
 	UFUNCTION(BlueprintCallable, Category = "Greenhouse")
@@ -229,7 +229,7 @@ private:
 };
 
 // Forward declaration for irrigation system
-class AAlexanderIrrigationSystem;
+class AIrrigationSystem;
 
 // Fertilizer injector - automated nutrient delivery
 UCLASS()

@@ -1,0 +1,259 @@
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(965,34): error C2039: 'SaveEconomicState': is not a member of 'UPersistentUniverseManager'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(967,21): error C3861: 'GetSaveFilePath': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(982,6): error C2065: 'bEnableCompression': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(984,19): error C3861: 'CompressData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(984,3): error C2593: 'operator =' is ambiguous
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(984,3): note: while trying to match the argument list '(TArray<uint8,FDefaultAllocator>, <error type>)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(987,6): error C2065: 'bEnableEncryption': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(989,19): error C3861: 'EncryptData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(989,3): error C2593: 'operator =' is ambiguous
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(989,3): note: while trying to match the argument list '(TArray<uint8,FDefaultAllocator>, <error type>)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(992,18): error C3861: 'WriteToFile': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1005,34): error C2039: 'LoadEconomicState': is not a member of 'UPersistentUniverseManager'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1007,21): error C3861: 'GetSaveFilePath': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1010,7): error C3861: 'ReadFromFile': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1019,6): error C2065: 'bEnableEncryption': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1021,19): error C3861: 'DecryptData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1021,3): error C2593: 'operator =' is ambiguous
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1021,3): note: while trying to match the argument list '(TArray<uint8,FDefaultAllocator>, <error type>)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1024,6): error C2065: 'bEnableCompression': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1026,19): error C3861: 'DecompressData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1026,3): error C2593: 'operator =' is ambiguous
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1026,3): note: while trying to match the argument list '(TArray<uint8,FDefaultAllocator>, <error type>)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1042,34): error C2039: 'SaveFarmingState': is not a member of 'UPersistentUniverseManager'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1044,21): error C2065: 'SaveDirectory': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1059,6): error C2065: 'bEnableCompression': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1061,19): error C3861: 'CompressData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1061,3): error C2593: 'operator =' is ambiguous
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1061,3): note: while trying to match the argument list '(TArray<uint8,FDefaultAllocator>, <error type>)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1064,6): error C2065: 'bEnableEncryption': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1066,19): error C3861: 'EncryptData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1066,3): error C2593: 'operator =' is ambiguous
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1066,3): note: while trying to match the argument list '(TArray<uint8,FDefaultAllocator>, <error type>)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1077,18): error C3861: 'WriteToFile': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1090,34): error C2039: 'LoadFarmingState': is not a member of 'UPersistentUniverseManager'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1092,21): error C2065: 'SaveDirectory': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1095,7): error C3861: 'ReadFromFile': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1104,6): error C2065: 'bEnableEncryption': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1106,19): error C3861: 'DecryptData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1106,3): error C2593: 'operator =' is ambiguous
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1106,3): note: while trying to match the argument list '(TArray<uint8,FDefaultAllocator>, <error type>)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1109,6): error C2065: 'bEnableCompression': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1111,19): error C3861: 'DecompressData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1111,3): error C2593: 'operator =' is ambiguous
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PersistentUniverseManager.cpp(1111,3): note: while trying to match the argument list '(TArray<uint8,FDefaultAllocator>, <error type>)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(30,16): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(30,35): error C3861: 'SolveKeplerEquation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(34,9): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(34,28): error C3861: 'SolveKeplerEquation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(46,16): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(46,35): error C3861: 'SolveKeplerEquation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(60,16): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(60,35): error C3861: 'SolveKeplerEquation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(81,21): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(81,40): error C3861: 'CalculateGravitationalForce': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(99,22): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(99,41): error C3861: 'CalculateGravitationalForce': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(102,22): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(102,41): error C3861: 'CalculateGravitationalForce': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(120,23): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(120,42): error C3861: 'CalculateGravitationalForce': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(121,23): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(121,42): error C3861: 'CalculateGravitationalForce': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(141,14): error C2039: 'LongitudeOfAscendingNode': is not a member of 'FOrbitalElements'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(144,24): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(144,43): error C3861: 'CalculatePositionFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(160,14): error C2039: 'LongitudeOfAscendingNode': is not a member of 'FOrbitalElements'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(164,28): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(164,47): error C3861: 'CalculatePositionFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(170,27): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(170,46): error C3861: 'CalculatePositionFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(189,14): error C2039: 'LongitudeOfAscendingNode': is not a member of 'FOrbitalElements'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(193,24): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(193,43): error C3861: 'CalculateVelocityFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(199,24): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(199,43): error C3861: 'CalculatePositionFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(214,14): error C2039: 'LongitudeOfAscendingNode': is not a member of 'FOrbitalElements'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(220,28): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(220,47): error C3861: 'CalculateVelocityFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(223,27): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(223,46): error C3861: 'CalculateVelocityFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(244,36): error C2039: 'CalculateSOIRadius': is not a member of 'USphereOfInfluenceManager'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(286,49): error C2039: 'CalculateHohmannTransfer': is not a member of 'UHohmannTransferCalculator'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(288,52): error C2039: 'bSuccess': is not a member of 'FHohmannTransferResult'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(288,5): error C2661: 'FAutomationTestBase::TestTrue': no overloaded function takes 1 arguments
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(307,50): error C2039: 'CalculateHohmannTransfer': is not a member of 'UHohmannTransferCalculator'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(310,50): error C2039: 'CalculateHohmannTransfer': is not a member of 'UHohmannTransferCalculator'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(331,21): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(331,40): error C3861: 'CalculateOrbitalPeriod': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(346,17): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(346,36): error C3861: 'CalculateOrbitalPeriod': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(349,17): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(349,36): error C3861: 'CalculateOrbitalPeriod': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(428,14): error C2039: 'LongitudeOfAscendingNode': is not a member of 'FOrbitalElements'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(433,21): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(433,40): error C3861: 'CalculateOrbitalPeriod': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(437,29): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(437,48): error C3861: 'CalculatePositionFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(442,18): error C2039: 'MeanAnomaly': is not a member of 'FOrbitalElements'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(443,22): error C2039: 'MeanAnomaly': is not a member of 'FOrbitalElements'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(445,22): error C2039: 'MeanAnomaly': is not a member of 'FOrbitalElements'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(448,28): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(448,47): error C3861: 'CalculatePositionFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(452,27): error C2653: 'FOrbitalMechanics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\OrbitalMechanicsTest.cpp(452,46): error C3861: 'CalculatePositionFromOrbitalElements': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(232,12): error C2039: 'Tick': is not a member of 'UWorldSubsystem'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(267,65): error C4458: declaration of 'RootBody' hides class member
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(295,18): error C2440: 'initializing': cannot convert from 'uint32' to 'FGuid'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(327,18): error C2440: 'initializing': cannot convert from 'uint32' to 'FGuid'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(368,5): error C2065: 'FSpatialQueryResult': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(368,25): error C2146: syntax error: missing ';' before identifier 'QueryResult'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(368,25): error C2065: 'QueryResult': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(371,56): error C2065: 'QueryResult': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(371,46): error C2530: 'BodyPtr': references must be initialized
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(371,54): error C2143: syntax error: missing ';' before ':'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(371,79): error C2143: syntax error: missing ';' before ')'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(627,24): error C2440: 'initializing': cannot convert from 'T *' to 'AOrbitalBody *'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(634,55): error C2440: 'initializing': cannot convert from 'ElementType' to 'APlanet *'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(638,17): error C2664: 'void UOrbitalMechanicsManager::RegisterOrbitalBody(AOrbitalBody *)': cannot convert argument 1 from 'APlanet *' to 'AOrbitalBody *'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(642,56): error C2440: 'initializing': cannot convert from 'ElementType' to 'AOrbitalBody *'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(669,13): error C2664: 'void UOrbitalMechanicsManager::RegisterOrbitalBody(AOrbitalBody *)': cannot convert argument 1 from 'APlanet *' to 'AOrbitalBody *'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\OrbitalMechanicsManager.cpp(670,20): error C2665: 'TArray<AOrbitalBody *,FDefaultAllocator>::Add': no overloaded function could convert all the argument types
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(123,11): error C2039: 'ClaimID': is not a member of 'AFarmPlot'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(152,35): error C2039: 'GetCropData': is not a member of 'UCropGrowthSystem'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(156,2): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(157,2): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(158,2): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(159,2): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(160,2): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(161,2): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(162,2): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(163,2): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(166,24): error C2660: 'AFarmPlot::PlantCrop': function does not take 3 arguments
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(205,2): error C2679: binary '=': no operator found which takes a right-hand operand of type 'FHarvestResult' (or there is no acceptable conversion)
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(210,19): error C2664: 'void FOnCropHarvested::Broadcast(const FHarvestResult &,const FGuid &) const': cannot convert argument 1 from 'FAlexanderHarvestResult' to 'const FHarvestResult &'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\PlanetaryFarmingSystem.cpp(385,28): error C2027: use of undefined type 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\ResourceGatheringSystem.cpp(701,42): error C3861: 'GetPlanetaryResourcesPtr': identifier not found
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\String\FormatStringSanErrors.inl(41,1): error C2338: static_assert failed: ''%d' expects integral arg (eg. `char`, `int`, `long`, etc.)'
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Core\Public\String\FormatStringSanErrors.inl(41,1): note: the template instantiation context (the oldest one first) is
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\PlanetaryFarmingSystemTest.cpp(570,45): error C2512: 'FLandClaimManagerTest': no appropriate default constructor available
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\PlanetaryFarmingSystemTest.cpp(574,46): error C2512: 'FCropGrowthSystemTest': no appropriate default constructor available
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\PlanetaryFarmingSystemTest.cpp(578,55): error C2512: 'FPlanetaryFarmingSystemTest': no appropriate default constructor available
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\PlanetaryFarmingSystemTest.cpp(582,51): error C2512: 'FBaseBuildingManagerTest': no appropriate default constructor available
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\PlanetaryFarmingSystemTest.cpp(586,57): error C2512: 'FProductionChainManagerTest': no appropriate default constructor available
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\PlanetaryFarmingSystemTest.cpp(590,58): error C2512: 'FPlanetaryFarmingIntegrationTest': no appropriate default constructor available
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(314,17): error C2556: 'void AFarmPlot::WaterPlot(float)': overloaded function differs only by return type from 'bool AFarmPlot::WaterPlot(float)'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(314,17): error C2371: 'AFarmPlot::WaterPlot': redefinition; different basic types
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(333,17): error C2511: 'void AFarmPlot::FertilizePlot(float)': overloaded member function not found in 'AFarmPlot'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(337,31): error C2597: illegal reference to non-static member 'AFarmPlot::NitrogenLevel'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(337,31): error C3867: 'AFarmPlot::NitrogenLevel': non-standard syntax; use '&' to create a pointer to member
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(337,31): error C2568: '+': unable to resolve function overload
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(338,33): error C2597: illegal reference to non-static member 'AFarmPlot::PhosphorusLevel'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(338,33): error C3867: 'AFarmPlot::PhosphorusLevel': non-standard syntax; use '&' to create a pointer to member
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(338,33): error C2568: '+': unable to resolve function overload
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(339,32): error C2597: illegal reference to non-static member 'AFarmPlot::PotassiumLevel'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(339,32): error C3867: 'AFarmPlot::PotassiumLevel': non-standard syntax; use '&' to create a pointer to member
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(339,32): error C2568: '+': unable to resolve function overload
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(341,27): error C2597: illegal reference to non-static member 'AFarmPlot::Fertility'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(341,27): error C3867: 'AFarmPlot::Fertility': non-standard syntax; use '&' to create a pointer to member
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(341,27): error C2568: '+': unable to resolve function overload
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(344,16): error C2352: 'AFarmPlot::CalculateSoilQuality': a call of a non-static member function requires an object
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(345,2): error C2352: 'AFarmPlot::UpdateSoilVisuals': a call of a non-static member function requires an object
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(347,2): error C2597: illegal reference to non-static member 'AFarmPlot::Fertility'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(347,2): error C2597: illegal reference to non-static member 'AFarmPlot::NitrogenLevel'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(347,2): error C2597: illegal reference to non-static member 'AFarmPlot::PhosphorusLevel'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(347,2): error C2597: illegal reference to non-static member 'AFarmPlot::PotassiumLevel'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(1718,17): error C2084: function 'bool AFarmPlot::WaterPlot(float)' already has a body
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(1783,41): error C2039: 'WaterRequirement': is not a member of 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FarmPlot.cpp(1803,42): error C2039: 'FertilizerRequirement': is not a member of 'UCropDefinition'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\GameStateExtractor.cpp(254,59): error C2027: use of undefined type 'AGameStateBase'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\GameStateExtractor.cpp(254,18): error C2661: 'FJsonObject::SetStringField': no overloaded function takes 1 arguments
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\GameStateExtractor.cpp(384,2): error C2653: 'UGameplayStatics': is not a class or namespace name
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\GameStateExtractor.cpp(384,20): error C3861: 'GetAllActorsOfClass': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\MemoryOptimizationManager.cpp(15,1): fatal error C1083: Cannot open include file: 'Engine/ContentStreaming.h': No such file or directory
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Engine\Public\Subsystems\SubsystemCollection.h(198,17): error C2338: static_assert failed: 'TSubsystemClass must be derived from TBaseType'
+C:\Program Files\Epic Games\UE_5.6\Engine\Source\Runtime\Engine\Public\Subsystems\SubsystemCollection.h(201,10): error C2440: 'static_cast': cannot convert from 'USubsystem *' to 'UFactionTerritorySystem *'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(998,30): error C2039: 'RunSelfTest_Implementation': is not a member of 'UFactionEconomyManager'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1010,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1020,41): error C3861: 'GetFactionData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1042,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1057,4): error C3861: 'SetFactionPolicy': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1059,42): error C3861: 'GetFactionData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1082,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1096,4): error C3861: 'SetTradeRestriction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1098,42): error C3861: 'GetFactionData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1121,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1125,41): error C3861: 'GetPlayerReputation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1135,3): error C3861: 'ModifyPlayerReputation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1137,42): error C3861: 'GetPlayerReputation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1147,20): error C3861: 'CalculateReputationDiscount': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1148,37): error C2065: 'MaxReputationDiscount': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1157,20): error C3861: 'CanPlayerTrade': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1179,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1183,3): error C3861: 'ModifyPlayerReputation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1186,23): error C3861: 'CalculateTradePriceModifier': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1196,24): error C3861: 'CalculateTradePriceModifier': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1224,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1228,27): error C3861: 'IsCommodityBanned': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1238,3): error C3861: 'BanCommodity': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1241,21): error C3861: 'IsCommodityBanned': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1251,18): error C3861: 'CalculateTariff': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1261,3): error C3861: 'UnbanCommodity': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1264,23): error C3861: 'IsCommodityBanned': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1286,24): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1287,24): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1290,38): error C3861: 'FormTradeAgreement': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1302,3): error C3861: 'ModifyPlayerReputation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1304,30): error C3861: 'CalculateTradePriceModifier': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1307,3): error C3861: 'EndTradeAgreement': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1309,33): error C3861: 'CalculateTradePriceModifier': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1330,34): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1331,29): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1334,33): error C3861: 'ImposeSanctions': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1346,3): error C3861: 'ModifyPlayerReputation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1348,30): error C3861: 'CalculateTradePriceModifier': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1351,3): error C3861: 'LiftSanctions': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1353,33): error C3861: 'CalculateTradePriceModifier': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1374,24): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1375,24): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1378,3): error C3861: 'FormAlliance': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1382,50): error C2065: 'ActiveAgreements': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1382,38): error C2530: 'Agreement': references must be initialized
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1382,48): error C2143: syntax error: missing ';' before ':'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1382,66): error C2143: syntax error: missing ';' before ')'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1401,3): error C3861: 'BreakAlliance': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1404,3): error C3861: 'DeclareWar': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1407,3): error C3861: 'MakePeace': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1422,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1426,3): error C3861: 'SetFactionProduction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1427,3): error C3861: 'SetFactionConsumption': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1430,19): error C3861: 'GetResourceBalance': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1440,31): error C3861: 'GetFactionImportNeeds': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1450,33): error C3861: 'GetFactionExportSurplus': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1472,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1475,41): error C3861: 'GetFactionData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1479,3): error C3861: 'SimulateFactionEconomy': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1481,41): error C3861: 'GetFactionData': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1511,27): error C3861: 'CreateFaction': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1515,3): error C3861: 'ModifyPlayerReputation': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1518,27): error C3861: 'GetFactionEconomicReport': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1528,26): error C3861: 'GetPlayerReputationReport': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1538,46): error C3861: 'GetAllFactions': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1545,33): error C3861: 'GetTopTradingFactions': identifier not found
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1568,3): error C2065: 'TotalReputationChanges': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1568,3): error C3553: decltype expects an expression not a type
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1569,3): error C2065: 'TotalAgreementsFormed': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1569,3): error C3553: decltype expects an expression not a type
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1570,3): error C2065: 'TotalSanctionsImposed': undeclared identifier
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Private\FactionEconomyManager.cpp(1570,3): error C3553: decltype expects an expression not a type
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\SystemIntegrationTest.cpp(96,30): error C2248: 'FSubsystemCollectionBase::FSubsystemCollectionBase': cannot access protected member declared in class 'FSubsystemCollectionBase'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\SystemIntegrationTest.cpp(117,30): error C2248: 'FSubsystemCollectionBase::FSubsystemCollectionBase': cannot access protected member declared in class 'FSubsystemCollectionBase'
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\SystemIntegrationTest.cpp(326,21): error C2660: 'UCraftingSystem::Initialize': function does not take 0 arguments
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\SystemIntegrationTest.cpp(329,77): error C2838: 'Good': illegal qualified name in member declaration
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\SystemIntegrationTest.cpp(329,77): error C2065: 'Good': undeclared identifier
+ERROR opening file C:\Users\allen\Desktop\Alexander\Alexander\Plugins\AIVisionSystem\Binaries\Win64\UnrealEditor-AIVisionSystem.dll for write after retrying for 20 seconds (The process cannot access the file because it is being used by another process. - C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor-Cmd.exe - C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor-Cmd.exe - C:\Program Files\Epic Games\UE_5.6\Engine\Binaries\Win64\UnrealEditor-Cmd.exeBUFFEROVERFLOW!)
+Link [x64] UnrealEditor-AIVisionSystem.dll: Exited with error code 9001. This action will retry without UBA
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\SystemIntegrationTest.cpp(355,76): error C2838: 'Good': illegal qualified name in member declaration
+C:\Users\allen\Desktop\Alexander\Alexander\Source\Alexander\Tests\SystemIntegrationTest.cpp(355,76): error C2065: 'Good': undeclared identifier
+LINK : fatal error LNK1104: cannot open file 'C:\Users\allen\Desktop\Alexander\Alexander\Plugins\AIVisionSystem\Binaries\Win64\UnrealEditor-AIVisionSystem.dll'
+Result: Failed (OtherCompilationError)

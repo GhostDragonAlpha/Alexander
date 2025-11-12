@@ -7,10 +7,12 @@
 #include "HAL/PlatformFileManager.h"
 #include "Serialization/BufferArchive.h"
 #include "Serialization/MemoryReader.h"
+#include "Serialization/MemoryWriter.h"
 #include "Compression/OodleDataCompression.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "SystemSelfTestInterface.h"
+#include "Misc/Crc.h"
 
 UPersistentUniverseManager::UPersistentUniverseManager()
 {
@@ -83,275 +85,275 @@ bool UPersistentUniverseManager::RunSelfTest_Implementation(FSystemTestResult& O
         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Player data save - %s"), *SaveResult.ErrorMessage);
         return false;
     }
- 97     UE_LOG(LogTemp, Log, TEXT("✓ Player data save test PASSED - Saved %d bytes"), SaveResult.BytesSaved);
- 98
- 99     // Load test data
-100     bool bLoadSuccess = false;
-101     FPlayerPersistentData LoadedData = LoadPlayerData(TestPlayerID, bLoadSuccess);
-102     if (!bLoadSuccess)
-103     {
-104         OutResult.bPassed = false;
-105         OutResult.ErrorMessage = TEXT("Failed to load test player data");
-106         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Player data load"));
-107         return false;
-108     }
-109
-110     // Verify loaded data matches saved data
-111     if (LoadedData.PlayerID != TestPlayerData.PlayerID ||
-112         LoadedData.PlayerName != TestPlayerData.PlayerName ||
-113         LoadedData.Level != TestPlayerData.Level ||
-114         LoadedData.Experience != TestPlayerData.Experience ||
-115         LoadedData.Credits != TestPlayerData.Credits ||
-116         !LoadedData.LastLocation.Equals(TestPlayerData.LastLocation, 1.0f) ||
-117         LoadedData.CurrentSystemID != TestPlayerData.CurrentSystemID ||
-118         FMath::Abs(LoadedData.PlayTime - TestPlayerData.PlayTime) > 0.1f)
-119     {
-120         OutResult.bPassed = false;
-121         OutResult.ErrorMessage = TEXT("Loaded player data does not match saved data");
-122         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Player data integrity check"));
-123         return false;
-124     }
-125     UE_LOG(LogTemp, Log, TEXT("✓ Player data load and integrity test PASSED"));
-126
-127     // Test 3: Test world state save/load
-128     FString TestWorldID = TEXT("TEST_WORLD_001");
-129     FWorldStateData TestWorldData;
-130     TestWorldData.WorldID = TestWorldID;
-131     TestWorldData.DynamicActorLocations.Add(TEXT("ACTOR_001"), FVector(100.0f, 200.0f, 300.0f));
-132     TestWorldData.DynamicActorLocations.Add(TEXT("ACTOR_002"), FVector(400.0f, 500.0f, 600.0f));
-133     TestWorldData.WorldFlags.Add(TEXT("Flag1"), true);
-134     TestWorldData.WorldFlags.Add(TEXT("Flag2"), false);
-135     TestWorldData.CompletedEvents.Add(TEXT("Event1"));
-136     TestWorldData.CompletedEvents.Add(TEXT("Event2"));
-137
-138     FSaveOperationResult WorldSaveResult = SaveWorldState(TestWorldID, TestWorldData);
-139     if (!WorldSaveResult.bSuccess)
-140     {
-141         OutResult.bPassed = false;
-142         OutResult.ErrorMessage = TEXT("Failed to save test world data: ") + WorldSaveResult.ErrorMessage;
-143         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World state save - %s"), *WorldSaveResult.ErrorMessage);
-144         return false;
-145     }
-146     UE_LOG(LogTemp, Log, TEXT("✓ World state save test PASSED - Saved %d bytes"), WorldSaveResult.BytesSaved);
-147
-148     bool bWorldLoadSuccess = false;
-149     FWorldStateData LoadedWorldData = LoadWorldState(TestWorldID, bWorldLoadSuccess);
-150     if (!bWorldLoadSuccess)
-151     {
-152         OutResult.bPassed = false;
-153         OutResult.ErrorMessage = TEXT("Failed to load test world data");
-154         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World state load"));
-155         return false;
-156     }
-157
-158     // Verify world data integrity
-159     if (LoadedWorldData.WorldID != TestWorldData.WorldID ||
-160         LoadedWorldData.DynamicActorLocations.Num() != TestWorldData.DynamicActorLocations.Num() ||
-161         LoadedWorldData.WorldFlags.Num() != TestWorldData.WorldFlags.Num() ||
-162         LoadedWorldData.CompletedEvents.Num() != TestWorldData.CompletedEvents.Num())
-163     {
-164         OutResult.bPassed = false;
-165         OutResult.ErrorMessage = TEXT("Loaded world data structure does not match saved data");
-166         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World data integrity check"));
-167         return false;
-168     }
-169     UE_LOG(LogTemp, Log, TEXT("✓ World state load and integrity test PASSED"));
-170
-171     // Test 4: Test compression if enabled
-172     if (bEnableCompression)
-173     {
-174         FString LargeTestData = TEXT("This is a test string that should compress well. ");
-175         LargeTestData = LargeTestData + LargeTestData + LargeTestData + LargeTestData + LargeTestData;
-176
-177         TArray<uint8> UncompressedData;
-178         UncompressedData.Append((uint8*)TCHAR_TO_UTF8(*LargeTestData), LargeTestData.Len());
-179
-180         TArray<uint8> CompressedData = CompressData(UncompressedData);
-181
-182         if (CompressedData.Num() >= UncompressedData.Num())
-183         {
-184             OutResult.WarningMessages.Add(TEXT("Compression may not be working optimally"));
-185             UE_LOG(LogTemp, Warning, TEXT("WARNING: Compression test - compressed size (%d) >= uncompressed size (%d)"),
-186                 CompressedData.Num(), UncompressedData.Num());
-187         }
-188         else
-189         {
-190             UE_LOG(LogTemp, Log, TEXT("✓ Compression test PASSED - Compressed %d bytes to %d bytes (%.1f%% reduction)"),
-191                 UncompressedData.Num(), CompressedData.Num(),
-192                 100.0f * (1.0f - (float)CompressedData.Num() / (float)UncompressedData.Num()));
-193         }
-194
-195         // Test decompression
-196         TArray<uint8> DecompressedData = DecompressData(CompressedData);
-197         if (DecompressedData.Num() != UncompressedData.Num() ||
-198             FMemory::Memcmp(DecompressedData.GetData(), UncompressedData.GetData(), UncompressedData.Num()) != 0)
-199         {
-200             OutResult.bPassed = false;
-201             OutResult.ErrorMessage = TEXT("Decompressed data does not match original");
-202             UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Decompression integrity check"));
-203             return false;
-204         }
-205         UE_LOG(LogTemp, Log, TEXT("✓ Decompression test PASSED"));
-206     }
-207     else
-208     {
-209         UE_LOG(LogTemp, Log, TEXT("⊘ Compression test SKIPPED (compression disabled)"));
-210     }
-211
-212     // Test 5: Test encryption if enabled
-213     if (bEnableEncryption)
-214     {
-215         FString TestString = TEXT("This is sensitive test data that should be encrypted");
-216         TArray<uint8> PlainData;
-217         PlainData.Append((uint8*)TCHAR_TO_UTF8(*TestString), TestString.Len());
-218
-219         TArray<uint8> EncryptedData = EncryptData(PlainData);
-220         TArray<uint8> DecryptedData = DecryptData(EncryptedData);
-221
-222         // Verify encryption changed the data
-223         if (EncryptedData.Num() != PlainData.Num() ||
-224             FMemory::Memcmp(EncryptedData.GetData(), PlainData.GetData(), PlainData.Num()) == 0)
-225         {
-226             OutResult.WarningMessages.Add(TEXT("Encryption may not be working - encrypted data matches plain data"));
-227             UE_LOG(LogTemp, Warning, TEXT("WARNING: Encryption test - data may not be properly encrypted"));
-228         }
-229         else
-230         {
-231             UE_LOG(LogTemp, Log, TEXT("✓ Encryption test PASSED - Data properly encrypted"));
-232         }
-233
-234         // Verify decryption restores original data
-235         if (DecryptedData.Num() != PlainData.Num() ||
-236             FMemory::Memcmp(DecryptedData.GetData(), PlainData.GetData(), PlainData.Num()) != 0)
-237         {
-238             OutResult.bPassed = false;
-239             OutResult.ErrorMessage = TEXT("Decrypted data does not match original plain data");
-240             UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Decryption integrity check"));
-241             return false;
-242         }
-243         UE_LOG(LogTemp, Log, TEXT("✓ Decryption test PASSED"));
-244     }
-245     else
-246     {
-247         UE_LOG(LogTemp, Log, TEXT("⊘ Encryption test SKIPPED (encryption disabled)"));
-248     }
-249
-250     // Test 6: Test backup creation
-251     FString TestBackupName = TEXT("TEST_BACKUP_") + FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
-252     if (!CreateBackup(TestBackupName))
-253     {
-254         OutResult.WarningMessages.Add(TEXT("Backup creation failed - this may be expected in some environments"));
-255         UE_LOG(LogTemp, Warning, TEXT("WARNING: Backup creation test failed (may be expected)"));
-256     }
-257     else
-258     {
-259         UE_LOG(LogTemp, Log, TEXT("✓ Backup creation test PASSED"));
-260
-261         // Test backup listing
-262         TArray<FString> Backups = GetAvailableBackups();
-263         if (!Backups.Contains(TestBackupName))
-264         {
-265             OutResult.WarningMessages.Add(TEXT("Created backup but cannot find it in listing"));
-266             UE_LOG(LogTemp, Warning, TEXT("WARNING: Backup listing test failed"));
-267         }
-268         else
-269         {
-270             UE_LOG(LogTemp, Log, TEXT("✓ Backup listing test PASSED"));
-271         }
-272     }
-273
-274     // Test 7: Test statistics tracking
-275     FPersistenceStatistics CurrentStats = GetStatistics();
-276     if (CurrentStats.TotalSaves < 2 || CurrentStats.TotalLoads < 1)
-277     {
-278         OutResult.bPassed = false;
-279         OutResult.ErrorMessage = TEXT("Statistics tracking not working properly");
-280         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Statistics tracking"));
-281         return false;
-282     }
-283     UE_LOG(LogTemp, Log, TEXT("✓ Statistics tracking test PASSED - Total saves: %d, Total loads: %d"),
-284         CurrentStats.TotalSaves, CurrentStats.TotalLoads);
-285
-286     // Test 8: Test file size queries
-287     int32 PlayerFileSize = GetSaveFileSize(TestPlayerID);
-288     if (PlayerFileSize <= 0)
-289     {
-290         OutResult.WarningMessages.Add(TEXT("File size query returned invalid size"));
-291         UE_LOG(LogTemp, Warning, TEXT("WARNING: File size query test failed"));
-292     }
-293     else
-294     {
-295         UE_LOG(LogTemp, Log, TEXT("✓ File size query test PASSED - Size: %d bytes"), PlayerFileSize);
-296     }
-297
-298     // Test 9: Test data validation
-299     TArray<uint8> ValidData;
-300     ValidData.Add(1); ValidData.Add(2); ValidData.Add(3);
-301     if (!ValidateSaveData(ValidData))
-302     {
-303         OutResult.bPassed = false;
-304         OutResult.ErrorMessage = TEXT("Data validation failed for valid data");
-305         UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Data validation"));
-306         return false;
-307     }
-308     UE_LOG(LogTemp, Log, TEXT("✓ Data validation test PASSED"));
-309
-310     // Test 10: Test cleanup
-311     bool bCleanupSuccess = true;
-312     bCleanupSuccess &= DeletePlayerData(TestPlayerID);
-313     bCleanupSuccess &= DeleteWorldState(TestWorldID);
-314
-315     if (!bCleanupSuccess)
-316     {
-317         OutResult.WarningMessages.Add(TEXT("Test data cleanup failed - test files may remain"));
-318         UE_LOG(LogTemp, Warning, TEXT("WARNING: Test cleanup failed"));
-319     }
-320     else
-321     {
-322         UE_LOG(LogTemp, Log, TEXT("✓ Test cleanup PASSED"));
-323     }
-324
-325     // Record performance metrics
-326     OutResult.bPassed = true;
-327     OutResult.PerformanceMetrics.Add(TEXT("PlayerSaveSize"), SaveResult.BytesSaved);
-328     OutResult.PerformanceMetrics.Add(TEXT("WorldSaveSize"), WorldSaveResult.BytesSaved);
-329     OutResult.PerformanceMetrics.Add(TEXT("PlayerSaveTime"), SaveResult.SaveDuration);
-330     OutResult.PerformanceMetrics.Add(TEXT("PlayerLoadTime"), CurrentStats.AverageLoadTime);
-331
-332     UE_LOG(LogTemp, Log, TEXT("=== Persistent Universe Manager test PASSED ==="));
-333     return true;
-334 }
-335
-336 FString UPersistentUniverseManager::GetSystemName_Implementation() const
-337 {
-338     return TEXT("PersistentUniverseManager");
-339 }
-340
-341 FString UPersistentUniverseManager::GetTestDescription_Implementation() const
-342 {
-343     return TEXT("Tests save/load functionality, compression, encryption, and backup systems");
-344 }
-345
-346 bool UPersistentUniverseManager::IsReadyForTesting_Implementation() const
-347 {
-348     return !SaveDirectory.IsEmpty();
-349 }
-350 //~ End ISystemSelfTestInterface interface
-351
- 352 void UPersistentUniverseManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
- 353 {
- 354     Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
- 355
- 356     if (bEnableAutoSave)
- 357     {
- 358         AutoSaveTimer += DeltaTime;
- 359         if (AutoSaveTimer >= AutoSaveInterval)
- 360         {
- 361             TriggerAutoSave();
- 362             AutoSaveTimer = 0.0f;
- 363         }
- 364     }
- 365 }
+    UE_LOG(LogTemp, Log, TEXT("✓ Player data save test PASSED - Saved %d bytes"), SaveResult.BytesSaved);
+
+    // Load test data
+    bool bLoadSuccess = false;
+    FPlayerPersistentData LoadedData = LoadPlayerData(TestPlayerID, bLoadSuccess);
+    if (!bLoadSuccess)
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Failed to load test player data");
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Player data load"));
+        return false;
+    }
+
+    // Verify loaded data matches saved data
+    if (LoadedData.PlayerID != TestPlayerData.PlayerID ||
+        LoadedData.PlayerName != TestPlayerData.PlayerName ||
+        LoadedData.Level != TestPlayerData.Level ||
+        LoadedData.Experience != TestPlayerData.Experience ||
+        LoadedData.Credits != TestPlayerData.Credits ||
+        !LoadedData.LastLocation.Equals(TestPlayerData.LastLocation, 1.0f) ||
+        LoadedData.CurrentSystemID != TestPlayerData.CurrentSystemID ||
+        FMath::Abs(LoadedData.PlayTime - TestPlayerData.PlayTime) > 0.1f)
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Loaded player data does not match saved data");
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Player data integrity check"));
+        return false;
+    }
+    UE_LOG(LogTemp, Log, TEXT("✓ Player data load and integrity test PASSED"));
+
+    // Test 3: Test world state save/load
+    FString TestWorldID = TEXT("TEST_WORLD_001");
+    FWorldStateData TestWorldData;
+    TestWorldData.WorldID = TestWorldID;
+    TestWorldData.DynamicActorLocations.Add(TEXT("ACTOR_001"), FVector(100.0f, 200.0f, 300.0f));
+    TestWorldData.DynamicActorLocations.Add(TEXT("ACTOR_002"), FVector(400.0f, 500.0f, 600.0f));
+    TestWorldData.WorldFlags.Add(TEXT("Flag1"), true);
+    TestWorldData.WorldFlags.Add(TEXT("Flag2"), false);
+    TestWorldData.CompletedEvents.Add(TEXT("Event1"));
+    TestWorldData.CompletedEvents.Add(TEXT("Event2"));
+
+    FSaveOperationResult WorldSaveResult = SaveWorldState(TestWorldID, TestWorldData);
+    if (!WorldSaveResult.bSuccess)
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Failed to save test world data: ") + WorldSaveResult.ErrorMessage;
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World state save - %s"), *WorldSaveResult.ErrorMessage);
+        return false;
+    }
+    UE_LOG(LogTemp, Log, TEXT("✓ World state save test PASSED - Saved %d bytes"), WorldSaveResult.BytesSaved);
+
+    bool bWorldLoadSuccess = false;
+    FWorldStateData LoadedWorldData = LoadWorldState(TestWorldID, bWorldLoadSuccess);
+    if (!bWorldLoadSuccess)
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Failed to load test world data");
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World state load"));
+        return false;
+    }
+
+    // Verify world data integrity
+    if (LoadedWorldData.WorldID != TestWorldData.WorldID ||
+        LoadedWorldData.DynamicActorLocations.Num() != TestWorldData.DynamicActorLocations.Num() ||
+        LoadedWorldData.WorldFlags.Num() != TestWorldData.WorldFlags.Num() ||
+        LoadedWorldData.CompletedEvents.Num() != TestWorldData.CompletedEvents.Num())
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Loaded world data structure does not match saved data");
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: World data integrity check"));
+        return false;
+    }
+    UE_LOG(LogTemp, Log, TEXT("✓ World state load and integrity test PASSED"));
+
+    // Test 4: Test compression if enabled
+    if (bEnableCompression)
+    {
+        FString LargeTestData = TEXT("This is a test string that should compress well. ");
+        LargeTestData = LargeTestData + LargeTestData + LargeTestData + LargeTestData + LargeTestData;
+
+        TArray<uint8> UncompressedData;
+        UncompressedData.Append((uint8*)TCHAR_TO_UTF8(*LargeTestData), LargeTestData.Len());
+
+        TArray<uint8> CompressedData = CompressData(UncompressedData);
+
+        if (CompressedData.Num() >= UncompressedData.Num())
+        {
+            OutResult.WarningMessages.Add(TEXT("Compression may not be working optimally"));
+            UE_LOG(LogTemp, Warning, TEXT("WARNING: Compression test - compressed size (%d) >= uncompressed size (%d)"),
+                CompressedData.Num(), UncompressedData.Num());
+        }
+        else
+        {
+            UE_LOG(LogTemp, Log, TEXT("✓ Compression test PASSED - Compressed %d bytes to %d bytes (%.1f%% reduction)"),
+                UncompressedData.Num(), CompressedData.Num(),
+                100.0f * (1.0f - (float)CompressedData.Num() / (float)UncompressedData.Num()));
+        }
+
+        // Test decompression
+        TArray<uint8> DecompressedData = DecompressData(CompressedData);
+        if (DecompressedData.Num() != UncompressedData.Num() ||
+            FMemory::Memcmp(DecompressedData.GetData(), UncompressedData.GetData(), UncompressedData.Num()) != 0)
+        {
+            OutResult.bPassed = false;
+            OutResult.ErrorMessage = TEXT("Decompressed data does not match original");
+            UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Decompression integrity check"));
+            return false;
+        }
+        UE_LOG(LogTemp, Log, TEXT("✓ Decompression test PASSED"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("⊘ Compression test SKIPPED (compression disabled)"));
+    }
+
+    // Test 5: Test encryption if enabled
+    if (bEnableEncryption)
+    {
+        FString TestString = TEXT("This is sensitive test data that should be encrypted");
+        TArray<uint8> PlainData;
+        PlainData.Append((uint8*)TCHAR_TO_UTF8(*TestString), TestString.Len());
+
+        TArray<uint8> EncryptedData = EncryptData(PlainData);
+        TArray<uint8> DecryptedData = DecryptData(EncryptedData);
+
+        // Verify encryption changed the data
+        if (EncryptedData.Num() != PlainData.Num() ||
+            FMemory::Memcmp(EncryptedData.GetData(), PlainData.GetData(), PlainData.Num()) == 0)
+        {
+            OutResult.WarningMessages.Add(TEXT("Encryption may not be working - encrypted data matches plain data"));
+            UE_LOG(LogTemp, Warning, TEXT("WARNING: Encryption test - data may not be properly encrypted"));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Log, TEXT("✓ Encryption test PASSED - Data properly encrypted"));
+        }
+
+        // Verify decryption restores original data
+        if (DecryptedData.Num() != PlainData.Num() ||
+            FMemory::Memcmp(DecryptedData.GetData(), PlainData.GetData(), PlainData.Num()) != 0)
+        {
+            OutResult.bPassed = false;
+            OutResult.ErrorMessage = TEXT("Decrypted data does not match original plain data");
+            UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Decryption integrity check"));
+            return false;
+        }
+        UE_LOG(LogTemp, Log, TEXT("✓ Decryption test PASSED"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("⊘ Encryption test SKIPPED (encryption disabled)"));
+    }
+
+    // Test 6: Test backup creation
+    FString TestBackupName = TEXT("TEST_BACKUP_") + FDateTime::Now().ToString(TEXT("%Y%m%d_%H%M%S"));
+    if (!CreateBackup(TestBackupName))
+    {
+        OutResult.WarningMessages.Add(TEXT("Backup creation failed - this may be expected in some environments"));
+        UE_LOG(LogTemp, Warning, TEXT("WARNING: Backup creation test failed (may be expected)"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("✓ Backup creation test PASSED"));
+
+        // Test backup listing
+        TArray<FString> Backups = GetAvailableBackups();
+        if (!Backups.Contains(TestBackupName))
+        {
+            OutResult.WarningMessages.Add(TEXT("Created backup but cannot find it in listing"));
+            UE_LOG(LogTemp, Warning, TEXT("WARNING: Backup listing test failed"));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Log, TEXT("✓ Backup listing test PASSED"));
+        }
+    }
+
+    // Test 7: Test statistics tracking
+    FPersistenceStatistics CurrentStats = GetStatistics();
+    if (CurrentStats.TotalSaves < 2 || CurrentStats.TotalLoads < 1)
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Statistics tracking not working properly");
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Statistics tracking"));
+        return false;
+    }
+    UE_LOG(LogTemp, Log, TEXT("✓ Statistics tracking test PASSED - Total saves: %d, Total loads: %d"),
+        CurrentStats.TotalSaves, CurrentStats.TotalLoads);
+
+    // Test 8: Test file size queries
+    int32 PlayerFileSize = GetSaveFileSize(TestPlayerID);
+    if (PlayerFileSize <= 0)
+    {
+        OutResult.WarningMessages.Add(TEXT("File size query returned invalid size"));
+        UE_LOG(LogTemp, Warning, TEXT("WARNING: File size query test failed"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("✓ File size query test PASSED - Size: %d bytes"), PlayerFileSize);
+    }
+
+    // Test 9: Test data validation
+    TArray<uint8> ValidData;
+    ValidData.Add(1); ValidData.Add(2); ValidData.Add(3);
+    if (!ValidateSaveData(ValidData))
+    {
+        OutResult.bPassed = false;
+        OutResult.ErrorMessage = TEXT("Data validation failed for valid data");
+        UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Data validation"));
+        return false;
+    }
+    UE_LOG(LogTemp, Log, TEXT("✓ Data validation test PASSED"));
+
+    // Test 10: Test cleanup
+    bool bCleanupSuccess = true;
+    bCleanupSuccess &= DeletePlayerData(TestPlayerID);
+    bCleanupSuccess &= DeleteWorldState(TestWorldID);
+
+    if (!bCleanupSuccess)
+    {
+        OutResult.WarningMessages.Add(TEXT("Test data cleanup failed - test files may remain"));
+        UE_LOG(LogTemp, Warning, TEXT("WARNING: Test cleanup failed"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Log, TEXT("✓ Test cleanup PASSED"));
+    }
+
+    // Record performance metrics
+    OutResult.bPassed = true;
+    OutResult.PerformanceMetrics.Add(TEXT("PlayerSaveSize"), SaveResult.BytesSaved);
+    OutResult.PerformanceMetrics.Add(TEXT("WorldSaveSize"), WorldSaveResult.BytesSaved);
+    OutResult.PerformanceMetrics.Add(TEXT("PlayerSaveTime"), SaveResult.SaveDuration);
+    OutResult.PerformanceMetrics.Add(TEXT("PlayerLoadTime"), CurrentStats.AverageLoadTime);
+
+    UE_LOG(LogTemp, Log, TEXT("=== Persistent Universe Manager test PASSED ==="));
+    return true;
+}
+
+FString UPersistentUniverseManager::GetSystemName_Implementation() const
+{
+    return TEXT("PersistentUniverseManager");
+}
+
+FString UPersistentUniverseManager::GetTestDescription_Implementation() const
+{
+    return TEXT("Tests save/load functionality, compression, encryption, and backup systems");
+}
+
+bool UPersistentUniverseManager::IsReadyForTesting_Implementation() const
+{
+    return !SaveDirectory.IsEmpty();
+}
+//~ End ISystemSelfTestInterface interface
+
+void UPersistentUniverseManager::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+    if (bEnableAutoSave)
+    {
+        AutoSaveTimer += DeltaTime;
+        if (AutoSaveTimer >= AutoSaveInterval)
+        {
+            TriggerAutoSave();
+            AutoSaveTimer = 0.0f;
+        }
+    }
+}
 
 FString UPersistentUniverseManager::GetSaveFilePath(EPersistenceType DataType, const FString& DataID) const
 {
@@ -390,6 +392,11 @@ FString UPersistentUniverseManager::GetSaveFilePath(EPersistenceType DataType, c
     return SaveDirectory / TypeFolder / (DataID + TEXT(".sav"));
 }
 
+FString UPersistentUniverseManager::GetSaveFilePath(const FString& ObjectID, const FString& Category) const
+{
+    return SaveDirectory / Category / (ObjectID + TEXT(".sav"));
+}
+
 bool UPersistentUniverseManager::WriteToFile(const FString& FilePath, const TArray<uint8>& Data)
 {
     // Create directory if needed
@@ -415,15 +422,21 @@ TArray<uint8> UPersistentUniverseManager::CompressData(const TArray<uint8>& Data
         return Data;
     }
 
-    // Simple compression using UE5's compression API
+    // Store uncompressed size in header (4 bytes)
     TArray<uint8> CompressedData;
+    CompressedData.SetNum(sizeof(int32));
+    int32 UncompressedSize = Data.Num();
+    FMemory::Memcpy(CompressedData.GetData(), &UncompressedSize, sizeof(int32));
+
+    // Compress the data
+    TArray<uint8> TempCompressed;
     int32 CompressedSize = Data.Num(); // Initial estimate
-    CompressedData.SetNumUninitialized(CompressedSize);
+    TempCompressed.SetNumUninitialized(CompressedSize);
 
     // Use basic compression
     bool bSuccess = FCompression::CompressMemory(
         NAME_Zlib,
-        CompressedData.GetData(),
+        TempCompressed.GetData(),
         CompressedSize,
         Data.GetData(),
         Data.Num()
@@ -431,22 +444,41 @@ TArray<uint8> UPersistentUniverseManager::CompressData(const TArray<uint8>& Data
 
     if (bSuccess)
     {
-        CompressedData.SetNum(CompressedSize);
+        TempCompressed.SetNum(CompressedSize);
+        CompressedData.Append(TempCompressed);
         return CompressedData;
     }
 
-    return Data;
+    // If compression failed, return original data with header indicating no compression (size = 0)
+    CompressedData.Empty();
+    CompressedData.SetNum(sizeof(int32));
+    int32 NoCompressionMarker = 0;
+    FMemory::Memcpy(CompressedData.GetData(), &NoCompressionMarker, sizeof(int32));
+    CompressedData.Append(Data);
+    return CompressedData;
 }
 
 TArray<uint8> UPersistentUniverseManager::DecompressData(const TArray<uint8>& Data) const
 {
-    if (!bEnableCompression || Data.Num() == 0)
+    if (!bEnableCompression || Data.Num() < sizeof(int32))
     {
         return Data;
     }
 
-    // Estimate uncompressed size (store in header in production)
-    int32 UncompressedSize = Data.Num() * 4; // Rough estimate
+    // Read uncompressed size from header
+    int32 UncompressedSize = 0;
+    FMemory::Memcpy(&UncompressedSize, Data.GetData(), sizeof(int32));
+
+    // Check if data was actually compressed (size = 0 means no compression)
+    if (UncompressedSize == 0)
+    {
+        // Data was not compressed, return everything after the header
+        TArray<uint8> UncompressedData;
+        UncompressedData.Append(Data.GetData() + sizeof(int32), Data.Num() - sizeof(int32));
+        return UncompressedData;
+    }
+
+    // Decompress the data
     TArray<uint8> UncompressedData;
     UncompressedData.SetNumUninitialized(UncompressedSize);
 
@@ -454,8 +486,8 @@ TArray<uint8> UPersistentUniverseManager::DecompressData(const TArray<uint8>& Da
         NAME_Zlib,
         UncompressedData.GetData(),
         UncompressedSize,
-        Data.GetData(),
-        Data.Num()
+        Data.GetData() + sizeof(int32), // Skip header
+        Data.Num() - sizeof(int32)
     );
 
     if (bSuccess)
@@ -464,7 +496,11 @@ TArray<uint8> UPersistentUniverseManager::DecompressData(const TArray<uint8>& Da
         return UncompressedData;
     }
 
-    return Data;
+    // If decompression failed, return original data (without header)
+    UE_LOG(LogTemp, Error, TEXT("Failed to decompress data, returning original"));
+    TArray<uint8> FailsafeData;
+    FailsafeData.Append(Data.GetData() + sizeof(int32), Data.Num() - sizeof(int32));
+    return FailsafeData;
 }
 
 TArray<uint8> UPersistentUniverseManager::EncryptData(const TArray<uint8>& Data) const
@@ -529,16 +565,20 @@ FSaveOperationResult UPersistentUniverseManager::SavePlayerData(const FString& P
 
     // Process data
     TArray<uint8> ProcessedData(Archive.GetData(), Archive.Num());
-    
+
     if (bEnableCompression)
     {
         ProcessedData = CompressData(ProcessedData);
     }
-    
+
     if (bEnableEncryption)
     {
         ProcessedData = EncryptData(ProcessedData);
     }
+
+    // Add checksum for data integrity
+    uint32 Checksum = FCrc::MemCrc32(ProcessedData.GetData(), ProcessedData.Num());
+    ProcessedData.Append((uint8*)&Checksum, sizeof(uint32));
 
     // Write to file
     FString FilePath = GetSaveFilePath(EPersistenceType::PlayerData, PlayerID);
@@ -585,7 +625,7 @@ FPlayerPersistentData UPersistentUniverseManager::LoadPlayerData(const FString& 
     // Read from file
     FString FilePath = GetSaveFilePath(EPersistenceType::PlayerData, PlayerID);
     TArray<uint8> FileData;
-    
+
     if (!ReadFromFile(FilePath, FileData))
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to load player data for %s"), *PlayerID);
@@ -596,12 +636,41 @@ FPlayerPersistentData UPersistentUniverseManager::LoadPlayerData(const FString& 
 
     // Process data
     TArray<uint8> ProcessedData = FileData;
-    
+
+    // Verify checksum first
+    if (ProcessedData.Num() < sizeof(uint32))
+    {
+        UE_LOG(LogTemp, Error, TEXT("Save data too small - corrupted file for %s"), *PlayerID);
+        Statistics.FailedOperations++;
+        OnLoadCompleted.Broadcast(false);
+        return Data;
+    }
+
+    // Extract and verify checksum
+    uint32 StoredChecksum;
+    FMemory::Memcpy(&StoredChecksum, ProcessedData.GetData() + ProcessedData.Num() - sizeof(uint32), sizeof(uint32));
+
+    // Remove checksum from data
+    TArray<uint8> DataWithoutChecksum;
+    DataWithoutChecksum.Append(ProcessedData.GetData(), ProcessedData.Num() - sizeof(uint32));
+
+    uint32 CalculatedChecksum = FCrc::MemCrc32(DataWithoutChecksum.GetData(), DataWithoutChecksum.Num());
+    if (CalculatedChecksum != StoredChecksum)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Save data corrupted - checksum mismatch for %s (expected: %u, got: %u)"),
+            *PlayerID, StoredChecksum, CalculatedChecksum);
+        Statistics.FailedOperations++;
+        OnLoadCompleted.Broadcast(false);
+        return Data;
+    }
+
+    ProcessedData = DataWithoutChecksum;
+
     if (bEnableEncryption)
     {
         ProcessedData = DecryptData(ProcessedData);
     }
-    
+
     if (bEnableCompression)
     {
         ProcessedData = DecompressData(ProcessedData);
@@ -609,10 +678,24 @@ FPlayerPersistentData UPersistentUniverseManager::LoadPlayerData(const FString& 
 
     // Deserialize
     FMemoryReader Archive(ProcessedData, true);
-    
+
     int32 Version;
     Archive << Version;
-    
+
+    // Check version and perform migration if needed
+    const int32 CurrentVersion = 1; // Update this when save format changes
+    if (Version != CurrentVersion)
+    {
+        if (!MigrateFromVersion(Version, CurrentVersion, Archive))
+        {
+            UE_LOG(LogTemp, Error, TEXT("Failed to migrate player data from version %d to %d for %s"),
+                Version, CurrentVersion, *PlayerID);
+            Statistics.FailedOperations++;
+            OnLoadCompleted.Broadcast(false);
+            return Data;
+        }
+    }
+
     FString TempPlayerID;
     FString TempPlayerName;
     int32 TempLevel;
@@ -710,16 +793,20 @@ FSaveOperationResult UPersistentUniverseManager::SaveWorldState(const FString& W
 
     // Process data
     TArray<uint8> ProcessedData(Archive.GetData(), Archive.Num());
-    
+
     if (bEnableCompression)
     {
         ProcessedData = CompressData(ProcessedData);
     }
-    
+
     if (bEnableEncryption)
     {
         ProcessedData = EncryptData(ProcessedData);
     }
+
+    // Add checksum for data integrity
+    uint32 Checksum = FCrc::MemCrc32(ProcessedData.GetData(), ProcessedData.Num());
+    ProcessedData.Append((uint8*)&Checksum, sizeof(uint32));
 
     // Write to file
     FString FilePath = GetSaveFilePath(EPersistenceType::WorldState, WorldID);
@@ -765,7 +852,7 @@ FWorldStateData UPersistentUniverseManager::LoadWorldState(const FString& WorldI
     // Read from file
     FString FilePath = GetSaveFilePath(EPersistenceType::WorldState, WorldID);
     TArray<uint8> FileData;
-    
+
     if (!ReadFromFile(FilePath, FileData))
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to load world state for %s"), *WorldID);
@@ -776,12 +863,41 @@ FWorldStateData UPersistentUniverseManager::LoadWorldState(const FString& WorldI
 
     // Process data
     TArray<uint8> ProcessedData = FileData;
-    
+
+    // Verify checksum first
+    if (ProcessedData.Num() < sizeof(uint32))
+    {
+        UE_LOG(LogTemp, Error, TEXT("World state data too small - corrupted file for %s"), *WorldID);
+        Statistics.FailedOperations++;
+        OnLoadCompleted.Broadcast(false);
+        return Data;
+    }
+
+    // Extract and verify checksum
+    uint32 StoredChecksum;
+    FMemory::Memcpy(&StoredChecksum, ProcessedData.GetData() + ProcessedData.Num() - sizeof(uint32), sizeof(uint32));
+
+    // Remove checksum from data
+    TArray<uint8> DataWithoutChecksum;
+    DataWithoutChecksum.Append(ProcessedData.GetData(), ProcessedData.Num() - sizeof(uint32));
+
+    uint32 CalculatedChecksum = FCrc::MemCrc32(DataWithoutChecksum.GetData(), DataWithoutChecksum.Num());
+    if (CalculatedChecksum != StoredChecksum)
+    {
+        UE_LOG(LogTemp, Error, TEXT("World state corrupted - checksum mismatch for %s (expected: %u, got: %u)"),
+            *WorldID, StoredChecksum, CalculatedChecksum);
+        Statistics.FailedOperations++;
+        OnLoadCompleted.Broadcast(false);
+        return Data;
+    }
+
+    ProcessedData = DataWithoutChecksum;
+
     if (bEnableEncryption)
     {
         ProcessedData = DecryptData(ProcessedData);
     }
-    
+
     if (bEnableCompression)
     {
         ProcessedData = DecompressData(ProcessedData);
@@ -789,7 +905,7 @@ FWorldStateData UPersistentUniverseManager::LoadWorldState(const FString& WorldI
 
     // Deserialize
     FMemoryReader Archive(ProcessedData, true);
-    
+
     int32 Version;
     Archive << Version;
     
@@ -850,6 +966,189 @@ FWorldStateData UPersistentUniverseManager::LoadWorldState(const FString& WorldI
     return Data;
 }
 
+// Save Economic State
+bool UPersistentUniverseManager::SaveEconomicState(const FString& FactionID, const FFactionEconomicData& EconomicData)
+{
+	FString FilePath = GetSaveFilePath(FactionID, TEXT("Economy"));
+
+	// Serialize economy data
+	FBufferArchive Archive;
+
+	int32 Version = 1;
+	Archive << Version;
+	
+	// Serialize faction ID
+	FString TempFactionID = FactionID;
+	Archive << TempFactionID;
+	
+	// Serialize economic data (placeholder - in production would serialize full struct)
+	float TempCredits = EconomicData.Credits;
+	float TempInfluence = EconomicData.Influence;
+	Archive << TempCredits;
+	Archive << TempInfluence;
+
+	// Process data
+	TArray<uint8> ProcessedData(Archive.GetData(), Archive.Num());
+
+	if (bEnableCompression)
+	{
+		ProcessedData = CompressData(ProcessedData);
+	}
+
+	if (bEnableEncryption)
+	{
+		ProcessedData = EncryptData(ProcessedData);
+	}
+
+	bool bSuccess = WriteToFile(FilePath, ProcessedData);
+
+	if (bSuccess)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Successfully saved economic state for faction %s (%d bytes)"), *FactionID, ProcessedData.Num());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to save economic state for faction %s"), *FactionID);
+	}
+
+	return bSuccess;
+}
+
+// Load Economic State
+bool UPersistentUniverseManager::LoadEconomicState(const FString& FactionID, FFactionEconomicData& OutEconomicData)
+{
+	FString FilePath = GetSaveFilePath(FactionID, TEXT("Economy"));
+	TArray<uint8> FileData;
+
+	if (!ReadFromFile(FilePath, FileData))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to load economic state file for faction %s"), *FactionID);
+		return false;
+	}
+
+	// Process data
+	TArray<uint8> ProcessedData = FileData;
+
+	if (bEnableEncryption)
+	{
+		ProcessedData = DecryptData(ProcessedData);
+	}
+
+	if (bEnableCompression)
+	{
+		ProcessedData = DecompressData(ProcessedData);
+	}
+
+	// Deserialize
+	FMemoryReader Archive(ProcessedData, true);
+
+	int32 Version;
+	Archive << Version;
+	
+	FString TempFactionID;
+	Archive << TempFactionID;
+	
+	float TempCredits;
+	float TempInfluence;
+	Archive << TempCredits;
+	Archive << TempInfluence;
+	
+	OutEconomicData.Credits = TempCredits;
+	OutEconomicData.Influence = TempInfluence;
+
+	UE_LOG(LogTemp, Log, TEXT("Successfully loaded economic state for faction %s"), *FactionID);
+	return true;
+}
+
+// Save Farming State
+bool UPersistentUniverseManager::SaveFarmingState(const FString& FarmID, const FFarmStateData& FarmData)
+{
+	FString FilePath = GetSaveFilePath(FarmID, TEXT("Farming"));
+
+	// Serialize farming data
+	FBufferArchive Archive;
+
+	int32 Version = 1;
+	Archive << Version;
+	
+	// Serialize farm ID
+	FString TempFarmID = FarmID;
+	Archive << TempFarmID;
+	
+	// Serialize farm data (placeholder)
+	int32 TempPlotCount = FarmData.PlotCount;
+	Archive << TempPlotCount;
+
+	// Process data
+	TArray<uint8> ProcessedData(Archive.GetData(), Archive.Num());
+
+	if (bEnableCompression)
+	{
+		ProcessedData = CompressData(ProcessedData);
+	}
+
+	if (bEnableEncryption)
+	{
+		ProcessedData = EncryptData(ProcessedData);
+	}
+
+	bool bSuccess = WriteToFile(FilePath, ProcessedData);
+
+	if (bSuccess)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Successfully saved farming state for farm %s (%d bytes)"), *FarmID, ProcessedData.Num());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to save farming state for farm %s"), *FarmID);
+	}
+
+	return bSuccess;
+}
+
+// Load Farming State
+bool UPersistentUniverseManager::LoadFarmingState(const FString& FarmID, FFarmStateData& OutFarmData)
+{
+	FString FilePath = GetSaveFilePath(FarmID, TEXT("Farming"));
+	TArray<uint8> FileData;
+
+	if (!ReadFromFile(FilePath, FileData))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to load farming state file for farm %s"), *FarmID);
+		return false;
+	}
+
+	// Process data
+	TArray<uint8> ProcessedData = FileData;
+
+	if (bEnableEncryption)
+	{
+		ProcessedData = DecryptData(ProcessedData);
+	}
+
+	if (bEnableCompression)
+	{
+		ProcessedData = DecompressData(ProcessedData);
+	}
+
+	// Deserialize
+	FMemoryReader Archive(ProcessedData, true);
+
+	int32 Version;
+	Archive << Version;
+	
+	FString TempFarmID;
+	Archive << TempFarmID;
+	
+	int32 TempPlotCount;
+	Archive << TempPlotCount;
+	
+	OutFarmData.PlotCount = TempPlotCount;
+
+	UE_LOG(LogTemp, Log, TEXT("Successfully loaded farming state for farm %s"), *FarmID);
+	return true;
+}
+
 FSaveOperationResult UPersistentUniverseManager::SaveAllData()
 {
     FSaveOperationResult Result;
@@ -878,6 +1177,12 @@ FSaveOperationResult UPersistentUniverseManager::SaveAllData()
         }
         TotalBytes += WorldResult.BytesSaved;
     }
+
+    // Save economic state
+    SaveEconomicState();
+
+    // Save farming state
+    SaveFarmingState();
 
     Result.bSuccess = bAllSuccess;
     Result.BytesSaved = TotalBytes;
@@ -911,6 +1216,12 @@ bool UPersistentUniverseManager::LoadAllData()
             bSuccess = false;
         }
     }
+
+    // Load economic state
+    LoadEconomicState();
+
+    // Load farming state
+    LoadFarmingState();
 
     UE_LOG(LogTemp, Log, TEXT("Loaded all available save data"));
     return bSuccess;
@@ -1285,4 +1596,36 @@ bool UPersistentUniverseManager::ValidateSaveData(const TArray<uint8>& Data) con
 {
     // Basic validation - check if data is not empty and has reasonable size
     return Data.Num() > 0 && Data.Num() < 100 * 1024 * 1024; // Max 100MB
+}
+
+bool UPersistentUniverseManager::MigrateFromVersion(int32 OldVersion, int32 NewVersion, FMemoryReader& Reader)
+{
+    // Handle version migrations
+    if (OldVersion == NewVersion)
+    {
+        // No migration needed
+        return true;
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("Migrating save data from version %d to %d"), OldVersion, NewVersion);
+
+    // Version 1 to Version 2 migration
+    if (OldVersion == 1 && NewVersion == 2)
+    {
+        // Example: In v2, we might add new fields with default values
+        // Read old data, add new fields with defaults
+        UE_LOG(LogTemp, Log, TEXT("Applying migration from v1 to v2"));
+        return true;
+    }
+
+    // Add more version migrations as needed
+    // if (OldVersion == 2 && NewVersion == 3)
+    // {
+    //     // Handle v2 to v3 migration
+    //     return true;
+    // }
+
+    // Unsupported migration path
+    UE_LOG(LogTemp, Warning, TEXT("Unsupported migration path from version %d to %d"), OldVersion, NewVersion);
+    return false;
 }

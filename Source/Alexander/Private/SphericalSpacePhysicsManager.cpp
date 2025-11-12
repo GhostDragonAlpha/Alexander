@@ -297,7 +297,7 @@ void USphericalSpacePhysicsManager::SetOrbitalParameters(AActor* Actor, AActor* 
     }
 
     float AngularSpeed = CalculateAngularSpeed(OrbitalRadiusKm, OrbitalPeriodHours);
-    OrbitalParameters.Add(Actor, TPair<AActor*, float>(CenterActor, AngularSpeed));
+    OrbitalParameters.Add(Actor, FOrbitalParameterData{CenterActor, AngularSpeed});
 
     UE_LOG(LogTemp, Log, TEXT("Set orbital parameters for %s around %s: Radius=%.1fkm, Period=%.1fhours"),
         *Actor->GetName(), *CenterActor->GetName(), OrbitalRadiusKm, OrbitalPeriodHours);
@@ -311,8 +311,8 @@ void USphericalSpacePhysicsManager::UpdateOrbitalPosition(AActor* Actor, float D
     }
 
     const auto& OrbitalData = OrbitalParameters[Actor];
-    AActor* CenterActor = OrbitalData.Key;
-    float AngularSpeed = OrbitalData.Value;
+    AActor* CenterActor = OrbitalData.CenterActor;
+    float AngularSpeed = OrbitalData.AngularSpeed;
 
     if (!CenterActor || !IsValid(CenterActor))
     {

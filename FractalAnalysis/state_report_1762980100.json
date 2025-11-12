@@ -1,0 +1,33 @@
+{
+  "timestamp": 1762980096.8720565,
+  "temporal_coherence": {
+    "micro_timestamp": 1762537468.775463,
+    "meso_timestamp": 1762537468.7504206,
+    "macro_timestamp": 1762537468.7854824,
+    "meta_timestamp": 0.0,
+    "gaps": {
+      "micro-meso": 0.02504253387451172,
+      "meso-macro": 0.03506183624267578
+    },
+    "coherence_score": 0.9998831272125244
+  },
+  "write_conflicts": [
+    {
+      "file_path": ".\\session_state.json",
+      "conflict_type": "protocol_violation",
+      "processes": [
+        "session_manager"
+      ],
+      "timestamp": 1762980096.8786666,
+      "severity": "high"
+    }
+  ],
+  "state_desync": [],
+  "summary": {
+    "total_issues": 1,
+    "temporal_coherence_score": 0.9998831272125244,
+    "write_conflicts": 1,
+    "state_desync_events": 0,
+    "status": "degraded"
+  }
+}

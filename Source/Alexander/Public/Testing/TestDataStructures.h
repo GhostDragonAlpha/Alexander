@@ -218,11 +218,11 @@ struct FTestCaseResult
 	FString ToString() const
 	{
 		FString StatusStr = UEnum::GetValueAsString(Status);
-		if (Status == ETestStatus::Passed)
+		if (Status == EAlexanderTestStatus::Passed)
 		{
 			return FString::Printf(TEXT("[PASS] %s (%.2fs)"), *TestName, ExecutionTimeSeconds);
 		}
-		else if (Status == ETestStatus::Failed)
+		else if (Status == EAlexanderTestStatus::Failed)
 		{
 			return FString::Printf(TEXT("[FAIL] %s: %s"), *TestName, *ErrorMessage);
 		}

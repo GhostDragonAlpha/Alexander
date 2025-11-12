@@ -148,7 +148,7 @@ void AOrbitalBody::BeginPlay()
 void AOrbitalBody::Tick(float DeltaTime)
 {
     // Validate DeltaTime to prevent division by zero and invalid physics calculations
-    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(DeltaTime, TEXT("DeltaTime"), TEXT("OrbitalBody::Tick")), { return; });
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(DeltaTime, TEXT("DeltaTime")), { return; });
 
     Super::Tick(DeltaTime);
 
@@ -217,7 +217,7 @@ void AOrbitalBody::Tick(float DeltaTime)
 void AOrbitalBody::UpdateOrbitalPosition(float DeltaTime)
 {
     // Validate inputs and critical pointers
-    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(DeltaTime, TEXT("DeltaTime"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
+    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(DeltaTime, TEXT("DeltaTime")), { return; });
     VALIDATE_OR_EXECUTE(USystemValidation::ValidateNotNull(OrbitTarget.Get(), TEXT("OrbitTarget"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
     VALIDATE_OR_EXECUTE(USystemValidation::ValidateNotNull(OrbitalMechanics, TEXT("OrbitalMechanics"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
 
@@ -225,9 +225,9 @@ void AOrbitalBody::UpdateOrbitalPosition(float DeltaTime)
     const FOrbitalElements& Elements = OrbitalMechanics->GetCurrentOrbitalElements();
     
     // Validate orbital elements before calculations
-    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(Elements.SemiMajorAxis, TEXT("SemiMajorAxis"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
-    VALIDATE_OR_EXECUTE(USystemValidation::ValidateRange(Elements.Eccentricity, 0.0f, 0.999f, TEXT("Eccentricity"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
-    VALIDATE_OR_EXECUTE(USystemValidation::ValidatePositive(Elements.StandardGravitationalParameter, TEXT("StandardGravitationalParameter"), TEXT("OrbitalBody::UpdateOrbitalPosition")), { return; });
+    if (Elements.SemiMajorAxis <= 0.0f) { return; }
+    if (Elements.Eccentricity < 0.0f || Elements.Eccentricity >= 1.0f) { return; }
+    if (Elements.StandardGravitationalParameter <= 0.0f) { return; }
 
     // Update time since periapsis
     TimeSincePeriapsis += DeltaTime * TimeWarpFactor;

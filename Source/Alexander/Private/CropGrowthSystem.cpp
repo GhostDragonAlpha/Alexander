@@ -30,6 +30,12 @@ FCropGrowthData UCropGrowthSystem::GetCropGrowthData(ECropTypeExtended CropType)
 	return DefaultData;
 }
 
+float UCropGrowthSystem::GetCropMarketValue(ECropTypeExtended CropType) const
+{
+	FCropGrowthData CropData = GetCropGrowthData(CropType);
+	return CropData.MarketValue;
+}
+
 TArray<ECropTypeExtended> UCropGrowthSystem::GetAllAvailableCrops() const
 {
 	TArray<ECropTypeExtended> AvailableCrops;

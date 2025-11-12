@@ -11,7 +11,6 @@
 // Forward declarations
 class AAsteroid;
 class ASpaceship;
-class UInventoryManager;
 
 // Mining laser types
 UENUM(BlueprintType)
@@ -306,10 +305,6 @@ protected:
 	// Resource gathering system reference
 	UPROPERTY()
 	TWeakObjectPtr<UResourceGatheringSystem> ResourceGatheringSystem;
-
-	// Inventory manager reference
-	UPROPERTY()
-	TWeakObjectPtr<UInventoryManager> InventoryManager;
 
 	// Current mining laser type
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mining")

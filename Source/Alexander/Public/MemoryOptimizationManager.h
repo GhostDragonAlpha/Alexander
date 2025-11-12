@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Engine/TextureStreamingManager.h"
-#include "Engine/StaticMeshStreamingManager.h"
+// #include "Engine/ContentStreaming.h" // Temporarily disabled
+// #include "Engine/StaticMeshStreamingManager.h" // Not available in UE5.6
 #include "Engine/AssetManager.h"
 #include "Engine/StreamableManager.h"
 #include "MemoryOptimizationManager.generated.h"

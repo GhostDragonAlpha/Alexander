@@ -33,12 +33,12 @@ enum class EIrrigationStatus : uint8
  * Requires 500W of power to operate
  */
 UCLASS()
-class ALEXANDER_API AAlexanderIrrigationSystem : public AActor, public IPowerConsumer
+class ALEXANDER_API AIrrigationSystem : public AActor, public IPowerConsumer
 {
 	GENERATED_BODY()
 
 public:
-	AAlexanderIrrigationSystem();
+	AIrrigationSystem();
 
 protected:
 	virtual void BeginPlay() override;
@@ -55,6 +55,12 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	UStaticMeshComponent* BaseMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UStaticMeshComponent* PumpMesh;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+	UBoxComponent* CoverageVolume;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	USphereComponent* WateringRadius;

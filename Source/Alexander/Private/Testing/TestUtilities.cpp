@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Testing/TestUtilities.h"
+#include "TestScenarioManager.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 // #include "HeadMountedDisplayFunctionLibrary.h" // UE5.6: Moved or deprecated
@@ -266,13 +267,15 @@ FLinearColor UTestUtilities::GetTestStatusColor(ETestStatus Status)
 		return FLinearColor::Green;
 	case ETestStatus::Failed:
 		return FLinearColor::Red;
-	case ETestStatus::Running:
+	case ETestStatus::InProgress:
 		return FLinearColor::Yellow;
 	case ETestStatus::Skipped:
 		return FLinearColor(0.5f, 0.5f, 0.5f); // Gray
 	case ETestStatus::Timeout:
 		return FLinearColor(1.0f, 0.5f, 0.0f); // Orange
-	case ETestStatus::NotRun:
+	case ETestStatus::Error:
+		return FLinearColor(0.8f, 0.0f, 0.8f); // Purple
+	case ETestStatus::NotStarted:
 	default:
 		return FLinearColor::White;
 	}
@@ -352,17 +355,17 @@ void UTestUtilities::WaitForObject(UObject* WorldContextObject, UObject*& Object
 
 int32 UTestUtilities::CompareTestResults(const FTestCaseResult& A, const FTestCaseResult& B)
 {
-	// Sort by status priority: Failed > Timeout > Running > Passed > Skipped > NotRun
-	auto GetPriority = [](ETestStatus Status) -> int32
+	// Sort by status priority: Failed > Error > Timeout > InProgress > Passed > Skipped > NotStarted
+	auto GetPriority = [](const EAlexanderTestStatus TestStatus) -> int32
 	{
-		switch (Status)
+		switch (TestStatus)
 		{
-		case ETestStatus::Failed: return 0;
-		case ETestStatus::Timeout: return 1;
-		case ETestStatus::Running: return 2;
-		case ETestStatus::Passed: return 3;
-		case ETestStatus::Skipped: return 4;
-		case ETestStatus::NotRun: return 5;
+		case EAlexanderTestStatus::Failed: return 0;
+		case EAlexanderTestStatus::Timeout: return 1;
+		case EAlexanderTestStatus::Running: return 2;
+		case EAlexanderTestStatus::Passed: return 3;
+		case EAlexanderTestStatus::Skipped: return 4;
+		case EAlexanderTestStatus::NotRun: return 5;
 		default: return 6;
 		}
 	};

@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
 #include "FarmPlot.h"
+#include "CropGrowthSystem.h"
 #include "SoilSystem.generated.h"
 
 /**
@@ -89,10 +90,10 @@ public:
 
 	// Soil recommendations
 	UFUNCTION(BlueprintCallable, Category = "Soil System")
-	TArray<FString> GetSoilRecommendations(const FSoilComposition& Soil, ECropType CropType);
+	TArray<FString> GetSoilRecommendations(const FSoilComposition& Soil, ECropTypeExtended CropType);
 
 	UFUNCTION(BlueprintCallable, Category = "Soil System")
-	float GetCropSuitability(const FSoilComposition& Soil, ECropType CropType) const;
+	float GetCropSuitability(const FSoilComposition& Soil, ECropTypeExtended CropType) const;
 
 	// Soil types
 	UFUNCTION(BlueprintCallable, Category = "Soil System")

@@ -223,29 +223,29 @@ bool UResourceGatheringSystem::RunSelfTest_Implementation(FSystemTestResult& Out
 	
 	UE_LOG(LogTemp, Log, TEXT("=== Resource Gathering System test PASSED ==="));
 	return true;
- 223 }
- 224
- 225 FString UResourceGatheringSystem::GetSystemName_Implementation() const
- 226 {
- 227 	return TEXT("ResourceGatheringSystem");
- 228 }
- 229
- 230 FString UResourceGatheringSystem::GetTestDescription_Implementation() const
- 231 {
- 232 	return TEXT("Tests resource definitions, mining operations, and resource tracking");
- 233 }
- 234
- 235 bool UResourceGatheringSystem::IsReadyForTesting_Implementation() const
- 236 {
- 236 	return ResourceDefinitions.Num() > 0;
- 237 }
- 238 //~ End ISystemSelfTestInterface interface
- 239
- 240 void UResourceGatheringSystem::Tick(float DeltaTime)
- 241 {
- 242 	// Update any ongoing mining operations or resource regeneration
- 243 	// For now, this is a placeholder for future timed operations
- 244 }
+}
+	
+FString UResourceGatheringSystem::GetSystemName_Implementation() const
+{
+	return TEXT("ResourceGatheringSystem");
+}
+
+FString UResourceGatheringSystem::GetTestDescription_Implementation() const
+{
+	return TEXT("Tests resource definitions, mining operations, and resource tracking");
+}
+
+bool UResourceGatheringSystem::IsReadyForTesting_Implementation() const
+{
+	return ResourceDefinitions.Num() > 0;
+}
+//~ End ISystemSelfTestInterface interface
+
+void UResourceGatheringSystem::Tick(float DeltaTime)
+{
+	// Update any ongoing mining operations or resource regeneration
+	// For now, this is a placeholder for future timed operations
+}
 
 void UResourceGatheringSystem::RegisterResource(const FResourceDefinition& ResourceDef)
 {
@@ -375,7 +375,9 @@ void UResourceGatheringSystem::GenerateAsteroidResources(AAsteroid* Asteroid)
 	}
 
 	// Store deposits
-	AsteroidDeposits.Add(Asteroid, Deposits);
+	FResourceDepositArray DepositArray;
+	DepositArray.Deposits = Deposits;
+	AsteroidDeposits.Add(Asteroid, DepositArray);
 
 	UE_LOG(LogTemp, Log, TEXT("Generated %d resource deposits for asteroid %d (Size: %.1fm)"), 
 		   Deposits.Num(), Asteroid->AsteroidID, AsteroidSize);
@@ -383,8 +385,54 @@ void UResourceGatheringSystem::GenerateAsteroidResources(AAsteroid* Asteroid)
 
 TArray<FResourceDeposit> UResourceGatheringSystem::GetAsteroidResources(AAsteroid* Asteroid) const
 {
-	const TArray<FResourceDeposit>* Deposits = AsteroidDeposits.Find(Asteroid);
-	return Deposits ? *Deposits : TArray<FResourceDeposit>();
+	const FResourceDepositArray* DepositArray = AsteroidDeposits.Find(Asteroid);
+	return DepositArray ? DepositArray->Deposits : TArray<FResourceDeposit>();
+}
+
+// POINTER SAFETY: Get pointer to actual asteroid resources for modification
+TArray<FResourceDeposit>* UResourceGatheringSystem::GetAsteroidResourcesPtr(AAsteroid* Asteroid)
+{
+	FResourceDepositArray* DepositArray = AsteroidDeposits.Find(Asteroid);
+	return DepositArray ? &DepositArray->Deposits : nullptr;
+}
+
+// POINTER SAFETY: Get pointer to actual planetary resources for modification
+TArray<FResourceDeposit>* UResourceGatheringSystem::GetPlanetaryResourcesPtr(APlanet* Planet, FVector Location)
+{
+	if (!Planet)
+	{
+		return nullptr;
+	}
+
+	// Find deposits near the location
+	static TArray<FResourceDeposit> NearbyDeposits;
+	NearbyDeposits.Empty();
+	
+	const FPlanetaryDepositMap* PlanetDeposits = PlanetaryDeposits.Find(Planet);
+	if (PlanetDeposits)
+	{
+		// Find the closest deposit location
+		float ClosestDistance = MAX_FLT;
+		const FResourceDepositArray* ClosestDeposits = nullptr;
+		
+		for (const auto& Pair : PlanetDeposits->LocationDeposits)
+		{
+			float Distance = FVector::Dist(Location, Pair.Key);
+			if (Distance < 5000.0f && Distance < ClosestDistance) // 5km range
+			{
+				ClosestDistance = Distance;
+				ClosestDeposits = &Pair.Value;
+			}
+		}
+		
+		if (ClosestDeposits)
+		{
+			// Return the actual deposits array for modification
+			return const_cast<TArray<FResourceDeposit>*>(&ClosestDeposits->Deposits);
+		}
+	}
+
+	return nullptr;
 }
 
 bool UResourceGatheringSystem::ScanAsteroid(AAsteroid* Asteroid, float ScanStrength, TArray<FResourceDeposit>& OutDeposits)
@@ -506,7 +554,7 @@ void UResourceGatheringSystem::GeneratePlanetaryResources(APlanet* Planet)
 	}
 
 	// Store deposits
-	PlanetaryDeposits.Add(Planet, PlanetDepositMap);
+	PlanetaryDeposits.Add(Planet, PlanetDeposits);
 
 	UE_LOG(LogTemp, Log, TEXT("Generated %d resource deposits for planet"), NumDeposits);
 }
@@ -522,13 +570,9 @@ TArray<FResourceDeposit> UResourceGatheringSystem::GetPlanetaryResources(APlanet
 	TArray<FResourceDeposit> NearbyDeposits;
 	const FPlanetaryDepositMap* PlanetDeposits = PlanetaryDeposits.Find(Planet);
 
-	if (PlanetDepositMap)
+	if (PlanetDeposits)
 	{
-<<<<<<< Updated upstream
-		for (const auto& Pair : PlanetDepositMap->LocationDeposits)
-=======
 		for (const auto& Pair : PlanetDeposits->LocationDeposits)
->>>>>>> Stashed changes
 		{
 			float Distance = FVector::Dist(Location, Pair.Key);
 			if (Distance < 5000.0f) // 5km range
@@ -649,8 +693,9 @@ FMiningResult UResourceGatheringSystem::MineAsteroid(AAsteroid* Asteroid, float 
 		return Result;
 	}
 
-	TArray<FResourceDeposit> Deposits = GetAsteroidResources(Asteroid);
-	if (Deposits.Num() == 0)
+	// DEPOSIT PERSISTENCE FIX: Get reference to actual deposits, not copy
+	TArray<FResourceDeposit>* DepositsPtr = GetAsteroidResourcesPtr(Asteroid);
+	if (!DepositsPtr || DepositsPtr->Num() == 0)
 	{
 		FMiningResult Result;
 		Result.bSuccess = false;
@@ -658,12 +703,21 @@ FMiningResult UResourceGatheringSystem::MineAsteroid(AAsteroid* Asteroid, float 
 		return Result;
 	}
 
-	// Mine the first available deposit
-	for (FResourceDeposit& Deposit : Deposits)
+	// Mine the first available deposit (now modifying actual data)
+	for (FResourceDeposit& Deposit : *DepositsPtr)
 	{
 		if (!Deposit.bIsDepleted)
 		{
-			return MineDeposit(Deposit, MiningPower, MiningEfficiency);
+			FMiningResult Result = MineDeposit(Deposit, MiningPower, MiningEfficiency);
+			// Update deposit state in the actual storage
+			Deposit.RemainingQuantity = Result.ResourcesExtracted.Num() > 0 ?
+				Deposit.CurrentQuantity : 0.0f;
+			if (Deposit.RemainingQuantity <= 0.0f)
+			{
+				Deposit.bIsDepleted = true;
+				OnDepositDepleted.Broadcast(Deposit);
+			}
+			return Result;
 		}
 	}
 
@@ -683,8 +737,9 @@ FMiningResult UResourceGatheringSystem::MinePlanetaryDeposit(APlanet* Planet, FV
 		return Result;
 	}
 
-	TArray<FResourceDeposit> Deposits = GetPlanetaryResources(Planet, Location);
-	if (Deposits.Num() == 0)
+	// DEPOSIT PERSISTENCE FIX: Get reference to actual deposits, not copy
+	TArray<FResourceDeposit>* DepositsPtr = GetPlanetaryResourcesPtr(Planet, Location);
+	if (!DepositsPtr || DepositsPtr->Num() == 0)
 	{
 		FMiningResult Result;
 		Result.bSuccess = false;
@@ -692,12 +747,21 @@ FMiningResult UResourceGatheringSystem::MinePlanetaryDeposit(APlanet* Planet, FV
 		return Result;
 	}
 
-	// Mine the first available deposit
-	for (FResourceDeposit& Deposit : Deposits)
+	// Mine the first available deposit (now modifying actual data)
+	for (FResourceDeposit& Deposit : *DepositsPtr)
 	{
 		if (!Deposit.bIsDepleted)
 		{
-			return MineDeposit(Deposit, MiningPower, MiningEfficiency);
+			FMiningResult Result = MineDeposit(Deposit, MiningPower, MiningEfficiency);
+			// Update deposit state in the actual storage
+			Deposit.RemainingQuantity = Result.ResourcesExtracted.Num() > 0 ?
+				Deposit.CurrentQuantity : 0.0f;
+			if (Deposit.RemainingQuantity <= 0.0f)
+			{
+				Deposit.bIsDepleted = true;
+				OnDepositDepleted.Broadcast(Deposit);
+			}
+			return Result;
 		}
 	}
 

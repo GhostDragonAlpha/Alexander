@@ -393,10 +393,6 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<UResourceGatheringSystem> ResourceGatheringSystem;
 
-	// Inventory manager reference
-	UPROPERTY()
-	TWeakObjectPtr<UInventoryManager> InventoryManager;
-
 	// Refining recipes database
 	UPROPERTY()
 	TMap<FName, FRefiningRecipe> Recipes;

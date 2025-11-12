@@ -1,0 +1,30 @@
+[
+  {
+    "pattern_type": "null_cascade_ue",
+    "description": "Address Null Pointer Cascade (UE) pattern across project",
+    "scope": "project_wide",
+    "priority": "critical",
+    "estimated_effort": "medium"
+  },
+  {
+    "pattern_type": "state_desync_ue",
+    "description": "Address State Desynchronization (UE) pattern across project",
+    "scope": "project_wide",
+    "priority": "high",
+    "estimated_effort": "medium"
+  },
+  {
+    "pattern_type": "api_drift_ue",
+    "description": "Address API Drift (UE) pattern across project",
+    "scope": "project_wide",
+    "priority": "medium",
+    "estimated_effort": "medium"
+  },
+  {
+    "pattern_type": "coupling_cascade_ue",
+    "description": "Address Coupling Cascade (UE) pattern across project",
+    "scope": "project_wide",
+    "priority": "medium",
+    "estimated_effort": "medium"
+  }
+]

@@ -2,6 +2,7 @@
 
 #include "Testing/TestStation.h"
 #include "Testing/TestLevelGameMode.h"
+#include "TestScenarioManager.h"
 #include "PerformanceProfiler.h"
 #include "Engine/World.h"
 #include "TimerManager.h"
@@ -156,9 +157,9 @@ void UTestStation::StopAllTests()
 	if (Results.TestCases.Num() > 0)
 	{
 		FTestCaseResult& LastTest = Results.TestCases.Last();
-		if (LastTest.Status == ETestStatus::Running)
+		if (LastTest.Status == EAlexanderTestStatus::Running)
 		{
-			LastTest.Status = ETestStatus::Failed;
+			LastTest.Status = EAlexanderTestStatus::Failed;
 			LastTest.ErrorMessage = TEXT("Test stopped by user");
 			LastTest.EndTime = FDateTime::Now();
 		}

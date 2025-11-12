@@ -31,7 +31,16 @@
       "Bash(do echo \"Attempt $i:\")",
       "Bash(break)",
       "Bash(start \"\" \"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Binaries\\Win64\\UnrealEditor.exe\" \"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -log)",
-      "Bash(git merge:*)"
+      "Bash(git merge:*)",
+      "Bash(\"./ubt.bat\")",
+      "Bash(ubt.bat)",
+      "Bash(./ubt.bat)",
+      "Bash(\"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Build\\BatchFiles\\Build.bat\" AlexanderEditor Win64 Development -Project=\"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -WaitMutex -FromMsBuild)",
+      "Bash(powershell -Command:*)",
+      "Bash(./ubt.bat AlexanderEditor Win64 Development -WaitMutex)",
+      "Bash(\"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Build\\BatchFiles\\Build.bat\" AlexanderEditor Win64 Development -Project=\"C:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -WaitMutex)",
+      "Bash(./ubt.bat:*)",
+      "Bash(taskkill:*)"
     ],
     "deny": [],
     "ask": []

@@ -8,8 +8,7 @@
 #include "CraftingSystem.generated.h"
 
 // Forward declarations
-class ABaseModule;
-class UInventoryManager;
+class ASpaceStationHub;
 
 // Crafting tiers
 UENUM(BlueprintType)
@@ -158,7 +157,7 @@ struct FActiveCraftingOperation
 
 	// Crafting station being used
 	UPROPERTY()
-	TWeakObjectPtr<ABaseModule> CraftingStation;
+	TWeakObjectPtr<ASpaceStationHub> CraftingStation;
 
 	// Start time
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Operation")
@@ -238,7 +237,7 @@ struct FCraftingStationInfo
 
 	// Station reference
 	UPROPERTY()
-	TWeakObjectPtr<ABaseModule> Station;
+	TWeakObjectPtr<ASpaceStationHub> Station;
 
 	// Station type
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Station")
@@ -276,10 +275,10 @@ struct FCraftingStationInfo
 
 // Delegate declarations
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnBlueprintUnlocked, const FCraftingBlueprint&, Blueprint);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCraftingStarted, const FCraftingBlueprint&, Blueprint, ABaseModule*, Station);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCraftingStarted, const FCraftingBlueprint&, Blueprint, ASpaceStationHub*, Station);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCraftingCompleted, const FCraftingBlueprint&, Blueprint, const FCraftingResult&, Result);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCraftingStationAdded, ABaseModule*, Station, ECraftingStationType, StationType);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCraftingStationRemoved, ABaseModule*, Station);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnCraftingStationAdded, ASpaceStationHub*, Station, ECraftingStationType, StationType);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCraftingStationRemoved, ASpaceStationHub*, Station);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCraftingSkillIncreased);
 
 /**
@@ -343,19 +342,19 @@ public:
 
 	// Start crafting operation
 	UFUNCTION(BlueprintCallable, Category = "Crafting")
-	bool StartCrafting(FName BlueprintID, ABaseModule* Station);
+	bool StartCrafting(FName BlueprintID, ASpaceStationHub* Station);
 
 	// Cancel crafting operation
 	UFUNCTION(BlueprintCallable, Category = "Crafting")
-	void CancelCrafting(ABaseModule* Station);
+	void CancelCrafting(ASpaceStationHub* Station);
 
 	// Is station currently crafting?
 	UFUNCTION(BlueprintCallable, Category = "Crafting")
-	bool IsStationCrafting(ABaseModule* Station) const;
+	bool IsStationCrafting(ASpaceStationHub* Station) const;
 
 	// Get crafting progress (0-1)
 	UFUNCTION(BlueprintCallable, Category = "Crafting")
-	float GetCraftingProgress(ABaseModule* Station) const;
+	float GetCraftingProgress(ASpaceStationHub* Station) const;
 
 	// ============================================================================
 	// CRAFTING STATION MANAGEMENT
@@ -363,15 +362,15 @@ public:
 
 	// Register crafting station
 	UFUNCTION(BlueprintCallable, Category = "Crafting Stations")
-	void RegisterCraftingStation(ABaseModule* Station, ECraftingStationType StationType, int32 Tier);
+	void RegisterCraftingStation(ASpaceStationHub* Station, ECraftingStationType StationType, int32 Tier);
 
 	// Unregister crafting station
 	UFUNCTION(BlueprintCallable, Category = "Crafting Stations")
-	void UnregisterCraftingStation(ABaseModule* Station);
+	void UnregisterCraftingStation(ASpaceStationHub* Station);
 
 	// Get crafting station info
 	UFUNCTION(BlueprintCallable, Category = "Crafting Stations")
-	FCraftingStationInfo GetCraftingStationInfo(ABaseModule* Station) const;
+	FCraftingStationInfo GetCraftingStationInfo(ASpaceStationHub* Station) const;
 
 	// Get all crafting stations
 	UFUNCTION(BlueprintCallable, Category = "Crafting Stations")
@@ -383,7 +382,7 @@ public:
 
 	// Update station operational status
 	UFUNCTION(BlueprintCallable, Category = "Crafting Stations")
-	void SetStationOperational(ABaseModule* Station, bool bIsOperational);
+	void SetStationOperational(ASpaceStationHub* Station, bool bIsOperational);
 
 	// ============================================================================
 	// CRAFTING SKILL
@@ -460,17 +459,13 @@ protected:
 	UPROPERTY()
 	TWeakObjectPtr<UResourceGatheringSystem> ResourceGatheringSystem;
 
-	// Inventory manager reference
-	UPROPERTY()
-	TWeakObjectPtr<UInventoryManager> InventoryManager;
-
 	// Crafting blueprints database
 	UPROPERTY()
 	TMap<FName, FCraftingBlueprint> Blueprints;
 
 	// Crafting stations
 	UPROPERTY()
-	TMap<ABaseModule*, FCraftingStationInfo> CraftingStations;
+	TMap<ASpaceStationHub*, FCraftingStationInfo> CraftingStations;
 
 	// Active crafting operations
 	UPROPERTY()
@@ -498,13 +493,13 @@ private:
 	void InitializeConsumableBlueprints();
 	void InitializeAdvancedBlueprints();
 	FCraftingResult CompleteCraftingOperation(FActiveCraftingOperation& Operation);
-	bool CanCraftBlueprint(const FCraftingBlueprint& Blueprint, ABaseModule* Station) const;
+	bool CanCraftBlueprint(const FCraftingBlueprint& Blueprint, ASpaceStationHub* Station) const;
 	bool HasRequiredResources(const FCraftingBlueprint& Blueprint) const;
 	void ConsumeResources(const FCraftingBlueprint& Blueprint);
-	FCraftingResult CraftItem(const FCraftingBlueprint& Blueprint, ABaseModule* Station, float QualityMultiplier);
+	FCraftingResult CraftItem(const FCraftingBlueprint& Blueprint, ASpaceStationHub* Station, float QualityMultiplier);
 	void ProduceItem(const FCraftingBlueprint& Blueprint, FCraftingResult& Result, float QualityMultiplier);
-	float CalculateSuccessChance(const FCraftingBlueprint& Blueprint, ABaseModule* Station) const;
+	float CalculateSuccessChance(const FCraftingBlueprint& Blueprint, ASpaceStationHub* Station) const;
 	EResourceQuality CalculateItemQuality(float BaseQuality, float QualityMultiplier) const;
-	float CalculateCraftingDuration(const FCraftingBlueprint& Blueprint, ABaseModule* Station) const;
-	float CalculateEnergyConsumption(float Duration, ABaseModule* Station) const;
+	float CalculateCraftingDuration(const FCraftingBlueprint& Blueprint, ASpaceStationHub* Station) const;
+	float CalculateEnergyConsumption(float Duration, ASpaceStationHub* Station) const;
 };

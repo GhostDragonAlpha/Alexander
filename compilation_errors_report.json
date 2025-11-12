@@ -1,0 +1,25 @@
+{
+  "collector_type": "compilation_errors",
+  "timestamp": "2025-11-12T15:19:10.564296Z",
+  "build_config": {
+    "configuration": "Development",
+    "platform": "Win64",
+    "project_path": "c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject",
+    "engine_path": "C:\\Program Files\\Epic Games\\UE_5.6"
+  },
+  "execution": {
+    "start_time": "2025-11-12T15:19:10.564296Z",
+    "end_time": "2025-11-12T15:19:10.564296Z",
+    "duration_seconds": 15.61,
+    "exit_code": 6,
+    "command_executed": "\"C:\\Program Files\\Epic Games\\UE_5.6\\Engine\\Build\\BatchFiles\\Build.bat\" AlexanderEditor Win64 Development -Project=\"c:\\Users\\allen\\Desktop\\Alexander\\Alexander\\Alexander.uproject\" -WaitMutex -FromMsBuild"
+  },
+  "results": {
+    "success": false,
+    "total_errors": 0,
+    "total_warnings": 0,
+    "errors": [],
+    "warnings": [],
+    "modules_built": []
+  }
+}

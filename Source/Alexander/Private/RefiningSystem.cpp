@@ -4,7 +4,6 @@
 #include "BaseBuildingManager.h"
 #include "BaseModule.h"
 #include "ResourceGatheringSystem.h"
-#include "InventoryManager.h"
 #include "Engine/World.h"
 
 URefiningSystem::URefiningSystem()
@@ -155,7 +154,7 @@ bool URefiningSystem::UnlockRecipe(FName RecipeID)
 	Recipe->bIsUnlocked = true;
 
 	// Fire unlock event
-	OnRecipeUnlocked.Broadcast(*Recipe);
+	OnRefiningRecipeUnlocked.Broadcast(*Recipe);
 
 	UE_LOG(LogTemp, Log, TEXT("Unlocked refining recipe: %s"), *RecipeID.ToString());
 
@@ -551,21 +550,64 @@ FRefiningResult URefiningSystem::CompleteRefiningOperation(FActiveRefiningOperat
 
 bool URefiningSystem::HasRequiredResources(const FRefiningRecipe& Recipe) const
 {
-	if (!ResourceGatheringSystem.IsValid())
+	if (!InventoryManager.IsValid())
 	{
 		return false;
 	}
 
-	// In a full implementation, this would check the inventory system
-	// For now, assume we have the resources
+	// Check if we have all required resources in base storage
+	// TODO: Pass actual base ID from refinery module
+	FGuid DummyBaseID = FGuid::NewGuid();
+
+	for (const FResourceQuantity& Input : Recipe.InputResources)
+	{
+		if (!InventoryManager->HasResource(
+			Input.ResourceID,
+			Input.Quantity,
+			EInventoryType::BaseStorage,
+			DummyBaseID))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Missing resource: %s (need %d)"),
+				*Input.ResourceID.ToString(), Input.Quantity);
+			return false;
+		}
+	}
+
 	return true;
 }
 
 void URefiningSystem::ConsumeResources(const FRefiningRecipe& Recipe)
 {
-	// In a full implementation, this would remove resources from inventory
-	// For now, this is a placeholder
-	UE_LOG(LogTemp, Log, TEXT("Consumed resources for recipe: %s"), *Recipe.RecipeID.ToString());
+	if (!InventoryManager.IsValid())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cannot consume resources: InventoryManager not available"));
+		return;
+	}
+
+	// Remove input resources from base storage
+	// TODO: Pass actual base ID from refinery module
+	FGuid DummyBaseID = FGuid::NewGuid();
+
+	for (const FResourceQuantity& Input : Recipe.InputResources)
+	{
+		bool bRemoved = InventoryManager->RemoveResource(
+			Input.ResourceID,
+			Input.Quantity,
+			EInventoryType::BaseStorage,
+			DummyBaseID
+		);
+
+		if (bRemoved)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Consumed %d %s for recipe: %s"),
+				Input.Quantity, *Input.ResourceID.ToString(), *Recipe.RecipeID.ToString());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to consume %d %s for recipe: %s"),
+				Input.Quantity, *Input.ResourceID.ToString(), *Recipe.RecipeID.ToString());
+		}
+	}
 }
 
 void URefiningSystem::ProduceOutputs(const FRefiningRecipe& Recipe, FRefiningResult& Result)
@@ -576,8 +618,52 @@ void URefiningSystem::ProduceOutputs(const FRefiningRecipe& Recipe, FRefiningRes
 	// Add byproducts
 	Result.Byproducts = Recipe.Byproducts;
 
-	// In a full implementation, this would add resources to inventory
-	UE_LOG(LogTemp, Log, TEXT("Produced outputs for recipe: %s"), *Recipe.RecipeID.ToString());
+	// Add resources to inventory
+	if (InventoryManager.IsValid())
+	{
+		// TODO: Pass actual base ID from refinery module
+		FGuid DummyBaseID = FGuid::NewGuid();
+
+		// Add output resources
+		for (const FResourceQuantity& Output : Recipe.OutputResources)
+		{
+			bool bAdded = InventoryManager->AddResource(
+				Output.ResourceID,
+				Output.Quantity,
+				EResourceQuality::Normal, // Quality could be based on refining success
+				EInventoryType::BaseStorage,
+				DummyBaseID
+			);
+
+			if (bAdded)
+			{
+				UE_LOG(LogTemp, Log, TEXT("Produced %d %s from recipe: %s"),
+					Output.Quantity, *Output.ResourceID.ToString(), *Recipe.RecipeID.ToString());
+			}
+		}
+
+		// Add byproducts
+		for (const FResourceQuantity& Byproduct : Recipe.Byproducts)
+		{
+			bool bAdded = InventoryManager->AddResource(
+				Byproduct.ResourceID,
+				Byproduct.Quantity,
+				EResourceQuality::Damaged, // Byproducts are typically lower quality
+				EInventoryType::BaseStorage,
+				DummyBaseID
+			);
+
+			if (bAdded)
+			{
+				UE_LOG(LogTemp, Log, TEXT("Produced byproduct %d %s from recipe: %s"),
+					Byproduct.Quantity, *Byproduct.ResourceID.ToString(), *Recipe.RecipeID.ToString());
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Cannot produce outputs: InventoryManager not available"));
+	}
 }
 
 float URefiningSystem::CalculateSuccessChance(const FRefiningRecipe& Recipe, ABaseModule* Module) const

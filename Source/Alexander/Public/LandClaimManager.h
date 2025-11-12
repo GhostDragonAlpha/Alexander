@@ -363,6 +363,9 @@ protected:
 	int32 AbandonmentThresholdDays;
 
 private:
+	// Generate initial land claims for the planet
+	void GenerateInitialClaims();
+
 	// Calculate claim bounds based on location and size
 	FBox CalculateClaimBounds(FVector Location, ELandClaimSize Size) const;
 

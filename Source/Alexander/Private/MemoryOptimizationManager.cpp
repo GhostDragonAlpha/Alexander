@@ -12,7 +12,7 @@
 #include "Sound/SoundWave.h"
 #include "Engine/StreamableManager.h"
 #include "Engine/AssetManager.h"
-#include "Engine/TextureStreamingManager.h"
+#include "Engine/ContentStreaming.h"
 #include "Engine/StaticMeshStreamingManager.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Engine/LevelStreaming.h"

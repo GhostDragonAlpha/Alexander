@@ -1,10 +1,8 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "TradingEconomySystem.h"
-#include "DynamicMarketManager.h"
 #include "FactionEconomyManager.h"
 #include "TradeMissionSystem.h"
-#include "EconomicEventManager.h"
 #include "TradeShipAutomation.h"
 #include "EconomySystem.h"
 #include "FactionTerritorySystem.h"
@@ -14,6 +12,7 @@
 #include "TradeStation.h"
 #include "Math/UnrealMathUtility.h"
 #include "Engine/World.h"
+#include "EngineUtils.h"
 
 UTradingEconomySystem::UTradingEconomySystem()
 {
@@ -90,11 +89,27 @@ void UTradingEconomySystem::InitializeSubsystems()
 	UWorld* World = GetWorld();
 	if (!World) return;
 
-	// Get legacy economy system (for backward compatibility)
-	LegacyEconomySystem = World->GetSubsystem<UEconomySystem>();
+	// Get legacy economy system (for backward compatibility) - find it on actors
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (UEconomySystem* EconomyComp = Actor->FindComponentByClass<UEconomySystem>())
+		{
+			LegacyEconomySystem = EconomyComp;
+			break;
+		}
+	}
 
-	// Get faction territory system
-	FactionTerritorySystem = World->GetSubsystem<UFactionTerritorySystem>();
+	// Get faction territory system - find it on actors
+	for (TActorIterator<AActor> It(World); It; ++It)
+	{
+		AActor* Actor = *It;
+		if (UFactionTerritorySystem* TerritoryComp = Actor->FindComponentByClass<UFactionTerritorySystem>())
+		{
+			FactionTerritorySystem = TerritoryComp;
+			break;
+		}
+	}
 
 	// Get resource gathering system
 	ResourceGatheringSystem = World->GetSubsystem<UResourceGatheringSystem>();
@@ -104,19 +119,10 @@ void UTradingEconomySystem::InitializeSubsystems()
 
 	// Create and initialize subsystems
 	DynamicMarketManager = NewObject<UDynamicMarketManager>(this);
-	DynamicMarketManager->Initialize(FSubsystemCollectionBase());
-
 	FactionEconomyManager = NewObject<UFactionEconomyManager>(this);
-	FactionEconomyManager->Initialize(FSubsystemCollectionBase());
-
 	TradeMissionSystem = NewObject<UTradeMissionSystem>(this);
-	TradeMissionSystem->Initialize(FSubsystemCollectionBase());
-
 	EconomicEventManager = NewObject<UEconomicEventManager>(this);
-	EconomicEventManager->Initialize(FSubsystemCollectionBase());
-
 	TradeShipAutomation = NewObject<UTradeShipAutomation>(this);
-	TradeShipAutomation->Initialize(FSubsystemCollectionBase());
 
 	UE_LOG(LogTemp, Log, TEXT("TradingEconomySystem subsystems initialized"));
 }
@@ -566,7 +572,7 @@ void UTradingEconomySystem::UpdateMarketSimulation(float DeltaTime)
 	if (TimeSinceLastMarketUpdate >= MarketUpdateInterval)
 	{
 		// Update through dynamic market manager
-		if (DynamicMarketManager)
+		if (DynamicMarketManager.IsValid())
 		{
 			DynamicMarketManager->Tick(TimeSinceLastMarketUpdate);
 		}
@@ -577,7 +583,7 @@ void UTradingEconomySystem::UpdateMarketSimulation(float DeltaTime)
 			FEnhancedMarketListing& Listing = Pair.Value;
 			
 			// Calculate new prices based on supply/demand
-			if (DynamicMarketManager)
+			if (DynamicMarketManager.IsValid())
 			{
 				FSupplyDemandFactors Factors = DynamicMarketManager->CalculateSupplyDemandFactors(
 					Pair.Key, "Global", "Neutral");
@@ -589,7 +595,7 @@ void UTradingEconomySystem::UpdateMarketSimulation(float DeltaTime)
 			}
 
 			// Record price history
-			if (DynamicMarketManager)
+			if (DynamicMarketManager.IsValid())
 			{
 				DynamicMarketManager->RecordPriceHistory(
 					Pair.Key,
@@ -605,7 +611,9 @@ void UTradingEconomySystem::UpdateMarketSimulation(float DeltaTime)
 		}
 
 		// Broadcast market update
-		OnMarketPricesUpdated.Broadcast(GlobalMarketData);
+		FMarketDataUpdate MarketUpdate;
+		MarketUpdate.MarketData = GlobalMarketData;
+		OnMarketPricesUpdated.Broadcast(MarketUpdate);
 
 		TimeSinceLastMarketUpdate = 0.0f;
 
@@ -647,7 +655,7 @@ void UTradingEconomySystem::DiscoverNearbyTradeRoutes()
 void UTradingEconomySystem::ProcessAutomatedTradeShips(float DeltaTime)
 {
 	// Delegate to TradeShipAutomation subsystem
-	if (TradeShipAutomation)
+	if (TradeShipAutomation.IsValid())
 	{
 		TradeShipAutomation->Tick(DeltaTime);
 	}
@@ -746,7 +754,7 @@ bool UTradingEconomySystem::BuyCommodity(ASpaceship* Ship, FName CommodityID, in
 	ModifyFactionReputation(FactionID, 0.1f);
 
 	// Record player market impact
-	if (DynamicMarketManager)
+	if (DynamicMarketManager.IsValid())
 	{
 		DynamicMarketManager->RecordPlayerTradeImpact(PlayerID, CommodityID, Quantity, Station->StationID);
 	}
@@ -880,7 +888,7 @@ bool UTradingEconomySystem::CanTradeWithFaction(FString FactionID) const
 void UTradingEconomySystem::TriggerEconomicEvent(FString EventName, float Severity)
 {
 	// Delegate to EconomicEventManager
-	if (EconomicEventManager)
+	if (EconomicEventManager.IsValid())
 	{
 		// This would trigger specific events
 		UE_LOG(LogTemp, Log, TEXT("Economic event triggered: %s (Severity: %.2f)"), *EventName, Severity);
@@ -890,31 +898,43 @@ void UTradingEconomySystem::TriggerEconomicEvent(FString EventName, float Severi
 
 void UTradingEconomySystem::SimulateMarketCrash(ECommodityCategory Category, float Severity)
 {
-	if (DynamicMarketManager)
+	if (UDynamicMarketManager* MarketMgr = DynamicMarketManager.Get())
 	{
-		DynamicMarketManager->SimulateMarketCrash(Category, Severity);
+		// Simulate crash on all stations
+		for (const auto& StationPair : StationMarkets)
+		{
+			MarketMgr->SimulateMarketCrash(StationPair.Key, Severity);
+		}
 	}
 }
 
 void UTradingEconomySystem::SimulateMarketBoom(ECommodityCategory Category, float Magnitude)
 {
-	if (DynamicMarketManager)
+	if (UDynamicMarketManager* MarketMgr = DynamicMarketManager.Get())
 	{
-		DynamicMarketManager->SimulateMarketBoom(Category, Magnitude);
+		// Simulate boom on all stations
+		for (const auto& StationPair : StationMarkets)
+		{
+			MarketMgr->SimulateMarketBoom(StationPair.Key, Magnitude);
+		}
 	}
 }
 
 void UTradingEconomySystem::SimulateSupplyShortage(FName CommodityID, float Severity, int32 DurationHours)
 {
-	if (DynamicMarketManager)
+	if (UDynamicMarketManager* MarketMgr = DynamicMarketManager.Get())
 	{
-		DynamicMarketManager->SimulateSupplyShortage(CommodityID, Severity, DurationHours);
+		// Simulate shortage on all stations
+		for (const auto& StationPair : StationMarkets)
+		{
+			MarketMgr->SimulateSupplyShortage(CommodityID, StationPair.Key, DurationHours * 3600.0f);
+		}
 	}
 }
 
 void UTradingEconomySystem::SimulateTradeWar(FString Faction1ID, FString Faction2ID, float Severity)
 {
-	if (EconomicEventManager)
+	if (EconomicEventManager.IsValid())
 	{
 		// This would create trade war effects
 		UE_LOG(LogTemp, Warning, TEXT("Trade war between %s and %s (Severity: %.2f)"), 
@@ -1003,7 +1023,7 @@ float UTradingEconomySystem::GetSmugglingRisk(FName CommodityID, FString Faction
 bool UTradingEconomySystem::CreatePlayerMarketStall(FString StationID, FString PlayerID)
 {
 	// Create player market at station
-	TMap<FName, FEnhancedMarketListing> PlayerMarket;
+	FEnhancedMarketListingMap PlayerMarket;
 	PlayerMarkets.Add(StationID, PlayerMarket);
 
 	UE_LOG(LogTemp, Log, TEXT("Player market stall created at station %s"), *StationID);
@@ -1012,14 +1032,14 @@ bool UTradingEconomySystem::CreatePlayerMarketStall(FString StationID, FString P
 
 bool UTradingEconomySystem::SetPlayerMarketPrice(FString StationID, FName CommodityID, float CustomPrice)
 {
-	TMap<FName, FEnhancedMarketListing>* PlayerMarket = PlayerMarkets.Find(StationID);
+	FEnhancedMarketListingMap* PlayerMarket = PlayerMarkets.Find(StationID);
 	if (!PlayerMarket)
 	{
 		return false;
 	}
 
 	// Get or create listing
-	FEnhancedMarketListing& Listing = (*PlayerMarket).FindOrAdd(CommodityID);
+	FEnhancedMarketListing& Listing = PlayerMarket->Listings.FindOrAdd(CommodityID);
 	Listing.Commodity = GetCommodityDefinition(CommodityID);
 	Listing.CurrentBuyPrice = CustomPrice;
 	Listing.CurrentSellPrice = CustomPrice * 0.95f; // 5% spread
@@ -1030,21 +1050,21 @@ bool UTradingEconomySystem::SetPlayerMarketPrice(FString StationID, FName Commod
 
 TMap<FName, FEnhancedMarketListing> UTradingEconomySystem::GetPlayerMarketListings(FString StationID) const
 {
-	const TMap<FName, FEnhancedMarketListing>* PlayerMarket = PlayerMarkets.Find(StationID);
-	return PlayerMarket ? *PlayerMarket : TMap<FName, FEnhancedMarketListing>();
+	const FEnhancedMarketListingMap* PlayerMarket = PlayerMarkets.Find(StationID);
+	return PlayerMarket ? PlayerMarket->Listings : TMap<FName, FEnhancedMarketListing>();
 }
 
 void UTradingEconomySystem::UpdatePlayerMarket(FString StationID, float DeltaTime)
 {
 	// AI traders visit player markets
-	TMap<FName, FEnhancedMarketListing>* PlayerMarket = PlayerMarkets.Find(StationID);
+	FEnhancedMarketListingMap* PlayerMarket = PlayerMarkets.Find(StationID);
 	if (!PlayerMarket)
 	{
 		return;
 	}
 
 	// Simulate AI traders buying/selling
-	for (auto& Pair : *PlayerMarket)
+	for (auto& Pair : PlayerMarket->Listings)
 	{
 		FEnhancedMarketListing& Listing = Pair.Value;
 		
@@ -1074,7 +1094,7 @@ void UTradingEconomySystem::UpdatePlayerMarket(FString StationID, float DeltaTim
 
 bool UTradingEconomySystem::CreateAutomatedTradeRoute(ASpaceship* Ship, FString StartStationID, FString EndStationID, TArray<FName> Commodities)
 {
-	if (!Ship || !TradeShipAutomation)
+	if (!Ship || !TradeShipAutomation.IsValid())
 	{
 		return false;
 	}
@@ -1082,19 +1102,19 @@ bool UTradingEconomySystem::CreateAutomatedTradeRoute(ASpaceship* Ship, FString 
 	return TradeShipAutomation->CreateAutomatedTradeRoute(Ship, StartStationID, EndStationID, Commodities);
 }
 
-FDetailedTradeRoute UTradingEconomySystem::GetAutomatedTradeRouteStatus(ASpaceship* Ship) const
+FAutomatedTradeRoute UTradingEconomySystem::GetAutomatedTradeRouteStatus(ASpaceship* Ship) const
 {
-	if (!TradeShipAutomation)
+	if (!Ship || !TradeShipAutomation.IsValid())
 	{
-		return FDetailedTradeRoute();
+		return FAutomatedTradeRoute();
 	}
 
-	return TradeShipAutomation->GetAutomatedTradeRouteStatus(Ship);
+	return TradeShipAutomation->GetShipRoute(Ship);
 }
 
 bool UTradingEconomySystem::StartAutomatedTrading(ASpaceship* Ship)
 {
-	if (!Ship || !TradeShipAutomation)
+	if (!Ship || !TradeShipAutomation.IsValid())
 	{
 		return false;
 	}
@@ -1104,7 +1124,7 @@ bool UTradingEconomySystem::StartAutomatedTrading(ASpaceship* Ship)
 
 bool UTradingEconomySystem::StopAutomatedTrading(ASpaceship* Ship)
 {
-	if (!Ship || !TradeShipAutomation)
+	if (!Ship || !TradeShipAutomation.IsValid())
 	{
 		return false;
 	}
@@ -1114,7 +1134,7 @@ bool UTradingEconomySystem::StopAutomatedTrading(ASpaceship* Ship)
 
 float UTradingEconomySystem::GetFleetTradingProfit(FString PlayerID) const
 {
-	if (!TradeShipAutomation)
+	if (!TradeShipAutomation.IsValid())
 	{
 		return 0.0f;
 	}
@@ -1243,8 +1263,8 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 	{
 		UE_LOG(LogTemp, Log, TEXT("Test 1: Verifying subsystem initialization..."));
 		
-		if (!DynamicMarketManager || !FactionEconomyManager || !TradeMissionSystem ||
-			!EconomicEventManager || !TradeShipAutomation)
+		if (!DynamicMarketManager.IsValid() || !FactionEconomyManager.IsValid() || !TradeMissionSystem.IsValid() ||
+			!EconomicEventManager.IsValid() || !TradeShipAutomation.IsValid())
 		{
 			UE_LOG(LogTemp, Error, TEXT("FAILED: One or more subsystems not initialized"));
 			OutResult.ErrorMessages.Add(TEXT("Subsystem initialization failed"));
@@ -1353,7 +1373,7 @@ bool UTradingEconomySystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 	{
 		UE_LOG(LogTemp, Log, TEXT("Test 4: Verifying price calculations..."));
 		
-		if (DynamicMarketManager)
+		if (DynamicMarketManager.IsValid())
 		{
 			// Test price calculation for a known commodity
 			FName TestCommodityID = FName("IronOre");

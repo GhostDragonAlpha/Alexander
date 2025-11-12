@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "UObject/NoExportTypes.h"
+#include "OrbitalBody.h"
 #include "ProceduralStarSystemGenerator.generated.h"
 
 // Forward declarations

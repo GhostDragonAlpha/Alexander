@@ -17,6 +17,7 @@ enum class ETickPriority : uint8
     Medium      UMETA(DisplayName = "Medium - 30 FPS"),
     Low         UMETA(DisplayName = "Low - 10 FPS"),
     VeryLow     UMETA(DisplayName = "Very Low - 1 FPS"),
+    Dormant     UMETA(DisplayName = "Dormant - No Tick"),
     Disabled    UMETA(DisplayName = "Disabled")
 };
 

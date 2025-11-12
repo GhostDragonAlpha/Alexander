@@ -27,13 +27,17 @@ struct FAsyncLoadingTask
     EAsyncTaskStatus Status;
     double StartTime;
     double EndTime;
+    int32 RetryCount;
     TFunction<void()> TaskFunction;
     TFunction<void()> CompletionCallback;
+    bool bCancelled; // Flag for cancellation instead of immediate removal
 
     FAsyncLoadingTask()
         : Status(EAsyncTaskStatus::Pending)
         , StartTime(0.0)
         , EndTime(0.0)
+        , RetryCount(0)
+        , bCancelled(false)
     {}
 };
 
@@ -61,6 +65,9 @@ public:
     // Queue a system for async unloading
     UFUNCTION(BlueprintCallable, Category = "AsyncLoading")
     void QueueUnloadingTask(const FString& SystemID);
+
+    // Queue a system for async unloading with custom task and completion callbacks
+    void QueueUnloadingTask(const FString& SystemID, TFunction<void()> TaskFunction, TFunction<void()> CompletionCallback);
 
     // Get task status
     UFUNCTION(BlueprintCallable, Category = "AsyncLoading")
@@ -95,6 +102,7 @@ private:
     TQueue<TSharedPtr<FAsyncLoadingTask>> PendingTasks;
     TArray<TSharedPtr<FAsyncLoadingTask>> ActiveTasks;
     TArray<TSharedPtr<FAsyncLoadingTask>> CompletedTasks;
+    int32 PendingTaskCount;
 
     // Thread pool
     int32 MaxThreadPoolSize;

@@ -5,7 +5,7 @@
 #include "HarvestingMachine.h"
 #include "PowerGenerator.h"
 #include "SolarPanel.h"
-#include "IrrigationSystem.h"
+#include "AlexanderIrrigationSystem.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
 

@@ -343,7 +343,8 @@ void UReplicationManager::OptimizeReplication()
 	for (const auto& ActorPair : RegisteredActors)
 	{
 		AActor* Actor = ActorPair.Key;
-		            if (!Actor || !Actor->IsValidLowLevel())
+		// Use IsValid() instead of IsValidLowLevel() which is deprecated
+		if (!IsValid(Actor))
 		{
 			ActorsToRemove.Add(Actor);
 		}

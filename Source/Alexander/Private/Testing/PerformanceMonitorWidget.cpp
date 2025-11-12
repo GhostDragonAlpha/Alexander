@@ -13,6 +13,7 @@
 #include "Engine/Engine.h"
 #include "HAL/PlatformMemory.h"
 #include "Stats/Stats.h"
+#include "RHI.h"
 
 UPerformanceMonitorWidget::UPerformanceMonitorWidget(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -562,8 +563,9 @@ float UPerformanceMonitorWidget::GetRenderThreadTime() const
 
 float UPerformanceMonitorWidget::GetGPUTime() const
 {
-	// Get GPU time from stats system
-	return FPlatformTime::ToMilliseconds(GGPUFrameTime);
+	// Get GPU time from RHI (GGPUFrameTime deprecated in UE 5.6)
+	uint32 GPUCycles = RHIGetGPUFrameCycles();
+	return FPlatformTime::ToMilliseconds(GPUCycles);
 }
 
 void UPerformanceMonitorWidget::DrawFPSGraph()

@@ -8,6 +8,9 @@ public class AlexanderEditor : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
+		// UE 5.6: Update include order version
+		IncludeOrderVersion = EngineIncludeOrderVersion.Unreal5_6;
+
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core",
@@ -33,7 +36,6 @@ public class AlexanderEditor : ModuleRules
 
 			// Asset factories
 			"AssetRegistry",
-			"EditorSubsystem",
 
 			// Material editor
 			"MaterialEditor",

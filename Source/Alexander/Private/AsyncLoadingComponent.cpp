@@ -2,12 +2,15 @@
 
 #include "AsyncLoadingComponent.h"
 #include "Async/Async.h"
+#include "Engine/World.h"
+#include "TimerManager.h"
 
 UAsyncLoadingComponent::UAsyncLoadingComponent()
 {
     PrimaryComponentTick.bCanEverTick = true;
     PrimaryComponentTick.TickInterval = 0.016f; // 60 FPS
     MaxThreadPoolSize = 4;
+    PendingTaskCount = 0;
 }
 
 void UAsyncLoadingComponent::BeginPlay()
@@ -43,7 +46,7 @@ void UAsyncLoadingComponent::QueueLoadingTask(const FString& SystemID, TFunction
     // Cancel existing task for this system if any
     CancelTask(SystemID);
 
-    auto Task = MakeShareable(new FAsyncLoadingTask());
+    TSharedPtr<FAsyncLoadingTask> Task = MakeShared<FAsyncLoadingTask>();
     Task->SystemID = SystemID;
     Task->TaskFunction = TaskFunction;
     Task->CompletionCallback = CompletionCallback;
@@ -51,8 +54,15 @@ void UAsyncLoadingComponent::QueueLoadingTask(const FString& SystemID, TFunction
 
     LoadingTasks.Add(SystemID, Task);
     PendingTasks.Enqueue(Task);
+    PendingTaskCount++;
 
     UE_LOG(LogTemp, Verbose, TEXT("Queued loading task for system: %s"), *SystemID);
+}
+
+void UAsyncLoadingComponent::QueueUnloadingTask(const FString& SystemID)
+{
+    // Unloading uses the same mechanism as loading with empty callbacks
+    QueueLoadingTask(SystemID, []() {}, []() {});
 }
 
 void UAsyncLoadingComponent::QueueUnloadingTask(const FString& SystemID, TFunction<void()> TaskFunction, TFunction<void()> CompletionCallback)
@@ -79,27 +89,13 @@ void UAsyncLoadingComponent::CancelTask(const FString& SystemID)
     FScopeLock Lock(&TaskLock);
 
     TSharedPtr<FAsyncLoadingTask>* TaskPtr = LoadingTasks.Find(SystemID);
-    if (TaskPtr)
+    if (TaskPtr && TaskPtr->IsValid())
     {
-        if ((*TaskPtr)->Status == EAsyncTaskStatus::InProgress)
-        {
-            (*TaskPtr)->Status = EAsyncTaskStatus::Cancelled;
-        }
-        else if ((*TaskPtr)->Status == EAsyncTaskStatus::Pending)
-        {
-            // Remove from pending queue
-            TQueue<TSharedPtr<FAsyncLoadingTask>> NewQueue;
-            TSharedPtr<FAsyncLoadingTask> QueuedTask;
-            while (PendingTasks.Dequeue(QueuedTask))
-            {
-                if (QueuedTask->SystemID != SystemID)
-                {
-                    NewQueue.Enqueue(QueuedTask);
-                }
-            }
-            PendingTasks = MoveTemp(NewQueue);
-            LoadingTasks.Remove(SystemID);
-        }
+        // Mark as cancelled instead of removing immediately (thread-safe)
+        (*TaskPtr)->bCancelled = true;
+        (*TaskPtr)->Status = EAsyncTaskStatus::Cancelled;
+
+        UE_LOG(LogTemp, Verbose, TEXT("Cancelled async task for system: %s"), *SystemID);
     }
 }
 
@@ -133,7 +129,7 @@ void UAsyncLoadingComponent::CancelAllTasks()
 int32 UAsyncLoadingComponent::GetPendingTaskCount() const
 {
     FScopeLock Lock(&TaskLock);
-    return PendingTasks.Count();
+    return PendingTaskCount;
 }
 
 int32 UAsyncLoadingComponent::GetActiveTaskCount() const
@@ -152,9 +148,18 @@ void UAsyncLoadingComponent::ProcessPendingTasks()
         TSharedPtr<FAsyncLoadingTask> Task;
         if (PendingTasks.Dequeue(Task) && Task.IsValid())
         {
+            // Skip cancelled tasks
+            if (Task->bCancelled)
+            {
+                PendingTaskCount--;
+                LoadingTasks.Remove(Task->SystemID);
+                continue;
+            }
+
             Task->Status = EAsyncTaskStatus::InProgress;
             Task->StartTime = FPlatformTime::Seconds();
             ActiveTasks.Add(Task);
+            PendingTaskCount--;
 
             // Execute task on thread pool
             Async(EAsyncExecution::ThreadPool, [this, Task]() {
@@ -196,14 +201,33 @@ void UAsyncLoadingComponent::ExecuteTask(TSharedPtr<FAsyncLoadingTask> Task)
         return;
     }
 
+    // Check if task was cancelled before execution
+    if (Task->bCancelled)
+    {
+        FScopeLock Lock(&TaskLock);
+        ActiveTasks.Remove(Task);
+        LoadingTasks.Remove(Task->SystemID);
+        UE_LOG(LogTemp, Verbose, TEXT("Skipped cancelled task for system: %s"), *Task->SystemID);
+        return;
+    }
+
     try
     {
         // Execute the task
         Task->TaskFunction();
-        
+
         // Update status
         {
             FScopeLock Lock(&TaskLock);
+
+            // Check again if cancelled during execution
+            if (Task->bCancelled)
+            {
+                ActiveTasks.Remove(Task);
+                LoadingTasks.Remove(Task->SystemID);
+                return;
+            }
+
             Task->Status = EAsyncTaskStatus::Completed;
             Task->EndTime = FPlatformTime::Seconds();
             ActiveTasks.Remove(Task);
@@ -213,28 +237,81 @@ void UAsyncLoadingComponent::ExecuteTask(TSharedPtr<FAsyncLoadingTask> Task)
         // Broadcast completion
         OnTaskComplete.ExecuteIfBound(Task->SystemID);
 
-        UE_LOG(LogTemp, Verbose, TEXT("Completed async task for system: %s (%.2f seconds)"), 
+        UE_LOG(LogTemp, Verbose, TEXT("Completed async task for system: %s (%.2f seconds)"),
             *Task->SystemID, Task->EndTime - Task->StartTime);
     }
     catch (const std::exception& e)
     {
         FScopeLock Lock(&TaskLock);
-        Task->Status = EAsyncTaskStatus::Failed;
-        Task->EndTime = FPlatformTime::Seconds();
-        ActiveTasks.Remove(Task);
-        CompletedTasks.Add(Task);
 
-        UE_LOG(LogTemp, Error, TEXT("Async task failed for system: %s - %s"), 
-            *Task->SystemID, UTF8_TO_TCHAR(e.what()));
+        // Check if we should retry
+        if (Task->RetryCount < 3)
+        {
+            Task->RetryCount++;
+            float Delay = FMath::Pow(2.0f, Task->RetryCount); // 2s, 4s, 8s exponential backoff
+            Task->Status = EAsyncTaskStatus::Pending;
+            ActiveTasks.Remove(Task);
+
+            UE_LOG(LogTemp, Warning, TEXT("Async task failed for system: %s - %s. Retry %d/3 after %.1f seconds"),
+                *Task->SystemID, UTF8_TO_TCHAR(e.what()), Task->RetryCount, Delay);
+
+            // Re-queue task after delay using a timer
+            if (GetWorld())
+            {
+                FTimerHandle RetryTimer;
+                GetWorld()->GetTimerManager().SetTimer(RetryTimer, [this, Task]() {
+                    FScopeLock RetryLock(&TaskLock);
+                    PendingTasks.Enqueue(Task);
+                    PendingTaskCount++;
+                }, Delay, false);
+            }
+        }
+        else
+        {
+            Task->Status = EAsyncTaskStatus::Failed;
+            Task->EndTime = FPlatformTime::Seconds();
+            ActiveTasks.Remove(Task);
+            CompletedTasks.Add(Task);
+
+            UE_LOG(LogTemp, Error, TEXT("Async task failed for system: %s - %s (max retries exceeded)"),
+                *Task->SystemID, UTF8_TO_TCHAR(e.what()));
+        }
     }
     catch (...)
     {
         FScopeLock Lock(&TaskLock);
-        Task->Status = EAsyncTaskStatus::Failed;
-        Task->EndTime = FPlatformTime::Seconds();
-        ActiveTasks.Remove(Task);
-        CompletedTasks.Add(Task);
 
-        UE_LOG(LogTemp, Error, TEXT("Async task failed for system: %s - Unknown error"), *Task->SystemID);
+        // Check if we should retry
+        if (Task->RetryCount < 3)
+        {
+            Task->RetryCount++;
+            float Delay = FMath::Pow(2.0f, Task->RetryCount); // 2s, 4s, 8s exponential backoff
+            Task->Status = EAsyncTaskStatus::Pending;
+            ActiveTasks.Remove(Task);
+
+            UE_LOG(LogTemp, Warning, TEXT("Async task failed for system: %s - Unknown error. Retry %d/3 after %.1f seconds"),
+                *Task->SystemID, Task->RetryCount, Delay);
+
+            // Re-queue task after delay using a timer
+            if (GetWorld())
+            {
+                FTimerHandle RetryTimer;
+                GetWorld()->GetTimerManager().SetTimer(RetryTimer, [this, Task]() {
+                    FScopeLock RetryLock(&TaskLock);
+                    PendingTasks.Enqueue(Task);
+                    PendingTaskCount++;
+                }, Delay, false);
+            }
+        }
+        else
+        {
+            Task->Status = EAsyncTaskStatus::Failed;
+            Task->EndTime = FPlatformTime::Seconds();
+            ActiveTasks.Remove(Task);
+            CompletedTasks.Add(Task);
+
+            UE_LOG(LogTemp, Error, TEXT("Async task failed for system: %s - Unknown error (max retries exceeded)"),
+                *Task->SystemID);
+        }
     }
 }

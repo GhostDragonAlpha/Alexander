@@ -13,11 +13,11 @@
 #include "RefiningSystem.h"
 #include "TradingEconomySystem.h"
 #include "FactionEconomyManager.h"
-#include "DynamicMarketManager.h"
-#include "EconomicEventManager.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
 #include "GameFramework/PlayerController.h"
+#include "EngineUtils.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
 #include "Misc/CommandLine.h"
 #include "Misc/Paths.h"
 #include "HAL/PlatformProcess.h"
@@ -201,7 +201,8 @@ bool AVerificationGameMode::SimulateCompleteGameplayLoop()
 
 	// Step 1: Test core world systems (orbital mechanics, persistence)
 	Log(TEXT("Step 1: Testing Core World Systems..."));
-	if (!TestOrbitalMechanicsManager(FSystemTestResult()) || !TestPersistentUniverseManager(FSystemTestResult()))
+	FSystemTestResult OrbitalResult, PersistenceResult;
+	if (!TestOrbitalMechanicsManager(OrbitalResult) || !TestPersistentUniverseManager(PersistenceResult))
 	{
 		LogError(TEXT("Core world systems test FAILED"));
 		return false;
@@ -210,9 +211,10 @@ bool AVerificationGameMode::SimulateCompleteGameplayLoop()
 
 	// Step 2: Test resource gathering
 	Log(TEXT("Step 2: Testing Resource Systems..."));
-	if (!TestPlanetaryMiningSystem(FSystemTestResult()) || 
-		!TestResourceGatheringSystem(FSystemTestResult()) || 
-		!TestAsteroidMiningSystem(FSystemTestResult()))
+	FSystemTestResult MiningResult, GatheringResult, AsteroidResult;
+	if (!TestPlanetaryMiningSystem(MiningResult) || 
+		!TestResourceGatheringSystem(GatheringResult) || 
+		!TestAsteroidMiningSystem(AsteroidResult))
 	{
 		LogError(TEXT("Resource systems test FAILED"));
 		return false;
@@ -221,9 +223,10 @@ bool AVerificationGameMode::SimulateCompleteGameplayLoop()
 
 	// Step 3: Test production systems
 	Log(TEXT("Step 3: Testing Production Systems..."));
-	if (!TestPlanetaryFarmingSystem(FSystemTestResult()) || 
-		!TestCraftingSystem(FSystemTestResult()) || 
-		!TestRefiningSystem(FSystemTestResult()))
+	FSystemTestResult FarmingResult, CraftingResult, RefiningResult;
+	if (!TestPlanetaryFarmingSystem(FarmingResult) || 
+		!TestCraftingSystem(CraftingResult) || 
+		!TestRefiningSystem(RefiningResult))
 	{
 		LogError(TEXT("Production systems test FAILED"));
 		return false;
@@ -232,10 +235,11 @@ bool AVerificationGameMode::SimulateCompleteGameplayLoop()
 
 	// Step 4: Test economy systems
 	Log(TEXT("Step 4: Testing Economy Systems..."));
-	if (!TestTradingEconomySystem(FSystemTestResult()) || 
-		!TestFactionEconomyManager(FSystemTestResult()) || 
-		!TestDynamicMarketManager(FSystemTestResult()) || 
-		!TestEconomicEventManager(FSystemTestResult()))
+	FSystemTestResult TradingResult, FactionResult, MarketResult, EventResult;
+	if (!TestTradingEconomySystem(TradingResult) || 
+		!TestFactionEconomyManager(FactionResult) || 
+		!TestDynamicMarketManager(MarketResult) || 
+		!TestEconomicEventManager(EventResult))
 	{
 		LogError(TEXT("Economy systems test FAILED"));
 		return false;
@@ -369,7 +373,20 @@ void AVerificationGameMode::ExecuteNextTest()
 		if (PerformanceMonitor && PerformanceMonitor->IsMonitoring())
 		{
 			PerformanceMonitor->StopMonitoring();
-			FinalResult.PerformanceMetrics = PerformanceMonitor->GetFinalMetrics();
+			FSelfTestPerformanceMetrics Metrics = PerformanceMonitor->GetFinalMetrics();
+			FinalResult.PerformanceMetrics.Add(TEXT("AverageFPS"), Metrics.AverageFPS);
+			FinalResult.PerformanceMetrics.Add(TEXT("MinFPS"), Metrics.MinFPS);
+			FinalResult.PerformanceMetrics.Add(TEXT("MaxFPS"), Metrics.MaxFPS);
+			FinalResult.PerformanceMetrics.Add(TEXT("AverageFrameTime"), Metrics.AverageFrameTime);
+			FinalResult.PerformanceMetrics.Add(TEXT("PeakMemoryUsageMB"), Metrics.PeakMemoryUsageMB);
+			FinalResult.PerformanceMetrics.Add(TEXT("AverageMemoryUsageMB"), Metrics.AverageMemoryUsageMB);
+			FinalResult.PerformanceMetrics.Add(TEXT("TestDuration"), Metrics.TestDuration);
+			FinalResult.PerformanceMetrics.Add(TEXT("FramesRendered"), Metrics.FramesRendered);
+			FinalResult.PerformanceMetrics.Add(TEXT("CPUUsagePercent"), Metrics.CPUUsagePercent);
+			FinalResult.PerformanceMetrics.Add(TEXT("GPUUsagePercent"), Metrics.GPUUsagePercent);
+			FinalResult.PerformanceMetrics.Add(TEXT("DrawCalls"), Metrics.DrawCalls);
+			FinalResult.PerformanceMetrics.Add(TEXT("TrianglesRendered"), Metrics.TrianglesRendered);
+			FinalResult.PerformanceMetrics.Add(TEXT("ShaderComplexityWarnings"), Metrics.ShaderComplexityWarnings);
 		}
 
 		// Calculate final results
@@ -407,7 +424,7 @@ void AVerificationGameMode::ExecuteNextTest()
 		// Exit if requested
 		if (CurrentConfig.bExitOnComplete)
 		{
-			FPlatformProcess::TerminateProc(FPlatformProcess::GetCurrentProcess());
+			FGenericPlatformMisc::RequestExit(false);
 		}
 
 		return;
@@ -489,13 +506,10 @@ TScriptInterface<ISystemSelfTestInterface> AVerificationGameMode::FindSystemByNa
 	}
 	else if (SystemName == TEXT("AsteroidMiningSystem"))
 	{
-		// Find AsteroidMiningSystem component
-		for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
+		// Get AsteroidMiningSystem subsystem
+		if (UAsteroidMiningSystem* System = World->GetSubsystem<UAsteroidMiningSystem>())
 		{
-			if (UAsteroidMiningSystem* System = ActorItr->FindComponentByClass<UAsteroidMiningSystem>())
-			{
-				return TScriptInterface<ISystemSelfTestInterface>(System);
-			}
+			return TScriptInterface<ISystemSelfTestInterface>(System);
 		}
 	}
 	else if (SystemName == TEXT("TradingEconomySystem"))
@@ -508,25 +522,11 @@ TScriptInterface<ISystemSelfTestInterface> AVerificationGameMode::FindSystemByNa
 	}
 	else if (SystemName == TEXT("DynamicMarketManager"))
 	{
-		// Find DynamicMarketManager component
-		for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
-		{
-			if (UDynamicMarketManager* Manager = ActorItr->FindComponentByClass<UDynamicMarketManager>())
-			{
-				return TScriptInterface<ISystemSelfTestInterface>(Manager);
-			}
-		}
+		return TScriptInterface<ISystemSelfTestInterface>(World->GetSubsystem<UDynamicMarketManager>());
 	}
 	else if (SystemName == TEXT("EconomicEventManager"))
 	{
-		// Find EconomicEventManager component
-		for (TActorIterator<AActor> ActorItr(World); ActorItr; ++ActorItr)
-		{
-			if (UEconomicEventManager* Manager = ActorItr->FindComponentByClass<UEconomicEventManager>())
-			{
-				return TScriptInterface<ISystemSelfTestInterface>(Manager);
-			}
-		}
+		return TScriptInterface<ISystemSelfTestInterface>(World->GetSubsystem<UEconomicEventManager>());
 	}
 
 	return nullptr;

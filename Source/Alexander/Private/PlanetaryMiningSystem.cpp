@@ -4,7 +4,6 @@
 #include "ResourceGatheringSystem.h"
 #include "Planet.h"
 #include "Spaceship.h"
-#include "InventoryManager.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "SystemSelfTestInterface.h"
@@ -66,210 +65,216 @@ bool UPlanetaryMiningSystem::RunSelfTest_Implementation(FSystemTestResult& OutRe
 	UE_LOG(LogTemp, Log, TEXT("✓ System initialization test PASSED"));
 	
 	// Test 2: Test equipment statistics
-	if (EquipmentPowerMap.Num() != 5 || EquipmentEfficiencyMap.Num() != 5 || EquipmentImpactMap.Num() != 5)
 	{
- 70 		OutResult.bPassed = false;
- 71 		OutResult.ErrorMessage = TEXT("Equipment statistics not properly initialized");
- 72 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment statistics initialization"));
- 73 		return false;
- 74 	}
- 75 	UE_LOG(LogTemp, Log, TEXT("✓ Equipment statistics test PASSED - %d equipment types registered"), EquipmentPowerMap.Num());
- 76
- 77 	// Test 3: Test equipment queries
- 78 	float HandDrillPower = GetEquipmentMiningPower(EPlanetaryMiningEquipment::HandDrill);
- 79 	float HandDrillEfficiency = GetEquipmentEfficiency(EPlanetaryMiningEquipment::HandDrill);
- 80 	float HandDrillImpact = GetEquipmentEnvironmentalImpact(EPlanetaryMiningEquipment::HandDrill);
- 81
- 82 	if (HandDrillPower <= 0.0f || HandDrillEfficiency <= 0.0f || HandDrillImpact <= 0.0f)
- 83 	{
- 84 		OutResult.bPassed = false;
- 85 		OutResult.ErrorMessage = TEXT("Equipment statistics queries returned invalid values");
- 86 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment statistics queries"));
- 87 		return false;
- 88 	}
- 89 	UE_LOG(LogTemp, Log, TEXT("✓ Equipment queries test PASSED - HandDrill: Power=%.2f, Efficiency=%.2f, Impact=%.2f"),
- 90 		HandDrillPower, HandDrillEfficiency, HandDrillImpact);
- 91
- 92 	// Test 4: Test equipment upgrade
- 93 	EPlanetaryMiningEquipment OriginalEquipment = CurrentEquipment;
- 94 	if (!UpgradeEquipment(EPlanetaryMiningEquipment::SurfaceMiner))
- 95 	{
- 96 		OutResult.bPassed = false;
- 97 		OutResult.ErrorMessage = TEXT("Equipment upgrade failed");
- 98 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment upgrade"));
- 99 		return false;
- 100 	}
- 101 	if (CurrentEquipment != EPlanetaryMiningEquipment::SurfaceMiner)
- 102 	{
- 103 		OutResult.bPassed = false;
- 104 		OutResult.ErrorMessage = TEXT("Equipment upgrade did not change current equipment");
- 105 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment upgrade verification"));
- 106 		return false;
- 107 	}
- 108 	UE_LOG(LogTemp, Log, TEXT("✓ Equipment upgrade test PASSED - Upgraded to SurfaceMiner"));
- 109
- 110 	// Test 5: Test environmental impact calculation
- 111 	FPlanetaryMiningParams TestParams;
- 112 	TestParams.EquipmentType = EPlanetaryMiningEquipment::HandDrill;
- 113 	TestParams.MiningPower = 1.0f;
- 114 	TestParams.MiningEfficiency = 1.0f;
- 115 	TestParams.EnvironmentalImpactMultiplier = 1.0f;
- 116
- 117 	FResourceDeposit TestDeposit;
- 118 	TestDeposit.DepositType = EDepositType::Surface;
- 119 	TestDeposit.Depth = 10.0f;
- 120 	TestDeposit.MaxQuantity = 100;
- 121
- 122 	float ImpactValue = CalculateEnvironmentalImpact(TestParams, TestDeposit);
- 123 	EEnvironmentalImpact Impact = (EEnvironmentalImpact)ImpactValue;
- 124
- 125 	if (Impact != EEnvironmentalImpact::Minimal && Impact != EEnvironmentalImpact::Low)
- 126 	{
- 127 		OutResult.WarningMessages.Add(TEXT("Environmental impact calculation may be too high for basic equipment"));
- 128 		UE_LOG(LogTemp, Warning, TEXT("WARNING: Environmental impact test - Impact=%s for HandDrill on surface deposit"),
- 129 			*UEnum::GetDisplayValueAsText(Impact).ToString());
- 130 	}
- 131 	else
- 132 	{
- 133 		UE_LOG(LogTemp, Log, TEXT("✓ Environmental impact calculation test PASSED - Impact=%s"),
- 134 			*UEnum::GetDisplayValueAsText(Impact).ToString());
- 135 	}
- 136
- 137 	// Test 6: Test mining duration calculation
- 138 	float Duration = CalculateMiningDuration(TestDeposit, EPlanetaryMiningEquipment::HandDrill);
- 139 	if (Duration < 2.0f || Duration > 60.0f) // Should be between 2 and 60 seconds
- 140 	{
- 141 		OutResult.WarningMessages.Add(TEXT("Mining duration calculation may be out of expected range"));
- 142 		UE_LOG(LogTemp, Warning, TEXT("WARNING: Mining duration test - Duration=%.2f seconds (expected 2-60)"), Duration);
- 143 	}
- 144 	else
- 145 	{
- 146 		UE_LOG(LogTemp, Log, TEXT("✓ Mining duration calculation test PASSED - Duration=%.2f seconds"), Duration);
- 147 	}
- 148
- 149 	// Test 7: Test energy consumption calculation
- 150 	float EnergyConsumption = CalculateEnergyConsumption(Duration, EPlanetaryMiningEquipment::HandDrill);
- 151 	if (EnergyConsumption <= 0.0f)
- 152 	{
- 153 		OutResult.bPassed = false;
- 154 		OutResult.ErrorMessage = TEXT("Energy consumption calculation returned invalid value");
- 155 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Energy consumption calculation"));
- 156 		return false;
- 157 	}
- 158 	UE_LOG(LogTemp, Log, TEXT("✓ Energy consumption calculation test PASSED - Energy=%.2f units"), EnergyConsumption);
- 159
- 160 	// Test 8: Test equipment suitability checks
- 161 	if (!IsEquipmentSuitableForDeposit(EPlanetaryMiningEquipment::HandDrill, EDepositType::Surface))
- 162 	{
- 163 		OutResult.bPassed = false;
- 164 		OutResult.ErrorMessage = TEXT("Equipment suitability check failed for valid combination");
- 165 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment suitability check"));
- 166 		return false;
- 167 	}
- 168 	if (IsEquipmentSuitableForDeposit(EPlanetaryMiningEquipment::HandDrill, EDepositType::Deep))
- 169 	{
- 170 		OutResult.bPassed = false;
- 171 		OutResult.ErrorMessage = TEXT("Equipment suitability check passed for invalid combination");
- 172 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment suitability check (invalid combination)"));
- 173 		return false;
- 174 	}
- 175 	UE_LOG(LogTemp, Log, TEXT("✓ Equipment suitability test PASSED"));
- 176
- 177 	// Test 9: Test permit system
- 178 	// Create a mock planet for testing
- 179 	APlanet* TestPlanet = nullptr; // Would need to spawn a test planet in a real scenario
- 180 	if (TestPlanet)
- 181 	{
- 182 		FMiningPermit Permit = ApplyForMiningPermit(TestPlanet, 1000, EEnvironmentalImpact::Moderate);
- 183 		if (Permit.Status == EPermitStatus::NotRequired)
- 184 		{
- 185 			OutResult.WarningMessages.Add(TEXT("Permit system test skipped - no test planet available"));
- 186 			UE_LOG(LogTemp, Warning, TEXT("WARNING: Permit system test skipped"));
- 187 		}
- 188 		else if (Permit.Status != EPermitStatus::Granted && Permit.Status != EPermitStatus::Denied)
- 189 		{
- 190 			OutResult.bPassed = false;
- 191 			OutResult.ErrorMessage = TEXT("Permit application returned unexpected status");
- 192 			UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Permit system"));
- 193 			return false;
- 194 		}
- 195 		else
- 196 		{
- 197 			UE_LOG(LogTemp, Log, TEXT("✓ Permit system test PASSED - Status=%s"),
- 198 				*UEnum::GetDisplayValueAsText(Permit.Status).ToString());
- 199 		}
- 200 	}
- 201 	else
- 202 	{
- 203 		OutResult.WarningMessages.Add(TEXT("Permit system test skipped - no test planet available"));
- 204 		UE_LOG(LogTemp, Warning, TEXT("WARNING: Permit system test skipped - could not create test planet"));
- 205 	}
- 206
- 207 	// Test 10: Test statistics tracking
- 208 	ResetStatistics();
- 209 	if (TotalMiningOperations != 0 || TotalEnvironmentalImpact != 0.0f)
- 210 	{
- 211 		OutResult.bPassed = false;
- 212 		OutResult.ErrorMessage = TEXT("Statistics reset failed");
- 213 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Statistics reset"));
- 214 		return false;
- 215 	}
- 216
- 217 	// Simulate some mining operations
- 218 	TotalMiningOperations = 5;
- 219 	TotalEnvironmentalImpact = 2.5f;
- 220 	TotalResourcesExtracted.Add(FName(TEXT("Iron")), 100);
- 221 	TotalResourcesExtracted.Add(FName(TEXT("Copper")), 50);
- 222
- 223 	if (GetTotalMiningOperations() != 5)
- 224 	{
- 225 		OutResult.bPassed = false;
- 226 		OutResult.ErrorMessage = TEXT("Statistics tracking not working properly");
- 227 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Statistics tracking"));
- 228 		return false;
- 229 	}
- 230
- 231 	TMap<FName, int32> Resources = GetTotalResourcesExtracted();
- 232 	if (Resources.Num() != 2 || Resources.FindRef(FName(TEXT("Iron"))) != 100)
- 233 	{
- 234 		OutResult.bPassed = false;
- 235 		OutResult.ErrorMessage = TEXT("Resource extraction tracking not working properly");
- 236 		UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Resource extraction tracking"));
- 237 		return false;
- 238 	}
- 239 	UE_LOG(LogTemp, Log, TEXT("✓ Statistics tracking test PASSED"));
- 240
- 241 	// Record performance metrics
- 242 	OutResult.bPassed = true;
- 243 	OutResult.PerformanceMetrics.Add(TEXT("EquipmentTypesTested"), EquipmentPowerMap.Num());
- 244 	OutResult.PerformanceMetrics.Add(TEXT("MiningDuration"), Duration);
- 245 	OutResult.PerformanceMetrics.Add(TEXT("EnergyConsumption"), EnergyConsumption);
- 246
- 247 	UE_LOG(LogTemp, Log, TEXT("=== Planetary Mining System test PASSED ==="));
- 248 	return true;
- 249 }
- 250
- 251 FString UPlanetaryMiningSystem::GetSystemName_Implementation() const
- 252 {
- 253 	return TEXT("PlanetaryMiningSystem");
- 254 }
- 255
- 256 FString UPlanetaryMiningSystem::GetTestDescription_Implementation() const
- 257 {
- 258 	return TEXT("Tests planetary mining operations, equipment system, environmental impact, and permit management");
- 259 }
- 260
- 261 bool UPlanetaryMiningSystem::IsReadyForTesting_Implementation() const
- 262 {
- 263 	return ResourceGatheringSystem.IsValid() && EquipmentPowerMap.Num() > 0;
- 264 }
- 265 //~ End ISystemSelfTestInterface interface
-266
- 267 void UPlanetaryMiningSystem::Tick(float DeltaTime)
- 268 {
- 269 	// Update any ongoing mining operations or environmental recovery
- 270 	// For now, this is a placeholder for future timed operations
- 271 }
+		if (EquipmentPowerMap.Num() != 5 || EquipmentEfficiencyMap.Num() != 5 || EquipmentImpactMap.Num() != 5)
+		{
+			OutResult.bPassed = false;
+			OutResult.ErrorMessage = TEXT("Equipment statistics not properly initialized");
+			UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment statistics initialization"));
+			return false;
+		}
+		UE_LOG(LogTemp, Log, TEXT("✓ Equipment statistics test PASSED - %d equipment types registered"), EquipmentPowerMap.Num());
+	}
+
+	// Test 3: Test equipment queries
+	{
+		float HandDrillPower = GetEquipmentMiningPower(EPlanetaryMiningEquipment::HandDrill);
+		float HandDrillEfficiency = GetEquipmentEfficiency(EPlanetaryMiningEquipment::HandDrill);
+		float HandDrillImpact = GetEquipmentEnvironmentalImpact(EPlanetaryMiningEquipment::HandDrill);
+
+		if (HandDrillPower <= 0.0f || HandDrillEfficiency <= 0.0f || HandDrillImpact <= 0.0f)
+		{
+			OutResult.bPassed = false;
+			OutResult.ErrorMessage = TEXT("Equipment statistics queries returned invalid values");
+			UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment statistics queries"));
+			return false;
+		}
+		UE_LOG(LogTemp, Log, TEXT("✓ Equipment queries test PASSED - HandDrill: Power=%.2f, Efficiency=%.2f, Impact=%.2f"),
+			HandDrillPower, HandDrillEfficiency, HandDrillImpact);
+	}
+
+	// Test 4: Test equipment upgrade
+	{
+		EPlanetaryMiningEquipment OriginalEquipment = CurrentEquipment;
+		if (!UpgradeEquipment(EPlanetaryMiningEquipment::SurfaceMiner))
+		{
+			OutResult.bPassed = false;
+			OutResult.ErrorMessage = TEXT("Equipment upgrade failed");
+			UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment upgrade"));
+			return false;
+		}
+		if (CurrentEquipment != EPlanetaryMiningEquipment::SurfaceMiner)
+		{
+			OutResult.bPassed = false;
+			OutResult.ErrorMessage = TEXT("Equipment upgrade did not change equipment type");
+			UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment upgrade verification"));
+			return false;
+		}
+		UE_LOG(LogTemp, Log, TEXT("✓ Equipment upgrade test PASSED - Upgraded to SurfaceMiner"));
+	}
+
+	// Test 5: Test environmental impact calculation
+FPlanetaryMiningParams TestParams;
+TestParams.EquipmentType = EPlanetaryMiningEquipment::HandDrill;
+TestParams.MiningPower = 1.0f;
+TestParams.MiningEfficiency = 1.0f;
+TestParams.EnvironmentalImpactMultiplier = 1.0f;
+
+FResourceDeposit TestDeposit;
+TestDeposit.DepositType = EDepositType::Surface;
+TestDeposit.Depth = 10.0f;
+TestDeposit.MaxQuantity = 100;
+
+float ImpactValue = CalculateEnvironmentalImpact(TestParams, TestDeposit);
+EEnvironmentalImpact Impact = (EEnvironmentalImpact)ImpactValue;
+
+if (Impact != EEnvironmentalImpact::Minimal && Impact != EEnvironmentalImpact::Low)
+{
+OutResult.WarningMessages.Add(TEXT("Environmental impact calculation may be too high for basic equipment"));
+UE_LOG(LogTemp, Warning, TEXT("WARNING: Environmental impact test - Impact=%s for HandDrill on surface deposit"),
+*UEnum::GetDisplayValueAsText(Impact).ToString());
+}
+else
+{
+UE_LOG(LogTemp, Log, TEXT("✓ Environmental impact calculation test PASSED - Impact=%s"),
+*UEnum::GetDisplayValueAsText(Impact).ToString());
+}
+
+// Test 6: Test mining duration calculation
+float Duration = CalculateMiningDuration(TestDeposit, EPlanetaryMiningEquipment::HandDrill);
+if (Duration < 2.0f || Duration > 60.0f) // Should be between 2 and 60 seconds
+{
+OutResult.WarningMessages.Add(TEXT("Mining duration calculation may be out of expected range"));
+UE_LOG(LogTemp, Warning, TEXT("WARNING: Mining duration test - Duration=%.2f seconds (expected 2-60)"), Duration);
+}
+else
+{
+UE_LOG(LogTemp, Log, TEXT("✓ Mining duration calculation test PASSED - Duration=%.2f seconds"), Duration);
+}
+
+// Test 7: Test energy consumption calculation
+float EnergyConsumption = CalculateEnergyConsumption(Duration, EPlanetaryMiningEquipment::HandDrill);
+if (EnergyConsumption <= 0.0f)
+{
+OutResult.bPassed = false;
+OutResult.ErrorMessage = TEXT("Energy consumption calculation returned invalid value");
+UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Energy consumption calculation"));
+return false;
+}
+UE_LOG(LogTemp, Log, TEXT("✓ Energy consumption calculation test PASSED - Energy=%.2f units"), EnergyConsumption);
+
+// Test 8: Test equipment suitability checks
+if (!IsEquipmentSuitableForDeposit(EPlanetaryMiningEquipment::HandDrill, EDepositType::Surface))
+{
+OutResult.bPassed = false;
+OutResult.ErrorMessage = TEXT("Equipment suitability check failed for valid combination");
+UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment suitability check"));
+return false;
+}
+if (IsEquipmentSuitableForDeposit(EPlanetaryMiningEquipment::HandDrill, EDepositType::Deep))
+{
+OutResult.bPassed = false;
+OutResult.ErrorMessage = TEXT("Equipment suitability check passed for invalid combination");
+UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Equipment suitability check (invalid combination)"));
+return false;
+}
+UE_LOG(LogTemp, Log, TEXT("✓ Equipment suitability test PASSED"));
+
+// Test 9: Test permit system
+// Create a mock planet for testing
+APlanet* TestPlanet = nullptr; // Would need to spawn a test planet in a real scenario
+if (TestPlanet)
+{
+FMiningPermit Permit = ApplyForMiningPermit(TestPlanet, 1000, EEnvironmentalImpact::Moderate);
+if (Permit.Status == EPermitStatus::NotRequired)
+{
+OutResult.WarningMessages.Add(TEXT("Permit system test skipped - no test planet available"));
+UE_LOG(LogTemp, Warning, TEXT("WARNING: Permit system test skipped"));
+}
+else if (Permit.Status != EPermitStatus::Granted && Permit.Status != EPermitStatus::Denied)
+{
+OutResult.bPassed = false;
+OutResult.ErrorMessage = TEXT("Permit application returned unexpected status");
+UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Permit system"));
+return false;
+}
+else
+{
+UE_LOG(LogTemp, Log, TEXT("✓ Permit system test PASSED - Status=%s"),
+*UEnum::GetDisplayValueAsText(Permit.Status).ToString());
+}
+}
+else
+{
+OutResult.WarningMessages.Add(TEXT("Permit system test skipped - no test planet available"));
+UE_LOG(LogTemp, Warning, TEXT("WARNING: Permit system test skipped - could not create test planet"));
+}
+
+// Test 10: Test statistics tracking
+ResetStatistics();
+if (TotalMiningOperations != 0 || TotalEnvironmentalImpact != 0.0f)
+{
+OutResult.bPassed = false;
+OutResult.ErrorMessage = TEXT("Statistics reset failed");
+UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Statistics reset"));
+return false;
+}
+
+// Simulate some mining operations
+TotalMiningOperations = 5;
+TotalEnvironmentalImpact = 2.5f;
+TotalResourcesExtracted.Add(FName(TEXT("Iron")), 100);
+TotalResourcesExtracted.Add(FName(TEXT("Copper")), 50);
+
+if (GetTotalMiningOperations() != 5)
+{
+OutResult.bPassed = false;
+OutResult.ErrorMessage = TEXT("Statistics tracking not working properly");
+UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Statistics tracking"));
+return false;
+}
+
+TMap<FName, int32> Resources = GetTotalResourcesExtracted();
+if (Resources.Num() != 2 || Resources.FindRef(FName(TEXT("Iron"))) != 100)
+{
+OutResult.bPassed = false;
+OutResult.ErrorMessage = TEXT("Resource extraction tracking not working properly");
+UE_LOG(LogTemp, Error, TEXT("TEST FAILED: Resource extraction tracking"));
+return false;
+}
+UE_LOG(LogTemp, Log, TEXT("✓ Statistics tracking test PASSED"));
+
+// Record performance metrics
+OutResult.bPassed = true;
+OutResult.PerformanceMetrics.Add(FString(TEXT("EquipmentTypesTested")), EquipmentPowerMap.Num());
+OutResult.PerformanceMetrics.Add(FString(TEXT("MiningDuration")), Duration);
+OutResult.PerformanceMetrics.Add(FString(TEXT("EnergyConsumption")), EnergyConsumption);
+
+UE_LOG(LogTemp, Log, TEXT("=== Planetary Mining System test PASSED ==="));
+return true;
+}
+
+FString UPlanetaryMiningSystem::GetSystemName_Implementation() const
+{
+return TEXT("PlanetaryMiningSystem");
+}
+
+FString UPlanetaryMiningSystem::GetTestDescription_Implementation() const
+{
+return TEXT("Tests planetary mining operations, equipment system, environmental impact, and permit management");
+}
+
+bool UPlanetaryMiningSystem::IsReadyForTesting_Implementation() const
+{
+return ResourceGatheringSystem.IsValid() && EquipmentPowerMap.Num() > 0;
+}
+//~ End ISystemSelfTestInterface interface
+
+void UPlanetaryMiningSystem::Tick(float DeltaTime)
+{
+// Update any ongoing mining operations or environmental recovery
+// For now, this is a placeholder for future timed operations
+}
 
 FPlanetaryScanResult UPlanetaryMiningSystem::ScanPlanetaryLocation(APlanet* Planet, FVector Location, float ScanStrength)
 {
@@ -328,8 +333,8 @@ FPlanetaryScanResult UPlanetaryMiningSystem::ScanPlanetaryLocation(APlanet* Plan
 	}
 
 	// Store in scan history
-	TPair<TWeakObjectPtr<APlanet>, FVector> Key(Planet, Location);
-	ScanHistory.Add(Key, Result);
+	FPlanetScanHistory& PlanetHistory = ScanHistory.FindOrAdd(Planet);
+	PlanetHistory.LocationScans.Add(Location, Result);
 
 	// Fire scan event
 	OnPlanetaryScanned.Broadcast(Planet, Result);
@@ -352,9 +357,16 @@ FPlanetaryScanResult UPlanetaryMiningSystem::DeepGeologicalScan(APlanet* Planet,
 
 FPlanetaryScanResult UPlanetaryMiningSystem::GetLastScanResult(APlanet* Planet, FVector Location) const
 {
-	TPair<TWeakObjectPtr<APlanet>, FVector> Key(Planet, Location);
-	const FPlanetaryScanResult* Result = ScanHistory.Find(Key);
-	return Result ? *Result : FPlanetaryScanResult();
+	const FPlanetScanHistory* PlanetHistory = ScanHistory.Find(Planet);
+	if (PlanetHistory)
+	{
+		const FPlanetaryScanResult* Result = PlanetHistory->LocationScans.Find(Location);
+		if (Result)
+		{
+			return *Result;
+		}
+	}
+	return FPlanetaryScanResult();
 }
 
 FPlanetaryMiningResult UPlanetaryMiningSystem::MinePlanetaryLocation(APlanet* Planet, FVector Location, const FPlanetaryMiningParams& Params)
@@ -376,14 +388,15 @@ FPlanetaryMiningResult UPlanetaryMiningSystem::MinePlanetaryLocation(APlanet* Pl
 
 	// Check mining permit
 	FMiningPermit Permit = GetMiningPermit(Planet);
-	if (!IsMiningPermitted(Planet, Location, Params.EnvironmentalImpactMultiplier))
+	
+	// Get resources at location first to calculate impact
+	TArray<FResourceDeposit> Deposits = ResourceGatheringSystem->GetPlanetaryResources(Planet, Location);
+	EEnvironmentalImpact OperationImpact = (EEnvironmentalImpact)CalculateEnvironmentalImpact(Params, Deposits.Num() > 0 ? Deposits[0] : FResourceDeposit());
+	if (!IsMiningPermitted(Planet, Location, OperationImpact))
 	{
 		Result.FailureReason = "Mining not permitted at this location";
 		return Result;
 	}
-
-	// Get resources at location
-	TArray<FResourceDeposit> Deposits = ResourceGatheringSystem->GetPlanetaryResources(Planet, Location);
 	if (Deposits.Num() == 0)
 	{
 		Result.FailureReason = "No resources found at location";
@@ -436,7 +449,7 @@ FPlanetaryMiningResult UPlanetaryMiningSystem::MinePlanetaryLocation(APlanet* Pl
 		Result.EnergyConsumed = CalculateEnergyConsumption(Result.OperationTime, Params.EquipmentType);
 
 		// Calculate environmental impact
-		Result.EnvironmentalImpact = CalculateEnvironmentalImpact(Params, *TargetDeposit);
+		Result.EnvironmentalImpact = (EEnvironmentalImpact)CalculateEnvironmentalImpact(Params, *TargetDeposit);
 
 		// Calculate total value
 		for (const FResourceQuantity& Resource : Result.ResourcesExtracted)
@@ -468,13 +481,26 @@ FPlanetaryMiningResult UPlanetaryMiningSystem::MinePlanetaryLocation(APlanet* Pl
 		// Add to inventory if manager is available
 		if (InventoryManager.IsValid())
 		{
+			// Add extracted resources to personal inventory
+			// TODO: Pass actual player/ship ID from mining operation
+			FGuid DummyPlayerID = FGuid::NewGuid(); // TODO: Pass actual player ID from mining operation
+
 			for (const FResourceQuantity& Resource : Result.ResourcesExtracted)
 			{
-				// InventoryManager->AddResource(Resource); // Uncomment when InventoryManager is implemented
+				InventoryManager->AddResource(
+					Resource.ResourceID,
+					Resource.Quantity,
+					Resource.Quality,
+					EInventoryType::PersonalInventory,
+					DummyPlayerID
+				);
+
+				UE_LOG(LogTemp, Log, TEXT("Added %d %s to personal inventory"),
+					Resource.Quantity, *Resource.ResourceID.ToString());
 			}
 		}
 
-		UE_LOG(LogTemp, Log, TEXT("Completed planetary mining: Extracted %d resources (Value: %.1f credits, Impact: %s)"), 
+		UE_LOG(LogTemp, Log, TEXT("Completed planetary mining: Extracted %d resources (Value: %.1f credits, Impact: %s)"),
 			   Result.ResourcesExtracted.Num(), Result.TotalValue, *UEnum::GetDisplayValueAsText(Result.EnvironmentalImpact).ToString());
 	}
 	else
@@ -567,16 +593,15 @@ void UPlanetaryMiningSystem::RestoreEnvironmentalHealth(APlanet* Planet, float A
 FMiningPermit UPlanetaryMiningSystem::ApplyForMiningPermit(APlanet* Planet, int32 RequestedExtraction, EEnvironmentalImpact MaxImpact)
 {
 	FMiningPermit Permit;
-	Permit.bSuccess = false;
 
 	if (!Planet)
 	{
-		Permit.FailureReason = "Invalid planet";
+		Permit.Status = EPermitStatus::Denied;
 		return Permit;
 	}
 
 	// Generate permit
-	Permit.PemitID = FGuid::NewGuid();
+	Permit.PermitID = FGuid::NewGuid();
 	Permit.TargetPlanet = Planet;
 	Permit.Status = EPermitStatus::Applied;
 	Permit.IssueDate = FDateTime::Now();

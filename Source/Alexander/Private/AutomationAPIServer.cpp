@@ -7,6 +7,7 @@
 #include "GameFramework/GameModeBase.h"
 #include "Engine/World.h"
 #include "Engine/Engine.h"
+#include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
 #include "JsonObjectConverter.h"
 #include "Dom/JsonObject.h"
@@ -18,6 +19,9 @@
 #include "Sockets.h"
 #include "SocketSubsystem.h"
 #include "IPAddress.h"
+#include "MemoryOptimizationManager.h"
+#include "TickOptimizationManager.h"
+#include "TickAnalysisComponent.h"
 #include "Networking.h"
 #include "Async/Async.h"
 #include "HAL/PlatformFileManager.h"
@@ -167,7 +171,12 @@ void UAutomationAPIServer::StopServer()
 	}
 
 	bIsRunning = false;
-	TrackedShips.Empty();
+
+	// THREAD SAFETY: Protect TrackedShips cleanup with lock
+	{
+		FScopeLock Lock(&TrackedShipsLock);
+		TrackedShips.Empty();
+	}
 
 	UE_LOG(LogTemp, Log, TEXT("AutomationAPI: Server stopped"));
 }
@@ -329,7 +338,15 @@ FString UAutomationAPIServer::GetServerStatus() const
 	TSharedPtr<FJsonObject> StatusObj = MakeShareable(new FJsonObject);
 	StatusObj->SetBoolField(TEXT("running"), bIsRunning);
 	StatusObj->SetNumberField(TEXT("port"), ListenPort);
-	StatusObj->SetNumberField(TEXT("tracked_ships"), TrackedShips.Num());
+
+	// THREAD SAFETY: Protect TrackedShips access with lock
+	int32 NumTrackedShips = 0;
+	{
+		FScopeLock Lock(&TrackedShipsLock);
+		NumTrackedShips = TrackedShips.Num();
+	}
+	StatusObj->SetNumberField(TEXT("tracked_ships"), NumTrackedShips);
+
 	StatusObj->SetNumberField(TEXT("total_requests"), TotalRequestsProcessed);
 	StatusObj->SetNumberField(TEXT("avg_processing_time_ms"),
 		TotalRequestsProcessed > 0 ? (TotalProcessingTime / TotalRequestsProcessed) * 1000.0f : 0.0f);
@@ -619,8 +636,8 @@ FString UAutomationAPIServer::HandleSpawnShip(const FString& RequestBody)
 	UClass* ShipClass = StaticLoadClass(AActor::StaticClass(), nullptr, *ShipClassPath);
 	if (!ShipClass)
 	{
-		// Try alternative loading method for C++ classes
-		ShipClass = FindObject<UClass>(ANY_PACKAGE, *ShipClassPath);
+		// Try alternative loading method for C++ classes (UE 5.6: ANY_PACKAGE deprecated, use nullptr)
+		ShipClass = FindObject<UClass>(nullptr, *ShipClassPath);
 	}
 
 	if (!ShipClass || !ValidateShipClass(ShipClass))
@@ -2299,7 +2316,14 @@ FString UAutomationAPIServer::HandlePerformanceMetrics()
 	// Unreal specific metrics
 	TSharedPtr<FJsonObject> UnrealMetrics = MakeShareable(new FJsonObject);
 	UnrealMetrics->SetNumberField(TEXT("num_actors"), World->GetActorCount());
-	UnrealMetrics->SetNumberField(TEXT("num_pawns"), World->GetNumPawns());
+	
+	// Count pawns manually
+	int32 NumPawns = 0;
+	for (TActorIterator<APawn> It(World); It; ++It)
+	{
+		NumPawns++;
+	}
+	UnrealMetrics->SetNumberField(TEXT("num_pawns"), NumPawns);
 
 	Metrics->SetObjectField(TEXT("unreal"), UnrealMetrics);
 

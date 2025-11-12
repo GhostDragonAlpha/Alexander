@@ -82,13 +82,13 @@ public:
 
 	// Color coding helpers
 	UFUNCTION(BlueprintPure, Category = "Test Results|Styling")
-	FSlateColor GetStatusColor(ETestStatus Status) const;
+	FSlateColor GetStatusColor(EAlexanderTestStatus Status) const;
 
 	UFUNCTION(BlueprintPure, Category = "Test Results|Styling")
-	FLinearColor GetStatusLinearColor(ETestStatus Status) const;
+	FLinearColor GetStatusLinearColor(EAlexanderTestStatus Status) const;
 
 	UFUNCTION(BlueprintPure, Category = "Test Results|Styling")
-	FString GetStatusText(ETestStatus Status) const;
+	FString GetStatusText(EAlexanderTestStatus Status) const;
 
 	// Blueprint implementable events
 	UFUNCTION(BlueprintImplementableEvent, Category = "Test Results|Events")

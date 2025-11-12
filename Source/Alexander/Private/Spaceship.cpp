@@ -148,6 +148,7 @@ ASpaceship::ASpaceship()
 	// Network setup
 	bReplicates = true;
 	bAlwaysRelevant = false; // Use distance-based relevance
+	// UE 5.6: Use NetUpdateFrequency property directly instead of SetNetUpdateFrequency()
 	NetUpdateFrequency = 20.0f; // 20 updates per second default
 	MinNetUpdateFrequency = 5.0f;
 	NetCullDistanceSquared = 100000000.0f; // 100km squared

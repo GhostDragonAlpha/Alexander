@@ -141,6 +141,9 @@ public:
 	// ============================================================================
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest")
+	float BaseYield;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest")
 	FCropIntRange YieldAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Harvest")

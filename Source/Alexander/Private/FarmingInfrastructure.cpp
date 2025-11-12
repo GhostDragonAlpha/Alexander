@@ -2,6 +2,7 @@
 
 #include "FarmingInfrastructure.h"
 #include "FarmPlot.h"
+#include "AlexanderIrrigationSystem.h"
 #include "Engine/World.h"
 #include "GameFramework/PlayerState.h"
 
@@ -231,16 +232,18 @@ bool AGreenhouse::AddFarmPlot(AFarmPlot* Plot)
 	return true;
 }
 
-bool AGreenhouse::RemoveFarmPlot(const FGuid& PlotID)
+bool AGreenhouse::RemoveFarmPlot(AFarmPlot* Plot)
 {
-	for (int32 i = 0; i < FarmPlots.Num(); i++)
+	if (!Plot)
 	{
-		if (FarmPlots[i] && FarmPlots[i]->PlotID == PlotID)
-		{
-			FarmPlots.RemoveAt(i);
-			UE_LOG(LogTemp, Log, TEXT("Farm plot removed from greenhouse. Total plots: %d"), FarmPlots.Num());
-			return true;
-		}
+		return false;
+	}
+
+	int32 RemovedCount = FarmPlots.Remove(Plot);
+	if (RemovedCount > 0)
+	{
+		UE_LOG(LogTemp, Log, TEXT("Farm plot removed from greenhouse. Total plots: %d"), FarmPlots.Num());
+		return true;
 	}
 	return false;
 }
@@ -281,136 +284,8 @@ void AGreenhouse::UpdateStructuralIntegrity(float DeltaTime)
 	}
 }
 
-// Irrigation System Implementation
-AIrrigationSystem::AIrrigationSystem()
-{
-	PrimaryActorTick.bCanEverTick = true;
-
-	// Create components
-	RootSceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
-	RootComponent = RootSceneComponent;
-
-	PumpMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PumpMesh"));
-	PumpMesh->SetupAttachment(RootComponent);
-
-	CoverageVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("CoverageVolume"));
-	CoverageVolume->SetupAttachment(RootComponent);
-
-	// Default configuration
-	MaxWaterCapacity = 5000.0f;
-	CurrentWater = 4000.0f;
-	FlowRate = 10.0f; // 10 liters per second
-	CoverageRadius = 500.0f;
-	WateringInterval = 3600.0f; // 1 hour
-	WateringDuration = 300.0f; // 5 minutes
-	LastWateringTime = 0.0f;
-	bIsOperational = false;
-	PowerConsumption = 2.0f;
-}
-
-void AIrrigationSystem::BeginPlay()
-{
-	Super::BeginPlay();
-	bIsOperational = true;
-	UE_LOG(LogTemp, Log, TEXT("Irrigation system initialized: %.1fL capacity, %.1fm radius"), MaxWaterCapacity, CoverageRadius);
-}
-
-void AIrrigationSystem::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	if (bIsOperational)
-	{
-		CheckWateringSchedule(DeltaTime);
-	}
-}
-
-void AIrrigationSystem::InitializeSystem(float WaterCapacity, float InFlowRate, float InCoverageRadius)
-{
-	MaxWaterCapacity = WaterCapacity;
-	CurrentWater = WaterCapacity * 0.8f;
-	FlowRate = InFlowRate;
-	CoverageRadius = InCoverageRadius;
-}
-
-bool AIrrigationSystem::AddPlotToCoverage(AFarmPlot* Plot)
-{
-	if (!Plot)
-	{
-		return false;
-	}
-
-	CoveredPlots.Add(Plot);
-	UE_LOG(LogTemp, Log, TEXT("Farm plot added to irrigation coverage. Total plots: %d"), CoveredPlots.Num());
-	return true;
-}
-
-bool AIrrigationSystem::RemovePlotFromCoverage(const FGuid& PlotID)
-{
-	for (int32 i = 0; i < CoveredPlots.Num(); i++)
-	{
-		if (CoveredPlots[i] && CoveredPlots[i]->PlotID == PlotID)
-		{
-			CoveredPlots.RemoveAt(i);
-			UE_LOG(LogTemp, Log, TEXT("Farm plot removed from irrigation coverage. Total plots: %d"), CoveredPlots.Num());
-			return true;
-		}
-	}
-	return false;
-}
-
-void AIrrigationSystem::WaterAllCoveredPlots()
-{
-	if (CurrentWater <= 0.0f)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Irrigation system has no water"));
-		return;
-	}
-
-	float WaterPerPlot = FMath::Min(FlowRate, CurrentWater) / FMath::Max(1, CoveredPlots.Num());
-
-	for (AFarmPlot* Plot : CoveredPlots)
-	{
-		if (Plot)
-		{
-			Plot->WaterPlot(WaterPerPlot);
-			ConsumeWater(WaterPerPlot);
-		}
-	}
-
-	UE_LOG(LogTemp, Log, TEXT("Irrigation system watered %d plots"), CoveredPlots.Num());
-}
-
-void AIrrigationSystem::SetWateringSchedule(float Interval, float Duration)
-{
-	WateringInterval = Interval;
-	WateringDuration = Duration;
-	UE_LOG(LogTemp, Log, TEXT("Irrigation schedule set: Interval=%.1fs, Duration=%.1fs"), Interval, Duration);
-}
-
-void AIrrigationSystem::RefillWaterTank(float Amount)
-{
-	float OldWater = CurrentWater;
-	CurrentWater = FMath::Clamp(CurrentWater + Amount, 0.0f, MaxWaterCapacity);
-	float ActualAdded = CurrentWater - OldWater;
-	UE_LOG(LogTemp, Log, TEXT("Water tank refilled: %f liters (current: %f/%f)"), ActualAdded, CurrentWater, MaxWaterCapacity);
-}
-
-void AIrrigationSystem::CheckWateringSchedule(float DeltaTime)
-{
-	LastWateringTime += DeltaTime;
-
-	if (LastWateringTime >= WateringInterval)
-	{
-		WaterAllCoveredPlots();
-		LastWateringTime = 0.0f;
-	}
-}
-
-void AIrrigationSystem::ConsumeWater(float Amount)
-{
-	CurrentWater = FMath::Max(0.0f, CurrentWater - Amount);
-}
+// NOTE: AIrrigationSystem implementation moved to AlexanderIrrigationSystem.cpp
+// The duplicate implementation has been removed to avoid conflicts
 
 // Fertilizer Injector Implementation
 AFertilizerInjector::AFertilizerInjector()

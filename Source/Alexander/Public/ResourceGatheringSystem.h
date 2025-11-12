@@ -165,6 +165,10 @@ struct FResourceDeposit
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Deposit")
 	int32 CurrentQuantity;
 
+	// Remaining quantity after mining
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Deposit")
+	float RemainingQuantity;
+
 	// Maximum quantity
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Deposit")
 	int32 MaxQuantity;
@@ -196,6 +200,7 @@ struct FResourceDeposit
 	FResourceDeposit()
 	{
 		CurrentQuantity = 0;
+		RemainingQuantity = 0.0f;
 		MaxQuantity = 100;
 		Difficulty = EMiningDifficulty::Easy;
 		Depth = 0.0f;
@@ -227,10 +232,15 @@ struct FMiningResult
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mining")
 	float ExperienceGained;
 
+	// Remaining quantity in deposit after mining
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mining")
+	float RemainingInDeposit;
+
 	FMiningResult()
 	{
 		bSuccess = false;
 		ExperienceGained = 0.0f;
+		RemainingInDeposit = 0.0f;
 	}
 };
 
@@ -317,6 +327,9 @@ public:
 	// Get resources from an asteroid
 	UFUNCTION(BlueprintCallable, Category = "Asteroid Resources")
 	TArray<FResourceDeposit> GetAsteroidResources(AAsteroid* Asteroid) const;
+
+	// POINTER SAFETY: Get pointer to actual asteroid resources (for modification)
+	TArray<FResourceDeposit>* GetAsteroidResourcesPtr(AAsteroid* Asteroid);
 
 	// Scan asteroid for resources
 	UFUNCTION(BlueprintCallable, Category = "Asteroid Resources")

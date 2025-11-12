@@ -238,7 +238,7 @@ FString UVerificationReportGenerator::GenerateCSVReport() const
 	for (const FSystemTestResult& SystemResult : LastResult.SystemResults)
 	{
 		Report += EscapeXMLString(SystemResult.SystemName) + TEXT(",");
-		Report += (SystemResult.bPassed ? TEXT("PASSED") : TEXT("FAILED")) + TEXT(",");
+		Report += FString(SystemResult.bPassed ? TEXT("PASSED") : TEXT("FAILED")) + TEXT(",");
 		Report += FString::Printf(TEXT("%.2f,"), SystemResult.TestDuration);
 		
 		if (!SystemResult.ErrorMessage.IsEmpty())
@@ -412,11 +412,11 @@ FString UVerificationReportGenerator::EscapeJSONString(const FString& Input) con
 FString UVerificationReportGenerator::EscapeXMLString(const FString& Input) const
 {
 	FString Output = Input;
-	Output.ReplaceInline(TEXT("&"), TEXT("&"));
-	Output.ReplaceInline(TEXT("<"), TEXT("<"));
-	Output.ReplaceInline(TEXT(">"), TEXT(">"));
-	Output.ReplaceInline(TEXT("\""), TEXT("""));
-	Output.ReplaceInline(TEXT("'"), TEXT("'"));
+	Output.ReplaceInline(TEXT("&"), TEXT("&amp;"));
+	Output.ReplaceInline(TEXT("<"), TEXT("&lt;"));
+	Output.ReplaceInline(TEXT(">"), TEXT("&gt;"));
+	Output.ReplaceInline(TEXT("\""), TEXT("&quot;"));
+	Output.ReplaceInline(TEXT("'"), TEXT("&apos;"));
 	return Output;
 }
 

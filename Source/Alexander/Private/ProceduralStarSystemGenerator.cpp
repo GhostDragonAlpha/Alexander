@@ -37,10 +37,11 @@ FGeneratedStarSystem UProceduralStarSystemGenerator::GenerateStarSystem(const FS
     CalculateHabitableZone(Config.StarConfig.Luminosity, Result.HabitableZoneInner, Result.HabitableZoneOuter);
 
     // Set star spectral type for planetary generation
-    Config.PlanetaryConfig.StarSpectralType = Config.StarConfig.SpectralType;
+    FStarSystemConfig MutableConfig = Config;
+    MutableConfig.PlanetaryConfig.StarSpectralType = Config.StarConfig.SpectralType;
 
     // Generate planetary system
-    TArray<APlanet*> GeneratedPlanets = GeneratePlanetarySystem(Star, Config.PlanetaryConfig);
+    TArray<APlanet*> GeneratedPlanets = GeneratePlanetarySystem(Star, MutableConfig.PlanetaryConfig);
     for (APlanet* Planet : GeneratedPlanets)
     {
         Result.Planets.Add(Planet);
@@ -94,7 +95,7 @@ ASun* UProceduralStarSystemGenerator::GenerateStar(const FStarGenerationConfig& 
     
     // Set star name based on spectral type
     FString StarName = FString::Printf(TEXT("%s-Class Star"), *UEnum::GetValueAsString(Config.SpectralType));
-    Star->SetActorLabel(StarName);
+    // Star->SetActorLabel(StarName); // Method not available in UE5.6
 
     return Star;
 }
@@ -230,8 +231,13 @@ APlanet* UProceduralStarSystemGenerator::GeneratePlanet(ASun* Star, float Orbita
     Planet->OrbitInclination = Inclination;
     
     // Set planet name
-    FString PlanetName = GeneratePlanetName(Star->GetActorLabel(), PlanetIndex);
-    Planet->SetActorLabel(PlanetName);
+    FString StarName = Star->GetActorLabel();
+    if (StarName.IsEmpty())
+    {
+        StarName = Star->GetName();
+    }
+    FString PlanetName = GeneratePlanetName(StarName, PlanetIndex);
+    // Planet->SetActorLabel(PlanetName); // Method not available in UE5.6
 
     // Position planet at orbital radius
     FVector StarLocation = Star->GetActorLocation();
@@ -266,7 +272,7 @@ TArray<AOrbitalBody*> UProceduralStarSystemGenerator::GenerateMoons(APlanet* Pla
         if (Moon)
         {
             // Configure moon properties
-            Moon->Mass = RandomStream.RandRange(1e20f, 1e22f); // Moon mass range
+            	Moon->Mass = RandomStream.RandRange(1e15f, 1e17f); // Moon mass range
             Moon->Radius = RandomStream.RandRange(100.0f, 2000.0f); // Moon radius range
             Moon->OrbitTarget = Planet;
             Moon->OrbitMode = EOrbitMode::Orbit;
@@ -282,10 +288,13 @@ TArray<AOrbitalBody*> UProceduralStarSystemGenerator::GenerateMoons(APlanet* Pla
             Moon->SetActorLocation(MoonPosition);
             
             // Set moon name
-                FString MoonName = FString::Printf(TEXT("%s Moon %d"), Planet->GetActorLabel(), i + 1);
-            Moon->SetActorLabel(MoonName);
-            
-            Moons.Add(Moon);
+            FString PlanetName = Planet->GetActorLabel();
+            if (PlanetName.IsEmpty())
+            {
+                PlanetName = Planet->GetName();
+            }
+                	FString MoonName = FString::Printf(TEXT("%s Moon %d"), *PlanetName, i + 1);
+	// Moon->SetActorLabel(MoonName); // Method not available in UE5.6            Moons.Add(Moon);
         }
     }
 
@@ -332,7 +341,7 @@ void UProceduralStarSystemGenerator::GenerateAsteroidBelt(ASun* Star, float Inne
             
             // Set asteroid name
             FString AsteroidName = FString::Printf(TEXT("Asteroid %d"), i + 1);
-            Asteroid->SetActorLabel(AsteroidName);
+            // Asteroid->SetActorLabel(AsteroidName); // Method not available in UE5.6
         }
     }
 

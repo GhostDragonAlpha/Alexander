@@ -2,6 +2,7 @@
 
 #include "Testing/TestResultsWidget.h"
 #include "Testing/TestLevelGameMode.h"
+#include "TestScenarioManager.h"
 #include "Components/TextBlock.h"
 #include "Components/VerticalBox.h"
 #include "Components/ScrollBox.h"
@@ -276,48 +277,50 @@ bool UTestResultsWidget::SaveResultsToFile(const FString& FilePath, bool bIsJSON
 	return bSuccess;
 }
 
-FSlateColor UTestResultsWidget::GetStatusColor(ETestStatus Status) const
+FSlateColor UTestResultsWidget::GetStatusColor(EAlexanderTestStatus Status) const
 {
 	return FSlateColor(GetStatusLinearColor(Status));
 }
 
-FLinearColor UTestResultsWidget::GetStatusLinearColor(ETestStatus Status) const
+FLinearColor UTestResultsWidget::GetStatusLinearColor(EAlexanderTestStatus Status) const
 {
 	switch (Status)
 	{
-	case ETestStatus::Passed:
-		return PassedColor;
-	case ETestStatus::Failed:
-		return FailedColor;
-	case ETestStatus::Running:
+	case EAlexanderTestStatus::NotRun:
+		return NotRunColor;
+	case EAlexanderTestStatus::Running:
 		return RunningColor;
-	case ETestStatus::Skipped:
-		return SkippedColor;
-	case ETestStatus::Timeout:
+	case EAlexanderTestStatus::Passed:
+		return PassedColor;
+	case EAlexanderTestStatus::Failed:
+		return FailedColor;
+	case EAlexanderTestStatus::Timeout:
 		return TimeoutColor;
-	case ETestStatus::NotRun:
+	case EAlexanderTestStatus::Skipped:
+		return SkippedColor;
 	default:
 		return NotRunColor;
 	}
 }
 
-FString UTestResultsWidget::GetStatusText(ETestStatus Status) const
+FString UTestResultsWidget::GetStatusText(EAlexanderTestStatus Status) const
 {
 	switch (Status)
 	{
-	case ETestStatus::Passed:
-		return TEXT("PASSED");
-	case ETestStatus::Failed:
-		return TEXT("FAILED");
-	case ETestStatus::Running:
-		return TEXT("RUNNING");
-	case ETestStatus::Skipped:
-		return TEXT("SKIPPED");
-	case ETestStatus::Timeout:
-		return TEXT("TIMEOUT");
-	case ETestStatus::NotRun:
-	default:
+	case EAlexanderTestStatus::NotRun:
 		return TEXT("NOT RUN");
+	case EAlexanderTestStatus::Running:
+		return TEXT("RUNNING");
+	case EAlexanderTestStatus::Passed:
+		return TEXT("PASSED");
+	case EAlexanderTestStatus::Failed:
+		return TEXT("FAILED");
+	case EAlexanderTestStatus::Timeout:
+		return TEXT("TIMEOUT");
+	case EAlexanderTestStatus::Skipped:
+		return TEXT("SKIPPED");
+	default:
+		return TEXT("UNKNOWN");
 	}
 }
 

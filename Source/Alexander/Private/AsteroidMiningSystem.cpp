@@ -236,48 +236,48 @@ bool UAsteroidMiningSystem::RunSelfTest_Implementation(FSystemTestResult& OutRes
 		return false;
 	}
 
-	float AvgTimePerAsteroid = GetTotalMiningTime() / GetTotalAsteroidsMined();
- 239 	if (AvgTimePerAsteroid < 5.0f || AvgTimePerAsteroid > 30.0f)
- 240 	{
- 241 		OutResult.WarningMessages.Add(TEXT("Average mining time per asteroid may be out of expected range"));
- 242 		UE_LOG(LogTemp, Warning, TEXT("WARNING: Average mining time test - %.2f seconds/asteroid (expected 5-30)"), AvgTimePerAsteroid);
- 243 	}
- 244 	else
- 245 	{
- 246 		UE_LOG(LogTemp, Log, TEXT("✓ Average mining time test PASSED - %.2f seconds/asteroid"), AvgTimePerAsteroid);
- 247 	}
- 248 	UE_LOG(LogTemp, Log, TEXT("✓ Statistics tracking test PASSED"));
- 249
- 250 	// Record performance metrics
- 251 	OutResult.bPassed = true;
- 252 	OutResult.PerformanceMetrics.Add(TEXT("LaserTypesTested"), LaserPowerMap.Num());
- 253 	OutResult.PerformanceMetrics.Add(TEXT("EfficiencyTiersTested"), 4);
- 254 	OutResult.PerformanceMetrics.Add(TEXT("AsteroidsMined"), TotalAsteroidsMined);
- 255 	OutResult.PerformanceMetrics.Add(TEXT("TotalMiningTime"), TotalMiningTime);
- 256
- 257 	UE_LOG(LogTemp, Log, TEXT("=== Asteroid Mining System test PASSED ==="));
- 258 	return true;
- 259 }
- 260
- 261 FString UAsteroidMiningSystem::GetSystemName_Implementation() const
- 262 {
- 263 	return TEXT("AsteroidMiningSystem");
- 264 }
- 265
- 266 FString UAsteroidMiningSystem::GetTestDescription_Implementation() const
- 267 {
- 268 	return TEXT("Tests asteroid mining operations, laser upgrades, and efficiency system");
- 269 }
- 270
- 271 bool UAsteroidMiningSystem::IsReadyForTesting_Implementation() const
- 272 {
- 273 	return ResourceGatheringSystem.IsValid() && LaserPowerMap.Num() > 0;
- 274 }
- 275 //~ End ISystemSelfTestInterface interface
- 276
- 277 void UAsteroidMiningSystem::Tick(float DeltaTime)
- 278 {
- 279 	// Update active mining operation
+	float AvgTimePerAsteroid = (GetTotalAsteroidsMined() > 0) ? (GetTotalMiningTime() / GetTotalAsteroidsMined()) : 0.0f;
+	if (AvgTimePerAsteroid < 5.0f || AvgTimePerAsteroid > 30.0f)
+	{
+		OutResult.WarningMessages.Add(TEXT("Average mining time per asteroid may be out of expected range"));
+		UE_LOG(LogTemp, Warning, TEXT("WARNING: Average mining time test - %.2f seconds/asteroid (expected 5-30)"), AvgTimePerAsteroid);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("✓ Average mining time test PASSED - %.2f seconds/asteroid"), AvgTimePerAsteroid);
+	}
+	UE_LOG(LogTemp, Log, TEXT("✓ Statistics tracking test PASSED"));
+
+	// Record performance metrics
+	OutResult.bPassed = true;
+	OutResult.PerformanceMetrics.Add(TEXT("LaserTypesTested"), LaserPowerMap.Num());
+	OutResult.PerformanceMetrics.Add(TEXT("EfficiencyTiersTested"), 4);
+	OutResult.PerformanceMetrics.Add(TEXT("AsteroidsMined"), TotalAsteroidsMined);
+	OutResult.PerformanceMetrics.Add(TEXT("TotalMiningTime"), TotalMiningTime);
+
+	UE_LOG(LogTemp, Log, TEXT("=== Asteroid Mining System test PASSED ==="));
+	return true;
+}
+
+FString UAsteroidMiningSystem::GetSystemName_Implementation() const
+{
+	return TEXT("AsteroidMiningSystem");
+}
+
+FString UAsteroidMiningSystem::GetTestDescription_Implementation() const
+{
+	return TEXT("Tests asteroid mining operations, laser upgrades, and efficiency system");
+}
+
+bool UAsteroidMiningSystem::IsReadyForTesting_Implementation() const
+{
+	return ResourceGatheringSystem.IsValid() && LaserPowerMap.Num() > 0;
+}
+//~ End ISystemSelfTestInterface interface
+
+void UAsteroidMiningSystem::Tick(float DeltaTime)
+{
+	// Update active mining operation
 	if (CurrentOperation.bIsActive)
 	{
 		float CurrentTime = GetWorld()->GetTimeSeconds();
@@ -606,9 +606,23 @@ FMiningOperationResult UAsteroidMiningSystem::CompleteMiningOperation()
 		// Add to inventory if manager is available
 		if (InventoryManager.IsValid())
 		{
+			// Add extracted resources to ship cargo inventory
+			// We need to get the ship that owns this mining operation
+			// For now, use a dummy ship GUID - this should be passed from the actual ship instance
+			FGuid DummyShipID = FGuid::NewGuid(); // TODO: Pass actual ship ID from mining operation
+
 			for (const FResourceQuantity& Resource : Result.ResourcesExtracted)
 			{
-				// InventoryManager->AddResource(Resource); // Uncomment when InventoryManager is implemented
+				InventoryManager->AddResource(
+					Resource.ResourceID,
+					Resource.Quantity,
+					Resource.Quality,
+					EInventoryType::ShipCargo,
+					DummyShipID
+				);
+
+				UE_LOG(LogTemp, Log, TEXT("Added %d %s to ship cargo inventory"),
+					Resource.Quantity, *Resource.ResourceID.ToString());
 			}
 		}
 

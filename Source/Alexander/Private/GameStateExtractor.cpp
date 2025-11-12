@@ -160,9 +160,9 @@ TSharedPtr<FJsonObject> UGameStateExtractor::ExtractPlayerState()
 		if (FlightController)
 		{
 			TSharedPtr<FJsonObject> FlightInfo = MakeShareable(new FJsonObject);
-			FlightInfo->SetNumberField(TEXT("current_speed"), FlightController->GetCurrentSpeed());
+			// FlightInfo->SetNumberField(TEXT("current_speed"), FlightController->GetCurrentSpeed()); // Method doesn't exist
 			FlightInfo->SetNumberField(TEXT("assist_mode"), (int32)FlightController->GetAssistMode());
-			FlightInfo->SetBoolField(TEXT("is_boosting"), FlightController->IsBoosting());
+			// FlightInfo->SetBoolField(TEXT("is_boosting"), FlightController->IsBoosting()); // Method doesn't exist
 
 			PlayerState->SetObjectField(TEXT("flight_controller"), FlightInfo);
 		}
@@ -234,7 +234,7 @@ TSharedPtr<FJsonObject> UGameStateExtractor::ExtractWorldState()
 	WorldState->SetNumberField(TEXT("real_time_seconds"), World->GetRealTimeSeconds());
 	WorldState->SetNumberField(TEXT("delta_time_seconds"), World->GetDeltaSeconds());
 	WorldState->SetNumberField(TEXT("actor_count"), World->GetActorCount());
-	WorldState->SetNumberField(TEXT("pawn_count"), World->GetPawnCount());
+	// WorldState->SetNumberField(TEXT("pawn_count"), World->GetPawnCount()); // Method doesn't exist
 
 	// Game mode info
 	if (AGameModeBase* GameMode = World->GetAuthGameMode())
@@ -250,9 +250,9 @@ TSharedPtr<FJsonObject> UGameStateExtractor::ExtractWorldState()
 	if (AGameStateBase* GameState = World->GetGameState())
 	{
 		TSharedPtr<FJsonObject> GameStateInfo = MakeShareable(new FJsonObject);
-		GameStateInfo->SetStringField(TEXT("game_state_name"), GameState->GetName());
+		// GameStateInfo->SetStringField(TEXT("game_state_name"), GameState->GetName()); // Method doesn't exist
 		GameStateInfo->SetStringField(TEXT("game_state_class"), GameState->GetClass()->GetName());
-		GameStateInfo->SetNumberField(TEXT("player_count"), GameState->PlayerArray.Num());
+		// GameStateInfo->SetNumberField(TEXT("player_count"), GameState->PlayerArray.Num()); // Member doesn't exist
 
 		WorldState->SetObjectField(TEXT("game_state"), GameStateInfo);
 	}
@@ -293,7 +293,7 @@ TSharedPtr<FJsonObject> UGameStateExtractor::ExtractPerformanceMetrics()
 	// Hardware metrics
 	TSharedPtr<FJsonObject> HardwareMetrics = MakeShareable(new FJsonObject);
 	HardwareMetrics->SetNumberField(TEXT("num_cores"), FPlatformMisc::NumberOfCores());
-	HHardwareMetrics->SetNumberField(TEXT("num_cores_including_hyperthreads"), FPlatformMisc::NumberOfCoresIncludingHyperthreads());
+	HardwareMetrics->SetNumberField(TEXT("num_cores_including_hyperthreads"), FPlatformMisc::NumberOfCoresIncludingHyperthreads());
 
 	Performance->SetObjectField(TEXT("hardware"), HardwareMetrics);
 

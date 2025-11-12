@@ -4,13 +4,14 @@
 #include "Engine/World.h"
 #include "GameFramework/GameModeBase.h"
 #include "Misc/AutomationTest.h"
+#include "Editor/UnrealEd/Public/Tests/AutomationEditorCommon.h"
 #include "PersistentUniverseManager.h"
 #include "OriginCenteredPhysicsManager.h"
 #include "PlayerProgression.h"
 
 #if WITH_DEV_AUTOMATION_TESTS
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPersistentUniverseManagerBasicTest, "Alexander.Persistence.PersistentUniverseManager.BasicOperations", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPersistentUniverseManagerBasicTest, "Alexander.Persistence.PersistentUniverseManager.BasicOperations", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 bool FPersistentUniverseManagerBasicTest::RunTest(const FString& Parameters)
 {
     // Create a test world
@@ -36,8 +37,8 @@ bool FPersistentUniverseManagerBasicTest::RunTest(const FString& Parameters)
         return false;
     }
 
+    TestActor->AddInstanceComponent(PersistenceManager);
     PersistenceManager->RegisterComponent();
-    PersistenceManager->BeginPlay();
 
     // Test basic save operations
     FString TestPlayerID = TEXT("TestPlayer001");
@@ -117,7 +118,7 @@ bool FPersistentUniverseManagerBasicTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPersistentUniverseManagerAutoSaveTest, "Alexander.Persistence.PersistentUniverseManager.AutoSave", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPersistentUniverseManagerAutoSaveTest, "Alexander.Persistence.PersistentUniverseManager.AutoSave", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 bool FPersistentUniverseManagerAutoSaveTest::RunTest(const FString& Parameters)
 {
     UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
@@ -141,8 +142,8 @@ bool FPersistentUniverseManagerAutoSaveTest::RunTest(const FString& Parameters)
         return false;
     }
 
+    TestActor->AddInstanceComponent(PersistenceManager);
     PersistenceManager->RegisterComponent();
-    PersistenceManager->BeginPlay();
 
     // Configure auto-save
     PersistenceManager->bEnableAutoSave = true;
@@ -187,7 +188,7 @@ bool FPersistentUniverseManagerAutoSaveTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPersistentUniverseManagerBackupTest, "Alexander.Persistence.PersistentUniverseManager.BackupManagement", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPersistentUniverseManagerBackupTest, "Alexander.Persistence.PersistentUniverseManager.BackupManagement", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 bool FPersistentUniverseManagerBackupTest::RunTest(const FString& Parameters)
 {
     UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
@@ -211,8 +212,8 @@ bool FPersistentUniverseManagerBackupTest::RunTest(const FString& Parameters)
         return false;
     }
 
+    TestActor->AddInstanceComponent(PersistenceManager);
     PersistenceManager->RegisterComponent();
-    PersistenceManager->BeginPlay();
 
     // Create test data
     FString TestPlayerID = TEXT("BackupTestPlayer");
@@ -274,7 +275,7 @@ bool FPersistentUniverseManagerBackupTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FOriginCenteredPhysicsManagerTest, "Alexander.Physics.OriginCenteredPhysicsManager.BasicOperations", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FOriginCenteredPhysicsManagerTest, "Alexander.Physics.OriginCenteredPhysicsManager.BasicOperations", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 bool FOriginCenteredPhysicsManagerTest::RunTest(const FString& Parameters)
 {
     UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
@@ -299,8 +300,8 @@ bool FOriginCenteredPhysicsManagerTest::RunTest(const FString& Parameters)
         return false;
     }
 
+    ManagerActor->AddInstanceComponent(PhysicsManager);
     PhysicsManager->RegisterComponent();
-    PhysicsManager->BeginPlay();
 
     // Configure sector bounds for testing
     PhysicsManager->SectorBounds.SectorSize = 1000.0f; // 1km sectors for easier testing
@@ -377,7 +378,7 @@ bool FOriginCenteredPhysicsManagerTest::RunTest(const FString& Parameters)
     return true;
 }
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPersistentUniverseIntegrationTest, "Alexander.Persistence.Integration.FullWorkflow", EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter)
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FPersistentUniverseIntegrationTest, "Alexander.Persistence.Integration.FullWorkflow", EAutomationTestFlags::EditorContext | EAutomationTestFlags::ProductFilter)
 bool FPersistentUniverseIntegrationTest::RunTest(const FString& Parameters)
 {
     UWorld* TestWorld = FAutomationEditorCommonUtils::CreateNewMap();
@@ -405,10 +406,10 @@ bool FPersistentUniverseIntegrationTest::RunTest(const FString& Parameters)
         return false;
     }
 
+    TestActor->AddInstanceComponent(PersistenceManager);
+    TestActor->AddInstanceComponent(PhysicsManager);
     PersistenceManager->RegisterComponent();
     PhysicsManager->RegisterComponent();
-    PersistenceManager->BeginPlay();
-    PhysicsManager->BeginPlay();
 
     // Create test player and register with physics
     AActor* TestPlayer = TestWorld->SpawnActor<AActor>();
