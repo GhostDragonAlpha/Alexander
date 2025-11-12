@@ -25,6 +25,7 @@ public class Alexander : ModuleRules
 		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Planetary"));
 		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "CelestialScaling/Public"));
 		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public/Testing"));
+		PublicIncludePaths.Add(Path.Combine(ModuleDirectory, "Public/Core"));
 
 
 

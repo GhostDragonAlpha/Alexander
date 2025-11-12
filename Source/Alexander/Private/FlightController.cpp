@@ -1,425 +1,202 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Copyright (c) 2025 Alexander Project. All rights reserved.
 
 #include "FlightController.h"
-#include "GameFramework/PlayerController.h"
-#include "GameFramework/Pawn.h"
-#include "Components/BoxComponent.h"
-#include "Engine/World.h"
-#include "DrawDebugHelpers.h"
-#include "Kismet/KismetMathLibrary.h"
-#include "Kismet/GameplayStatics.h"
-#include "OrbitalBody.h"
-#include "Math/UnrealMathUtility.h"
-#include "Math/Vector.h"
-#include "Math/Rotator.h"
-#include "Net/UnrealNetwork.h"
-#include "PerformanceProfilerSubsystem.h"
+#include "Core/EventBus.h"
+#include "Core/SystemRegistry.h"
+#include "GameFramework/Actor.h"
+#include "Components/PrimitiveComponent.h"
 
-UFlightController::UFlightController()
+void UFlightController::InitializeModule()
 {
-	PrimaryComponentTick.bCanEverTick = true;
+	// Call base class initialization
+	Super::InitializeModule();
 	
-	// Initialize input state
-	RawThrustInput = FVector::ZeroVector;
-	RawRotationInput = FVector::ZeroVector;
-	SmoothedThrustInput = FVector::ZeroVector;
-	SmoothedRotationInput = FVector::ZeroVector;
+	// Reset input state
+	CurrentThrustInput = FVector::ZeroVector;
+	CurrentRotationInput = FVector::ZeroVector;
+	bIsThrusting = false;
 	
-	// Initialize internal state
-	bIsControllerActive = false;
-	LastUpdateTime = 0.0f;
-	PreviousThrustInput = FVector::ZeroVector;
-	PreviousRotationInput = FVector::ZeroVector;
-	
-	// Default smoothing config
-	SmoothingConfig = FInputSmoothingConfig();
-	
-	// Create collision detection box
-	CollisionDetectionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionDetectionBox"));
-	CollisionDetectionBox->SetBoxExtent(FVector(500.0f, 500.0f, 500.0f));
-	
-	// Performance tracking
-	InputUpdateCount = 0;
-	AverageInputRate = 0.0f;
+	LogSystemMessage(TEXT("FlightController: Physics and input initialized"));
 }
 
-void UFlightController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+void UFlightController::ShutdownModule()
 {
-	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
-
-	// Replicate input state
-	DOREPLIFETIME(UFlightController, RawThrustInput);
-	DOREPLIFETIME(UFlightController, RawRotationInput);
-	DOREPLIFETIME(UFlightController, SmoothedThrustInput);
-	DOREPLIFETIME(UFlightController, SmoothedRotationInput);
-
-	// Replicate flight assist mode
-	DOREPLIFETIME(UFlightController, AssistMode);
+	// Clear ship reference
+	ControlledShip = nullptr;
+	ShipPhysicsComponent = nullptr;
+	
+	LogSystemMessage(TEXT("FlightController: Flight systems shut down"));
+	
+	// Call base class shutdown
+	Super::ShutdownModule();
 }
 
-void UFlightController::BeginPlay()
+void UFlightController::UpdateModule(float DeltaTime)
 {
-	Super::BeginPlay();
-
-	bIsControllerActive = true;
-	UE_LOG(LogTemp, Log, TEXT("FlightController initialized with assist mode: %s"),
-		*UEnum::GetValueAsString(AssistMode));
-}
-
-void UFlightController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	// Profile flight controller
-	UPerformanceProfilerSubsystem* Profiler = GetWorld()->GetSubsystem<UPerformanceProfilerSubsystem>();
-	PROFILE_SCOPE(Profiler, FName("FlightController"));
-	
-	if (!bIsControllerActive)
+	// LAW #3: Check health before doing work
+	if (!IsSystemHealthy())
+	{
 		return;
-		
-	// Update performance tracking
-	InputUpdateCount++;
-	LastUpdateTime = DeltaTime;
-	
-	// Smooth raw inputs
-	SmoothInputs(DeltaTime);
-	
-	// Update performance metrics
-	if (InputUpdateCount % 60 == 0) // Every 60 frames
-	{
-		AverageInputRate = 60.0f / (DeltaTime * 60.0f);
-	}
-}
-
-void UFlightController::SetThrustInput(FVector Input)
-{
-	RawThrustInput = Input;
-	
-	// Apply deadzone
-	ApplyDeadzone(RawThrustInput);
-	
-	// Apply inversion if needed
-	ApplyInversion(RawThrustInput);
-}
-
-void UFlightController::SetRotationInput(FVector Input)
-{
-	RawRotationInput = Input;
-	
-	// Apply deadzone
-	ApplyDeadzone(RawRotationInput);
-	
-	// Apply inversion if needed
-	ApplyInversion(RawRotationInput);
-}
-
-FVector UFlightController::GetSmoothedThrustOutput() const
-{
-	return SmoothedThrustInput;
-}
-
-FVector UFlightController::GetSmoothedRotationOutput() const
-{
-	return SmoothedRotationInput;
-}
-
-void UFlightController::ApplyFlightAssistance(FVector& OutThrust, FVector& OutRotation, float DeltaTime)
-{
-	switch (AssistMode)
-	{
-	case EFlightAssistMode::Stability:
-		ApplyStabilityAssistance(OutThrust, OutRotation, DeltaTime);
-		break;
-		
-	case EFlightAssistMode::AutoLevel:
-		ApplyAutoLevelAssistance(OutThrust, OutRotation, DeltaTime);
-		break;
-		
-	case EFlightAssistMode::Orbital:
-		ApplyOrbitalAssistance(OutThrust, OutRotation, DeltaTime);
-		break;
-		
-	case EFlightAssistMode::Docking:
-		ApplyDockingAssistance(OutThrust, OutRotation, DeltaTime);
-		break;
-		
-	case EFlightAssistMode::None:
-	default:
-		// No assistance
-		break;
 	}
 	
-	// Apply collision avoidance if enabled
-	if (bCollisionAvoidance)
+	// Only process if we have a ship to control
+	if (!ControlledShip || !ShipPhysicsComponent)
 	{
-		FVector AvoidanceVector = GetCollisionAvoidanceVector(
-			GetOwner()->GetActorLocation(), 
-			GetOwner()->GetVelocity()
-		);
-		OutThrust += AvoidanceVector;
-	}
-	
-	// Apply thrust limiting if enabled
-	if (bThrustLimiting)
-	{
-		float CurrentSpeed = GetOwner()->GetVelocity().Size();
-		if (CurrentSpeed > MaxSafeVelocity)
-		{
-			OutThrust *= 0.1f; // Reduce thrust significantly
-		}
-	}
-}
-
-void UFlightController::ApplyStabilityAssistance(FVector& OutThrust, FVector& OutRotation, float DeltaTime)
-{
-	// Apply gentle damping to prevent oscillations
-	float DampingFactor = 0.95f;
-	OutThrust *= DampingFactor;
-	OutRotation *= DampingFactor;
-	
-	// Counteract unwanted rotation
-	FRotator CurrentRotation = GetOwner()->GetActorRotation();
-	FRotator TargetRotation = FRotator::ZeroRotator; // Level flight
-	
-	FRotator RotationError = TargetRotation - CurrentRotation;
-	OutRotation += FVector(
-		RotationError.Pitch * 0.1f,
-		RotationError.Yaw * 0.1f,
-		RotationError.Roll * 0.1f
-	);
-}
-
-void UFlightController::ApplyAutoLevelAssistance(FVector& OutThrust, FVector& OutRotation, float DeltaTime)
-{
-	// Strong auto-leveling for beginners
-	FRotator CurrentRotation = GetOwner()->GetActorRotation();
-	
-	// Calculate level flight target (pitch and roll = 0)
-	FRotator TargetRotation = FRotator(0.0f, CurrentRotation.Yaw, 0.0f);
-	
-	// Apply strong correction
-	FRotator RotationError = TargetRotation - CurrentRotation;
-	OutRotation += FVector(
-		RotationError.Pitch * 0.5f,
-		0.0f, // Don't auto-correct yaw
-		RotationError.Roll * 0.5f
-	);
-	
-	// Reduce thrust during aggressive maneuvers
-	if (RotationError.Euler().Size() > 45.0f)
-	{
-		OutThrust *= 0.7f;
-	}
-}
-
-void UFlightController::ApplyOrbitalAssistance(FVector& OutThrust, FVector& OutRotation, float DeltaTime)
-{
-	// Orbital assistance helps maintain stable orbits
-	// This would integrate with the OrbitalBody system
-	AOrbitalBody* OrbitalBody = Cast<AOrbitalBody>(GetOwner());
-	if (!OrbitalBody || !OrbitalBody->OrbitTarget.IsValid())
 		return;
-		
-	// Calculate prograde/retrograde vectors
-	FVector ToTarget = OrbitalBody->OrbitTarget->GetActorLocation() - GetOwner()->GetActorLocation();
-	FVector Prograde = OrbitalBody->Velocity.GetSafeNormal();
-	FVector RadialIn = ToTarget.GetSafeNormal();
-	FVector Normal = FVector::CrossProduct(Prograde, RadialIn).GetSafeNormal();
-	
-	// Provide assistance based on input direction
-	FVector LocalThrust = GetOwner()->GetActorTransform().InverseTransformVectorNoScale(OutThrust);
-	
-	// Enhance prograde/retrograde thrust
-	float ProgradeComponent = FVector::DotProduct(LocalThrust, Prograde);
-	if (FMath::Abs(ProgradeComponent) > 0.1f)
-	{
-		// Boost prograde/retrograde efficiency
-		OutThrust = Prograde * ProgradeComponent * 1.2f;
 	}
 	
-	// Provide radial assistance for station keeping
-	float RadialComponent = FVector::DotProduct(LocalThrust, RadialIn);
-	if (FMath::Abs(RadialComponent) < 0.1f)
+	// Apply physics based on input state
+	if (bIsThrusting)
 	{
-		// Auto-correct radial drift
-		float RadialVelocity = FVector::DotProduct(OrbitalBody->Velocity, RadialIn);
-		OutThrust -= RadialIn * RadialVelocity * 0.1f;
+		ApplyThrust(DeltaTime);
 	}
+	
+	ApplyRotation(DeltaTime);
+	ApplyDamping(DeltaTime);
+	
+	// Publish ship movement event
+	FSystemEvent MovedEvent;
+	MovedEvent.EventType = TEXT("ShipMoved");
+	MovedEvent.SourceSystem = GetSystemName();
+	MovedEvent.EventData = FString::Printf(TEXT("{\"position\":\"%s\"}"), 
+		*ControlledShip->GetActorLocation().ToString());
+	PublishEvent(MovedEvent);
 }
 
-void UFlightController::ApplyDockingAssistance(FVector& OutThrust, FVector& OutRotation, float DeltaTime)
+FString UFlightController::GetSystemName() const
 {
-	// Precision control for docking maneuvers
-	OutThrust *= 0.3f; // Reduce thrust for precision
-	OutRotation *= 0.5f; // Reduce rotation for precision
-	
-	// Add fine-tuning assistance
-	FVector LocalThrust = GetOwner()->GetActorTransform().InverseTransformVectorNoScale(OutThrust);
-	
-	// Enhance small movements
-	if (LocalThrust.Size() < 0.3f)
-	{
-		OutThrust *= 1.5f; // Boost small movements
-	}
-	
-	// Reduce large movements
-	if (LocalThrust.Size() > 0.7f)
-	{
-		OutThrust *= 0.5f; // Dampen large movements
-	}
+	return TEXT("FlightController");
 }
 
-bool UFlightController::CheckForCollisions(const FVector& ProposedPosition, const FVector& CurrentVelocity)
+bool UFlightController::IsSystemHealthy() const
 {
-	if (!CollisionDetectionBox)
+	// Check base class health
+	if (!Super::IsSystemHealthy())
+	{
 		return false;
+	}
+	
+	// Additional flight-specific health checks
+	if (ControlledShip && !ControlledShip->IsValidLowLevel())
+	{
+		return false;
+	}
+	
+	if (ShipPhysicsComponent && !ShipPhysicsComponent->IsValidLowLevel())
+	{
+		return false;
+	}
+	
+	return true;
+}
+
+void UFlightController::SetShipActor(AActor* Ship)
+{
+	ControlledShip = Ship;
+	
+	if (ControlledShip)
+	{
+		// Try to find a physics component
+		ShipPhysicsComponent = Cast<UPrimitiveComponent>(
+			ControlledShip->GetRootComponent());
 		
-	// Update collision box position
-	CollisionDetectionBox->SetWorldLocation(ProposedPosition);
-	
-	// Perform overlap test
-	TArray<FHitResult> HitResults;
-	FCollisionShape BoxShape = CollisionDetectionBox->GetCollisionShape();
-	
-	bool bHit = GetWorld()->SweepMultiByChannel(
-		HitResults,
-		CollisionDetectionBox->GetComponentLocation(),
-		CollisionDetectionBox->GetComponentLocation() + CollisionDetectionBox->GetForwardVector() * 100.0f,
-		CollisionDetectionBox->GetComponentQuat(),
-		CollisionDetectionBox->GetCollisionObjectType(),
-		BoxShape
-	);
-	
-	// Draw debug visualization
-	if (bHit)
-	{
-		for (const FHitResult& Hit : HitResults)
+		if (ShipPhysicsComponent)
 		{
-			DrawDebugSphere(GetWorld(), Hit.Location, 50.0f, 16, FColor::Red, false, 2.0f);
+			// Enable physics
+			ShipPhysicsComponent->SetSimulatePhysics(true);
+			ShipPhysicsComponent->SetEnableGravity(false); // Space flight - no gravity
+			
+			LogSystemMessage(TEXT("FlightController: Ship actor set with physics enabled"));
 		}
-	}
-	
-	return bHit;
-}
-
-FVector UFlightController::GetCollisionAvoidanceVector(const FVector& CurrentPosition, const FVector& CurrentVelocity)
-{
-	FVector AvoidanceVector = FVector::ZeroVector;
-	
-	// Check for obstacles in front
-	FVector ForwardVector = CurrentVelocity.GetSafeNormal();
-	FVector CheckPosition = CurrentPosition + ForwardVector * 1000.0f;
-	
-	if (CheckForCollisions(CheckPosition, CurrentVelocity))
-	{
-		// Calculate avoidance vector
-		FVector AvoidanceDirection = FVector::CrossProduct(ForwardVector, FVector::UpVector);
-		AvoidanceVector = AvoidanceDirection.GetSafeNormal() * 500.0f;
-	}
-	
-	return AvoidanceVector;
-}
-
-void UFlightController::ResetInputs()
-{
-	RawThrustInput = FVector::ZeroVector;
-	RawRotationInput = FVector::ZeroVector;
-	SmoothedThrustInput = FVector::ZeroVector;
-	SmoothedRotationInput = FVector::ZeroVector;
-	PreviousThrustInput = FVector::ZeroVector;
-	PreviousRotationInput = FVector::ZeroVector;
-}
-
-void UFlightController::SetAssistMode(EFlightAssistMode NewMode)
-{
-	if (AssistMode != NewMode)
-	{
-		AssistMode = NewMode;
-		UE_LOG(LogTemp, Log, TEXT("Flight assist mode changed to: %s"), 
-			*UEnum::GetValueAsString(NewMode));
-	}
-}
-
-FString UFlightController::GetControllerStatus() const
-{
-	FString Status = TEXT("Flight Controller Status:\n");
-	Status += FString::Printf(TEXT("Active: %s\n"), bIsControllerActive ? TEXT("Yes") : TEXT("No"));
-	Status += FString::Printf(TEXT("Assist Mode: %s\n"), *UEnum::GetValueAsString(AssistMode));
-	Status += FString::Printf(TEXT("Thrust Input: (%.2f, %.2f, %.2f)\n"), 
-		SmoothedThrustInput.X, SmoothedThrustInput.Y, SmoothedThrustInput.Z);
-	Status += FString::Printf(TEXT("Rotation Input: (%.2f, %.2f, %.2f)\n"), 
-		SmoothedRotationInput.X, SmoothedRotationInput.Y, SmoothedRotationInput.Z);
-	Status += FString::Printf(TEXT("Input Rate: %.1f Hz\n"), AverageInputRate);
-	
-	return Status;
-}
-
-void UFlightController::SmoothInputs(float DeltaTime)
-{
-	// Smooth thrust input
-	SmoothedThrustInput = SmoothVector(
-		PreviousThrustInput,
-		RawThrustInput,
-		SmoothingConfig.ThrottleSmoothing,
-		DeltaTime
-	);
-	
-	// Smooth rotation input
-	SmoothedRotationInput = SmoothVector(
-		PreviousRotationInput,
-		RawRotationInput,
-		SmoothingConfig.RotationSmoothing,
-		DeltaTime
-	);
-	
-	// Update previous values
-	PreviousThrustInput = SmoothedThrustInput;
-	PreviousRotationInput = SmoothedRotationInput;
-}
-
-void UFlightController::ApplyDeadzone(FVector& Input)
-{
-	if (Input.Size() < SmoothingConfig.Deadzone)
-	{
-		Input = FVector::ZeroVector;
+		else
+		{
+			LogSystemMessage(TEXT("FlightController: Warning - Ship actor has no physics component"), true);
+		}
 	}
 	else
 	{
-		// Scale input to remove deadzone discontinuity
-		float Scale = (Input.Size() - SmoothingConfig.Deadzone) / (1.0f - SmoothingConfig.Deadzone);
-		Input = Input.GetSafeNormal() * Scale;
+		ShipPhysicsComponent = nullptr;
 	}
 }
 
-void UFlightController::ApplyInversion(FVector& Input)
+void UFlightController::HandleInputMove(const FSystemEvent& Event)
 {
-	if (bInvertPitch)
+	// Parse event data (expects JSON with "direction" field)
+	if (Event.EventData.Contains(TEXT("direction")))
 	{
-		Input.X *= -1.0f;
+		// Simple parsing - in real implementation would use proper JSON parser
+		CurrentThrustInput = FVector(1.0f, 0.0f, 0.0f); // Default forward
+		bIsThrusting = true;
 	}
-	if (bInvertYaw)
+}
+
+void UFlightController::HandleInputLook(const FSystemEvent& Event)
+{
+	// Parse rotation input
+	if (Event.EventData.Contains(TEXT("rotation")))
 	{
-		Input.Y *= -1.0f;
+		CurrentRotationInput = FVector(0.0f, 0.0f, 1.0f); // Default yaw
 	}
 }
 
-float UFlightController::SmoothValue(float Current, float Target, float SmoothingFactor, float DeltaTime)
+void UFlightController::HandleInputThrust(const FSystemEvent& Event)
 {
-	// Exponential smoothing
-	float Alpha = 1.0f - FMath::Exp(-SmoothingFactor * DeltaTime);
-	return FMath::Lerp(Current, Target, Alpha);
+	// Parse thrust power
+	bIsThrusting = Event.EventData.Contains(TEXT("thrust"));
 }
 
-FVector UFlightController::SmoothVector(const FVector& Current, const FVector& Target, float SmoothingFactor, float DeltaTime)
+void UFlightController::ApplyThrust(float DeltaTime)
 {
-	return FVector(
-		SmoothValue(Current.X, Target.X, SmoothingFactor, DeltaTime),
-		SmoothValue(Current.Y, Target.Y, SmoothingFactor, DeltaTime),
-		SmoothValue(Current.Z, Target.Z, SmoothingFactor, DeltaTime)
-	);
+	if (!ShipPhysicsComponent)
+	{
+		return;
+	}
+	
+	// Calculate thrust force
+	FVector ThrustForce = ControlledShip->GetActorForwardVector() * ThrustPower * 100.0f;
+	
+	// Apply force to physics component
+	ShipPhysicsComponent->AddForce(ThrustForce);
+	
+	// Limit velocity
+	FVector Velocity = ShipPhysicsComponent->GetPhysicsLinearVelocity();
+	if (Velocity.Size() > MaxVelocity)
+	{
+		ShipPhysicsComponent->SetPhysicsLinearVelocity(
+			Velocity.GetSafeNormal() * MaxVelocity);
+	}
 }
 
-bool UFlightController::IsWithinDeadzone(const FVector& Input) const
+void UFlightController::ApplyRotation(float DeltaTime)
 {
-	return Input.Size() < SmoothingConfig.Deadzone;
+	if (!ShipPhysicsComponent)
+	{
+		return;
+	}
+	
+	// Apply rotation based on input
+	float YawRotation = CurrentRotationInput.Z * RotationSpeed * DeltaTime;
+	
+	if (FMath::Abs(YawRotation) > 0.01f)
+	{
+		FRotator CurrentRotation = ControlledShip->GetActorRotation();
+		CurrentRotation.Yaw += YawRotation;
+		ControlledShip->SetActorRotation(CurrentRotation);
+	}
+}
+
+void UFlightController::ApplyDamping(float DeltaTime)
+{
+	if (!ShipPhysicsComponent)
+	{
+		return;
+	}
+	
+	// Apply damping to simulate space friction (for better control)
+	if (!bIsThrusting)
+	{
+		FVector Velocity = ShipPhysicsComponent->GetPhysicsLinearVelocity();
+		FVector DampedVelocity = Velocity * DampingFactor;
+		ShipPhysicsComponent->SetPhysicsLinearVelocity(DampedVelocity);
+	}
 }

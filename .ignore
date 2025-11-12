@@ -1,4 +1,5 @@
 /.claude
+/.fractal_backups
 /.git
 /.github
 /.kiro
@@ -12,7 +13,9 @@
 /Backups
 /capture_output
 /Content
+/DerivedDataCache
 /examples
+/FractalAnalysis
 /Intermediate
 /playtesting_data
 /Saved
